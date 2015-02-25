@@ -1,3 +1,7 @@
 from django.shortcuts import render
 
-# Create your views here.
+
+def csv_view(request):
+    if request.method == 'POST':
+        # handle the uploaded file here
+        raise
