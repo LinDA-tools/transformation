@@ -8,6 +8,11 @@
     <h1 class="page-title">Transformation page</h1>
     <p>Insert the transformations HTML here</p>
 </div>
+<form enctype="multipart/form-data" method="post" action="">
+  {% csrf_token %}
+  {{ form }}
+  <input type="submit" value="Submit" />
+</form>
 {% endblock %}
 
 {% block scripts %}
