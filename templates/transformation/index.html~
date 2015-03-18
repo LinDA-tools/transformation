@@ -20,17 +20,9 @@
 
 <p>Proposed Separator: {{ separator }}</p>
 
-	<table>
-		{% for line in csvContent %}
-		<tr>
-			{% for field in line %}
-			<td>{{ field }}
-			</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}	
-	</table>
-	
+	{% for line in csvContent %}
+    	<p>{{ line }}</p>
+	{% endfor %}
 </div>
 
 <hr>

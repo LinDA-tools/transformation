@@ -41,7 +41,7 @@ def index(request):
                 for line in csvLines:
                     rows.append(line.split(separator))
             #return render(request, reverse('transformation-index'), {'form': form, 'csvContent': rows})
-            return render(request, 'transformation/index.html', {'form': form, 'csvContent': rows, 'separator': separator})
+            return render(request, 'transformation/index.html', {'form': form, 'csvContent': csvLines, 'separator': separator})
     else:
         form = UploadFileForm()
     return render_to_response('transformation/index.html', {'form': form}, context_instance=RequestContext(request))
