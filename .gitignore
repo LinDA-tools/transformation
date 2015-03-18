@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 
+# some weird file extensions, from editor??
+*~
+
 # C extensions
 *.so
 
