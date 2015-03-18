@@ -31,9 +31,9 @@ def index(request):
                 #check which separator occurs the most
                 separators = {',': 0, ';': 0, '\t': 0, ':': 0}
                 for key in separators:
-                    separators[key] = csvChunks[0].decode().count(key)
+                    separators[key] = csvChunks[0].count(key)
                 separator = max(separators, key=separators.get)
-                csvLines = csvChunks[0].decode().split("\n", 10)
+                csvLines = csvChunks[0].split("\n", 10)
 
             if len(csvLines) > 0:
                 # pop last item from array as it contains the 'rest' that wasn't split by the split function
