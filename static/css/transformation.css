@@ -19,15 +19,6 @@ div{
   padding-right: 0;
 }
 
-.textdown{
--webkit-transform: rotate(90deg);
--moz-transform: rotate(90deg);
--o-transform: rotate(90deg);
-transform: rotate(90deg);
-writing-mode: tb-rl;
-color: black;
-}
-
 [class*='col-'] {
   float: left;
 }
@@ -93,7 +84,7 @@ color: black;
 /* END GRID */
 
 body{
-	font: 14px/1.8 "Open Sans",Helvetica,Arial,sans-serif
+	font: 14px/1.8 "Open Sans",Helvetica,Arial,sans-serif;
 	color: #666;
 	background: #eee;
 	-webkit-font-smoothing: antialiased;
@@ -162,3 +153,84 @@ h2{
 .right-side-box {
 	padding-left: 2em;
 }
+
+#id_escape, #id_delimiter, #id_quotechar, #id_separator {
+	width: 2em;
+	font-family: Arial,sans-serif;
+	color: #000000;
+	font-size: 12px;
+	border: 1px solid #EED5FF;
+	background-color: #FFF0FF;
+	height: 22px;
+	padding: .1em;
+	text-align: center; 	
+} 
+
+input[type="submit"] {
+	background: #00B16A;
+	padding: 8px 20px 8px 20px;
+	text-decoration: none;
+	border-style: none;
+	color: white;
+	cursor: pointer;
+}
+
+input[type="submit"]:hover{
+	background-color: #26c281;
+}
+
+input[type="button"] {
+	background: rgb(82, 179, 217);
+	padding: 2px 8px;
+	text-decoration: none;
+	border-style: none;
+	color: white;
+	width: 8em;
+	cursor: pointer;
+}
+
+input[type="button"]:hover{
+	background-color: cadetblue ;
+}
+
+
+.csv_proposal {
+	color: #555;
+	font-size: 80%;
+}
+.csv_proposal:before {
+	content: "( ";
+}
+.csv_proposal:after {
+	content: " )";
+}
+
+table.table_view {
+	min-width: 50%;
+}
+
+/* BEGIN http://www.quirksmode.org/dom/inputfile.html 
+div.fileinputs {
+	position: relative;
+}
+
+div.fakefile {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index: 1;
+}
+
+#id_file {
+	position: relative;
+	text-align: right;
+	-moz-opacity:0 ;
+	filter:alpha(opacity: 0);
+	opacity: 0;
+	z-index: 2;
+	cursor: text;
+	width: 8em;
+
+}
+
+ /*END http://www.quirksmode.org/dom/inputfile.html */

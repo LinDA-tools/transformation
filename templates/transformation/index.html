@@ -5,50 +5,22 @@
 
 {% block content %}
 <div class="title">
-    <h2>Transformation: CSV to RDF triple</h2>
+	<h2>Transformation: CSV to RDF triple</h2>
 
 </div>
 
 <div class="grid content">
-    <div class="col-5-10 left-side-box">
-        Please select a CSV file. We will try and guess the CSV parameters for you. After loading, if the file below looks peculiar, please try other parameters on the right and try again.
-    </div>
-    <div class="col-5-10 right-side-box">
+	<div class="col-5-10 left-side-box">
+		Select a datasource.
+	</div>
+	<div class="col-5-10 right-side-box">
 
-	<form enctype="multipart/form-data" method="post" action="">
-	  {% csrf_token %}
-	  {{ form }}
-	   <select name="separator" size="3">
-	      <option{% if separator = ',' %} selected{% endif %}>Komma</option>
-	      <option{% if separator = ';' %} selected{% endif %}>Semicolon</option>
-	      <option{% if separator = ':' %} selected{% endif %}>Colon</option>
-	      <option{% if separator = '\t' %} selected{% endif %}>Tab</option>
-	    </select>
-	  <input type="submit" value="Submit" />
-	</form>
-    </div>
-</div>
-<div class="content">
-<h3>DATA VIEW</h3>
-<p>Proposed Separator: {{ separator }}</p>
+				select stuff
 
-	<table>
-		{% for line in csvContent %}
-		<tr>
-			{% for field in line %}
-			<td>{{ field }}
-			</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}	
-	</table>
-	
+	</div>
 </div>
 
-<div class="content">
-<h3>RDF VIEW</h3>
-
-</div>
+		  
 
 {% endblock %}
 
