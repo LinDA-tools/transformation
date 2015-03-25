@@ -1,7 +1,7 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
-from .forms import UploadFileForm
+from .forms import *
 from django.core.urlresolvers import reverse
 #import operator
 
@@ -13,9 +13,12 @@ def index(request):
         raise
 
 
+
+
+
 def csv_upload(request):
     if request.method == 'POST':
-        print('  --  POST  --  ')
+        print('  --  csv upload: POST  --  ')
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             csvChunks = []
@@ -52,3 +55,37 @@ def csv_upload(request):
         print('Form not valid!')
         form = UploadFileForm()
     return render_to_response('transformation/csv_upload.html', {'form': form}, context_instance=RequestContext(request))
+
+
+
+
+
+def csv_column_choice(request):
+    if request.method == 'POST':
+        form = CsvColumnChoiceForm(request.POST, request.FILES)
+        if form.is_valid():
+            print('  --  csv column choice: POST  --  ')
+            return render_to_response('transformation/csv_column_choice.html', {'form': form}, context_instance=RequestContext(request))
+        else:
+            print('form not valid')
+            print form.errors
+    else:
+        print('Form not valid!')
+        form = DataChoiceForm()
+    return render_to_response('transformation/csv_column_choice.html', {'form': form}, context_instance=RequestContext(request))
+
+
+
+def data_choice(request):
+    if request.method == 'POST':
+        form = DataChoiceForm(request.POST, request.FILES)
+        if form.is_valid():
+            print('  --  data choice: POST  --  ')
+            return render_to_response('transformation/data_choice.html', {'form': form}, context_instance=RequestContext(request))
+        else:
+            print('form not valid')
+            print form.errors
+    else:
+        print('Form not valid!')
+        form = DataChoiceForm()
+    return render_to_response('transformation/data_choice.html', {'form': form}, context_instance=RequestContext(request))

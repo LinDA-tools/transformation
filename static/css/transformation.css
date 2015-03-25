@@ -163,7 +163,8 @@ h2{
 	background-color: #FFF0FF;
 	height: 22px;
 	padding: .1em;
-	text-align: center; 	
+	text-align: center; 
+	margin: 0em 1.5em;	
 } 
 
 input[type="submit"] {
@@ -206,7 +207,43 @@ input[type="button"]:hover{
 }
 
 table.table_view {
-	min-width: 50%;
+	min-width: 50%; 
+	border-collapse: collapse;
+	margin: 1em;
+}
+
+table.table_view tr:nth-child(2n-1){
+	background-color: #eee;
+}
+
+table.table_view tr:nth-child(1){
+	background-color: #ddd;
+	color: black;
+}
+
+table.table_view td{
+	padding: .6em;
+	vertical-align: top;
+	border-width: 0px 1px;
+	border-color: #eee;
+	border-style: solid;
+	white-space: nowrap;
+}
+
+/* scrollable table */
+.scrollit {
+	overflow-x:scroll;
+	width:100%;
+}
+
+.data_source_select {
+	width: 10em;
+}
+
+input.datachoice {
+	margin-left: 9em;
+	width: 10em;
+	height: 2em;
 }
 
 /* BEGIN http://www.quirksmode.org/dom/inputfile.html 
