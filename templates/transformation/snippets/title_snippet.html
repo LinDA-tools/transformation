@@ -1,0 +1,16 @@
+<form enctype="multipart/form-data" method="post" action="">
+	{% csrf_token %}
+	<!--{{ form.hidden_filename_field }}-->
+        <input type="hidden" name="hidden_csvContent_field" id ="id_hidden_csvContent_field" value="{{ csvContent }}">
+	<input type="hidden" name="hidden_filename_field" id ="id_hidden_filename_field" value="{{ filename }}">
+
+<div class="title grid">
+	<div class="col-7-10">
+		<h2>Transformation: {{ format }} to RDF triple</h2>
+	</div>
+	<div class="col-3-10">
+		<input type="submit" value="next step" class="navigation_button" name="button_next">
+
+	</div>
+
+</div>

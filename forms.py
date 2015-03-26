@@ -6,7 +6,9 @@ class UploadFileForm(forms.Form):
     escape = forms.CharField(max_length=1,required = False)
     quotechar = forms.CharField(max_length=1,required = False)
     #won't get automatically refilled for security reasons http://stackoverflow.com/questions/3097982/how-to-make-a-django-form-retain-a-file-after-failing-validation
-    file = forms.FileField()
+    upload_file = forms.FileField(required = False)
+    hidden_filename_field = forms.CharField(widget=forms.HiddenInput(),required = False)
+    hidden_csvContent_field = forms.CharField(widget=forms.HiddenInput(),required = False)
 
 class DataChoiceForm(forms.Form):
     list = [('1','choose'), ('2','your'),('3','file'), ('4','here'), ]

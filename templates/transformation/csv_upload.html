@@ -4,15 +4,18 @@
 {% endblock %}
 
 {% block content %}
-<div class="title">
-	<h2>Transformation: CSV to RDF triple</h2>
 
-</div>
-<form enctype="multipart/form-data" method="post" action="">
+{% include "transformation/snippets/title_snippet.html" with format='CSV' %}
+
+
+<!--input type="hidden" id="upload_filename" value="{{ filename }}"-->
+
 <div class="grid content">
 	<div class="col-5-10 left-side-box">
 		<h3>CSV Upload</h3>
-		<p>Please select a CSV file. We will try and guess the CSV parameters for you. After loading, if the file below looks peculiar, please try other parameters on the right and try again.</p>
+		<p>Please select a CSV file. We will try and guess the CSV parameters for you.</p>
+		<p>After loading, if the file below looks peculiar, please try other parameters on the right and try again.</p>
+
 		<p>
 			<!--	
 			 http://www.quirksmode.org/dom/inputfile.html
@@ -23,23 +26,24 @@
 			
 					</div>
 				</div>-->
-			{{ form.file }}
+			{{ form.upload_file }}
 		</p>
+		<p class="red">
+			{{ form.upload_file.errors.as_text }}
+		</p>
+
 		<p>
-			<input type="submit" value="Upload file">
+			<input type="submit" value="Upload file" name="button_upload">
 		</p>
 
 
 	</div>
+
 	<div class="col-5-10 right-side-box">
-
-
-	  {% csrf_token %}
-
 		  <table>
 			  <tr>
 				  <td>
-					  Separator
+					  <label for="{{ form.separator.id_for_label }}">Separator</label>
 				  </td>
 				  <td>
 					  {{ form.separator }}
@@ -52,7 +56,7 @@
 			  </tr>
 			  <tr>
 				  <td>
-					  Quote Char
+					  <label for="{{ form.quotechar.id_for_label }}">Quote Char</label>
 				  </td>
 				  <td>
 					  {{ form.quotechar }}
@@ -65,7 +69,7 @@
 			  </tr>
 			  <tr>
 				  <td>
-					  Delimiter
+					  <label for="{{ form.delimiter.id_for_label }}">Delimiter</label>
 				  </td>
 				  <td>
 					  {{ form.delimiter }}
@@ -78,7 +82,7 @@
 			  </tr>
 			  <tr>
 				  <td>
-					  Escape
+					  <label for="{{ form.escape.id_for_label }}">Escape</label>
 				  </td>
 				  <td>
 					  {{ form.escape }}
@@ -95,9 +99,10 @@
 
 	</div>
 </div>
-</form>
+
 <div class="content scrollit">
-<h3>DATA VIEW (exemplary 10 rows)</h3>
+	<h3>DATA VIEW</h3>
+	File: <b>{{ filename }}</b> (10 rows examlpe)
 	<table class="table_view">
 		{% for line in csvContent %}
 		<tr>
@@ -115,6 +120,25 @@
 <h3>RDF VIEW</h3>
 
 </div>
+
+</form>
+ <button onclick="getFileName()">Los!</button>
+<script>
+var getFileName = function(){
+	var submitted_fileName = document.getElementById('id_hidden_filename_field').value;
+	//var fullPath = document.getElementById('id_upload_file').value;
+	alert(submitted_fileName);
+	if (fullPath) {
+		var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
+		var filename = fullPath.substring(startIndex);
+		if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
+			filename = filename.substring(1);
+		}
+		alert(filename);
+	}
+}
+</script>
+
 
 {% endblock %}
 

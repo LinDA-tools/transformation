@@ -1,103 +1,28 @@
-{% extends "base.html" %}
+	{% extends "base.html" %}
 
 {% block css %}
 {% endblock %}
 
 {% block content %}
-<div class="title">
-	<h2>Transformation: CSV to RDF triple</h2>
+
+{% include "transformation/snippets/title_snippet.html" with format='CSV' %}
+
+<!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
+{% for hidden in form.hidden_fields %}
+    {{ hidden }}
+{% endfor %}
+
+<div class="content">
+	
+	<p>
+	Please select the colums you want to transfer from the table view below.
+	</p>
 
 </div>
-<form enctype="multipart/form-data" method="post" action="">
-<div class="grid content">
-	<div class="col-5-10 left-side-box">
-		<h3>Choose Columns</h3>
-		<p>Please select a CSV file. We will try and guess the CSV parameters for you. After loading, if the file below looks peculiar, please try other parameters on the right and try again.</p>
-		<p>
-			<!--	
-			 http://www.quirksmode.org/dom/inputfile.html
-				<div class="fileinputs">
-					{{ form.file }}
-					<div class="fakefile">
-						<input type="button" value="select CSV file">
-			
-					</div>
-				</div>-->
-			{{ form.file }}
-		</p>
-		<p>
-			<input type="submit" value="Upload file">
-		</p>
 
-
-	</div>
-	<div class="col-5-10 right-side-box">
-
-
-	  {% csrf_token %}
-
-		  <table>
-			  <tr>
-				  <td>
-					  Separator
-				  </td>
-				  <td>
-					  {{ form.separator }}
-				  </td>
-				  <td>
-					  {% if separator_proposal %}
-					  <span  class="csv_proposal">proposed: {{ separator_proposal }}</span>
-					  {% endif %}
-				  </td>
-			  </tr>
-			  <tr>
-				  <td>
-					  Quote Char
-				  </td>
-				  <td>
-					  {{ form.quotechar }}
-				  </td>
-				  <td>
-					  {% if quotechar_proposal %}
-					  <span  class="csv_proposal">proposed: {{ quotechar_proposal }}</span>
-					  {% endif %}
-				  </td>
-			  </tr>
-			  <tr>
-				  <td>
-					  Delimiter
-				  </td>
-				  <td>
-					  {{ form.delimiter }}
-				  </td>
-				  <td>
-					  {% if delimiter_proposal %}
-					  <span  class="csv_proposal">proposed: {{ delimiter_proposal }}</span>
-					  {% endif %}
-				  </td>
-			  </tr>
-			  <tr>
-				  <td>
-					  Escape
-				  </td>
-				  <td>
-					  {{ form.escape }}
-				  </td>
-				  <td>
-					  {% if escape_proposal %}
-					  <span  class="csv_proposal">proposed: {{ escape_proposal }}</span>
-					  {% endif %}
-				  </td>
-			  </tr>
-		  </table>
-
-
-
-	</div>
-</div>
-</form>
 <div class="content scrollit">
-<h3>DATA VIEW (exemplary 10 rows)</h3>
+	<h3>DATA VIEW</h3>
+	File: <b>{{ filename }}</b> (10 rows examlpe)
 	<table class="table_view">
 		{% for line in csvContent %}
 		<tr>
@@ -108,13 +33,13 @@
 		</tr>
 		{% endfor %}	
 	</table>
-	
 </div>
 
 <div class="content">
-<h3>RDF VIEW</h3>
-
+	<h3>RDF VIEW</h3>
 </div>
+
+</form>
 
 {% endblock %}
 

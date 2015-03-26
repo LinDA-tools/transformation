@@ -138,6 +138,10 @@ h2{
 	font-size: 26px;
 }
 
+.navigation_button {
+	margin-top: 1em;
+}
+
 .content {
 	background-color: white;
 	margin-bottom: 1em;
