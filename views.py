@@ -22,8 +22,8 @@ def csv_upload(request):
         if not request.FILES:
             form = UploadFileForm(request.POST)
             if request.POST and form.is_valid():
-                print 'POST'
-                print request.POST
+                print('POST')
+                print(request.POST)
                 rows = eval(form.cleaned_data['hidden_csvContent_field'])
                 separator_proposal = '|'
                 uploadFileName = form.cleaned_data['hidden_filename_field']
@@ -93,7 +93,7 @@ def csv_column_choice(request):
             return render_to_response('transformation/csv_column_choice.html', {'form': form}, context_instance=RequestContext(request))
         else:
             print('form not valid')
-            print form.errors
+            print(form.errors)
     else:
         print('Form not valid!')
         form = DataChoiceForm()
@@ -111,7 +111,7 @@ def data_choice(request):
             return render_to_response('transformation/data_choice.html', {'form': form}, context_instance=RequestContext(request))
         else:
             print('form not valid')
-            print form.errors
+            print(form.errors)
     else:
         print('Form not valid!')
         form = DataChoiceForm()
