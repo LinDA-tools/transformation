@@ -3,7 +3,8 @@ from django.shortcuts import render, render_to_response
 from django.template import RequestContext
 from .forms import *
 from django.core.urlresolvers import reverse
-#import operator
+import csv
+from io import TextIOWrapper
 
 
 def index(request):
@@ -36,26 +37,28 @@ def csv_upload(request):
             form = UploadFileForm(request.POST, request.FILES)
         
             uploadFileName = request.FILES['upload_file'].name
+
             if form.is_valid():
-                csvChunks = []
+                csvRows = []
                 csvLines = []
                 rows = []
-                #print('file:')
-                #print(request.FILES)
-                #for chunk in request.FILES['upload_file'].chunks():
-                for chunk in request.FILES['upload_file'].chunks():
-                    #print(chunk)
-                    csvChunks.append(chunk)
-                
+
+                # https://docs.python.org/2/library/csv.html#
+                with TextIOWrapper(request.FILES['upload_file'].file, encoding=request.encoding) as csvfile:
+                    spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+                    for row in spamreader:
+                        print(', '.join(row))
+                        csvRows.append(row)
+                '''
                 # separator_proposal DETECTION
                 separator_proposal = None
-                if len(csvChunks) > 0:
+                if len(csvRows) > 0:
                     #check which separator_proposal occurs the most
                     separators = {',': 0, ';': 0, '\t': 0, ':': 0}
                     for key in separators:
-                        separators[key] = csvChunks[0].count(key)
+                        separators[key] = csvRows[0].count(key)
                     separator_proposal = max(separators, key=separators.get)
-                    csvLines = csvChunks[0].split("\n", 10)
+                    csvLines = csvRows[0].split("\n", 10)
     
                 if len(csvLines) > 0:
                     # pop last item from array as it contains the 'rest' that wasn't split by the split function
@@ -65,15 +68,14 @@ def csv_upload(request):
     
                 if separator_proposal=="\t":
                     separator_proposal="tab"
-
-               
-
+                '''
+                separator_proposal = "none" #TODO
                 # which button was pressed?
                 # http://stackoverflow.com/questions/866272/how-can-i-build-multiple-submit-buttons-django-form
         if 'button_upload' in request.POST:
-            return render_to_response('transformation/csv_upload.html', {'form': form, 'csvContent': rows, 'separator_proposal': separator_proposal, 'filename': uploadFileName}, context_instance=RequestContext(request))
+            return render_to_response('transformation/csv_upload.html', {'form': form, 'csvContent': csvRows, 'separator_proposal': separator_proposal, 'filename': uploadFileName}, context_instance=RequestContext(request))
         elif 'button_next' in request.POST:
-            return render_to_response('transformation/csv_column_choice.html', {'form': form, 'csvContent': rows, 'separator_proposal': separator_proposal, 'filename': uploadFileName}, context_instance=RequestContext(request))
+            return render_to_response('transformation/csv_column_choice.html', {'form': form, 'csvContent': csvRows, 'separator_proposal': separator_proposal, 'filename': uploadFileName}, context_instance=RequestContext(request))
                 # TODO send datamodel id here instead of csv content
 
     else:
