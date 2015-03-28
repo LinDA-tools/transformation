@@ -1,7 +1,7 @@
 <form enctype="multipart/form-data" method="post" action="">
 	{% csrf_token %}
-	<!--{{ form.hidden_filename_field }}-->
-        <input type="hidden" name="hidden_csvContent_field" id ="id_hidden_csvContent_field" value="{{ csvContent }}">
+
+    <!--input type="hidden" name="hidden_csv_content_field" id ="id_hidden_csv_content_field" value="{{ csvContent }}"-->
 	<input type="hidden" name="hidden_filename_field" id ="id_hidden_filename_field" value="{{ filename }}">
 
 <div class="title grid">

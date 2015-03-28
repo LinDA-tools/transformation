@@ -7,14 +7,18 @@
 
 {% include "transformation/snippets/title_snippet.html" with format='CSV' %}
 
-
-<!--input type="hidden" id="upload_filename" value="{{ filename }}"-->
+<input type="hidden" name="hidden_csv_raw_field" id ="id_hidden_csv_raw_field" value="{{ csvRaw }}">
 
 <div class="grid content">
 	<div class="col-5-10 left-side-box">
 		<h3>CSV Upload</h3>
 		<p>Please select a CSV file. We will try and guess the CSV parameters for you.</p>
 		<p>After loading, if the file below looks peculiar, please try other parameters on the right and try again.</p>
+
+	</div>
+
+	<div class="col-5-10 right-side-box">
+
 
 		<p>
 			<!--	
@@ -26,20 +30,13 @@
 			
 					</div>
 				</div>-->
-			{{ form.upload_file }}
+			Select a file: <br>{{ form.upload_file }}
 		</p>
 		<p class="red">
 			{{ form.upload_file.errors.as_text }}
 		</p>
+		<hr>
 
-		<p>
-			<input type="submit" value="Upload file" name="button_upload">
-		</p>
-
-
-	</div>
-
-	<div class="col-5-10 right-side-box">
 		  <table>
 			  <tr>
 				  <td>
@@ -94,11 +91,23 @@
 				  </td>
 			  </tr>
 		  </table>
-
-
+		  <hr>
+		  <div class="center">
+		  	<input type="submit" value="Upload file" name="button_upload" class="center">
+		  </div>
 
 	</div>
+
+
+	<!--div class="col-5-10 left-side-button">
+	</div>
+	<div class="col-5-10 right-side-button">
+		<input type="submit" value="Upload file" name="button_upload">
+	</div-->
+
+
 </div>
+
 
 <div class="content scrollit">
 	<h3>DATA VIEW</h3>

@@ -83,7 +83,7 @@ div{
 
 /* END GRID */
 
-body{
+body {
 	font: 14px/1.8 "Open Sans",Helvetica,Arial,sans-serif;
 	color: #666;
 	background: #eee;
@@ -99,9 +99,15 @@ body{
 }
 
 
-header{
+header {
 	border-bottom: 1px solid #aaa;
 	margin-bottom: 5px;
+}
+
+hr {
+	border-width: 1px 0px 0px 0px;
+	border-style: solid;
+	border-color:  #aaa;
 }
 
 .red {
@@ -140,6 +146,8 @@ h2{
 
 .navigation_button {
 	margin-top: 1em;
+	background-color: #FC5006 !important;
+
 }
 
 .content {
@@ -156,6 +164,23 @@ h2{
 
 .right-side-box {
 	padding-left: 2em;
+}
+
+/* buttons which you may want to add to the bottom of some '.content' divs */
+.left-side-button {
+	clear: left;
+	text-align:  center;
+	border-right: 1px #00B16A dashed;
+	padding-right: 2em;
+}
+
+.right-side-button {
+	text-align:  center;
+	padding-left: 2em;
+}
+
+.center {
+	text-align: center;	
 }
 
 #id_escape, #id_delimiter, #id_quotechar, #id_line_end {
