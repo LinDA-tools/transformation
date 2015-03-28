@@ -19,21 +19,23 @@ def index(request):
 
 def csv_upload(request):
     if request.method == 'POST':
-        #print('  --  csv upload: POST  --  ')        
+        
+        # if page was loaded without a selecting a file in html form    
         if not request.FILES:
             form = UploadFileForm(request.POST)
             if request.POST and form.is_valid():
-                print('POST')
-                print(request.POST)
+                # content  is passed on via hidden html input fields
                 csvRows = eval(form.cleaned_data['hidden_csvContent_field'])
                 csv_dialect = None
                 uploadFileName = form.cleaned_data['hidden_filename_field']
-            else:
+            # if page is loaded without POST
+            else: 
                 csvRows = None
                 csv_dialect = None
                 uploadFileName = 'no file selected'
-
+        # when an upload file was selected in html form
         else:
+            print("first else")
             form = UploadFileForm(request.POST, request.FILES)
         
             uploadFileName = request.FILES['upload_file'].name
@@ -46,6 +48,7 @@ def csv_upload(request):
 
                 # https://docs.python.org/2/library/csv.html#
                 with TextIOWrapper(request.FILES['upload_file'].file, encoding=request.encoding) as csvfile:
+                    #Sniffer guesses CSV parameters / dialect
                     dialect = csv.Sniffer().sniff(csvfile.read(1024))
                     csvfile.seek(0)
                     print("DIALECT")
@@ -58,41 +61,21 @@ def csv_upload(request):
                     
                     #print(dir(dialect))
                     #print(dialect.delimiter)
-                    spamreader = csv.reader(csvfile, dialect)
-                    for row in spamreader:
-                        print(', '.join(row))
+                    csvreader = csv.reader(csvfile, dialect)
+                    for row in csvreader:
                         csvRows.append(row)
-                '''
-                # separator_proposal DETECTION
-                separator_proposal = None
-                if len(csvRows) > 0:
-                    #check which separator_proposal occurs the most
-                    separators = {',': 0, ';': 0, '\t': 0, ':': 0}
-                    for key in separators:
-                        separators[key] = csvRows[0].count(key)
-                    separator_proposal = max(separators, key=separators.get)
-                    csvLines = csvRows[0].split("\n", 10)
-    
-                if len(csvLines) > 0:
-                    # pop last item from array as it contains the 'rest' that wasn't split by the split function
-                    csvLines.pop(len(csvLines)-1)
-                    for line in csvLines:
-                        rows.append(line.split(separator_proposal))
-    
-                if separator_proposal=="\t":
-                    separator_proposal="tab"
-                '''
-                separator_proposal = "none" #TODO
+
+        html_post_data = {'form': form, 'csvContent': csvRows, 'csvDialect': csv_dialect, 'filename': uploadFileName}
                 # which button was pressed?
                 # http://stackoverflow.com/questions/866272/how-can-i-build-multiple-submit-buttons-django-form
         if 'button_upload' in request.POST:
-            return render_to_response('transformation/csv_upload.html', {'form': form, 'csvContent': csvRows, 'csvDialect': csv_dialect, 'filename': uploadFileName}, context_instance=RequestContext(request))
+            return render_to_response('transformation/csv_upload.html', html_post_data, context_instance=RequestContext(request))
         elif 'button_next' in request.POST:
-            return render_to_response('transformation/csv_column_choice.html', {'form': form, 'csvContent': csvRows, 'csvDialect': csv_dialect, 'filename': uploadFileName}, context_instance=RequestContext(request))
+            return render_to_response('transformation/csv_column_choice.html', html_post_data, context_instance=RequestContext(request))
                 # TODO send datamodel id here instead of csv content
-
+    # html GET
     else:
-        print('Form not valid!')
+        print('HTML GET!')
         form = UploadFileForm()
         return render_to_response('transformation/csv_upload.html', {'form': form}, context_instance=RequestContext(request))
 
