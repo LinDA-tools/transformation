@@ -93,7 +93,7 @@
 		  </table>
 		  <hr>
 		  <div class="center">
-		  	<input type="submit" value="Upload file" name="button_upload" class="center">
+		  	<input type="submit" value="Upload file" name="button_upload" id="id_button_upload" class="center">
 		  </div>
 
 	</div>
@@ -131,21 +131,45 @@
 </div>
 
 </form>
- <button onclick="getFileName()">Los!</button>
+
 <script>
-var getFileName = function(){
-	var submitted_fileName = document.getElementById('id_hidden_filename_field').value;
-	//var fullPath = document.getElementById('id_upload_file').value;
-	alert(submitted_fileName);
-	if (fullPath) {
-		var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
-		var filename = fullPath.substring(startIndex);
-		if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
-			filename = filename.substring(1);
+
+var submit_button = document.getElementById('id_button_upload');
+var upload_widget = document.getElementById('id_upload_file');
+var filename = document.getElementById('id_hidden_filename_field');
+
+function toggle_submit_button(){
+	console.log("value " + upload_widget.value)	
+	console.log("#"+filename.value+"#")
+	if(upload_widget.files.length == 0) { //no file selected
+
+		if(!filename.value) {
+			console.log("no filename");
+			submit_button.disabled = true;
+			submit_button.value = "Upload file";
+			//submit_button.value = "Upload file";
 		}
-		alert(filename);
+		else{
+			console.log("dsdd");
+			submit_button.disabled = false;
+			submit_button.value = "Apply";
+		}
 	}
+	else {
+		submit_button.disabled = false;
+		submit_button.value = "Upload file";
+	}
+	
 }
+
+toggle_submit_button();
+
+
+// disable upload button when no file is selected 
+upload_widget.addEventListener('change', toggle_submit_button);
+
+
+
 </script>
 
 

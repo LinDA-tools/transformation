@@ -48,6 +48,7 @@ def csv_upload(request):
         # when an upload file was selected in html form
         else:
             print("PATH 3")
+
             form = UploadFileForm(request.POST, request.FILES)
             uploadFileName = request.FILES['upload_file'].name
 
@@ -65,6 +66,7 @@ def csv_upload(request):
                     csv_rows, csv_dialect = process_csv(csvfile, form)
 
         html_post_data = {'form': form, 'csvContent': csv_rows, 'csvRaw': csv_raw, 'csvDialect': csv_dialect, 'filename': uploadFileName}
+
                 # which button was pressed?
                 # http://stackoverflow.com/questions/866272/how-can-i-build-multiple-submit-buttons-django-form
         if 'button_upload' in request.POST:
@@ -74,6 +76,7 @@ def csv_upload(request):
                 # TODO send datamodel id here instead of csv content
     # html GET
     else:
+
         print("PATH 4")
         print('HTML GET!')
         form = UploadFileForm()
