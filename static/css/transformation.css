@@ -158,7 +158,7 @@ h2{
 	padding-left: 2em;
 }
 
-#id_escape, #id_delimiter, #id_quotechar, #id_separator {
+#id_escape, #id_delimiter, #id_quotechar, #id_line_end {
 	width: 2em;
 	font-family: Arial,sans-serif;
 	color: #000000;

@@ -43,14 +43,14 @@
 		  <table>
 			  <tr>
 				  <td>
-					  <label for="{{ form.separator.id_for_label }}">Separator</label>
+					  <label for="{{ form.line_end.id_for_label }}">Line End</label>
 				  </td>
 				  <td>
-					  {{ form.separator }}
+					  {{ form.line_end }}
 				  </td>
 				  <td>
-					  {% if separator_proposal %}
-					  <span  class="csv_proposal">proposed: {{ separator_proposal }}</span>
+					  {% if csvDialect.line_end %}
+					  <span  class="csv_proposal">proposed: {{ csvDialect.line_end }}</span>
 					  {% endif %}
 				  </td>
 			  </tr>
@@ -62,8 +62,8 @@
 					  {{ form.quotechar }}
 				  </td>
 				  <td>
-					  {% if quotechar_proposal %}
-					  <span  class="csv_proposal">proposed: {{ quotechar_proposal }}</span>
+					  {% if csvDialect.quotechar %}
+					  <span  class="csv_proposal">proposed: {{ csvDialect.quotechar }}</span>
 					  {% endif %}
 				  </td>
 			  </tr>
@@ -75,8 +75,8 @@
 					  {{ form.delimiter }}
 				  </td>
 				  <td>
-					  {% if delimiter_proposal %}
-					  <span  class="csv_proposal">proposed: {{ delimiter_proposal }}</span>
+					  {% if csvDialect.delimiter %}
+					  <span  class="csv_proposal">proposed: {{ csvDialect.delimiter }}</span>
 					  {% endif %}
 				  </td>
 			  </tr>
@@ -88,8 +88,8 @@
 					  {{ form.escape }}
 				  </td>
 				  <td>
-					  {% if escape_proposal %}
-					  <span  class="csv_proposal">proposed: {{ escape_proposal }}</span>
+					  {% if csvDialect.escape %}
+					  <span  class="csv_proposal">proposed: {{ csvDialect.escape }}</span>
 					  {% endif %}
 				  </td>
 			  </tr>

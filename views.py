@@ -25,12 +25,12 @@ def csv_upload(request):
             if request.POST and form.is_valid():
                 print('POST')
                 print(request.POST)
-                rows = eval(form.cleaned_data['hidden_csvContent_field'])
-                separator_proposal = '|'
+                csvRows = eval(form.cleaned_data['hidden_csvContent_field'])
+                csv_dialect = None
                 uploadFileName = form.cleaned_data['hidden_filename_field']
             else:
-                rows = None
-                separator_proposal = None
+                csvRows = None
+                csv_dialect = None
                 uploadFileName = 'no file selected'
 
         else:
@@ -42,10 +42,23 @@ def csv_upload(request):
                 csvRows = []
                 csvLines = []
                 rows = []
+                csv_dialect = {}
 
                 # https://docs.python.org/2/library/csv.html#
                 with TextIOWrapper(request.FILES['upload_file'].file, encoding=request.encoding) as csvfile:
-                    spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+                    dialect = csv.Sniffer().sniff(csvfile.read(1024))
+                    csvfile.seek(0)
+                    print("DIALECT")
+                    # ['delimiter', 'doublequote', 'escapechar', 'lineterminator', 'quotechar', 'quoting', 'skipinitialspace']
+                    csv_dialect['delimiter']=dialect.delimiter
+                    csv_dialect['escape']=dialect.escapechar
+                    csv_dialect['quotechar']=dialect.quotechar
+                    csv_dialect['line_end']=dialect.lineterminator.replace('\r', 'cr').replace('\n', 'lf')
+
+                    
+                    #print(dir(dialect))
+                    #print(dialect.delimiter)
+                    spamreader = csv.reader(csvfile, dialect)
                     for row in spamreader:
                         print(', '.join(row))
                         csvRows.append(row)
@@ -73,9 +86,9 @@ def csv_upload(request):
                 # which button was pressed?
                 # http://stackoverflow.com/questions/866272/how-can-i-build-multiple-submit-buttons-django-form
         if 'button_upload' in request.POST:
-            return render_to_response('transformation/csv_upload.html', {'form': form, 'csvContent': csvRows, 'separator_proposal': separator_proposal, 'filename': uploadFileName}, context_instance=RequestContext(request))
+            return render_to_response('transformation/csv_upload.html', {'form': form, 'csvContent': csvRows, 'csvDialect': csv_dialect, 'filename': uploadFileName}, context_instance=RequestContext(request))
         elif 'button_next' in request.POST:
-            return render_to_response('transformation/csv_column_choice.html', {'form': form, 'csvContent': csvRows, 'separator_proposal': separator_proposal, 'filename': uploadFileName}, context_instance=RequestContext(request))
+            return render_to_response('transformation/csv_column_choice.html', {'form': form, 'csvContent': csvRows, 'csvDialect': csv_dialect, 'filename': uploadFileName}, context_instance=RequestContext(request))
                 # TODO send datamodel id here instead of csv content
 
     else:
