@@ -13,9 +13,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='AdditionalTriple',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('rdf_subject', models.CharField(max_length=b'512')),
-                ('rdf_object', models.CharField(max_length=b'512')),
+                ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
+                ('rdf_subject', models.CharField(max_length='512')),
+                ('rdf_object', models.CharField(max_length='512')),
             ],
             options={
             },
@@ -24,9 +24,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Column',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('topic', models.CharField(max_length=b'512')),
-                ('rdf_predicate', models.CharField(max_length=b'512')),
+                ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
+                ('topic', models.CharField(max_length='512')),
+                ('rdf_predicate', models.CharField(max_length='512')),
             ],
             options={
             },
@@ -35,10 +35,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CSV',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('rdf_subject', models.CharField(max_length=b'512')),
-                ('additional_triples', models.ForeignKey(verbose_name=b'additional triples', to='transformation.AdditionalTriple')),
-                ('colums', models.ForeignKey(verbose_name=b'one column of the CSV', to='transformation.Column')),
+                ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
+                ('rdf_subject', models.CharField(max_length='512')),
+                ('additional_triples', models.ForeignKey(verbose_name='additional triples', to='transformation.AdditionalTriple')),
+                ('colums', models.ForeignKey(verbose_name='one column of the CSV', to='transformation.Column')),
             ],
             options={
             },
@@ -47,11 +47,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Field',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('content', models.CharField(max_length=b'512')),
+                ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
+                ('content', models.CharField(max_length='512')),
                 ('index', models.IntegerField()),
-                ('rdf_object', models.CharField(max_length=b'512')),
-                ('data_type', models.IntegerField(default=0, choices=[(0, b'none'), (1, b'reconciliated'), (2, b'Integer'), (3, b'Date'), (4, b'Text'), (4, b'Currency')])),
+                ('rdf_object', models.CharField(max_length='512')),
+                ('data_type', models.IntegerField(choices=[(0, 'none'), (1, 'reconciliated'), (2, 'Integer'), (3, 'Date'), (4, 'Text'), (4, 'Currency')], default=0)),
             ],
             options={
             },
@@ -60,8 +60,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Interest',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=b'512')),
+                ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
+                ('name', models.CharField(max_length='512')),
             ],
             options={
             },
@@ -70,10 +70,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Person',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('first_name', models.CharField(max_length=b'512')),
-                ('last_name', models.CharField(max_length=b'512')),
-                ('interest', models.ForeignKey(verbose_name=b"user's field of interest", to='transformation.Interest')),
+                ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
+                ('first_name', models.CharField(max_length='512')),
+                ('last_name', models.CharField(max_length='512')),
+                ('interest', models.ForeignKey(verbose_name="user's field of interest", to='transformation.Interest')),
             ],
             options={
             },
@@ -82,13 +82,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='csv',
             name='owner',
-            field=models.ForeignKey(verbose_name=b'Owner / creator of represented data model', to='transformation.Person'),
+            field=models.ForeignKey(verbose_name='Owner / creator of represented data model', to='transformation.Person'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='column',
             name='fields',
-            field=models.ForeignKey(verbose_name=b'single db fields', to='transformation.Field'),
+            field=models.ForeignKey(verbose_name='single db fields', to='transformation.Field'),
             preserve_default=True,
         ),
     ]
