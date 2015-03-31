@@ -65,7 +65,7 @@ def csv_upload(request):
                     csv_raw = csvfile.read()
                     csv_rows, csv_dialect = process_csv(csvfile, form)
 
-        html_post_data = {'form': form, 'csvContent': csv_rows, 'csvRaw': csv_raw, 'csvDialect': csv_dialect, 'filename': uploadFileName}
+        html_post_data = {'form': form, 'csvContent': csv_rows[:11], 'csvRaw': csv_raw, 'csvDialect': csv_dialect, 'filename': uploadFileName}
 
                 # which button was pressed?
                 # http://stackoverflow.com/questions/866272/how-can-i-build-multiple-submit-buttons-django-form
@@ -87,8 +87,9 @@ def process_csv(csvfile, form):
     csv_dialect = {}
     csv_rows = []
     csvfile.seek(0)
-    #Sniffer guesses CSV parameters / dialect
-    dialect = csv.Sniffer().sniff(csvfile.read(1024))
+    # Sniffer guesses CSV parameters / dialect
+    # when error 'could not determine delimiter' -> raise bytes to sniff
+    dialect = csv.Sniffer().sniff(csvfile.read(10240))
     csvfile.seek(0)
     # ['delimiter', 'doublequote', 'escapechar', 'lineterminator', 'quotechar', 'quoting', 'skipinitialspace']
     csv_dialect['delimiter']=dialect.delimiter
@@ -97,14 +98,16 @@ def process_csv(csvfile, form):
     csv_dialect['line_end']=dialect.lineterminator.replace('\r', 'cr').replace('\n', 'lf')
 
     # use csv params / dialect chosen by user if specified 
+    # to avoid '"delimiter" must be an 1-character string' error, I encoded to utf-8
+    # http://stackoverflow.com/questions/11174790/convert-unicode-string-to-byte-string
     if form.cleaned_data['delimiter'] != "":
-        dialect.delimiter = form.cleaned_data['delimiter']
+        dialect.delimiter = form.cleaned_data['delimiter'].encode('utf-8')
     if form.cleaned_data['escape'] != "":
-        dialect.escapechar = form.cleaned_data['escape']
+        dialect.escapechar = form.cleaned_data['escape'].encode('utf-8')
     if form.cleaned_data['quotechar'] != "":
-        dialect.quotechar = form.cleaned_data['quotechar']
+        dialect.quotechar = form.cleaned_data['quotechar'].encode('utf-8')
     if form.cleaned_data['line_end'] != "":
-        dialect.lineterminator = form.cleaned_data['line_end']
+        dialect.lineterminator = form.cleaned_data['line_end'].encode('utf-8')
 
     #print(dir(dialect))
     #print(dialect.delimiter)
