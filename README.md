@@ -19,3 +19,12 @@ Django app to transform input sources to RDF
 ```shell
   transformation/requirements.txt
 ```
+### Known installation problems
+In case the application throws
+```shell
+  AttributeError: 'module' object has no attribute 'PY2'
+```
+when installing the xlrd module, try
+```shell
+  sudo pip install --upgrade six
+```
