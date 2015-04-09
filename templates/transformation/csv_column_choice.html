@@ -12,6 +12,8 @@
     {{ hidden }}
 {% endfor %}
 
+<input type="hidden" name="hidden_csv_raw_field" id ="id_hidden_csv_raw_field" value="{{ csvRaw }}">
+
 <div class="content grid">
 	<div class="col-5-10 left-side-box">
 		<h3>CSV Row Selection</h3>
@@ -21,15 +23,14 @@
 	</div>
 
 	<div class="col-5-10 right-side-box">
-	 <input type="button" id="id_select_all_rows" value="select all">
-
+		<input type="button" id="id_select_all_rows" value="select all">
 	</div>
 
 </div>
 
 <div class="content scrollit">
 	<h3>DATA VIEW</h3>
-	File: <b>{{ filename }}</b> (10 rows examlpe)
+	File: <b>{{ filename }}</b> (10 rows example)
 	<table class="table_view">
 
 
@@ -50,6 +51,7 @@
 
 <div class="content">
 	<h3>RDF VIEW</h3>
+{{ id }}
 </div>
 
 </form>
@@ -67,7 +69,6 @@ $( document ).ready(function() {
 
 		$('[id^=id_rowselect]').prop("checked", select_status);
 		select_status = !select_status;
-		console.log(select_status);		
 	}
 });
 </script>

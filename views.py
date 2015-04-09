@@ -1,5 +1,5 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render, render_to_response, redirect
 from django.template import RequestContext
 from .forms import *
 from django.core.urlresolvers import reverse
@@ -7,6 +7,15 @@ import csv
 import xlrd
 from io import TextIOWrapper
 from io import StringIO
+from transformation.models import *
+from django.db import transaction
+
+
+
+
+
+
+
 
 
 def index(request):
@@ -14,6 +23,7 @@ def index(request):
     if request.method == 'POST':
         # handle the uploaded file here
         raise
+
 
 
 
@@ -29,18 +39,18 @@ def csv_upload(request):
         # if page was loaded without a selecting a file in html form    
         if not request.FILES:
             form = UploadFileForm(request.POST)
-            if request.POST and form.is_valid():
+            if request.POST and form.is_valid() and form != None:
                 print("PATH 1.1")
-                print(str(form.cleaned_data))
+                # print(str(form.cleaned_data))
                 # content  is passed on via hidden html input fields
                 if form.cleaned_data['hidden_csv_raw_field']:
                     csv_raw = form.cleaned_data['hidden_csv_raw_field']
                     csv_rows, csv_dialect = process_csv(StringIO(form.cleaned_data['hidden_csv_raw_field']), form)
-                    print(csv_rows)
-                    print(csv_dialect)
                 else:
                     print('no raw csv')
+
                 uploadFileName = form.cleaned_data['hidden_filename_field']
+
 
             # if page is loaded without POST
             else: 
@@ -62,26 +72,73 @@ def csv_upload(request):
 
                 # https://docs.python.org/2/library/csv.html#
                 with TextIOWrapper(request.FILES['upload_file'].file, encoding=request.encoding) as csvfile:
+                #with TextIOWrapper(request.FILES['upload_file'].file, encoding='utf-8') as csvfile:
                     # the file is also provided in raw formatting, so users can appy changes (choose csv params) without reloading file 
                     csv_raw = csvfile.read()
                     csv_rows, csv_dialect = process_csv(csvfile, form)
 
-        html_post_data = {'form': form, 'csvContent': csv_rows[:11], 'csvRaw': csv_raw, 'csvDialect': csv_dialect, 'filename': uploadFileName}
-
                 # which button was pressed?
                 # http://stackoverflow.com/questions/866272/how-can-i-build-multiple-submit-buttons-django-form
         if 'button_upload' in request.POST:
-            return render_to_response('transformation/csv_upload.html', html_post_data, context_instance=RequestContext(request))
+            csv_rows = csv_rows[:11] if csv_rows else None
+            html_post_data = {'form': form, 'csvContent': csv_rows, 'csvRaw': csv_raw, 'csvDialect': csv_dialect, 'filename': uploadFileName}
+            return render(request, 'transformation/csv_upload.html', html_post_data)
         elif 'button_next' in request.POST:
-            return render_to_response('transformation/csv_column_choice.html', html_post_data, context_instance=RequestContext(request))
-                # TODO send datamodel id here instead of csv content
+            #html_post_data = {'form': form, 'csvContent': csv_rows, 'csvDialect': csv_dialect, 'filename': uploadFileName}
+            csv_db_id = store_csv_in_model(csv_rows=csv_rows, csv_raw=csv_raw, file_name=uploadFileName)
+            request.session['csv_db_id'] = csv_db_id
+            return redirect(reverse('csv-column-choice-view'))
+            #return render(request, 'transformation/csv_column_choice.html', html_post_data)
     # html GET
     else:
 
         print("PATH 4")
         print('HTML GET!')
         form = UploadFileForm()
-        return render_to_response('transformation/csv_upload.html', {'form': form}, context_instance=RequestContext(request))
+        #return render_to_response('transformation/csv_upload.html', {'form': form}, context_instance=RequestContext(request))
+        return render(request, 'transformation/csv_upload.html', {'form': form})
+
+
+
+
+
+
+def csv_column_choice(request):
+    if request.method == 'POST':
+        pass
+    else:
+        m_csv = CSV.objects.filter(id=request.session['csv_db_id'])[0]
+        print(m_csv)
+    return render(request, 'transformation/csv_column_choice.html', {'id':request.session['csv_db_id']})
+
+
+def csv_model_2_array(m_id):
+    m_csv = CSV.objects.filter(id=m_id)[0]
+    m_columns = Column.objects.filter(csv=m_csv.id)
+    m_fields = []
+    for col in m_columns:
+        m_fields.append(Field.objects.filter(column=col.id))
+# TODO WIP hier weitermachen, db model nach array struktur wie 'csvContent': csv_rows
+# oder einfach JSON object speichern?? einfacher?
+
+
+def data_choice(request):
+    if request.method == 'POST':
+        form = DataChoiceForm(request.POST, request.FILES)
+        if form.is_valid():
+            print('  --  data choice: POST  --  ')
+            return render_to_response('transformation/data_choice.html', {'form': form}, context_instance=RequestContext(request))
+        else:
+            print('form not valid')
+            print(form.errors)
+    else:
+        print('Form not valid!')
+        form = DataChoiceForm()
+    return render_to_response('transformation/data_choice.html', {'form': form}, context_instance=RequestContext(request))
+
+
+
+
 
 
 def process_csv(csvfile, form):
@@ -112,11 +169,48 @@ def process_csv(csvfile, form):
 
     #print(dir(dialect))
     #print(dialect.delimiter)
-    csvreader = csv.reader(csvfile, dialect)
+    csvreader = unicode_csv_reader(csvfile, dialect)
     for row in csvreader:
         csv_rows.append(row)
 
     return [csv_rows, csv_dialect]
+
+# http://stackoverflow.com/questions/1136106/what-is-an-efficent-way-of-inserting-thousands-of-records-into-an-sqlite-table-u
+@transaction.commit_manually
+def store_csv_in_model(csv_rows, csv_id=None, csv_raw=None, file_name=None):
+    num_columns = len(csv_rows[0])
+    # http://stackoverflow.com/questions/17037566/transpose-a-matrix-in-python
+    csv_transpose = list(zip(*csv_rows))
+    if csv_id==None:
+        m_csv = CSV()
+        m_csv.save()
+        if csv_raw and file_name:
+            m_csv_file = CSVFile(data=csv_raw, file_name=file_name, csv=m_csv)
+            m_csv_file.save()
+        for row in csv_transpose:
+            m_column = None
+            for num_field, field in enumerate(row):
+                #print(num)
+                #print(row)
+                if num_field == 0: # csv row topic
+                    m_column = Column(csv=m_csv)
+                    m_column.topic = row
+                    m_column.save()
+                    print("column "+str(m_column.id))
+                else:
+                    m_field = Field(content=field, index=num_field, data_type=0, column=m_column)
+                    m_field.save()
+                    #print("field "+str(m_field.id))
+        m_csv.save()
+        print("CSVID "+str(m_csv.id))
+    else:
+        m_csv = CSV.objects.filter(id=csv_id)[0]
+    #if m_csv == None
+    # TODO catch
+    transaction.commit()
+    return m_csv.id
+
+
 
 def Excel2CSV(ExcelFile, CSVFile):
      workbook = xlrd.open_workbook(ExcelFile)
@@ -131,34 +225,17 @@ def Excel2CSV(ExcelFile, CSVFile):
 
      csvfile.close()
 
-def csv_column_choice(request):
-    if request.method == 'POST':
-        form = CsvColumnChoiceForm(request.POST, request.FILES)
-        if form.is_valid():
-            print('  --  csv column choice: POST  --  ')
-            return render_to_response('transformation/csv_column_choice.html', {'form': form}, context_instance=RequestContext(request))
-        else:
-            print('form not valid')
-            print(form.errors)
-    else:
-        print('Form not valid!')
-        form = DataChoiceForm()
-    return render_to_response('transformation/csv_column_choice.html', {'form': form}, context_instance=RequestContext(request))
 
 
 
+def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
+    # csv.py doesn't do Unicode; encode temporarily as UTF-8:
+    csv_reader = csv.reader(utf_8_encoder(unicode_csv_data),
+                            dialect=dialect, **kwargs)
+    for row in csv_reader:
+        # decode UTF-8 back to Unicode, cell by cell:
+        yield [unicode(cell, 'utf-8') for cell in row]
 
-
-def data_choice(request):
-    if request.method == 'POST':
-        form = DataChoiceForm(request.POST, request.FILES)
-        if form.is_valid():
-            print('  --  data choice: POST  --  ')
-            return render_to_response('transformation/data_choice.html', {'form': form}, context_instance=RequestContext(request))
-        else:
-            print('form not valid')
-            print(form.errors)
-    else:
-        print('Form not valid!')
-        form = DataChoiceForm()
-    return render_to_response('transformation/data_choice.html', {'form': form}, context_instance=RequestContext(request))
+def utf_8_encoder(unicode_csv_data):
+    for line in unicode_csv_data:
+        yield line.encode('utf-8')

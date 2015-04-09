@@ -139,18 +139,14 @@ var upload_widget = document.getElementById('id_upload_file');
 var filename = document.getElementById('id_hidden_filename_field');
 
 function toggle_submit_button(){
-	console.log("value " + upload_widget.value)	
-	console.log("#"+filename.value+"#")
 	if(upload_widget.files.length == 0) { //no file selected
 
 		if(!filename.value) {
-			console.log("no filename");
 			submit_button.disabled = true;
 			submit_button.value = "Upload file";
 			//submit_button.value = "Upload file";
 		}
 		else{
-			console.log("dsdd");
 			submit_button.disabled = false;
 			submit_button.value = "Apply";
 		}
@@ -164,11 +160,8 @@ function toggle_submit_button(){
 
 toggle_submit_button();
 
-
 // disable upload button when no file is selected 
 upload_widget.addEventListener('change', toggle_submit_button);
-
-
 
 </script>
 
