@@ -12,10 +12,9 @@ from django.db import transaction
 
 
 
-
-
-
-
+# ###############################################
+#  MODELS 
+# ###############################################
 
 
 def index(request):
@@ -102,7 +101,6 @@ def csv_upload(request):
 
 
 
-
 def csv_column_choice(request):
     if request.method == 'POST':
         pass
@@ -112,14 +110,7 @@ def csv_column_choice(request):
     return render(request, 'transformation/csv_column_choice.html', {'id':request.session['csv_db_id']})
 
 
-def csv_model_2_array(m_id):
-    m_csv = CSV.objects.filter(id=m_id)[0]
-    m_columns = Column.objects.filter(csv=m_csv.id)
-    m_fields = []
-    for col in m_columns:
-        m_fields.append(Field.objects.filter(column=col.id))
-# TODO WIP hier weitermachen, db model nach array struktur wie 'csvContent': csv_rows
-# oder einfach JSON object speichern?? einfacher?
+
 
 
 def data_choice(request):
@@ -140,8 +131,28 @@ def data_choice(request):
 
 
 
+# ###############################################
+#  OTHER FUNCTIONS 
+# ###############################################
+
+
+def csv_model_2_array(m_id):
+    m_csv = CSV.objects.filter(id=m_id)[0]
+    m_columns = Column.objects.filter(csv=m_csv.id)
+    m_fields = []
+    for col in m_columns:
+        m_fields.append(Field.objects.filter(column=col.id))
+# TODO WIP hier weitermachen, db model nach array struktur wie 'csvContent': csv_rows
+# oder einfach JSON object speichern?? einfacher?
+
+
 
 def process_csv(csvfile, form):
+    '''
+    Processes the CSV File and converts it to a 2dim array.
+    Uses either the CSV Paramaters specified in the HTML form if those exist
+    or the autodetected params instead.
+    '''
     csv_dialect = {}
     csv_rows = []
     csvfile.seek(0)
@@ -178,6 +189,9 @@ def process_csv(csvfile, form):
 # http://stackoverflow.com/questions/1136106/what-is-an-efficent-way-of-inserting-thousands-of-records-into-an-sqlite-table-u
 @transaction.commit_manually
 def store_csv_in_model(csv_rows, csv_id=None, csv_raw=None, file_name=None):
+    '''
+    Stores the 2dim array representation of the CSV file in the database.
+    '''
     num_columns = len(csv_rows[0])
     # http://stackoverflow.com/questions/17037566/transpose-a-matrix-in-python
     csv_transpose = list(zip(*csv_rows))
@@ -190,8 +204,6 @@ def store_csv_in_model(csv_rows, csv_id=None, csv_raw=None, file_name=None):
         for row in csv_transpose:
             m_column = None
             for num_field, field in enumerate(row):
-                #print(num)
-                #print(row)
                 if num_field == 0: # csv row topic
                     m_column = Column(csv=m_csv)
                     m_column.topic = row
@@ -200,9 +212,8 @@ def store_csv_in_model(csv_rows, csv_id=None, csv_raw=None, file_name=None):
                 else:
                     m_field = Field(content=field, index=num_field, data_type=0, column=m_column)
                     m_field.save()
-                    #print("field "+str(m_field.id))
         m_csv.save()
-        print("CSVID "+str(m_csv.id))
+        print("CSV #"+str(m_csv.id)+" stored in DB.")
     else:
         m_csv = CSV.objects.filter(id=csv_id)[0]
     #if m_csv == None
@@ -213,22 +224,28 @@ def store_csv_in_model(csv_rows, csv_id=None, csv_raw=None, file_name=None):
 
 
 def Excel2CSV(ExcelFile, CSVFile):
-     workbook = xlrd.open_workbook(ExcelFile)
-     worksheet = workbook.sheet_by_index(0)
-     csvfile = open(CSVFile, 'wb')
-     wr = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
+    '''
+    Converts an MS Excel file to a CSV file.
+    '''
+    workbook = xlrd.open_workbook(ExcelFile)
+    worksheet = workbook.sheet_by_index(0)
+    csvfile = open(CSVFile, 'wb')
+    wr = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
 
-     for rownum in xrange(worksheet.nrows):
-         wr.writerow(
-             list(x.encode('utf-8') if type(x) == type(u'') else x
-                  for x in worksheet.row_values(rownum)))
+    for rownum in xrange(worksheet.nrows):
+        wr.writerow(
+            list(x.encode('utf-8') if type(x) == type(u'') else x
+                for x in worksheet.row_values(rownum)))
 
-     csvfile.close()
+    csvfile.close()
 
 
 
 
 def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
+    '''
+    Used to read Umlauts from CSV files.
+    '''
     # csv.py doesn't do Unicode; encode temporarily as UTF-8:
     csv_reader = csv.reader(utf_8_encoder(unicode_csv_data),
                             dialect=dialect, **kwargs)
