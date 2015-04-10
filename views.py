@@ -30,6 +30,7 @@ def index(request):
 
 def csv_upload(request):
     if request.method == 'POST':
+        # a raw representation of the CSV file is also kept as we want to be able to change the CSV dialect and then reload the page
         csv_raw = None
         csv_rows = None
         csv_dialect = None
@@ -39,7 +40,7 @@ def csv_upload(request):
         if not request.FILES:
             form = UploadFileForm(request.POST)
             if request.POST and form.is_valid() and form != None:
-                print("PATH 1.1")
+                print("PATH 1.1 - no file uploaded")
                 # print(str(form.cleaned_data))
                 # content  is passed on via hidden html input fields
                 if form.cleaned_data['hidden_csv_raw_field']:
@@ -50,14 +51,13 @@ def csv_upload(request):
 
                 uploadFileName = form.cleaned_data['hidden_filename_field']
 
-
             # if page is loaded without POST
             else: 
                 print("PATH 1.2")
 
         # when an upload file was selected in html form
         else:
-            print("PATH 3")
+            print("PATH 3 - file was uploaded")
 
             form = UploadFileForm(request.POST, request.FILES)
             uploadFileName = request.FILES['upload_file'].name
@@ -69,6 +69,7 @@ def csv_upload(request):
                 csv_dialect = {}
                 csv_raw = ""
 
+                # read/process the CSV file and find out about its dialect (csv params such as delimiter, line end...)
                 # https://docs.python.org/2/library/csv.html#
                 with TextIOWrapper(request.FILES['upload_file'].file, encoding=request.encoding) as csvfile:
                 #with TextIOWrapper(request.FILES['upload_file'].file, encoding='utf-8') as csvfile:
@@ -76,8 +77,8 @@ def csv_upload(request):
                     csv_raw = csvfile.read()
                     csv_rows, csv_dialect = process_csv(csvfile, form)
 
-                # which button was pressed?
-                # http://stackoverflow.com/questions/866272/how-can-i-build-multiple-submit-buttons-django-form
+        # which button was pressed?
+        # http://stackoverflow.com/questions/866272/how-can-i-build-multiple-submit-buttons-django-form
         if 'button_upload' in request.POST:
             csv_rows = csv_rows[:11] if csv_rows else None
             html_post_data = {'form': form, 'csvContent': csv_rows, 'csvRaw': csv_raw, 'csvDialect': csv_dialect, 'filename': uploadFileName}
@@ -86,13 +87,15 @@ def csv_upload(request):
             #html_post_data = {'form': form, 'csvContent': csv_rows, 'csvDialect': csv_dialect, 'filename': uploadFileName}
             csv_db_id = store_csv_in_model(csv_rows=csv_rows, csv_raw=csv_raw, file_name=uploadFileName)
             request.session['csv_db_id'] = csv_db_id
+            request.session['csv_rows'] = csv_rows
+            request.session['csv_raw'] = csv_raw
+            request.session['file_name'] = uploadFileName
             return redirect(reverse('csv-column-choice-view'))
             #return render(request, 'transformation/csv_column_choice.html', html_post_data)
-    # html GET
-    else:
 
-        print("PATH 4")
-        print('HTML GET!')
+    # html GET, we get here when loading the page 'for the first time'
+    else:
+        print("PATH 4 - initial page call (HTML GET)")
         form = UploadFileForm()
         #return render_to_response('transformation/csv_upload.html', {'form': form}, context_instance=RequestContext(request))
         return render(request, 'transformation/csv_upload.html', {'form': form})
@@ -106,8 +109,15 @@ def csv_column_choice(request):
         pass
     else:
         m_csv = CSV.objects.filter(id=request.session['csv_db_id'])[0]
+
         print(m_csv)
-    return render(request, 'transformation/csv_column_choice.html', {'id':request.session['csv_db_id']})
+        data = {
+            'csv_id': request.session['csv_db_id'],
+            'csvContent': request.session['csv_rows'],
+            'csv_raw': request.session['csv_raw'],
+            'filename': request.session['file_name'],
+        }
+    return render(request, 'transformation/csv_column_choice.html', data)
 
 
 
