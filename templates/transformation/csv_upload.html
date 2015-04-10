@@ -132,36 +132,49 @@
 
 </form>
 
-<script>
+<div id="processing">
+processing...
+</div>
 
-var submit_button = document.getElementById('id_button_upload');
+<script>
+var upload_button = document.getElementById('id_button_upload');
 var upload_widget = document.getElementById('id_upload_file');
+var next_button = document.getElementById('button_next');
 var filename = document.getElementById('id_hidden_filename_field');
 
-function toggle_submit_button(){
-	if(upload_widget.files.length == 0) { //no file selected
+function toggle_buttons(){
+	if(upload_widget.files.length == 0) { // no file selected
 
-		if(!filename.value) {
-			submit_button.disabled = true;
-			submit_button.value = "Upload file";
-			//submit_button.value = "Upload file";
+		if(!filename.value) { // nothing happened so far, no uploads
+			upload_button.disabled = true;
+			upload_button.value = "Upload file";
+			next_button.disabled = true;
 		}
-		else{
-			submit_button.disabled = false;
-			submit_button.value = "Apply";
+		else{ // file was uploaded and submitted via form / html post in the previous step
+			upload_button.disabled = false;
+			upload_button.value = "Apply";
+			next_button.disabled = false;
 		}
 	}
-	else {
-		submit_button.disabled = false;
-		submit_button.value = "Upload file";
+	else { // file selected for upload
+		upload_button.disabled = false;
+		upload_button.value = "Upload file";
+		next_button.disabled = true;
 	}
 	
 }
 
-toggle_submit_button();
+toggle_buttons();
 
 // disable upload button when no file is selected 
-upload_widget.addEventListener('change', toggle_submit_button);
+upload_widget.addEventListener('change', toggle_buttons);
+next_button.addEventListener('click', function(){
+	document.getElementById('processing').style.visibility = "visible";
+});
+
+window.onbeforeunload = function (e) {
+alert(e);
+}
 
 </script>
 
