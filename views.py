@@ -190,7 +190,7 @@ def process_csv(csvfile, form):
 
     #print(dir(dialect))
     #print(dialect.delimiter)
-    csvreader = unicode_csv_reader(csvfile, dialect)
+    csvreader = csv.reader(csvfile, dialect)
     for row in csvreader:
         csv_rows.append(row)
 
@@ -248,21 +248,3 @@ def Excel2CSV(ExcelFile, CSVFile):
                 for x in worksheet.row_values(rownum)))
 
     csvfile.close()
-
-
-
-
-def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
-    '''
-    Used to read Umlauts from CSV files.
-    '''
-    # csv.py doesn't do Unicode; encode temporarily as UTF-8:
-    csv_reader = csv.reader(utf_8_encoder(unicode_csv_data),
-                            dialect=dialect, **kwargs)
-    for row in csv_reader:
-        # decode UTF-8 back to Unicode, cell by cell:
-        yield [unicode(cell, 'utf-8') for cell in row]
-
-def utf_8_encoder(unicode_csv_data):
-    for line in unicode_csv_data:
-        yield line.encode('utf-8')
