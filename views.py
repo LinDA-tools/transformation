@@ -4,12 +4,11 @@ from django.template import RequestContext
 from .forms import *
 from django.core.urlresolvers import reverse
 import csv
-import xlrd
 from io import TextIOWrapper
 from io import StringIO
 from transformation.models import *
 from django.db import transaction
-
+import pandas as pd
 
 
 # ###############################################
@@ -61,6 +60,14 @@ def csv_upload(request):
 
             form = UploadFileForm(request.POST, request.FILES)
             uploadFileName = request.FILES['upload_file'].name
+            uploadFile = request.FILES['upload_file'].file
+            print(uploadFileName[-4:]);
+            if (uploadFileName[-4:] == "xlsx" or ".xls"):
+                print("true");
+                data_xls = pd.read_excel(request.FILES['upload_file'], 'Blatt1', index_col=None)
+                data_xls.to_csv(uploadFileName[:-4]+'csv', encoding='utf-8')
+                uploadFile = open(uploadFileName[:-4]+'.csv', "rb")
+                uploadFileName = uploadFileName[:-4]+'.csv'
 
             if form.is_valid():
                 csv_rows = []
@@ -71,8 +78,8 @@ def csv_upload(request):
 
                 # read/process the CSV file and find out about its dialect (csv params such as delimiter, line end...)
                 # https://docs.python.org/2/library/csv.html#
-                with TextIOWrapper(request.FILES['upload_file'].file, encoding=request.encoding) as csvfile:
-                #with TextIOWrapper(request.FILES['upload_file'].file, encoding='utf-8') as csvfile:
+                with TextIOWrapper(uploadFile, encoding=request.encoding) as csvfile:
+                #with TextIOWrapper(uploadFile, encoding='utf-8') as csvfile:
                     # the file is also provided in raw formatting, so users can appy changes (choose csv params) without reloading file 
                     csv_raw = csvfile.read()
                     csv_rows, csv_dialect = process_csv(csvfile, form)
@@ -230,21 +237,3 @@ def store_csv_in_model(csv_rows, csv_id=None, csv_raw=None, file_name=None):
     # TODO catch
     transaction.commit()
     return m_csv.id
-
-
-
-def Excel2CSV(ExcelFile, CSVFile):
-    '''
-    Converts an MS Excel file to a CSV file.
-    '''
-    workbook = xlrd.open_workbook(ExcelFile)
-    worksheet = workbook.sheet_by_index(0)
-    csvfile = open(CSVFile, 'wb')
-    wr = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
-
-    for rownum in xrange(worksheet.nrows):
-        wr.writerow(
-            list(x.encode('utf-8') if type(x) == type(u'') else x
-                for x in worksheet.row_values(rownum)))
-
-    csvfile.close()
