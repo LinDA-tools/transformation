@@ -63,8 +63,8 @@ def csv_upload(request):
             uploadFileName = request.FILES['upload_file'].name
             uploadFile = request.FILES['upload_file'].file
             print(uploadFileName[-4:]);
-            if (uploadFileName[-4:] == "xlsx" or ".xls"):
-                print("true");
+            if (uploadFileName[-4:] == "xlsx" or uploadFileName[-4:] == ".xls"):
+                print(uploadFileName[-4:]);
                 data_xls = pd.read_excel(request.FILES['upload_file'], 0, index_col=None)
                 if not os.path.exists('tmp'):
                     os.makedirs('tmp')
