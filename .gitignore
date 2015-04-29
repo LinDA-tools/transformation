@@ -106,3 +106,5 @@ crashlytics-build.properties
 
 # DB
 *.sqlite3
+
+tmp/

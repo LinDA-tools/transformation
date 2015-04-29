@@ -9,6 +9,7 @@ from io import StringIO
 from transformation.models import *
 from django.db import transaction
 import pandas as pd
+import os
 
 
 # ###############################################
@@ -20,7 +21,7 @@ def index(request):
     print("CSV")
     if request.method == 'POST':
         # handle the uploaded file here
-        raise
+        None
 
 
 
@@ -64,9 +65,11 @@ def csv_upload(request):
             print(uploadFileName[-4:]);
             if (uploadFileName[-4:] == "xlsx" or ".xls"):
                 print("true");
-                data_xls = pd.read_excel(request.FILES['upload_file'], 'Blatt1', index_col=None)
-                data_xls.to_csv(uploadFileName[:-4]+'csv', encoding='utf-8')
-                uploadFile = open(uploadFileName[:-4]+'.csv', "rb")
+                data_xls = pd.read_excel(request.FILES['upload_file'], 0, index_col=None)
+                if not os.path.exists('tmp'):
+                    os.makedirs('tmp')
+                data_xls.to_csv('tmp/'+uploadFileName[:-4]+'.csv', encoding='utf-8')
+                uploadFile = open('tmp/'+uploadFileName[:-4]+'.csv', "rb")
                 uploadFileName = uploadFileName[:-4]+'.csv'
 
             if form.is_valid():
