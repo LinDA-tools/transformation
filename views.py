@@ -126,7 +126,13 @@ def csv_upload(request):
 
 def csv_column_choice(request):
     if request.method == 'POST':
-        pass
+        data = None
+        print(request.session['csv_rows'][0])
+        # identify which columns to keep
+        # id="id_rowselect2"
+        for i in range(len(request.session['csv_rows'][0])):
+            rownum = i+1
+            print(i)
     else:
         m_csv = CSV.objects.filter(id=request.session['csv_db_id'])[0]
 
@@ -137,6 +143,10 @@ def csv_column_choice(request):
             'csv_raw': request.session['csv_raw'],
             'filename': request.session['file_name'],
         }
+
+        #form.cleaned_data['hidden_csv_raw_field']
+        #TODO
+
     return render(request, 'transformation/csv_column_choice.html', data)
 
 
@@ -199,7 +209,7 @@ def process_csv(csvfile, form):
     return [csv_rows, csv_dialect]
 
 # http://stackoverflow.com/questions/1136106/what-is-an-efficent-way-of-inserting-thousands-of-records-into-an-sqlite-table-u
-#@transaction.commit_manually
+@transaction.commit_manually
 def store_csv_in_model(csv_rows, csv_id=None, csv_raw=None, file_name=None):
     '''
     Stores the 2dim array representation of the CSV file in the database.
@@ -232,5 +242,5 @@ def store_csv_in_model(csv_rows, csv_id=None, csv_raw=None, file_name=None):
         m_csv = CSV.objects.filter(id=csv_id)[0]
     #if m_csv == None
     # TODO catch
-    #transaction.commit()
+    transaction.commit()
     return m_csv.id
