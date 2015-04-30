@@ -207,7 +207,7 @@ def process_csv(csvfile, form):
     return [csv_rows, csv_dialect]
 
 # http://stackoverflow.com/questions/1136106/what-is-an-efficent-way-of-inserting-thousands-of-records-into-an-sqlite-table-u
-@transaction.commit_manually
+#@transaction.commit_manually
 def store_csv_in_model(csv_rows, csv_id=None, csv_raw=None, file_name=None):
     '''
     Stores the 2dim array representation of the CSV file in the database.
@@ -216,9 +216,15 @@ def store_csv_in_model(csv_rows, csv_id=None, csv_raw=None, file_name=None):
     # http://stackoverflow.com/questions/17037566/transpose-a-matrix-in-python
     csv_transpose = list(zip(*csv_rows))
     if csv_id==None:
+        #create CSV model
         m_csv = CSV()
         m_csv.save()
         if csv_raw and file_name:
+            #create CSVFile model
+            print("----------------------------------")
+            print(type(csv_raw))
+            print(type(file_name))
+            print(type(m_csv))
             m_csv_file = CSVFile(data=csv_raw, file_name=file_name, csv=m_csv)
             m_csv_file.save()
         for row in csv_transpose:
@@ -238,5 +244,5 @@ def store_csv_in_model(csv_rows, csv_id=None, csv_raw=None, file_name=None):
         m_csv = CSV.objects.filter(id=csv_id)[0]
     #if m_csv == None
     # TODO catch
-    transaction.commit()
+    #transaction.commit()
     return m_csv.id

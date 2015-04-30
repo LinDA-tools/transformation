@@ -34,7 +34,7 @@
 	<table class="table_view">
 
 
-		{% for line in csvContent %}
+		{% for line in csvContent|slice:":11" %}
 		<tr>
 			{% for field in line %}
 			<td>

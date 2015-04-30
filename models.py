@@ -71,10 +71,11 @@ class CSVFile(models.Model):
             blank=True)
 
     def set_data(self, data):
-        self._data = base64.encodestring(data)
+        #self._data = base64.encodestring(data)
+        self._data = data
 
     def get_data(self):
-        return base64.decodestring(self._data)
+        return data#base64.decodestring(self._data)
 
     data = property(get_data, set_data)
     file_name = models.CharField(max_length='512', default=None, blank=True, null=True)
