@@ -17,11 +17,21 @@ import os
 # ###############################################
 
 
-def index(request):
-    print("CSV")
+
+
+def data_choice(request):
     if request.method == 'POST':
-        # handle the uploaded file here
-        None
+        form = DataChoiceForm(request.POST, request.FILES)
+        if form.is_valid():
+            print('  --  data choice: POST  --  ')
+            return render_to_response('transformation/data_choice.html', {'form': form}, context_instance=RequestContext(request))
+        else:
+            print('form not valid')
+            print(form.errors)
+    else:
+        print('Form not valid!')
+        form = DataChoiceForm()
+    return render_to_response('transformation/data_choice.html', {'form': form}, context_instance=RequestContext(request))
 
 
 
@@ -133,24 +143,6 @@ def csv_column_choice(request):
 
 
 
-def data_choice(request):
-    if request.method == 'POST':
-        form = DataChoiceForm(request.POST, request.FILES)
-        if form.is_valid():
-            print('  --  data choice: POST  --  ')
-            return render_to_response('transformation/data_choice.html', {'form': form}, context_instance=RequestContext(request))
-        else:
-            print('form not valid')
-            print(form.errors)
-    else:
-        print('Form not valid!')
-        form = DataChoiceForm()
-    return render_to_response('transformation/data_choice.html', {'form': form}, context_instance=RequestContext(request))
-
-
-
-
-
 # ###############################################
 #  OTHER FUNCTIONS 
 # ###############################################
@@ -221,10 +213,6 @@ def store_csv_in_model(csv_rows, csv_id=None, csv_raw=None, file_name=None):
         m_csv.save()
         if csv_raw and file_name:
             #create CSVFile model
-            print("----------------------------------")
-            print(type(csv_raw))
-            print(type(file_name))
-            print(type(m_csv))
             m_csv_file = CSVFile(data=csv_raw, file_name=file_name, csv=m_csv)
             m_csv_file.save()
         for row in csv_transpose:
