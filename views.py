@@ -222,13 +222,13 @@ def process_csv(csvfile, form):
     # to avoid '"delimiter" must be an 1-character string' error, I encoded to utf-8
     # http://stackoverflow.com/questions/11174790/convert-unicode-string-to-byte-string
     if form.cleaned_data['delimiter'] != "":
-        dialect.delimiter = form.cleaned_data['delimiter'].encode('utf-8')
+        dialect.delimiter = form.cleaned_data['delimiter']#.encode('utf-8')
     if form.cleaned_data['escape'] != "":
-        dialect.escapechar = form.cleaned_data['escape'].encode('utf-8')
+        dialect.escapechar = form.cleaned_data['escape']#.encode('utf-8')
     if form.cleaned_data['quotechar'] != "":
-        dialect.quotechar = form.cleaned_data['quotechar'].encode('utf-8')
+        dialect.quotechar = form.cleaned_data['quotechar']#.encode('utf-8')
     if form.cleaned_data['line_end'] != "":
-        dialect.lineterminator = form.cleaned_data['line_end'].encode('utf-8')
+        dialect.lineterminator = form.cleaned_data['line_end']#.encode('utf-8')
 
     #print(dir(dialect))
     #print(dialect.delimiter)
