@@ -125,24 +125,31 @@ def csv_upload(request):
 
 
 def csv_column_choice(request):
+    data = {
+        'csv_id': request.session['csv_db_id'],
+        'csvContent': request.session['csv_rows'],
+        'csv_raw': request.session['csv_raw'],
+        'filename': request.session['file_name'],
+    }
     if request.method == 'POST':
-        data = None
         print(request.session['csv_rows'][0])
+        print(request.POST)
         # identify which columns to keep
-        # id="id_rowselect2"
+        # name="rowselect2"
+        request.session['selected_columns'] = []
         for i in range(len(request.session['csv_rows'][0])):
-            rownum = i+1
-            print(i)
+            colnum = i+1
+            colname = 'rowselect' + str(colnum)
+            if colname in request.POST:
+                print(colnum , " selected ", request.POST.get(colname))
+                request.session['selected_columns'].append({"column_number": colnum, "checkbox_name": colname, "column_name": request.POST.get(colname)})
+                request.session['csv_rows'] 
+        # csv without rows that were not selected in html form
+        request.session['csv_rows_selected_columns'] = get_selected_rows_content(request.session)
+        data['csvContent'] = request.session['csv_rows_selected_columns']
     else:
+        # TODO
         m_csv = CSV.objects.filter(id=request.session['csv_db_id'])[0]
-
-        print(m_csv)
-        data = {
-            'csv_id': request.session['csv_db_id'],
-            'csvContent': request.session['csv_rows'],
-            'csv_raw': request.session['csv_raw'],
-            'filename': request.session['file_name'],
-        }
 
         #form.cleaned_data['hidden_csv_raw_field']
         #TODO
@@ -156,6 +163,29 @@ def csv_column_choice(request):
 # ###############################################
 #  OTHER FUNCTIONS 
 # ###############################################
+
+# returns only the contents of the columns that were chosen in the html form from the session data
+def get_selected_rows_content(session):
+    result = []
+
+    print(" >>> function get_selected_rows_content")
+    print(session['csv_rows'])
+    print(session['selected_columns'])
+    # write column numbers in array
+    col_nums = []
+    for col_num in session['selected_columns']:
+        col_nums.append(col_num.get("column_number"))
+    print("colnums ", col_nums)
+
+    for row in session['csv_rows']:
+        tmp_row = []
+        for cn in col_nums:
+            print("cn ",cn-1)
+            tmp_row.append(row[cn-1])
+        result.append(tmp_row)
+    print(result)
+    return result
+
 
 
 def csv_model_2_array(m_id):
