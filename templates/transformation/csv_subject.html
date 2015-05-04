@@ -1,0 +1,74 @@
+	{% extends "base.html" %}
+
+{% block css %}
+{% endblock %}
+
+{% block content %}
+
+{% include "transformation/snippets/title_snippet.html" with format='CSV' %}
+
+<!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
+{% for hidden in form.hidden_fields %}
+    {{ hidden }}
+{% endfor %}
+
+<div class="content grid">
+	<div class="col-5-10 left-side-box">
+		<h3>Specify the RDF Subject</h3>
+		<p>
+		TODO TODO TODO
+		</p>
+	</div>
+
+	<div class="col-5-10 right-side-box">
+		
+	<p>
+		<input type="checkbox" name="blanknodes_only"> Use Blank Nodes only! I don't wat to provide a subject!
+	</p>
+	<p>
+		Base URL: <input type="text" name="url" placeholder="e.g. http://xyz">
+	</p>
+	<p>
+		To build you subject URI, drag and drop the column name fields below into the subject URI field.
+	</p>
+	<p>
+	{% for line in csvContent|slice:":1" %}
+	{% for colname in line %}
+		<div class="uribuilder">{{ colname }}</div>
+	{% endfor %}
+	{% endfor %}
+	</p>
+	<p>
+		Subject URI: <input type="text" name="subject_uri">
+	</p>
+
+
+	</div>
+
+</div>
+
+<div class="content scrollit">
+	<h3>DATA VIEW</h3>
+	File: <b>{{ filename }}</b> (10 rows example)
+	<table class="table_view">
+		{% for line in csvContent %}
+		<tr>
+			{% for field in line %}
+			<td>{{ field }}
+			</td>
+			{% endfor %}
+		</tr>
+		{% endfor %}	
+	</table>
+</div>
+
+<div class="content">
+	<h3>RDF VIEW</h3>
+</div>
+
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
