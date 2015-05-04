@@ -20,17 +20,9 @@ import os
 
 
 def data_choice(request):
-    if request.method == 'POST':
-        form = DataChoiceForm(request.POST, request.FILES)
-        if form.is_valid():
-            print('  --  data choice: POST  --  ')
-            return render_to_response('transformation/data_choice.html', {'form': form}, context_instance=RequestContext(request))
-        else:
-            print('form not valid')
-            print(form.errors)
-    else:
-        print('Form not valid!')
-        form = DataChoiceForm()
+    print("VIEW data_choice")
+    print('Form not valid!')
+    form = DataChoiceForm()
     return render_to_response('transformation/data_choice.html', {'form': form}, context_instance=RequestContext(request))
 
 
@@ -39,13 +31,15 @@ def data_choice(request):
 
 
 def csv_upload(request):
+    print("VIEW csv_upload")
+    form_action = 2
     if request.method == 'POST':
         # a raw representation of the CSV file is also kept as we want to be able to change the CSV dialect and then reload the page
+        form = None
         csv_raw = None
         csv_rows = None
         csv_dialect = None
         uploadFileName = 'no file selected'
-        
         # if page was loaded without a selecting a file in html form    
         if not request.FILES:
             form = UploadFileForm(request.POST)
@@ -97,67 +91,76 @@ def csv_upload(request):
                     csv_raw = csvfile.read()
                     csv_rows, csv_dialect = process_csv(csvfile, form)
 
-        # which button was pressed?
-        # http://stackoverflow.com/questions/866272/how-can-i-build-multiple-submit-buttons-django-form
         if 'button_upload' in request.POST:
+            print("UPLOAD BUTTON PRESSED")
             csv_rows = csv_rows[:11] if csv_rows else None
-            html_post_data = {'form': form, 'csvContent': csv_rows, 'csvRaw': csv_raw, 'csvDialect': csv_dialect, 'filename': uploadFileName}
-            return render(request, 'transformation/csv_upload.html', html_post_data)
-        elif 'button_next' in request.POST:
-            #html_post_data = {'form': form, 'csvContent': csv_rows, 'csvDialect': csv_dialect, 'filename': uploadFileName}
-            csv_db_id = store_csv_in_model(csv_rows=csv_rows, csv_raw=csv_raw, file_name=uploadFileName)
-            request.session['csv_db_id'] = csv_db_id
+            #TODO put this in next step ??
+            #csv_db_id = store_csv_in_model(csv_rows=csv_rows, csv_raw=csv_raw, file_name=uploadFileName)
+            #request.session['csv_db_id'] = csv_db_id
+            request.session['csv_dialect'] = csv_dialect
             request.session['csv_rows'] = csv_rows
             request.session['csv_raw'] = csv_raw
             request.session['file_name'] = uploadFileName
-            return redirect(reverse('csv-column-choice-view'))
-            #return render(request, 'transformation/csv_column_choice.html', html_post_data)
+            #return redirect(reverse('csv-column-choice-view'))
+            html_post_data = {
+                'action': form_action,
+                'form': form,
+                'csvContent': request.session['csv_rows'],
+                'csvRaw': request.session['csv_raw'],
+                'csvDialect': request.session['csv_dialect'],
+                'filename': request.session['file_name']
+            }
+            return render(request, 'transformation/csv_upload.html', html_post_data)
 
     # html GET, we get here when loading the page 'for the first time'
     else:
         print("PATH 4 - initial page call (HTML GET)")
         form = UploadFileForm()
-        #return render_to_response('transformation/csv_upload.html', {'form': form}, context_instance=RequestContext(request))
-        return render(request, 'transformation/csv_upload.html', {'form': form})
+        return render(request, 'transformation/csv_upload.html', {'action': form_action, 'form': form})
 
 
 
 
 
 def csv_column_choice(request):
-    data = {
-        'csv_id': request.session['csv_db_id'],
+    print("VIEW csv_column_choice")
+    form_action = 3
+    html_post_data = {
+        'action': form_action,
         'csvContent': request.session['csv_rows'],
-        'csv_raw': request.session['csv_raw'],
-        'filename': request.session['file_name'],
+        'filename': request.session['file_name']
     }
-    if request.method == 'POST':
-        print(request.session['csv_rows'][0])
-        print(request.POST)
-        # identify which columns to keep
-        # name="rowselect2"
-        request.session['selected_columns'] = []
-        for i in range(len(request.session['csv_rows'][0])):
-            colnum = i+1
-            colname = 'rowselect' + str(colnum)
-            if colname in request.POST:
-                print(colnum , " selected ", request.POST.get(colname))
-                request.session['selected_columns'].append({"column_number": colnum, "checkbox_name": colname, "column_name": request.POST.get(colname)})
-                request.session['csv_rows'] 
-        # csv without rows that were not selected in html form
-        request.session['csv_rows_selected_columns'] = get_selected_rows_content(request.session)
-        data['csvContent'] = request.session['csv_rows_selected_columns']
-    else:
-        # TODO
-        m_csv = CSV.objects.filter(id=request.session['csv_db_id'])[0]
-
-        #form.cleaned_data['hidden_csv_raw_field']
-        #TODO
-
-    return render(request, 'transformation/csv_column_choice.html', data)
+    return render(request, 'transformation/csv_column_choice.html', html_post_data)
 
 
 
+
+def csv_subject(request):
+    print("VIEW csv_subject")
+    print("request.session ",str(request.session))
+    print("POST",request.POST)
+
+    form_action = 4
+
+    # identify which columns to keep from html form checkboxes
+    # like <input name="rowselect2" ... >
+    request.session['selected_columns'] = []
+    print("POST ",request.POST)
+    for i in range(len(request.session['csv_rows'][0])):
+        colnum = i+1
+        colname = 'rowselect' + str(colnum)
+        if colname in request.POST:
+            print(colnum , " selected ", request.POST.get(colname))
+            request.session['selected_columns'].append({"column_number": colnum, "checkbox_name": colname, "column_name": request.POST.get(colname)})
+
+    # csv without rows that were not selected in html form
+    csv_rows_selected_columns = get_selected_rows_content(request.session)
+    html_post_data = {
+        'action': form_action, 
+        'csvContent': csv_rows_selected_columns,
+        'filename': request.session['file_name']
+    }
+    return render(request, 'transformation/csv_subject.html', html_post_data)
 
 
 # ###############################################
@@ -165,12 +168,9 @@ def csv_column_choice(request):
 # ###############################################
 
 # returns only the contents of the columns that were chosen in the html form from the session data
+# for step 2 (column selection)
 def get_selected_rows_content(session):
     result = []
-
-    print(" >>> function get_selected_rows_content")
-    print(session['csv_rows'])
-    print(session['selected_columns'])
     # write column numbers in array
     col_nums = []
     for col_num in session['selected_columns']:
@@ -180,10 +180,8 @@ def get_selected_rows_content(session):
     for row in session['csv_rows']:
         tmp_row = []
         for cn in col_nums:
-            print("cn ",cn-1)
             tmp_row.append(row[cn-1])
         result.append(tmp_row)
-    print(result)
     return result
 
 

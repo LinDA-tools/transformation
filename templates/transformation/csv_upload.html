@@ -132,15 +132,16 @@
 
 </form>
 
-<div id="processing">
+<!--div id="processing">
 processing...
-</div>
+</div-->
 
 <script>
 var upload_button = document.getElementById('id_button_upload');
 var upload_widget = document.getElementById('id_upload_file');
 var next_button = document.getElementById('button_next');
 var filename = document.getElementById('id_hidden_filename_field');
+var form = document.getElementById('main_form');
 
 function toggle_buttons(){
 	if(upload_widget.files.length == 0) { // no file selected
@@ -168,9 +169,16 @@ toggle_buttons();
 
 // disable upload button when no file is selected 
 upload_widget.addEventListener('change', toggle_buttons);
-next_button.addEventListener('click', function(){
+/*next_button.addEventListener('click', function(){
 	document.getElementById('processing').style.visibility = "visible";
-});
+});*/
+
+// add an alternative target page (i.e. form action) (itself) when clicking the file upload button
+upload_button.onclick = function() {
+    form.action = '1';
+    form.submit();
+}
+
 
 </script>
 
