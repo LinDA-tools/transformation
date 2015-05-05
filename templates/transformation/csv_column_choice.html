@@ -38,7 +38,7 @@
 		<tr>
 			{% for field in line %}
 			<td>
-				{% if forloop.parentloop.first%}
+				{% if forloop.parentloop.first %}
 					<input type="checkbox" name="rowselect{{ forloop.counter}}" value="{{ field }}" id="id_rowselect{{ forloop.counter}}" checked=false>
 				{% endif %}
 				{{ field }}
