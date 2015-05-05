@@ -23,10 +23,10 @@
 	<div class="col-5-10 right-side-box">
 		
 	<p>
-		<input type="checkbox" name="blanknodes_only"> Use Blank Nodes only! I don't wat to provide a subject!
+		<input type="checkbox" name="blanknodes_only"> I don't want to provide a subject! Use Blank Nodes only!
 	</p>
 	<p>
-		Base URL: <input type="text" name="url" placeholder="e.g. http://xyz">
+		Base URL: <input type="text" name="base_url" id="id_base_url" placeholder="e.g. http://example.com/">
 	</p>
 	<p>
 		To build you subject URI, drag and drop the column name fields below into the subject URI field.
@@ -34,12 +34,15 @@
 	<p>
 	{% for line in csvContent|slice:":1" %}
 	{% for colname in line %}
-		<div class="uribuilder">{{ colname }}</div>
+		<div class="uribuilder" draggable="true" ondragstart="drag(event)" id="id_dragme_{{ colname }}" name="dragme_{{ colname }}">{{ colname }}</div>
 	{% endfor %}
 	{% endfor %}
 	</p>
 	<p>
-		Subject URI: <input type="text" name="subject_uri">
+		Subject URI: <span id="id_base_url_insert"></span><input type="text" class="drop-box" name="subject_uri" id="id_subject_uri" ondrop="drop(event)" ondragover="allowDrop(event)">
+		<br>
+		<span class="warning-text red" id="base_url_insert_warning" style="visibility:hidden;">Wrong formatting. Build the URI template using terms like '{columnName}' surrounded by single brackets.</span>
+
 	</p>
 
 
@@ -67,6 +70,55 @@
 </div>
 
 </form>
+
+<script>
+function allowDrop(ev) {
+	ev.preventDefault();
+}
+
+function drag(ev) {
+	ev.dataTransfer.setData("text", ev.target.innerHTML);
+}
+
+function drop(ev) {
+	var curser_pos = ev.target.selectionStart;
+	ev.preventDefault();
+	var data = ev.dataTransfer.getData("text");
+	//ev.target.appendChild(document.getElementById(data));
+	ev.target.value = ev.target.value.substr(0, curser_pos) + "{"+data+"}" + ev.target.value.substr(curser_pos, ev.target.value.length);
+}
+
+var base_url = document.getElementById("id_base_url");
+var base_url_insert = document.getElementById("id_base_url_insert");
+var subject_uri = document.getElementById("id_subject_uri");
+var base_url_insert_warning = document.getElementById("base_url_insert_warning");
+
+
+base_url.addEventListener('keyup', function(){
+	base_url_insert.innerHTML = base_url.value;
+});
+
+subject_uri.addEventListener('keyup', function(){
+	base_url_insert_warning.style.visibility = "hidden";
+	var last_bracket = "}";
+	var warning = false;
+	for(var i=0; i<subject_uri.value.length; i++){
+
+		if(subject_uri.value[i]	== last_bracket ){
+			base_url_insert_warning.style.visibility = "visible";
+			base_url_insert_warning.innerHTML = "Wrong formatting: Open '{' and closed '}' brackets must come in pairs."		
+		}
+		if(subject_uri.value[i]	== "}" || subject_uri.value[i]	== "{"){
+			last_bracket = subject_uri.value[i];
+		}
+	}
+	if(last_bracket == "{"){
+		base_url_insert_warning.style.visibility = "visible";
+		base_url_insert_warning.innerHTML = "Wrong formatting: Open '{' bracket not closed."
+	}
+});
+
+</script>
 
 {% endblock %}
 
