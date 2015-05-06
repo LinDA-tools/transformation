@@ -284,6 +284,10 @@ input.datachoice {
 	padding: 2.5em;
 }
 
+#id_base_url_insert {
+	font-weight: normal;
+}
+
 /* BEGIN http://www.quirksmode.org/dom/inputfile.html 
 div.fileinputs {
 	position: relative;

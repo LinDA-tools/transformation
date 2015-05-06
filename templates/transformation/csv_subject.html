@@ -22,28 +22,30 @@
 
 	<div class="col-5-10 right-side-box">
 		
-	<p>
-		<input type="checkbox" name="blanknodes_only"> I don't want to provide a subject! Use Blank Nodes only!
-	</p>
-	<p>
-		Base URL: <input type="text" name="base_url" id="id_base_url" placeholder="e.g. http://example.net/" value="http://example.net">
-	</p>
-	<p>
-		To build you subject URI, drag and drop the column name fields below into the subject URI field.
-	</p>
-	<p>
-	{% for line in csvContent|slice:":1" %}
-	{% for colname in line %}
-		<span class="uribuilder" draggable="true" ondragstart="drag(event)" id="id_dragme_{{ colname }}" name="dragme_{{ colname }}" onmouseover="Tip('Drag this Column name to URI text field below to add.')" onmouseout="UnTip()">{{ colname }}</span>
-	{% endfor %}
-	{% endfor %}
-	</p>
-	<p>
-		Subject URI: <span id="id_base_url_insert">http://example.net/</span><input type="text" class="drop-box" name="subject_uri" id="id_subject_uri" ondrop="drop(event)" ondragover="allowDrop(event)">
-		<br>
-		<span class="warning-text red" id="base_url_insert_warning" style="visibility:hidden;">Wrong formatting. Build the URI template using terms like '{columnName}' surrounded by single brackets.</span>
+		<p>
+			<input type="checkbox" name="blanknodes_only" id="id_blanknodes_only"> I don't want to provide a subject! Use Blank Nodes only!
+		</p>
+		<div id="id_uri_container">
+			<p>
+				Base URL: <input type="text" name="base_url" id="id_base_url" placeholder="e.g. http://example.net/" value="http://example.net">
+			</p>
+			<p>
+				To build you subject URI, drag and drop the column name fields below into the subject URI field.
+			</p>
+			<p>
+			{% for line in csvContent|slice:":1" %}
+			{% for colname in line %}
+				<span class="uribuilder" draggable="true" ondragstart="drag(event)" id="id_dragme_{{ colname }}" name="dragme_{{ colname }}" onmouseover="Tip('Drag this column name to the URI text field below.')" onmouseout="UnTip()">{{ colname }}</span>
+			{% endfor %}
+			{% endfor %}
+			</p>
+			<p>
+				Subject URI: <span id="id_base_url_insert">http://example.net/</span><input type="text" class="drop-box" name="subject_uri" id="id_subject_uri" ondrop="drop(event)" ondragover="allowDrop(event)">
+				<br>
+				<span class="warning-text red" id="base_url_insert_warning" style="visibility:hidden;">Wrong formatting. Build the URI template using terms like '{columnName}' surrounded by single brackets.</span>
 
-	</p>
+			</p>
+		</div>
 
 
 	</div>
@@ -59,7 +61,7 @@
 			{% for field in line %}
 				<td>
 				{% if forloop.parentloop.first %}
-					<span>{{ field }}</span> <a href="" onclick="addToUri(event)" onmouseover="Tip('Add to URI')" onmouseout="UnTip()">[+]</a>
+					<span>{{ field }}</span> <a href="" onclick="addToUri(event)" onmouseover="Tip('Add to subject URI')" onmouseout="UnTip()">[+]</a>
 				{% else %}
 					{{ field }}
 				{% endif %}
@@ -111,6 +113,16 @@ var base_url = document.getElementById("id_base_url");
 var base_url_insert = document.getElementById("id_base_url_insert");
 var subject_uri = document.getElementById("id_subject_uri");
 var base_url_insert_warning = document.getElementById("base_url_insert_warning");
+var blanknodes_only = document.getElementById("id_blanknodes_only");
+var uri_container = document.getElementById("id_uri_container");
+
+blanknodes_only.addEventListener('change', function(){
+	if(blanknodes_only.checked)
+		uri_container.style.visibility = "hidden";
+	else
+		uri_container.style.visibility = "visible";
+	
+});
 
 
 base_url.addEventListener('keyup', function(){
