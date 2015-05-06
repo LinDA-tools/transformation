@@ -75,15 +75,9 @@
 	</table>
 </div>
 
-<div class="content">
+<div class="content" id="rdf_view">
 	<h3>RDF VIEW</h3>
-	<table>
-		<tr>
-			<td>subj</td>
-			<td>pred</td>
-			<td>obj</td>
-		</tr>
-	</table>
+
 </div>
 
 </form>
@@ -126,6 +120,7 @@ var blanknodes_only = document.getElementById("id_blanknodes_only");
 var uri_container = document.getElementById("id_uri_container");
 var csv_content = document.getElementById("id_hidden_csv_content_field");
 var rdf_content = document.getElementById("id_hidden_rdf_content_field");
+var rdf_view = document.getElementById("rdf_view");
 
 
 blanknodes_only.addEventListener('change', function(){
@@ -163,7 +158,7 @@ function adapt_RDF_preview(){
 		subject_uri_tmp = "<"+base_url_insert.innerHTML+subject_uri_tmp+">";
 		for(var j=0; j<content[i].length; j++){
 			//parse subject uri
-			subject_uri_tmp = subject_uri_tmp.replace("{"+topic_row[j]+"}", content[i][j]);
+			subject_uri_tmp = subject_uri_tmp.replace(new RegExp("{"+topic_row[j]+"}", 'g'), content[i][j]);
 
 			
 		}
@@ -173,7 +168,6 @@ function adapt_RDF_preview(){
 			rdf_array[(i-1)*content[i].length+j][1] = "?predicate:"+topic_row[j]+"?";
 			rdf_array[(i-1)*content[i].length+j][2] = "\""+content[i][j]+"\"";
 		}
-		//console.log(subject_uri_tmp);
 	}
 
 	for(var i=0; i<rdf_array.length; i++){
@@ -181,10 +175,51 @@ function adapt_RDF_preview(){
 			console.log(rdf_array[i][j]);
 		}
 	}
-
+	//store in form and make available in backend
 	rdf_content.value = rdf_array;
-	return rdf_array;
+	//make visible in frontend
+	var tbl = rdf_array_to_table(rdf_array);
+	while (rdf_view.firstChild) { //remove all children
+    		rdf_view.removeChild(rdf_view.firstChild);
+	}
+	var myH3 = document.createElement("h3");
+	myH3.appendChild(document.createTextNode("RDF VIEW"));
+	rdf_view.appendChild(myH3);
+	rdf_view.appendChild(tbl);
+	//return rdf_array;
 }
+
+  function rdf_array_to_table(rdf_array) {
+        // create elements <table> and a <tbody>
+        var tbl     = document.createElement("table");
+        var tblBody = document.createElement("tbody");
+
+        // cells creation
+       for(var i=0; i<rdf_array.length; i++){
+            // table row creation
+            var row = document.createElement("tr");
+
+            for(var j=0; j<rdf_array[i].length; j++){
+                // create element <td> and text node 
+                //Make text node the contents of <td> element
+                // put <td> at end of the table row
+		var cell = document.createElement("td");    
+		var cellText = document.createTextNode(rdf_array[i][j]); 
+
+                cell.appendChild(cellText);
+                row.appendChild(cell);
+            }
+
+            //row added to end of table body
+            tblBody.appendChild(row);
+        }
+
+        // append the <tbody> inside the <table>
+        tbl.appendChild(tblBody);
+ 
+        tbl.setAttribute("class", "rdf_table");
+	return tbl;
+    }
 
 function create_multidim_array(x,y){
 	var f = [];
