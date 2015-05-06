@@ -124,11 +124,11 @@ var rdf_view = document.getElementById("rdf_view");
 
 
 blanknodes_only.addEventListener('change', function(){
+	adapt_RDF_preview();
 	if(blanknodes_only.checked)
 		uri_container.style.visibility = "hidden";
 	else
 		uri_container.style.visibility = "visible";
-	
 });
 
 
@@ -164,7 +164,10 @@ function adapt_RDF_preview(){
 		}
 		for(var j=0; j<content[i].length; j++){
 			//add rdf subject, predicate, and object value
-			rdf_array[(i-1)*content[i].length+j][0] = subject_uri_tmp;
+			if(blanknodes_only.checked)
+				rdf_array[(i-1)*content[i].length+j][0] = "_:"+toLetters(i);
+			else
+				rdf_array[(i-1)*content[i].length+j][0] = subject_uri_tmp;
 			rdf_array[(i-1)*content[i].length+j][1] = "?predicate:"+topic_row[j]+"?";
 			rdf_array[(i-1)*content[i].length+j][2] = "\""+content[i][j]+"\"";
 		}
@@ -189,37 +192,46 @@ function adapt_RDF_preview(){
 	//return rdf_array;
 }
 
-  function rdf_array_to_table(rdf_array) {
-        // create elements <table> and a <tbody>
-        var tbl     = document.createElement("table");
-        var tblBody = document.createElement("tbody");
+// used for blank nodes
+function toLetters(num) {
+    "use strict";
+    var mod = num % 26,
+        pow = num / 26 | 0,
+        out = mod ? String.fromCharCode(64 + mod) : (--pow, 'Z');
+    return pow ? toLetters(pow) + out : out;
+}
 
-        // cells creation
-       for(var i=0; i<rdf_array.length; i++){
-            // table row creation
-            var row = document.createElement("tr");
+function rdf_array_to_table(rdf_array) {
+	// create elements <table> and a <tbody>
+	var tbl     = document.createElement("table");
+	var tblBody = document.createElement("tbody");
 
-            for(var j=0; j<rdf_array[i].length; j++){
-                // create element <td> and text node 
-                //Make text node the contents of <td> element
-                // put <td> at end of the table row
-		var cell = document.createElement("td");    
-		var cellText = document.createTextNode(rdf_array[i][j]); 
+	// cells creation
+	for(var i=0; i<rdf_array.length; i++){
+		// table row creation
+		var row = document.createElement("tr");
 
-                cell.appendChild(cellText);
-                row.appendChild(cell);
-            }
+		for(var j=0; j<rdf_array[i].length; j++){
+			// create element <td> and text node 
+		        //Make text node the contents of <td> element
+		        // put <td> at end of the table row
+			var cell = document.createElement("td");    
+			var cellText = document.createTextNode(rdf_array[i][j]); 
 
-            //row added to end of table body
-            tblBody.appendChild(row);
-        }
+                	cell.appendChild(cellText);
+                	row.appendChild(cell);
+		}
+
+		//row added to end of table body
+		tblBody.appendChild(row);
+	}
 
         // append the <tbody> inside the <table>
         tbl.appendChild(tblBody);
  
         tbl.setAttribute("class", "rdf_table");
 	return tbl;
-    }
+}
 
 function create_multidim_array(x,y){
 	var f = [];
