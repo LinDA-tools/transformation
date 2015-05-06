@@ -12,6 +12,8 @@
     {{ hidden }}
 {% endfor %}
 
+<input type="hidden" name="hidden_rdf_content_field" id ="id_hidden_rdf_content_field" value="{{ rdfContent }}">
+
 <div class="content grid">
 	<div class="col-5-10 left-side-box">
 		<h3>Specify the RDF Subject</h3>
@@ -75,6 +77,13 @@
 
 <div class="content">
 	<h3>RDF VIEW</h3>
+	<table>
+		<tr>
+			<td>subj</td>
+			<td>pred</td>
+			<td>obj</td>
+		</tr>
+	</table>
 </div>
 
 </form>
@@ -115,6 +124,9 @@ var subject_uri = document.getElementById("id_subject_uri");
 var base_url_insert_warning = document.getElementById("base_url_insert_warning");
 var blanknodes_only = document.getElementById("id_blanknodes_only");
 var uri_container = document.getElementById("id_uri_container");
+var csv_content = document.getElementById("id_hidden_csv_content_field");
+var rdf_content = document.getElementById("id_hidden_rdf_content_field");
+
 
 blanknodes_only.addEventListener('change', function(){
 	if(blanknodes_only.checked)
@@ -127,13 +139,62 @@ blanknodes_only.addEventListener('change', function(){
 
 base_url.addEventListener('keyup', function(){
 	trailing_slash = "";
-console.log(base_url.value[base_url.value.length-1]);
 	if(base_url.value[base_url.value.length-1] != "/")
 		trailing_slash = "/";
 	if(isUrl(base_url.value))
 		base_url_insert.innerHTML = base_url.value + trailing_slash;
 	else base_url_insert.innerHTML = " [ Invalid Base URL ] ";
+
+	adapt_RDF_preview();
+	
 });
+
+function adapt_RDF_preview(){
+	var content = eval(csv_content.value);
+	var topic_row = content[0];
+	var num_total_fields_csv = (content.length-1)*content[0].length;
+	//var rdf_array = [num_total_fields_csv][3];
+	var rdf_array = create_multidim_array(num_total_fields_csv,3);
+	//var rdf_array = [];
+
+	//create uri subject
+	for(var i=1; i<content.length; i++){
+		var subject_uri_tmp = subject_uri.value;
+		subject_uri_tmp = "<"+base_url_insert.innerHTML+subject_uri_tmp+">";
+		for(var j=0; j<content[i].length; j++){
+			//parse subject uri
+			subject_uri_tmp = subject_uri_tmp.replace("{"+topic_row[j]+"}", content[i][j]);
+
+			
+		}
+		for(var j=0; j<content[i].length; j++){
+			//add rdf subject, predicate, and object value
+			rdf_array[(i-1)*content[i].length+j][0] = subject_uri_tmp;
+			rdf_array[(i-1)*content[i].length+j][1] = "?predicate:"+topic_row[j]+"?";
+			rdf_array[(i-1)*content[i].length+j][2] = "\""+content[i][j]+"\"";
+		}
+		//console.log(subject_uri_tmp);
+	}
+
+	for(var i=0; i<rdf_array.length; i++){
+		for(var j=0; j<rdf_array[i].length; j++){
+			console.log(rdf_array[i][j]);
+		}
+	}
+
+	rdf_content.value = rdf_array;
+	return rdf_array;
+}
+
+function create_multidim_array(x,y){
+	var f = [];
+	for (i=0;i<x;i++) {
+		f[i]=[];
+		for (j=0;j<y;j++)
+			f[i][j]=0;
+	}
+	return f;
+}
 
 function changeURI(){
 	base_url_insert_warning.style.visibility = "hidden";
@@ -153,6 +214,8 @@ function changeURI(){
 		base_url_insert_warning.style.visibility = "visible";
 		base_url_insert_warning.innerHTML = "Wrong formatting: Open '{' bracket not closed."
 	}
+
+	adapt_RDF_preview();
 }
 
 
