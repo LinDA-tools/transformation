@@ -42,7 +42,7 @@
 			{% endfor %}
 			</p>
 			<p>
-				Subject URI: <span id="id_base_url_insert">http://example.net/</span><input type="text" class="drop-box" name="subject_uri" id="id_subject_uri" ondrop="drop(event)" ondragover="allowDrop(event)">
+				Subject URI: <span id="id_base_url_insert"></span><input type="text" class="drop-box" name="subject_uri" id="id_subject_uri" ondrop="drop(event)" ondragover="allowDrop(event)">
 				<br>
 				<span class="warning-text red" id="base_url_insert_warning" style="visibility:hidden;">Wrong formatting. Build the URI template using terms like '{columnName}' surrounded by single brackets.</span>
 
@@ -175,11 +175,6 @@ function adapt_RDF_preview(){
 		}
 	}
 
-	for(var i=0; i<rdf_array.length; i++){
-		for(var j=0; j<rdf_array[i].length; j++){
-			console.log(rdf_array[i][j]);
-		}
-	}
 	//store in form and make available in backend
 	rdf_content.value = rdf_array;
 	//make visible in frontend
