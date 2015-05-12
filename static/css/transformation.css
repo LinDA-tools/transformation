@@ -244,6 +244,16 @@ table.table_view td{
 	white-space: nowrap;
 }
 
+table.rdf_table td{
+	padding-right: 3em;
+	
+}
+
+table.rdf_table td:last-child{
+	padding-right: 0em;
+	
+}
+
 div.drop-box {
 	border: 1px solid black;
 	height: 3em;
