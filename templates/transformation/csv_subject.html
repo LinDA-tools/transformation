@@ -130,17 +130,21 @@ blanknodes_only.addEventListener('change', function(){
 });
 
 
-base_url.addEventListener('keyup', function(){
+function base_url_change(){
 	trailing_slash = "";
 	if(base_url.value[base_url.value.length-1] != "/")
 		trailing_slash = "/";
 	if(isUrl(base_url.value))
 		base_url_insert.innerHTML = base_url.value + trailing_slash;
+	else if(base_url.value == "")
+		base_url_insert.innerHTML = "";
 	else base_url_insert.innerHTML = " [ Invalid Base URL ] ";
 
 	adapt_RDF_preview();
-	
-});
+}
+
+base_url.addEventListener('keyup', base_url_change);
+base_url.addEventListener('select', base_url_change);
 
 function adapt_RDF_preview(){
 	var content = eval(csv_content.value);
@@ -267,6 +271,7 @@ function changeURI(){
 //check if subject uri has a valid formatting / open and closed curly brackets {} pairs
 subject_uri.addEventListener('keyup', changeURI);
 subject_uri.addEventListener('drop', changeURI);
+subject_uri.addEventListener('select', changeURI);
 
 function addToUri(ev){
 	ev.preventDefault();
