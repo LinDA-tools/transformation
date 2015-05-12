@@ -84,8 +84,6 @@
 
 <script>
 
-
-
 function isUrl(s) {
    var regexp = /http:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
    return regexp.test(s);
@@ -275,7 +273,10 @@ function addToUri(ev){
 	var column_name = ev.target.parentNode.childNodes[1].innerHTML;
 	insert_into_uri(column_name, subject_uri);
 	//subject_uri.value = subject_uri.value.substr(0, curser_pos) + "{"+data+"}" + ev.target.value.substr(curser_pos, ev.target.value.length);
+	adapt_RDF_preview();
 }
+
+window.onload = adapt_RDF_preview();
 
 </script>
 
