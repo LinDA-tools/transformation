@@ -11,5 +11,6 @@ urlpatterns = patterns('',
     url(r'csv/step/5', views.csv_object, name='csv-object-view'),
     url(r'csv/step/6', views.csv_additional, name='csv-additional-view'),
     url(r'csv/step/7', views.csv_publish, name='csv-publish-view'),
+    url(r'jsondummy', views.json_dummy, name='dummy'),
 
 )
