@@ -1,8 +1,8 @@
 <form id="main_form" enctype="multipart/form-data" method="post" action="{{ action }}">
 	{% csrf_token %}
-
-    	<input type="hidden" name="hidden_csv_content_field" id ="id_hidden_csv_content_field" value="{{ csvContent }}">
-	<input type="hidden" name="hidden_filename_field" id ="id_hidden_filename_field" value="{{ filename }}">
+	
+    	{% if csvContent %}<input type="hidden" name="hidden_csv_content_field" id ="id_hidden_csv_content_field" value="{{ csvContent }}">{% endif %}
+	{% if filename %}<input type="hidden" name="hidden_filename_field" id ="id_hidden_filename_field" value="{{ filename }}">{% endif %}
 
 	<div class="title grid">
 		<div class="col-7-10">

@@ -147,7 +147,7 @@ function base_url_change(){
 base_url.addEventListener('keyup', base_url_change);
 base_url.addEventListener('select', base_url_change);
 
-function adapt_RDF_preview(){
+function adapt_RDF_preview(){	
 	var content = eval(csv_content.value);
 	var topic_row = content[0];
 	var num_total_fields_csv = (content.length-1)*content[0].length;
@@ -277,7 +277,11 @@ function addToUri(ev){
 	adapt_RDF_preview();
 }
 
-window.onload = adapt_RDF_preview();
+window.onload = function(){
+	//base_url_insert.innerHTML = base_url.value;
+	base_url_change()
+	adapt_RDF_preview();
+}
 
 </script>
 

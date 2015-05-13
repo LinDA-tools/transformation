@@ -23,7 +23,7 @@
 	</div>
 
 	<div class="col-5-10 right-side-box">
-		<input type="button" id="id_select_all_rows" value="select all">
+		<input type="button" id="id_select_all_rows" value="deselect all">
 	</div>
 
 </div>
@@ -39,7 +39,7 @@
 			{% for field in line %}
 			<td>
 				{% if forloop.parentloop.first %}
-					<input type="checkbox" name="rowselect{{ forloop.counter}}" value="{{ field }}" id="id_rowselect{{ forloop.counter}}" checked=false>
+					<input type="checkbox" name="rowselect{{ forloop.counter }}" value="{{ field }}" id="id_rowselect{{ forloop.counter}}" checked=false>
 				{% endif %}
 				{{ field }}
 			</td>
