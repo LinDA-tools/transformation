@@ -7,5 +7,9 @@ urlpatterns = patterns('',
     url(r'csv/step/1', views.csv_upload, name='csv-upload-view'),
     url(r'csv/step/2', views.csv_column_choice, name='csv-column-choice-view'),
     url(r'csv/step/3', views.csv_subject, name='csv-subject-view'),
+    url(r'csv/step/4', views.csv_predicate, name='csv-predicate-view'),
+    url(r'csv/step/5', views.csv_object, name='csv-object-view'),
+    url(r'csv/step/6', views.csv_additional, name='csv-additional-view'),
+    url(r'csv/step/7', views.csv_publish, name='csv-publish-view'),
 
 )

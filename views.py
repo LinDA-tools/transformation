@@ -163,6 +163,43 @@ def csv_subject(request):
     return render(request, 'transformation/csv_subject.html', html_post_data)
 
 
+def csv_predicate(request):
+    print("VIEW csv_predicate")
+    form_action = 5
+    html_post_data = {
+        'action': form_action, 
+    }
+    return render(request, 'transformation/csv_predicate.html', html_post_data)
+
+
+def csv_object(request):
+    print("VIEW csv_object")
+    form_action = 6
+    html_post_data = {
+        'action': form_action, 
+    }
+    return render(request, 'transformation/csv_object.html', html_post_data)
+
+
+def csv_additional(request):
+    print("VIEW csv_additional")
+    form_action = 7
+    html_post_data = {
+        'action': form_action, 
+    }
+    return render(request, 'transformation/csv_additional.html', html_post_data)
+
+
+def csv_publish(request):
+    print("VIEW csv_publish")
+    form_action = 8
+    html_post_data = {
+        'action': form_action, 
+    }
+    return render(request, 'transformation/csv_publish.html', html_post_data)
+
+
+
 # ###############################################
 #  OTHER FUNCTIONS 
 # ###############################################
