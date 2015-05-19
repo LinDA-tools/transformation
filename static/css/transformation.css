@@ -298,6 +298,27 @@ input.datachoice {
 	font-weight: normal;
 }
 
+.oracle_result {
+	border: 1px solid #ddd;
+}
+
+.oracle_result:not(:last-of-type) {
+	border-bottom: 0px;
+}
+
+.oracle_result:nth-child(2n) {
+	background-color: #fafafa;
+}
+
+.oracle_result .oracle_score {
+	font-weight: normal;
+	padding-left: 3em;
+}
+
+.oracle_result .oracle_score:before {
+	content: "Score: ";
+}
+
 /* BEGIN http://www.quirksmode.org/dom/inputfile.html 
 div.fileinputs {
 	position: relative;
