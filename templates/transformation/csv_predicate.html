@@ -120,7 +120,7 @@ function askOracle(ev, widget_num){
 			recent_text.innerHTML = data[0].ranking;
 			recent_text.innerHTML = "successful";
 			for(var i = 0; i < data.length; i++){
-				recent_result.innerHTML += "<div class =\"oracle_result\"><a href=\""+data[i].full_uri+"\" onmouseover=\"Tip('"+data[i].full_uri+"')\" onmouseout=\"UnTip()\">"+data[i].vocabulary+"</a><span><span class=\"oracle_score\">"+data[i].ranking+"</span><br>"+data[0].label+"</span></div>";
+				recent_result.innerHTML += "<div class =\"oracle_result\"><a href=\""+data[i].full_uri+"\" onmouseover=\"Tip('"+data[i].full_uri+"')\" onmouseout=\"UnTip()\">"+data[i].vocabulary+"</a><span><span class=\"oracle_score\">"+data[i].ranking+"</span><br>"+data[i].label+"</span></div>";
 			}
 		},
 		beforeSend: function(){
