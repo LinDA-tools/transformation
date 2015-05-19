@@ -51,7 +51,7 @@
 					<span id="search_text_{{ forloop.counter }}" onclick="askOracle(event, {{ forloop.counter }})">searchme</span><br>
 					<input type="text" value="{{ field }}" id="search_textinput_{{ forloop.counter }}" onkeyup="delayedOracleCall(event, {{ forloop.counter }})">
 					<br>
-					<div id="search_result_{{ forloop.counter }}">
+					<div id="search_result_{{ forloop.counter }}" class="oracle_results_container">no results
 					</div>
 		
 				</td>
@@ -120,7 +120,7 @@ function askOracle(ev, widget_num){
 			recent_text.innerHTML = data[0].ranking;
 			recent_text.innerHTML = "successful";
 			for(var i = 0; i < data.length; i++){
-				recent_result.innerHTML += "<div class =\"oracle_result\"><a href=\""+data[i].full_uri+"\" onmouseover=\"Tip('"+data[i].full_uri+"')\" onmouseout=\"UnTip()\">"+data[i].vocabulary+"</a><span><span class=\"oracle_score\">"+data[i].ranking+"</span><br>"+data[i].label+"</span></div>";
+				recent_result.innerHTML += "<div class =\"oracle_result\" id=\"oracle_result_"+widget_num+"_"+i+"\" onclick=\"displayChosenURI(this, "+widget_num+");\"><a href=\""+data[i].full_uri+"\" onmouseover=\"Tip('"+data[i].full_uri+"')\" onmouseout=\"UnTip()\">"+data[i].vocabulary+"</a><span class=\"oracle_score\">"+data[i].ranking+"</span><br><span class=\"oracle_label\">"+data[i].label+"</span></div>";
 			}
 		},
 		beforeSend: function(){
@@ -140,6 +140,12 @@ function delayedOracleCall(ev, widget_num){
 	typingTimer = setTimeout(function(){askOracle(ev, widget_num);}, doneTypingInterval);
 }
 
+
+function displayChosenURI(w, widget_num) {
+	recent_text = document.getElementById("search_text_"+widget_num);
+	recent_text.innerHTML = w.childNodes[0].href;
+
+}
 
 </script>
 

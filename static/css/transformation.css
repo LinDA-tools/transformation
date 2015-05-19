@@ -298,8 +298,16 @@ input.datachoice {
 	font-weight: normal;
 }
 
+.oracle_results_container{
+	max-width: 100%;
+	max-height: 15em;
+	overflow-y: scroll;
+}
+
 .oracle_result {
 	border: 1px solid #ddd;
+	padding: .2em;
+	font-size: 75%;
 }
 
 .oracle_result:not(:last-of-type) {
