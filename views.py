@@ -13,7 +13,7 @@ import os
 from SPARQLWrapper import SPARQLWrapper, JSON
 from django.http import JsonResponse
 import requests
-from django.http import HttpResponse
+import json
 
 
 # ###############################################
@@ -221,7 +221,8 @@ def lookup(request, queryClass, queryString):
     headers = {'Accept': 'application/json'}
     r = requests.get('http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + queryClass + '&QueryString=' + queryString, headers=headers)
     text = r.text
-    return HttpResponse(text, content_type="application/json")
+    results = json.loads(text)
+    return JsonResponse(results)
 
 def dbpediatest(request):
     sparql = SPARQLWrapper("http://dbpedia.org/sparql")
