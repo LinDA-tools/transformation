@@ -12,6 +12,8 @@ import pandas as pd
 import os
 from SPARQLWrapper import SPARQLWrapper, JSON
 from django.http import JsonResponse
+import requests
+from django.http import HttpResponse
 
 
 # ###############################################
@@ -215,13 +217,20 @@ def json_dummy(request):
     }
     return render(request, 'transformation/jsonpreviewtmp.html', html_post_data)
 
+def lookup(request, queryClass, queryString):
+    headers = {'Accept': 'application/json'}
+    r = requests.get('http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + queryClass + '&QueryString=' + queryString, headers=headers)
+    text = r.text
+    return HttpResponse(text, content_type="application/json")
+
 def dbpediatest(request):
     sparql = SPARQLWrapper("http://dbpedia.org/sparql")
     sparql.setQuery("""
         PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
         PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema>
 
-        select distinct ?Concept where {[] a ?Concept} LIMIT 100
+        select distinct ?s where {?s <http://www.w3.org/2000/01/rdf-schema#label> "Berlin"@de } LIMIT 100
     """)
     sparql.setReturnFormat(JSON)
     results = sparql.query().convert()

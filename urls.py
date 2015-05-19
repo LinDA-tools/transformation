@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     url(r'csv/step/6', views.csv_additional, name='csv-additional-view'),
     url(r'csv/step/7', views.csv_publish, name='csv-publish-view'),
     url(r'dbpediatest', views.dbpediatest, name='dbpediatest'),
+    url(r'^lookup/(?P<queryClass>\w+)/(?P<queryString>\w+)/', 'transformation.views.lookup',name="lookup"),
     url(r'jsondummy', views.json_dummy, name='dummy'),
 
 )
