@@ -1,0 +1,170 @@
+	{% extends "base.html" %}
+
+{% block css %}
+{% endblock %}
+
+{% block content %}
+
+{% include "transformation/snippets/title_snippet.html" with format='CSV' %}
+
+<!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
+{% for hidden in form.hidden_fields %}
+    {{ hidden }}
+{% endfor %}
+
+<input type="hidden" name="hidden_rdf_content_field" id ="id_hidden_rdf_content_field" value="{{ rdfContent }}">
+
+<div class="content grid">
+	<div class="col-5-10 left-side-box">
+		<h3>Specify the RDF Predicate</h3>
+		<p>...</p>
+	</div>
+
+	<div class="col-5-10 right-side-box">
+		
+
+
+
+	</div>
+
+</div>
+
+<div class="content scrollit">
+	<h3>DATA VIEW</h3>
+	File: <b>{{ filename }}</b> (10 rows example)
+	<table class="table_view">
+		{% for line in csvContent|slice:":1" %}
+		<tr>
+			{% for field in line %}
+				<td>				
+					<span>{{ field }}</span> <a href="" onclick="" onmouseover="Tip('Add to subject URI')" onmouseout="UnTip()">[+]</a>			
+				</td>
+			{% endfor %}
+		</tr>
+		{% endfor %}
+
+
+		{% for line in csvContent|slice:":1" %}
+		<tr>
+			{% for field in line %}
+				<td>				
+					<span id="search_text_{{ forloop.counter }}" onclick="askOracle(event, '{{ field }}', {{ forloop.counter }})">searchme</span><br>
+<input type="text" value="{{ field }}" search_textinput_{{ forloop.counter }}">
+<br>
+<div id="search_result_{{ forloop.counter }}">
+</div>
+		
+				</td>
+			{% endfor %}
+		</tr>
+		{% endfor %}
+
+		{% for line in csvContent|slice:"1:11" %}
+		<tr>
+			{% for field in line %}
+				<td>				
+					<span>{{ field }}</span>			
+				</td>
+			{% endfor %}
+		</tr>
+		{% endfor %}
+	
+	</table>
+</div>
+
+<div class="content" id="rdf_view">
+	<h3>RDF VIEW</h3>
+
+</div>
+
+</form>
+
+<script>
+
+var recent_result = null;
+var recent_textinput = null;
+var recent_text = null;
+
+function askOracle(ev, term, widget_num){
+
+	recent_result = document.getElementById("search_result_"+widget_num);
+	recent_textinput = document.getElementById("search_textinput_"+widget_num);
+	recent_text = document.getElementById("search_text_"+widget_num);
+/*
+	$.ajax({
+		type: "GET",
+		dataType: "jsonp",
+		contentType: "application/javascript",
+		data: { 'q': term },
+		async: false,
+		//url: 'http://linda.epu.ntua.gr:8000/coreapi/recommend',
+		url: 'http://127.0.0.1:8000/transformation/jsondummy',
+		success: callback,
+		error: function(xhr, status, error){
+ 			console.log(error+"\n"+status+"\n"+xhr.responseText);
+		},
+		beforeSend: function(){
+			ev.target.innerHTML="loading...";
+		}
+	});*/
+
+/*
+	$.ajax({
+		type: 'GET',
+		dataType: 'jsonp',
+		data: {},
+		url: "http://linda.epu.ntua.gr:8000/coreapi/recommend/?q=person&callback=?",
+		error: function (jqXHR, textStatus, errorThrown) {
+			console.log("erros")
+			console.log(jqXHR)
+		},
+		success: function (data) {
+			console.log("success");
+			console.log(data);
+			recent_text.innerHTML = data[0].ranking;
+			recent_text.innerHTML = "x";
+			for(var i = 0; i < data.length; i++){
+				recent_result.innerHTML += "<span>"+data[i].vocabulary+" : "+data[0].label+"</span><br><span>"+data[i].ranking+"</span><br><span>"+data[i].full_uri+"</span><hr>";
+			}
+		},
+		beforeSend: function(){
+			ev.target.innerHTML="loading...";
+		}
+
+});
+*/
+$.ajax({
+    type: 'GET',
+    dataType: 'jsonp',
+    data: {},
+    url: "http://linda.epu.ntua.gr:8000/coreapi/recommend/?q=person&callback=?",
+    error: function(xhr, status, error){
+ 			console.log(error+"\n"+status+"\n"+xhr.responseText);
+    },
+    success: function (msg) {
+        console.log(msg);
+    }
+});
+
+	
+
+}
+/*
+function callback(data)
+{
+	recent_text.innerHTML = data[0].ranking;
+	recent_result.innerHTML = "";
+	for(var i = 0; i < data.length; i++){
+		recent_result.innerHTML += "<span>"+data[i].vocabulary+" : "+data[0].label+"</span><br><span>"+data[i].ranking+"</span><br><span>"+data[i].full_uri+"</span><hr>";
+	}
+
+}
+*/
+
+
+</script>
+
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
