@@ -10,6 +10,8 @@ from transformation.models import *
 from django.db import transaction
 import pandas as pd
 import os
+from SPARQLWrapper import SPARQLWrapper, JSON
+from django.http import JsonResponse
 
 
 # ###############################################
@@ -213,7 +215,19 @@ def json_dummy(request):
     }
     return render(request, 'transformation/jsonpreviewtmp.html', html_post_data)
 
+def dbpediatest(request):
+    sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+    sparql.setQuery("""
+        PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+        PREFIX dct: <http://purl.org/dc/terms/>
 
+        select distinct ?Concept where {[] a ?Concept} LIMIT 100
+    """)
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+
+    #print(results)
+    return JsonResponse(results)
 
 # ###############################################
 #  OTHER FUNCTIONS 
