@@ -12,7 +12,7 @@
     {{ hidden }}
 {% endfor %}
 
-<input type="hidden" name="hidden_rdf_content_field" id ="id_hidden_rdf_content_field" value="{{ rdfContent }}">
+<input type="hidden" name="hidden_rdf_array_field" id ="id_hidden_rdf_array_field" value="{{ rdfArray }}">
 
 <div class="content grid">
 	<div class="col-5-10 left-side-box">
@@ -75,11 +75,17 @@
 <div class="content" id="rdf_view">
 	<h3>RDF VIEW</h3>
 
+
+
 </div>
 
 </form>
 
 <script>
+
+var rdf_content = document.getElementById("id_hidden_rdf_array_field");
+var rdf_view = document.getElementById("rdf_view");
+
 //supress Enter key for form
 function stopRKey(evt) {
   var evt = (evt) ? evt : ((event) ? event : null);
@@ -145,6 +151,78 @@ function displayChosenURI(w, widget_num) {
 	recent_text = document.getElementById("search_text_"+widget_num);
 	recent_text.innerHTML = w.childNodes[0].href;
 
+}
+
+
+function rdf_array_to_table(rdf_array) {
+	// create elements <table> and a <tbody>
+	var tbl     = document.createElement("table");
+	var tblBody = document.createElement("tbody");
+
+	// cells creation
+	for(var i=0; i<rdf_array.length; i++){
+		// table row creation
+		var row = document.createElement("tr");
+
+		for(var j=0; j<rdf_array[i].length; j++){
+			// create element <td> and text node 
+		        //Make text node the contents of <td> element
+		        // put <td> at end of the table row
+			var cell = document.createElement("td");    
+			var cellText = document.createTextNode(rdf_array[i][j]); 
+
+                	cell.appendChild(cellText);
+                	row.appendChild(cell);
+		}
+
+		//row added to end of table body
+		tblBody.appendChild(row);
+	}
+
+        // append the <tbody> inside the <table>
+        tbl.appendChild(tblBody);
+ 
+        tbl.setAttribute("class", "rdf_table");
+	return tbl;
+}
+
+function rdf_array_to_table(rdf_array) {
+	// create elements <table> and a <tbody>
+	var tbl     = document.createElement("table");
+	var tblBody = document.createElement("tbody");
+
+	// cells creation
+	for(var i=0; i<rdf_array.length; i++){
+		// table row creation
+		var row = document.createElement("tr");
+
+		for(var j=0; j<rdf_array[i].length; j++){
+			// create element <td> and text node 
+		        //Make text node the contents of <td> element
+		        // put <td> at end of the table row
+			var cell = document.createElement("td");    
+			var cellText = document.createTextNode(rdf_array[i][j]); 
+
+                	cell.appendChild(cellText);
+                	row.appendChild(cell);
+		}
+
+		//row added to end of table body
+		tblBody.appendChild(row);
+	}
+
+        // append the <tbody> inside the <table>
+        tbl.appendChild(tblBody);
+ 
+        tbl.setAttribute("class", "rdf_table");
+	return tbl;
+}
+
+window.onload = function(){
+	rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
+	console.log(rdf_content.value);
+	rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.value)));
+	//adapt_RDF_preview();
 }
 
 </script>

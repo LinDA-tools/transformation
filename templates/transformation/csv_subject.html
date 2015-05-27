@@ -12,7 +12,7 @@
     {{ hidden }}
 {% endfor %}
 
-<input type="hidden" name="hidden_rdf_content_field" id ="id_hidden_rdf_content_field" value="{{ rdfContent }}">
+<input type="hidden" name="hidden_rdf_array_field" id ="id_hidden_rdf_array_field" value="{{ rdfArray }}">
 
 <div class="content grid">
 	<div class="col-5-10 left-side-box">
@@ -118,7 +118,7 @@ var base_url_insert_warning = document.getElementById("base_url_insert_warning")
 var blanknodes_only = document.getElementById("id_blanknodes_only");
 var uri_container = document.getElementById("id_uri_container");
 var csv_content = document.getElementById("id_hidden_csv_content_field");
-var rdf_content = document.getElementById("id_hidden_rdf_content_field");
+var rdf_content = document.getElementById("id_hidden_rdf_array_field");
 var rdf_view = document.getElementById("rdf_view");
 
 
@@ -177,7 +177,7 @@ function adapt_RDF_preview(){
 	}
 
 	//store in form and make available in backend
-	rdf_content.value = rdf_array;
+	rdf_content.value = JSON.stringify(rdf_array);
 	//make visible in frontend
 	var tbl = rdf_array_to_table(rdf_array);
 	while (rdf_view.firstChild) { //remove all children
@@ -279,7 +279,7 @@ function addToUri(ev){
 
 window.onload = function(){
 	//base_url_insert.innerHTML = base_url.value;
-	base_url_change()
+	base_url_change();
 	adapt_RDF_preview();
 }
 

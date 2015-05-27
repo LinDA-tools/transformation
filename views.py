@@ -141,8 +141,6 @@ def csv_column_choice(request):
 
 def csv_subject(request):
     print("VIEW csv_subject")
-    print("request.session ",str(request.session))
-    print("POST",request.POST)
 
     form_action = 4
 
@@ -170,10 +168,19 @@ def csv_subject(request):
 def csv_predicate(request):
     print("VIEW csv_predicate")
     form_action = 5
+    form = PredicateForm(request.POST)
+    if request.POST and form.is_valid() and form != None:
+                # content  is passed on via hidden html input fields
+                if form.cleaned_data['hidden_rdf_array_field']:
+                    request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
+                else: 
+                    request.session['rdf_array'] = "no rdf"
+
     html_post_data = {
         'action': form_action,
         'csvContent':  request.session['csv_rows'][:11],
-        'filename': request.session['file_name']
+        'filename': request.session['file_name'],
+        'rdfArray': request.session['rdf_array']
     }
     return render(request, 'transformation/csv_predicate.html', html_post_data)
 
