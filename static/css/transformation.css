@@ -327,6 +327,10 @@ input.datachoice {
 	content: "Score: ";
 }
 
+.oracle_result .oracle_label em {
+	font-weight: bold;
+}
+
 /* BEGIN http://www.quirksmode.org/dom/inputfile.html 
 div.fileinputs {
 	position: relative;

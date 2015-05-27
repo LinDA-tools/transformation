@@ -48,8 +48,8 @@
 		<tr>
 			{% for field in line %}
 				<td>				
-					<span id="search_text_{{ forloop.counter }}" onclick="askOracle(event, {{ forloop.counter }})">searchme</span><br>
-					<input type="text" value="{{ field }}" id="search_textinput_{{ forloop.counter }}" onkeyup="delayedOracleCall(event, {{ forloop.counter }})">
+					<span id="search_text_{{ forloop.counter }}"></i></span><br>
+					<input type="text" value="{{ field }}" id="search_textinput_{{ forloop.counter }}" onkeyup="delayedOracleCall(event, {{ forloop.counter }})"><i id="icon_{{ forloop.counter }}" class="fa fa-search" onclick="askOracle(event, {{ forloop.counter }})"></i>
 					<br>
 					<div id="search_result_{{ forloop.counter }}" class="oracle_results_container">no results
 					</div>
@@ -105,6 +105,7 @@ function askOracle(ev, widget_num){
 	recent_result = document.getElementById("search_result_"+widget_num);
 	recent_textinput = document.getElementById("search_textinput_"+widget_num);
 	recent_text = document.getElementById("search_text_"+widget_num);
+	recent_icon = document.getElementById("icon_"+widget_num);
 
 	$.ajax({
 		type: 'GET',
@@ -114,24 +115,27 @@ function askOracle(ev, widget_num){
 		error: function (jqXHR, textStatus, errorThrown) {
 			recent_text.innerHTML="error!";
 			console.log(error+"\n"+status+"\n"+xhr.responseText);
+			recent_icon.className = "fa fa-exclamation-triangle";
 		},
 		success: function (data) {
+			recent_icon.className = "fa fa-check";
 			recent_result.innerHTML = "";
 			if(data.length==0){
 				recent_text.innerHTML="no results";
 				console.log("no results");
 				return;
+				recent_icon.className = "fa fa-meh-o";
 			}			
-			console.log("success");
-			console.log(data);
 			recent_text.innerHTML = data[0].ranking;
-			recent_text.innerHTML = "successful";
+			recent_text.innerHTML = "please choose from list";
 			for(var i = 0; i < data.length; i++){
-				recent_result.innerHTML += "<div class =\"oracle_result\" id=\"oracle_result_"+widget_num+"_"+i+"\" onclick=\"displayChosenURI(this, "+widget_num+");\"><a href=\""+data[i].full_uri+"\" onmouseover=\"Tip('"+data[i].full_uri+"')\" onmouseout=\"UnTip()\">"+data[i].vocabulary+"</a><span class=\"oracle_score\">"+data[i].ranking+"</span><br><span class=\"oracle_label\">"+data[i].label+"</span></div>";
+				recent_result.innerHTML += "<div class =\"oracle_result\" id=\"oracle_result_"+widget_num+"_"+i+"\" onclick=\"displayChosenURI(this, "+widget_num+");\"><span class=\"oracle_label\"><em>"+data[i].label+"</em> ("+data[i].vocabulary+")</span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('"+data[i].full_uri+"')\" onmouseout=\"UnTip()\">"+data[i].full_uri+"</a></div>";
+
 			}
 		},
 		beforeSend: function(){
 			recent_text.innerHTML="loading...";
+			recent_icon.className = "fa fa-refresh fa-spin";
 		}
 
 	});
@@ -150,11 +154,8 @@ function delayedOracleCall(ev, widget_num) {
 
 function displayChosenURI(w, widget_num) {
 	recent_text = document.getElementById("search_text_"+widget_num);
-	recent_text.innerHTML = w.childNodes[0].href;
-
+	recent_text.innerHTML = w.childNodes[2].href;
 	adapt_RDF_preview();
-
-
 }
 
 function adapt_RDF_preview() {
@@ -195,38 +196,6 @@ function adapt_RDF_preview() {
 
 }
 
-
-function rdf_array_to_table(rdf_array) {
-	// create elements <table> and a <tbody>
-	var tbl     = document.createElement("table");
-	var tblBody = document.createElement("tbody");
-
-	// cells creation
-	for(var i=0; i<rdf_array.length; i++){
-		// table row creation
-		var row = document.createElement("tr");
-
-		for(var j=0; j<rdf_array[i].length; j++){
-			// create element <td> and text node 
-		        //Make text node the contents of <td> element
-		        // put <td> at end of the table row
-			var cell = document.createElement("td");    
-			var cellText = document.createTextNode(rdf_array[i][j]); 
-
-                	cell.appendChild(cellText);
-                	row.appendChild(cell);
-		}
-
-		//row added to end of table body
-		tblBody.appendChild(row);
-	}
-
-        // append the <tbody> inside the <table>
-        tbl.appendChild(tblBody);
- 
-        tbl.setAttribute("class", "rdf_table");
-	return tbl;
-}
 
 function rdf_array_to_table(rdf_array) {
 	// create elements <table> and a <tbody>
