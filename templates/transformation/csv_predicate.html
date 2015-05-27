@@ -85,6 +85,7 @@
 
 var rdf_content = document.getElementById("id_hidden_rdf_array_field");
 var rdf_view = document.getElementById("rdf_view");
+var csv_content = document.getElementById("id_hidden_csv_content_field");
 
 //supress Enter key for form
 function stopRKey(evt) {
@@ -141,7 +142,7 @@ function askOracle(ev, widget_num){
 var typingTimer;
 var doneTypingInterval = 1000;
 
-function delayedOracleCall(ev, widget_num){
+function delayedOracleCall(ev, widget_num) {
 	clearTimeout(typingTimer);
 	typingTimer = setTimeout(function(){askOracle(ev, widget_num);}, doneTypingInterval);
 }
@@ -150,6 +151,47 @@ function delayedOracleCall(ev, widget_num){
 function displayChosenURI(w, widget_num) {
 	recent_text = document.getElementById("search_text_"+widget_num);
 	recent_text.innerHTML = w.childNodes[0].href;
+
+	adapt_RDF_preview();
+
+
+}
+
+function adapt_RDF_preview() {
+	var rdf_array = eval(rdf_content.value)
+	//console.log(eval(rdf_content.value));
+
+	var same_subject = true;
+	var subject = "";
+
+	//how many columns
+	var num_columns = eval(csv_content.value)[0].length;
+
+	for(var i=0; i<rdf_array.length/num_columns; i++) {
+		for(var j=0; j<num_columns; j++) {
+			var widget_id = "search_text_"+(j+1);
+			console.log(widget_id);
+			console.log(rdf_array[i*num_columns+j]);
+			var widget_content = document.getElementById(widget_id).innerHTML;
+			rdf_array[i*num_columns+j][1]=widget_content;
+		}
+	}
+	
+
+	var tbl = rdf_array_to_table(rdf_array);
+	//store in form and make available in backend
+	rdf_content.value = JSON.stringify(rdf_array);
+	//make visible in frontend
+	var tbl = rdf_array_to_table(rdf_array);
+	console.log(tbl);
+	while (rdf_view.firstChild) { //remove all children
+    		rdf_view.removeChild(rdf_view.firstChild);
+	}
+	var myH3 = document.createElement("h3");
+	myH3.appendChild(document.createTextNode("RDF VIEW"));
+	rdf_view.appendChild(myH3);
+	rdf_view.appendChild(tbl);
+	//return rdf_array;
 
 }
 
