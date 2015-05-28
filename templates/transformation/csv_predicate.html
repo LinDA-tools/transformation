@@ -113,7 +113,7 @@ function askOracle(ev, widget_num){
 		data: { 'q': recent_textinput.value },
 		url: "http://linda.epu.ntua.gr:8000/coreapi/recommend/",
 		error: function (jqXHR, textStatus, errorThrown) {
-			recent_text.innerHTML="error!";
+			//recent_text.innerHTML="error!";
 			console.log(error+"\n"+status+"\n"+xhr.responseText);
 			recent_icon.className = "fa fa-exclamation-triangle";
 		},
@@ -121,20 +121,19 @@ function askOracle(ev, widget_num){
 			recent_icon.className = "fa fa-check";
 			recent_result.innerHTML = "";
 			if(data.length==0){
-				recent_text.innerHTML="no results";
+				//recent_text.innerHTML="no results";
 				console.log("no results");
 				return;
 				recent_icon.className = "fa fa-meh-o";
 			}			
-			recent_text.innerHTML = data[0].ranking;
-			recent_text.innerHTML = "please choose from list";
+			//recent_text.innerHTML = "please choose from list";
 			for(var i = 0; i < data.length; i++){
-				recent_result.innerHTML += "<div class =\"oracle_result\" id=\"oracle_result_"+widget_num+"_"+i+"\" onclick=\"displayChosenURI(this, "+widget_num+");\"><span class=\"oracle_label\"><em>"+data[i].label+"</em> ("+data[i].vocabulary+")</span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('"+data[i].full_uri+"')\" onmouseout=\"UnTip()\">"+data[i].full_uri+"</a></div>";
+				recent_result.innerHTML += "<div class =\"oracle_result\" id=\"oracle_result_"+widget_num+"_"+i+"\" onclick=\"displayChosenURI(this, "+widget_num+");\"><span class=\"oracle_label\"><em>"+data[i].label+"</em> ("+data[i].vocabulary+")</span><br>"+data[i].full_uri+"<a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square\"></i></a></div>";
 
 			}
 		},
 		beforeSend: function(){
-			recent_text.innerHTML="loading...";
+			//recent_text.innerHTML="loading...";
 			recent_icon.className = "fa fa-refresh fa-spin";
 		}
 
@@ -154,7 +153,7 @@ function delayedOracleCall(ev, widget_num) {
 
 function displayChosenURI(w, widget_num) {
 	recent_text = document.getElementById("search_text_"+widget_num);
-	recent_text.innerHTML = w.childNodes[2].href;
+	recent_text.innerHTML = w.childNodes[3].href;
 	adapt_RDF_preview();
 }
 
@@ -174,7 +173,9 @@ function adapt_RDF_preview() {
 			console.log(widget_id);
 			console.log(rdf_array[i*num_columns+j]);
 			var widget_content = document.getElementById(widget_id).innerHTML;
-			rdf_array[i*num_columns+j][1]=widget_content;
+			if(widget_content=="")
+				widget_content=" ? ";
+			rdf_array[i*num_columns+j][1]="<"+widget_content+">";
 		}
 	}
 	

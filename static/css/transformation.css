@@ -276,6 +276,16 @@ input.datachoice {
 	height: 2em;
 }
 
+/*font awesome icons*/
+.fa {
+	padding-left: .5em;
+	padding-right: .5em;
+}
+
+a .fa {
+	color: #666;
+}
+
 /* 'window' indicating sth is processing */
 #processing {
 	visibility: hidden;
