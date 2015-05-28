@@ -157,6 +157,8 @@ function displayChosenURI(w, widget_num) {
 	recent_text = document.getElementById("search_text_"+widget_num);
 	recent_text.innerHTML = w.childNodes[3].href;
 	adapt_RDF_preview();
+	//jump to element
+	location.hash = w.id;
 }
 
 function adapt_RDF_preview() {
