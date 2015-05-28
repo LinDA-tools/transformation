@@ -52,8 +52,9 @@
 					<span id="search_text_{{ forloop.counter }}"></i></span><br>
 					<input type="text" value="{{ field }}" id="search_textinput_{{ forloop.counter }}" onkeyup="delayedOracleCall(event, {{ forloop.counter }})"><i id="icon_{{ forloop.counter }}" class="fa fa-search" onclick="askOracle(event, {{ forloop.counter }})"></i>
 					<br>
+					<div class="oracle_results_ubercontainer">
 					<div id="search_result_{{ forloop.counter }}" class="oracle_results_container">no results
-					</div>
+					</div></div>
 		
 				</td>
 			{% endfor %}

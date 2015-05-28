@@ -308,13 +308,27 @@ a .fa {
 	font-weight: normal;
 }
 
+.oracle_results_ubercontainer{
+	width: 20em;
+	height: 3.7em;
+
+}
+
 .oracle_results_container{
-	max-width: 100%;
-	max-height: 15em;
-	overflow-y: scroll;
+	width: 20em;
+	height: 3.7em;
+	overflow: hidden;
 	border: 2px solid #ddd;
-	padding: 3px;
-	margin: .7em 0em;
+	background-color: white;
+	position: absolute;	padding: 3px;
+	
+}
+
+.oracle_results_container:hover{
+	min-width: 20em;
+	height: 20em;
+	overflow-y: scroll;
+	position: absolute;
 }
 
 .oracle_result {
