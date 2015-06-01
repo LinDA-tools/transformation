@@ -50,7 +50,7 @@
 			{% for field in line %}
 				<td>				
 					<span id="search_text_{{ forloop.counter }}"></i></span><br>
-					<input type="text" value="{{ field }}" id="search_textinput_{{ forloop.counter }}" onkeyup="delayedOracleCall(event, {{ forloop.counter }})"><i id="icon_{{ forloop.counter }}" class="fa fa-search" onclick="askOracle(event, {{ forloop.counter }})"></i>
+					<input type="text" value="{{ field }}" id="search_textinput_{{ forloop.counter }}" onkeyup="delayedOracleCall(event, {{ forloop.counter }})"><i id="icon_{{ forloop.counter }}" class="fa fa-search" onclick="askOracle({{ forloop.counter }})"></i>
 					<br>
 					<div class="oracle_results_ubercontainer">
 					<div id="search_result_{{ forloop.counter }}" class="oracle_results_container">no results
@@ -102,29 +102,36 @@ var recent_result = null;
 var recent_textinput = null;
 var recent_text = null;
 
-function askOracle(ev, widget_num){
+function askOracle(widget_num){
 
 	recent_result = document.getElementById("search_result_"+widget_num);
 	recent_textinput = document.getElementById("search_textinput_"+widget_num);
 	recent_text = document.getElementById("search_text_"+widget_num);
 	recent_icon = document.getElementById("icon_"+widget_num);
 
-	$.ajax({
+	recent_icon.className = "fa fa-refresh fa-spin";
+
+	var request = $.ajax({
 		type: 'GET',
 		dataType: 'jsonp',
 		data: { 'q': recent_textinput.value },
 		url: "http://linda.epu.ntua.gr:8000/coreapi/recommend/",
-		error: function (jqXHR, textStatus, errorThrown) {
+	});
+
+	request.fail(function (jqXHR, textStatus, errorThrown) {
+			recent_icon = document.getElementById("icon_"+widget_num);
 			//recent_text.innerHTML="error!";
 			console.log(error+"\n"+status+"\n"+xhr.responseText);
 			recent_icon.className = "fa fa-exclamation-triangle";
-		},
-		success: function (data) {
+		}
+	);
+	
+	request.success(function (data) {
+			recent_result = document.getElementById("search_result_"+widget_num);
+			recent_icon = document.getElementById("icon_"+widget_num);
 			recent_icon.className = "fa fa-check";
 			recent_result.innerHTML = "";
 			if(data.length==0){
-				//recent_text.innerHTML="no results";
-				console.log("no results");
 				return;
 				recent_icon.className = "fa fa-meh-o";
 			}			
@@ -133,13 +140,11 @@ function askOracle(ev, widget_num){
 				recent_result.innerHTML += "<div class =\"oracle_result\" id=\"oracle_result_"+widget_num+"_"+i+"\" onclick=\"displayChosenURI(this, "+widget_num+");\"><span class=\"oracle_label\"><em>"+data[i].label+"</em> ("+data[i].vocabulary+")</span><br>"+data[i].full_uri+"<a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square\"></i></a></div>";
 
 			}
-		},
-		beforeSend: function(){
-			//recent_text.innerHTML="loading...";
-			recent_icon.className = "fa fa-refresh fa-spin";
 		}
+	);
 
-	});
+	return request;
+
 }
 
 //only request ajax if no typing for 1 second
@@ -147,9 +152,9 @@ function askOracle(ev, widget_num){
 var typingTimer;
 var doneTypingInterval = 1000;
 
-function delayedOracleCall(ev, widget_num) {
+function delayedOracleCall(widget_num) {
 	clearTimeout(typingTimer);
-	typingTimer = setTimeout(function(){askOracle(ev, widget_num);}, doneTypingInterval);
+	typingTimer = setTimeout(function(){askOracle(widget_num);}, doneTypingInterval);
 }
 
 
@@ -158,7 +163,9 @@ function displayChosenURI(w, widget_num) {
 	recent_text.innerHTML = w.childNodes[3].href;
 	adapt_RDF_preview();
 	//jump to element
-	location.hash = w.id;
+	//location.hash = w.id;
+	var topPos = w.offsetTop;
+	document.getElementById('search_result_'+widget_num).scrollTop = topPos;
 }
 
 function adapt_RDF_preview() {
@@ -174,8 +181,6 @@ function adapt_RDF_preview() {
 	for(var i=0; i<rdf_array.length/num_columns; i++) {
 		for(var j=0; j<num_columns; j++) {
 			var widget_id = "search_text_"+(j+1);
-			console.log(widget_id);
-			console.log(rdf_array[i*num_columns+j]);
 			var widget_content = document.getElementById(widget_id).innerHTML;
 			if(widget_content=="")
 				widget_content=" ? ";
@@ -189,7 +194,6 @@ function adapt_RDF_preview() {
 	rdf_content.value = JSON.stringify(rdf_array);
 	//make visible in frontend
 	var tbl = rdf_array_to_table(rdf_array);
-	console.log(tbl);
 	while (rdf_view.firstChild) { //remove all children
     		rdf_view.removeChild(rdf_view.firstChild);
 	}
@@ -234,12 +238,22 @@ function rdf_array_to_table(rdf_array) {
 	return tbl;
 }
 
-window.onload = function(){
+//window.onload = function(){
+$( document ).ready(function() {
+
 	rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
-	console.log(rdf_content.value);
 	rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.value)));
-	//adapt_RDF_preview();
-}
+	
+	// do an oracle lookup on page load
+
+	$("div[id^='search_result_']").each( function(i, obj){
+		askOracle(i+1);
+	});
+
+
+});
+
+
 
 </script>
 
