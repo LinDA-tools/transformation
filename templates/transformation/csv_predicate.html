@@ -86,6 +86,14 @@
 
 <script>
 
+	/* vocab selection widgets
+	can be provided in simple html like
+	<div class="bb_select">
+	 <div>item1</div>
+	 <div>item2</div>
+	</div>
+	This function does a lot of dom manipulation to transform it into a cool widget :)
+	*/
     function addInnerDiv(elem, zindex) {
     	console.log("addInnerDiv("+elem.attr('id')+", "+zindex+")");
 
@@ -155,12 +163,7 @@
 
         elementsDiv.trigger("mouseout");
     }
-
-    function change_bb_select(){
-            $(".bb_select").each(function (index) {
-        addInnerDiv($(this), index * 3);
-    });
-    }
+}
 
 var rdf_content = document.getElementById("id_hidden_rdf_array_field");
 var rdf_view = document.getElementById("rdf_view");
@@ -235,7 +238,7 @@ function askOracle(widget_num){
 				return;
 				recent_icon.className = "fa fa-meh-o";
 			}			
-			//recent_text.innerHTML = "please choose from list";
+
 			for(var i = 0; i < data.length; i++){
 
 				//shorten uri
@@ -274,16 +277,6 @@ function delayedOracleCall(widget_num) {
 	clearTimeout(typingTimer);
 	typingTimer = setTimeout(function(){askOracle(widget_num);}, doneTypingInterval);
 }
-
-/*
-function displayChosenURI(w, widget_num) {
-	var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
-	adapt_RDF_preview();
-	//jump to element
-	//location.hash = w.id;
-	var topPos = w.offsetTop;
-	document.getElementById('search_result_'+widget_num).scrollTop = topPos;
-}*/
 
 function adapt_RDF_preview() {
 	var rdf_array = eval(rdf_content.value)
@@ -368,12 +361,7 @@ $( document ).ready(function() {
 	$("div[id^='search_result_']").each( function(i, obj){
 		askOracle(i+1);
 	});
-
-	//change_bb_select();
-
 });
-
-
 
 </script>
 
