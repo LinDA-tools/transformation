@@ -94,7 +94,6 @@
 	This function does a lot of dom manipulation to transform it into a cool widget :)
 	*/
     function addInnerDiv(elem, zindex) {
-    	console.log("addInnerDiv("+elem.attr('id')+", "+zindex+")");
 
         elem.css("z-index", 999999 - zindex);
 
@@ -222,7 +221,6 @@ function askOracle(widget_num){
 	request.fail(function (jqXHR, textStatus, errorThrown) {
 			recent_icon = document.getElementById("icon_"+widget_num);
 			//recent_text.innerHTML="error!";
-			console.log(error+"\n"+status+"\n"+xhr.responseText);
 			recent_icon.className = "fa fa-exclamation-triangle";
 		}
 	);
@@ -288,7 +286,6 @@ function displayChosenURI(w, widget_num) {
 
 function adapt_RDF_preview() {
 	var rdf_array = eval(rdf_content.value)
-	//console.log(eval(rdf_content.value));
 
 	var same_subject = true;
 	var subject = "";
@@ -299,7 +296,6 @@ function adapt_RDF_preview() {
 	for(var i=0; i<rdf_array.length/num_columns; i++) {
 		for(var j=0; j<num_columns; j++) {
 			var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
-			console.log("selected "+href);
 			if(href=="")
 				href=" ? ";
 			rdf_array[i*num_columns+j][1]="<"+href+">";
