@@ -220,8 +220,10 @@ function askOracle(widget_num){
 
 	request.fail(function (jqXHR, textStatus, errorThrown) {
 			recent_icon = document.getElementById("icon_"+widget_num);
-			//recent_text.innerHTML="error!";
 			recent_icon.className = "fa fa-exclamation-triangle";
+			console.log(jqXHR);
+			console.log(textStatus);
+			console.log(errorThrown);
 		}
 	);
 
@@ -230,9 +232,10 @@ function askOracle(widget_num){
 			recent_icon = document.getElementById("icon_"+widget_num);
 			recent_icon.className = "fa fa-check";
 			recent_result.empty();
-			if(data.length==0){
-				return;
+			if(data.length===0){
 				recent_icon.className = "fa fa-meh-o";
+				recent_result.append("No results found.<br>Please modify the search term.");
+				return;
 			}			
 			//recent_text.innerHTML = "please choose from list";
 			for(var i = 0; i < data.length; i++){
