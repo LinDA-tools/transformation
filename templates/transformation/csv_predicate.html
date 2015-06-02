@@ -126,11 +126,11 @@
         caretDown.css("color","#888");
 
         elem.on("mouseover", function() {
-        	$(this).find("i").css("opacity","1");
+        	$(this).find("i:last-child").css("opacity","1");
         });
 
         elem.on("mouseout", function() {
-        	$(this).find("i").css("opacity",".3");
+        	$(this).find("i:last-child").css("opacity",".3");
         });
 
         var elementsDiv = jQuery('<div/>', {
