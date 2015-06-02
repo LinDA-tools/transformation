@@ -23,11 +23,7 @@
 
 	<div class="col-4-10 right-side-box">
 		
-
-
-
 	</div>
-
 </div>
 
 <div class="content scrollit">
@@ -52,10 +48,8 @@
 					<span id="search_text_{{ forloop.counter }}"></i></span><br>
 					<input type="text" value="{{ field }}" id="search_textinput_{{ forloop.counter }}" onkeyup="delayedOracleCall(event, {{ forloop.counter }})"><i id="icon_{{ forloop.counter }}" class="fa fa-search" onclick="askOracle({{ forloop.counter }})"></i>
 					<br>
-					<div class="oracle_results_ubercontainer">
-					<div id="search_result_{{ forloop.counter }}" class="oracle_results_container">no results
-					</div></div>
-		
+					<div class="bb_select" id="search_result_{{ forloop.counter }}">
+					</div>
 				</td>
 			{% endfor %}
 		</tr>
@@ -83,7 +77,90 @@
 
 </form>
 
+<div class="bb_select">
+    <div>1
+        <br>11</div>
+    <div>2</div>
+    <div>3</div>
+</div>
+
 <script>
+
+    function addInnerDiv(elem, zindex) {
+    	console.log("addInnerDiv("+elem.attr('id')+", "+zindex+")");
+
+        elem.css("z-index", 999999 - zindex);
+
+        var kids = elem.children();
+
+        elem.empty();
+
+        var innerDiv = jQuery('<div/>', {
+            class: "bb_select_inner"
+        }).appendTo(elem);
+
+        innerDiv.css("z-index", 999999 - zindex - 1);
+
+        var selectionDiv = jQuery('<div/>', {
+            class: "bb_select_selection",
+            text: "please chose"
+        }).appendTo(innerDiv);
+
+		selectionDiv.css("position","relative");
+
+		//font awesome arrow down
+        var caretDown = jQuery('<i/>', {
+            class: "fa fa-caret-square-o-down fa-2x"
+        }).appendTo(selectionDiv);
+
+        caretDown.css("position","absolute");
+        caretDown.css("top",".1em");
+        caretDown.css("right",".2em");
+        caretDown.css("color","#888");
+
+        elem.on("mouseover", function() {
+        	$(this).find("i").css("opacity","1");
+        });
+
+        elem.on("mouseout", function() {
+        	$(this).find("i").css("opacity",".3");
+        });
+
+        var elementsDiv = jQuery('<div/>', {
+            class: "bb_select_elements"
+        }).appendTo(innerDiv);
+
+        innerDiv.css("z-index", 999999 - zindex - 2);
+        
+        elementsDiv.append(kids);
+
+        kids.each(function (i) {
+            $(this).on("click", function () {
+                $(this).parent().siblings().first().html($(this).html());
+                $(this).addClass("bb_select_clicked");
+                $(this).siblings().removeClass("bb_select_clicked");
+                caretDown.appendTo(selectionDiv);
+                adapt_RDF_preview();
+            });
+        });
+
+        innerDiv.on("mouseover", function () {
+            elementsDiv.css("visibility", "visible");
+        });
+
+        innerDiv.on("mouseout", function () {
+            //innerDiv.fadeOut( 400 );
+            elementsDiv.css("visibility", "hidden");
+        });
+
+        elementsDiv.trigger("mouseout");
+    }
+
+    function change_bb_select(){
+            $(".bb_select").each(function (index) {
+        addInnerDiv($(this), index * 3);
+    });
+    }
 
 var rdf_content = document.getElementById("id_hidden_rdf_array_field");
 var rdf_view = document.getElementById("rdf_view");
@@ -101,6 +178,29 @@ document.onkeypress = stopRKey;
 var recent_result = null;
 var recent_textinput = null;
 var recent_text = null;
+
+
+function shortenURI(uri, maxlength){
+	if(uri.length <= maxlength)
+		return uri;
+
+	maxlength = maxlength -3; //because we include "..."
+
+	var parts = uri.split("/");
+	var head = parts[0];
+	var tail = "";
+	for(var i = 1; i <= (parts.length/2); i++){
+		if((head.length + tail.length+parts[i].length + 1) >= maxlength)
+			return head + "..." + tail;
+		else 
+			head += parts[i] + "/";
+		if((head.length + tail.length + parts[parts.length-i] + 1)>=maxlength)
+			return head + "..." + tail;
+		else
+			tail = "/" + parts[parts.length-i] + tail;
+	}	
+}
+
 
 function askOracle(widget_num){
 
@@ -125,22 +225,40 @@ function askOracle(widget_num){
 			recent_icon.className = "fa fa-exclamation-triangle";
 		}
 	);
-	
+
 	request.success(function (data) {
-			recent_result = document.getElementById("search_result_"+widget_num);
+			recent_result = $("#search_result_"+widget_num);
 			recent_icon = document.getElementById("icon_"+widget_num);
 			recent_icon.className = "fa fa-check";
-			recent_result.innerHTML = "";
+			recent_result.empty();
 			if(data.length==0){
 				return;
 				recent_icon.className = "fa fa-meh-o";
 			}			
 			//recent_text.innerHTML = "please choose from list";
 			for(var i = 0; i < data.length; i++){
-				recent_result.innerHTML += "<div class =\"oracle_result\" id=\"oracle_result_"+widget_num+"_"+i+"\" onclick=\"displayChosenURI(this, "+widget_num+");\"><span class=\"oracle_label\"><em>"+data[i].label+"</em> ("+data[i].vocabulary+")</span><br>"+data[i].full_uri+"<a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square\"></i></a></div>";
 
+				//shorten uri
+				var short_uri = shortenURI(data[i].full_uri, 40);
+
+				//css class star symbol for ranking
+				var star ="fa ";
+				if(data[i].ranking>80)
+					star += "fa-star";
+				else if(data[i].ranking>50)
+					star += "fa-star-half-o";
+				else
+					star += "fa-star-o";
+
+				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"><span class=\"oracle_label\">(<i class=\""+star+"\"></i>"+data[i].ranking+"%) <em>"+data[i].label+"</em><br>"+data[i].vocabulary+"</span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>");
 			}
+
+			addInnerDiv($("#search_result_"+widget_num), $("#search_result_"+widget_num).css("z-index"));
+
+			//auto-select first element after oracle call
+			$("#search_result_"+widget_num+" * .bb_select_elements").children().first().trigger("click");
 		}
+	
 	);
 
 	return request;
@@ -157,16 +275,15 @@ function delayedOracleCall(widget_num) {
 	typingTimer = setTimeout(function(){askOracle(widget_num);}, doneTypingInterval);
 }
 
-
+/*
 function displayChosenURI(w, widget_num) {
-	recent_text = document.getElementById("search_text_"+widget_num);
-	recent_text.innerHTML = w.childNodes[3].href;
+	var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
 	adapt_RDF_preview();
 	//jump to element
 	//location.hash = w.id;
 	var topPos = w.offsetTop;
 	document.getElementById('search_result_'+widget_num).scrollTop = topPos;
-}
+}*/
 
 function adapt_RDF_preview() {
 	var rdf_array = eval(rdf_content.value)
@@ -180,11 +297,11 @@ function adapt_RDF_preview() {
 
 	for(var i=0; i<rdf_array.length/num_columns; i++) {
 		for(var j=0; j<num_columns; j++) {
-			var widget_id = "search_text_"+(j+1);
-			var widget_content = document.getElementById(widget_id).innerHTML;
-			if(widget_content=="")
-				widget_content=" ? ";
-			rdf_array[i*num_columns+j][1]="<"+widget_content+">";
+			var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
+			console.log("selected "+href);
+			if(href=="")
+				href=" ? ";
+			rdf_array[i*num_columns+j][1]="<"+href+">";
 		}
 	}
 	
@@ -238,6 +355,8 @@ function rdf_array_to_table(rdf_array) {
 	return tbl;
 }
 
+
+
 //window.onload = function(){
 $( document ).ready(function() {
 
@@ -250,6 +369,7 @@ $( document ).ready(function() {
 		askOracle(i+1);
 	});
 
+	//change_bb_select();
 
 });
 
