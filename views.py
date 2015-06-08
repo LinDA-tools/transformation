@@ -188,32 +188,59 @@ def csv_predicate(request):
 def csv_object(request):
     print("VIEW csv_object")
     form_action = 6
+    form = ObjectForm(request.POST)
+    if request.POST and form.is_valid() and form != None:
+                # content  is passed on via hidden html input fields
+                if form.cleaned_data['hidden_rdf_array_field']:
+                    request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
+                else: 
+                    request.session['rdf_array'] = "no rdf"
+
     html_post_data = {
         'action': form_action,
         'csvContent':  request.session['csv_rows'][:11],
-        'filename': request.session['file_name']
+        'filename': request.session['file_name'],
+        'rdfArray': request.session['rdf_array']
     }
     return render(request, 'transformation/csv_object.html', html_post_data)
 
 
-def csv_additional(request):
+def csv_enrich(request):
     print("VIEW csv_additional")
     form_action = 7
+    form = EnrichForm(request.POST)
+    if request.POST and form.is_valid() and form != None:
+                # content  is passed on via hidden html input fields
+                if form.cleaned_data['hidden_rdf_array_field']:
+                    request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
+                else: 
+                    request.session['rdf_array'] = "no rdf"
+
     html_post_data = {
         'action': form_action,
         'csvContent':  request.session['csv_rows'][:11],
-        'filename': request.session['file_name']
+        'filename': request.session['file_name'],
+        'rdfArray': request.session['rdf_array']
     }
-    return render(request, 'transformation/csv_additional.html', html_post_data)
+    return render(request, 'transformation/csv_enrich.html', html_post_data)
 
 
 def csv_publish(request):
     print("VIEW csv_publish")
     form_action = 8
+    form = PublishForm(request.POST)
+    if request.POST and form.is_valid() and form != None:
+                # content  is passed on via hidden html input fields
+                if form.cleaned_data['hidden_rdf_array_field']:
+                    request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
+                else: 
+                    request.session['rdf_array'] = "no rdf"
+
     html_post_data = {
         'action': form_action,
         'csvContent':  request.session['csv_rows'][:11],
-        'filename': request.session['file_name']
+        'filename': request.session['file_name'],
+        'rdfArray': request.session['rdf_array']
     }
     return render(request, 'transformation/csv_publish.html', html_post_data)
 
