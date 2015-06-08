@@ -143,8 +143,7 @@ var rdf_content = $("#id_hidden_rdf_array_field");
 
 
 $( document ).ready(function() {
-console.log(rdf_content);
-console.log(rdf_content.val());
+
 	rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
 	rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.val())));
 	

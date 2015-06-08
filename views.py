@@ -245,18 +245,13 @@ def csv_publish(request):
     return render(request, 'transformation/csv_publish.html', html_post_data)
 
 
-
-def json_dummy(request):
-    html_post_data = {
-    }
-    return render(request, 'transformation/jsonpreviewtmp.html', html_post_data)
-
 def lookup(request, queryClass, queryString):
     headers = {'Accept': 'application/json'}
     r = requests.get('http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + queryClass + '&QueryString=' + queryString, headers=headers)
     text = r.text
     results = json.loads(text)
     return JsonResponse(results)
+
 
 def dbpediatest(request):
     sparql = SPARQLWrapper("http://dbpedia.org/sparql")
