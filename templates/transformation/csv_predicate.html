@@ -76,13 +76,6 @@
 
 </form>
 
-<div class="bb_select">
-    <div>1
-        <br>11</div>
-    <div>2</div>
-    <div>3</div>
-</div>
-
 <script>
 
 	/* vocab selection widgets
@@ -203,6 +196,8 @@ function shortenURI(uri, maxlength){
 }
 
 
+
+
 function askOracle(widget_num){
 
 	recent_result = document.getElementById("search_result_"+widget_num);
@@ -262,10 +257,11 @@ function askOracle(widget_num){
 		}
 	
 	);
-
 	return request;
-
 }
+
+
+
 
 //only request ajax if no typing for 1 second
 
@@ -288,7 +284,7 @@ function displayChosenURI(w, widget_num) {
 }*/
 
 function adapt_RDF_preview() {
-	var rdf_array = eval(rdf_content.value)
+	var rdf_array = eval(rdf_content.value);
 
 	var same_subject = true;
 	var subject = "";
@@ -296,15 +292,27 @@ function adapt_RDF_preview() {
 	//how many columns
 	var num_columns = eval(csv_content.value)[0].length;
 
+	var found_one_undefined = false;
 	for(var i=0; i<rdf_array.length/num_columns; i++) {
 		for(var j=0; j<num_columns; j++) {
 			var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
-			if(href=="")
+
+			if(typeof href === "undefined") {
 				href=" ? ";
+				found_one_undefined = true;
+			}
 			rdf_array[i*num_columns+j][1]="<"+href+">";
+
 		}
+	}	
+
+	//enables or disabled next button depending on rdf graph completeness
+	if(!found_one_undefined) {
+		$("#button_next").removeAttr("disabled");
 	}
-	
+	else {
+		$("#button_next").attr("disabled", "disabled");
+	}
 
 	var tbl = rdf_array_to_table(rdf_array);
 	//store in form and make available in backend
@@ -318,7 +326,6 @@ function adapt_RDF_preview() {
 	myH3.appendChild(document.createTextNode("RDF VIEW"));
 	rdf_view.appendChild(myH3);
 	rdf_view.appendChild(tbl);
-	//return rdf_array;
 
 }
 
@@ -369,7 +376,7 @@ $( document ).ready(function() {
 		askOracle(i+1);
 	});
 
-	//change_bb_select();
+	$("#button_next").attr("disabled", "disabled");
 
 });
 
