@@ -245,12 +245,12 @@ def csv_publish(request):
     return render(request, 'transformation/csv_publish.html', html_post_data)
 
 
-def lookup(request, queryClass, queryString):
+def lookup(request, queryClass, queryString, callback):
     headers = {'Accept': 'application/json'}
     r = requests.get('http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + queryClass + '&QueryString=' + queryString, headers=headers)
     text = r.text
     results = json.loads(text)
-    return JsonResponse(results)
+    return callback+"("+JsonResponse(results)+");"
 
 
 def dbpediatest(request):

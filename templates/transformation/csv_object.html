@@ -36,13 +36,8 @@
 		{% for line in csvContent %}
 		<tr>
 			{% for field in line %}
-				<td>
-				{% if forloop.parentloop.first %}
-					<span>{{ field }}</span>
-				{% else %}
-					{{ field }}
-				{% endif %}
-			
+				<td id="id_table_field_{{ forloop.counter }}_{{ forloop.parentloop.counter }}">
+					{{ field }}			
 				</td>
 			{% endfor %}
 		</tr>
@@ -58,6 +53,37 @@
 </form>
 
 <script>
+
+//http://localhost:8000/transformation/lookup/place/Berlin/
+
+// e.g. domain = bird; term = sparrow, tit, ..
+function askOracle(widget, domain, term){
+console.log('http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + domain + '&QueryString=' + term);
+	var request = $.ajax({
+		type: 'GET',
+		dataType: 'json',
+		//url: "http://localhost:8000/transformation/lookup/"+domain+"/"+term+"/",
+		url: 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + domain + '&QueryString=' + term,
+	});
+
+	request.fail(function (xhr, ajaxOptions, thrownError) {
+		widget.html(widget.text()+ " (ERROR<br>"+thrownError+")");
+
+	});
+
+	request.success(function (data) {console.log(data.results[0].description);
+		var list = "";
+		for(var i=0; i<data.results.length; i++){
+			list += data.results[i].uri+"<br>"
+			console.log(data.results[i].label);
+		}
+		widget.html(widget.html()+"<hr>"+list);
+	});
+
+	return request;
+}
+
+
 
 function adapt_RDF_preview() {
 	var rdf_array = eval(rdf_content.value);
@@ -149,9 +175,16 @@ $( document ).ready(function() {
 	
 	// do an oracle lookup on page load
 
-	/*$("div[id^='search_result_']").each( function(i, obj){
-		askOracle(i+1);
-	});*/
+	$("td[id^='id_table_field_']").each( function(i){
+		var id = $(this).attr("id");
+		var lastChar = id.substr(id.length - 1);
+		if(lastChar!=1){//not first row = table header
+			//get first row
+			var topic_field = id.slice(0,-1) + "1";
+			var topic = $("#"+topic_field).text().trim();
+			askOracle($(this), topic, $(this).text().trim());
+		}
+	});
 
 	//$("#button_next").attr("disabled", "disabled");
 
