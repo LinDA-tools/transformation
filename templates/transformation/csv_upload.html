@@ -137,6 +137,11 @@ processing...
 </div-->
 
 <script>
+
+
+$( document ).ready(function() {
+
+
 var upload_button = document.getElementById('id_button_upload');
 var upload_widget = document.getElementById('id_upload_file');
 var next_button = document.getElementById('button_next');
@@ -146,18 +151,21 @@ var form = document.getElementById('main_form');
 function toggle_buttons(){
 	if(upload_widget.files.length == 0) { // no file selected
 
-		if(!filename.value) { // nothing happened so far, no uploads
+		if(filename == null) { // nothing happened so far, no uploads
+console.log("fn null");
 			upload_button.disabled = true;
 			upload_button.value = "Upload file";
 			next_button.disabled = true;
 		}
 		else{ // file was uploaded and submitted via form / html post in the previous step
+console.log("cxxxx");console.log(filename.value);
 			upload_button.disabled = false;
 			upload_button.value = "Apply";
 			next_button.disabled = false;
 		}
 	}
 	else { // file selected for upload
+console.log("file selected for upload");
 		upload_button.disabled = false;
 		upload_button.value = "Upload file";
 		next_button.disabled = true;
@@ -178,6 +186,8 @@ upload_button.onclick = function() {
     form.action = '1';
     form.submit();
 }
+
+});
 
 
 </script>

@@ -25,7 +25,6 @@ import json
 
 def data_choice(request):
     print("VIEW data_choice")
-    print('Form not valid!')
     form = DataChoiceForm()
     return render_to_response('transformation/data_choice.html', {'form': form}, context_instance=RequestContext(request))
 
@@ -38,13 +37,14 @@ def csv_upload(request):
     print("VIEW csv_upload")
     form_action = 2
     if request.method == 'POST':
+        print("PATH 1 - POST")
         # a raw representation of the CSV file is also kept as we want to be able to change the CSV dialect and then reload the page
         form = None
         csv_raw = None
         csv_rows = None
         csv_dialect = None
         uploadFileName = 'no file selected'
-        # if page was loaded without a selecting a file in html form    
+        # if page was loaded without selecting a file in html form    
         if not request.FILES:
             form = UploadFileForm(request.POST)
             if request.POST and form.is_valid() and form != None:
@@ -63,8 +63,8 @@ def csv_upload(request):
             else: 
                 print("PATH 1.2")
 
-        # when an upload file was selected in html form
-        else:
+        # when an upload file was selected in html form, APPLY BUTTON
+        else: # if not request.FILES:
             print("PATH 3 - file was uploaded")
 
             form = UploadFileForm(request.POST, request.FILES)
@@ -94,13 +94,13 @@ def csv_upload(request):
                     # the file is also provided in raw formatting, so users can appy changes (choose csv params) without reloading file 
                     csv_raw = csvfile.read()
                     csv_rows, csv_dialect = process_csv(csvfile, form)
+            else: # if form.is_valid():
+                print("form not valid")
 
         if 'button_upload' in request.POST:
             print("UPLOAD BUTTON PRESSED")
             csv_rows = csv_rows[:11] if csv_rows else None
-            #TODO put this in next step ??
-            #csv_db_id = store_csv_in_model(csv_rows=csv_rows, csv_raw=csv_raw, file_name=uploadFileName)
-            #request.session['csv_db_id'] = csv_db_id
+
             request.session['csv_dialect'] = csv_dialect
             request.session['csv_rows'] = csv_rows
             request.session['csv_raw'] = csv_raw
@@ -114,13 +114,14 @@ def csv_upload(request):
                 'csvDialect': request.session['csv_dialect'],
                 'filename': request.session['file_name']
             }
+            print("next screen")
             return render(request, 'transformation/csv_upload.html', html_post_data)
 
     # html GET, we get here when loading the page 'for the first time'
-    else:
+    else: # if request.method == 'POST':
         print("PATH 4 - initial page call (HTML GET)")
         form = UploadFileForm()
-        return render(request, 'transformation/csv_upload.html', {'action': form_action, 'form': form})
+        return render(request, 'transformation/csv_upload.html', {'action': 1, 'form': form})
 
 
 
