@@ -54,11 +54,78 @@
 
 <script>
 
+    function addInnerDiv(elem) {
+
+        var kids = elem.children();
+
+        elem.empty();
+
+        var innerDiv = jQuery('<div/>', {
+            class: "bb_select_inner"
+        }).appendTo(elem);
+
+        var selectionDiv = jQuery('<div/>', {
+            class: "bb_select_selection",
+            text: "please chose"
+        }).appendTo(innerDiv);
+
+	selectionDiv.css("position","relative");
+
+	//font awesome arrow down
+        var caretDown = jQuery('<i/>', {
+            class: "fa fa-caret-square-o-down fa-2x"
+        }).appendTo(selectionDiv);
+
+        caretDown.css("position","absolute");
+        caretDown.css("top",".1em");
+        caretDown.css("right",".2em");
+        caretDown.css("color","#888");
+
+        elem.on("mouseover", function() {
+        	$(this).find("i:last-child").css("opacity","1");
+		$(this).find("div div").css("z-index", 999999);
+        });
+
+        elem.on("mouseout", function() {
+        	$(this).find("i:last-child").css("opacity",".3");
+		$(this).find("div div").css("z-index", "auto");
+        });
+
+        var elementsDiv = jQuery('<div/>', {
+            class: "bb_select_elements"
+        }).appendTo(innerDiv);
+        
+        elementsDiv.append(kids);
+
+        kids.each(function (i) {
+            $(this).on("click", function () {
+                $(this).parent().siblings().first().html($(this).html());
+                $(this).addClass("bb_select_clicked");
+                $(this).siblings().removeClass("bb_select_clicked");
+                caretDown.appendTo(selectionDiv);
+                adapt_RDF_preview();
+            });
+        });
+
+        innerDiv.on("mouseover", function () {
+            elementsDiv.css("visibility", "visible");
+        });
+
+        innerDiv.on("mouseout", function () {
+            elementsDiv.css("visibility", "hidden");
+        });
+
+        elementsDiv.trigger("mouseout");
+    }
+
+
 //http://localhost:8000/transformation/lookup/place/Berlin/
+
+var zindex = 0;
 
 // e.g. domain = bird; term = sparrow, tit, ..
 function askOracle(widget, domain, term){
-console.log('http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + domain + '&QueryString=' + term);
+//console.log('http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + domain + '&QueryString=' + term);
 	var request = $.ajax({
 		type: 'GET',
 		dataType: 'json',
@@ -71,13 +138,20 @@ console.log('http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + d
 
 	});
 
+	var new_id = "search_result_"+widget.attr("id");
 	request.success(function (data) {console.log(data.results[0].description);
-		var list = "";
+		var list = "<div class=\"bb_select\" id=\""+new_id+"\">";
 		for(var i=0; i<data.results.length; i++){
-			list += data.results[i].uri+"<br>"
+			list += "<div>"+data.results[i].uri+"</div>"
 			console.log(data.results[i].label);
 		}
+		list += "</div>";
 		widget.html(widget.html()+"<hr>"+list);
+		addInnerDiv($("#"+new_id));
+		zindex += 4;
+		//auto-select first element after oracle call
+		$(widget).find("* .bb_select_elements").children().first().trigger("click");
+
 	});
 
 	return request;

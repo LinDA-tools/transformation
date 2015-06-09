@@ -86,28 +86,25 @@
 	</div>
 	This function does a lot of dom manipulation to transform it into a cool widget :)
 	*/
-    function addInnerDiv(elem, zindex) {
-
-        elem.css("z-index", 999999 - zindex);
+    function addInnerDiv(elem) {
 
         var kids = elem.children();
 
         elem.empty();
+	elem.css("height", "4.6em");
 
         var innerDiv = jQuery('<div/>', {
             class: "bb_select_inner"
         }).appendTo(elem);
-
-        innerDiv.css("z-index", 999999 - zindex - 1);
 
         var selectionDiv = jQuery('<div/>', {
             class: "bb_select_selection",
             text: "please chose"
         }).appendTo(innerDiv);
 
-		selectionDiv.css("position","relative");
+	selectionDiv.css("position","relative");
 
-		//font awesome arrow down
+	//font awesome arrow down
         var caretDown = jQuery('<i/>', {
             class: "fa fa-caret-square-o-down fa-2x"
         }).appendTo(selectionDiv);
@@ -119,17 +116,17 @@
 
         elem.on("mouseover", function() {
         	$(this).find("i:last-child").css("opacity","1");
+		$(this).find("div div").css("z-index", 999999);
         });
 
         elem.on("mouseout", function() {
         	$(this).find("i:last-child").css("opacity",".3");
+		$(this).find("div div").css("z-index", "auto");
         });
 
         var elementsDiv = jQuery('<div/>', {
             class: "bb_select_elements"
         }).appendTo(innerDiv);
-
-        innerDiv.css("z-index", 999999 - zindex - 2);
         
         elementsDiv.append(kids);
 
@@ -148,7 +145,6 @@
         });
 
         innerDiv.on("mouseout", function () {
-            //innerDiv.fadeOut( 400 );
             elementsDiv.css("visibility", "hidden");
         });
 
@@ -250,7 +246,7 @@ function askOracle(widget_num){
 				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"><span class=\"oracle_label\">(<i class=\""+star+"\"></i>"+data[i].ranking+"%) <em>"+data[i].label+"</em><br>"+data[i].vocabulary+"</span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>");
 			}
 
-			addInnerDiv($("#search_result_"+widget_num), $("#search_result_"+widget_num).css("z-index"));
+			addInnerDiv($("#search_result_"+widget_num));
 
 			//auto-select first element after oracle call
 			$("#search_result_"+widget_num+" * .bb_select_elements").children().first().trigger("click");
