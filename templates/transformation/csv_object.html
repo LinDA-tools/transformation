@@ -17,7 +17,8 @@
 <div class="content grid">
 	<div class="col-5-10 left-side-box">
 		<h3>Specify the RDF Object</h3>
-		<p>...</p>
+		<p>In this step, you can either choose a datatype (such as "Text", "Floating Point Number", "Integer", ...) for a table row or try and let us reconsiliate your data against the DBPedia triple store. That is, we will automatically look up an URI in the DBPedia-Project that might represent the data within each of your table rows.</p>
+		<p>As always, the results can be seen in the RDF preview at the page bottom.</p>
 	</div>
 
 	<div class="col-5-10 right-side-box">
@@ -139,25 +140,48 @@ function askOracle(widget, domain, term){
 	});
 
 	var new_id = "search_result_"+widget.attr("id");
-	request.success(function (data) {console.log(data.results[0].description);
-		var list = "<div class=\"bb_select\" id=\""+new_id+"\">";
-		for(var i=0; i<data.results.length; i++){
-			list += "<div>"+data.results[i].uri+"</div>"
-			console.log(data.results[i].label);
+	request.success(function (data) {
+
+		if(data.results.length===0){
+			widget.html(widget.html()+"<br><span class=\"red\" onmouseover=\"Tip('We were unable to find results in DBPedia which match this table cell.')\" onmouseout=\"UnTip()\">No reconciliation results.</span>");
+		}else{
+			var list = "<div class=\"bb_select\" id=\""+new_id+"\">";
+			for(var i=0; i<data.results.length; i++){
+				list += "<div>"+data.results[i].uri+"</div>"
+
+			}
+			list += "</div>";
+			widget.html(widget.html()+"<br>"+list);
+			addInnerDiv($("#"+new_id));
+			//auto-select first element after oracle call
+			$(widget).find("* .bb_select_elements").children().first().trigger("click");
 		}
-		list += "</div>";
-		widget.html(widget.html()+"<hr>"+list);
-		addInnerDiv($("#"+new_id));
-		zindex += 4;
-		//auto-select first element after oracle call
-		$(widget).find("* .bb_select_elements").children().first().trigger("click");
 
 	});
 
 	return request;
 }
 
+function shortenURI(uri, maxlength){
+	if(uri.length <= maxlength)
+		return uri;
 
+	maxlength = maxlength -3; //because we include "..."
+
+	var parts = uri.split("/");
+	var head = parts[0];
+	var tail = "";
+	for(var i = 1; i <= (parts.length/2); i++){
+		if((head.length + tail.length+parts[i].length + 1) >= maxlength)
+			return head + "..." + tail;
+		else 
+			head += parts[i] + "/";
+		if((head.length + tail.length + parts[parts.length-i] + 1)>=maxlength)
+			return head + "..." + tail;
+		else
+			tail = "/" + parts[parts.length-i] + tail;
+	}	
+}
 
 function adapt_RDF_preview() {
 	var rdf_array = eval(rdf_content.value);
