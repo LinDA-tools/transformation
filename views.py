@@ -177,9 +177,10 @@ def csv_predicate(request):
                 else: 
                     request.session['rdf_array'] = "no rdf"
 
+    csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'action': form_action,
-        'csvContent':  request.session['csv_rows'][:11],
+        'csvContent':  csv_rows_selected_columns[:11],
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array']
     }
@@ -197,9 +198,10 @@ def csv_object(request):
                 else: 
                     request.session['rdf_array'] = "no rdf"
 
+    csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'action': form_action,
-        'csvContent':  request.session['csv_rows'][:11],
+        'csvContent':  csv_rows_selected_columns,
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array']
     }
@@ -217,9 +219,10 @@ def csv_enrich(request):
                 else: 
                     request.session['rdf_array'] = "no rdf"
 
+    csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'action': form_action,
-        'csvContent':  request.session['csv_rows'][:11],
+        'csvContent':  csv_rows_selected_columns[:11],
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array']
     }
@@ -237,9 +240,10 @@ def csv_publish(request):
                 else: 
                     request.session['rdf_array'] = "no rdf"
 
+    csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'action': form_action,
-        'csvContent':  request.session['csv_rows'][:11],
+        'csvContent':  csv_rows_selected_columns[:11],
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array']
     }
