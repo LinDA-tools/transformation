@@ -232,7 +232,11 @@ function askOracle(widget_num){
 			for(var i = 0; i < data.length; i++){
 
 				//shorten uri
-				var short_uri = shortenURI(data[i].full_uri, 40);
+				var short_uri = "no uri";
+				if(data[i].full_uri)
+					short_uri = shortenURI(data[i].full_uri, 40);
+				else if(data[i].uri)
+					short_uri = shortenURI(data[i].uri, 40);
 
 				//css class star symbol for ranking
 				var star ="fa ";
@@ -243,7 +247,7 @@ function askOracle(widget_num){
 				else
 					star += "fa-star-o";
 
-				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"><span class=\"oracle_label\">(<i class=\""+star+"\"></i>"+data[i].ranking+"%) <em>"+data[i].label+"</em><br>"+data[i].vocabulary+"</span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>");
+				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i>"+data[i].ranking+"%) <em>"+data[i].label+"</em><br>"+data[i].vocabulary+"</span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>");
 			}
 
 			addInnerDiv($("#search_result_"+widget_num));
