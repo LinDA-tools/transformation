@@ -286,7 +286,7 @@ function displayChosenURI(w, widget_num) {
 function adapt_RDF_preview() {
 
 
-	eval($("#id_hidden_rdf_array_field").val());
+	var rdf_array = eval($("#id_hidden_rdf_array_field").val());
 
 	if( Object.prototype.toString.call( rdf_array ) !== '[object Array]' ) {
 		var tbl = document.createTextNode("No RDF");

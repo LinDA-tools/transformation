@@ -187,7 +187,7 @@ function shortenURI(uri, maxlength){
 
 function adapt_RDF_preview() {
 	var rdf_array = eval($("#id_hidden_rdf_array_field").val());
-console.log(rdf_array);
+
 	if( Object.prototype.toString.call( rdf_array ) !== '[object Array]' ) {
 		var tbl = document.createTextNode("No RDF");
 	}else{
