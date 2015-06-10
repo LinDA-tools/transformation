@@ -355,6 +355,12 @@ function rdf_array_to_table(rdf_array) {
                 	row.appendChild(cell);
 		}
 
+		//trailing "." for turtle document
+		var cell = document.createElement("td");
+		var cellText = document.createTextNode(".");
+                cell.appendChild(cellText);
+                row.appendChild(cell);
+
 		//row added to end of table body
 		tblBody.appendChild(row);
 	}

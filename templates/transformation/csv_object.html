@@ -197,7 +197,7 @@ console.log(rdf_array);
 				i-=num_cols;
 				console.log(i+" x " + $(this).find("span:first-child").text());
 				if($(this).find(".bb_select").length>0) { // has reconsiliation result (dropbox)
-					rdf_array[i][2] = "<"+$(this).find(".bb_select_selection").text()+">";
+					rdf_array[i][2] = $(this).find(".bb_select_selection").text();
 				}
 			}
 		});
@@ -231,6 +231,27 @@ function rdf_array_to_table(rdf_array) {
 	var tbl     = document.createElement("table");
 	var tblBody = document.createElement("tbody");
 
+	//Prefixes
+	var row = document.createElement("tr");
+	var cell = document.createElement("td");
+	var cellText = document.createTextNode("@prefix");
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+	cell = document.createElement("td");
+	cellText = document.createTextNode("dbpedia:");
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+	cell = document.createElement("td");
+	cellText = document.createTextNode("http://dbpedia.org/resource");
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+	cell = document.createElement("td");
+	cellText = document.createTextNode(".");
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+	tblBody.appendChild(row);
+
+
 	// cells creation
 	for(var i=0; i<rdf_array.length; i++){
 		// table row creation
@@ -246,6 +267,12 @@ function rdf_array_to_table(rdf_array) {
                 	cell.appendChild(cellText);
                 	row.appendChild(cell);
 		}
+
+		//trailing "." for turtle document
+		var cell = document.createElement("td");
+		var cellText = document.createTextNode(".");
+                cell.appendChild(cellText);
+                row.appendChild(cell);
 
 		//row added to end of table body
 		tblBody.appendChild(row);
