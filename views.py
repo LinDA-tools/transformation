@@ -70,9 +70,9 @@ def csv_upload(request):
             form = UploadFileForm(request.POST, request.FILES)
             uploadFileName = request.FILES['upload_file'].name
             uploadFile = request.FILES['upload_file'].file
-            print(uploadFileName[-4:]);
+            #print(uploadFileName[-4:]);
             if (uploadFileName[-4:] == "xlsx" or uploadFileName[-4:] == ".xls"):
-                print(uploadFileName[-4:]);
+                #print(uploadFileName[-4:]);
                 data_xls = pd.read_excel(request.FILES['upload_file'], 0, index_col=None)
                 if not os.path.exists('tmp'):
                     os.makedirs('tmp')
@@ -114,7 +114,6 @@ def csv_upload(request):
                 'csvDialect': request.session['csv_dialect'],
                 'filename': request.session['file_name']
             }
-            print("next screen")
             return render(request, 'transformation/csv_upload.html', html_post_data)
 
     # html GET, we get here when loading the page 'for the first time'
@@ -231,14 +230,22 @@ def csv_enrich(request):
 
 def csv_publish(request):
     print("VIEW csv_publish")
-    form_action = 8
+    form_action = 7 #refers to itself
     form = PublishForm(request.POST)
+    rdf_n3 = "@prefix dbpedia: http://dbpedia.org/resource\n"
     if request.POST and form.is_valid() and form != None:
                 # content  is passed on via hidden html input fields
                 if form.cleaned_data['hidden_rdf_array_field']:
                     request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
+                    for row in eval(request.session['rdf_array']):
+                        for elem in row:
+                            rdf_n3 += elem + "	"
+                        rdf_n3 += ".\n"
+                    #print(rdf_n3)
                 else: 
                     request.session['rdf_array'] = "no rdf"
+
+    # ALAN: rdf_n3 beinhaltet RDF N3 als String, eval(request.session['rdf_array']) array (ohne prefixe)
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
@@ -285,7 +292,7 @@ def get_selected_rows_content(session):
     col_nums = []
     for col_num in session['selected_columns']:
         col_nums.append(col_num.get("column_number"))
-    print("colnums ", col_nums)
+    #print("colnums ", col_nums)
 
     for row in session['csv_rows']:
         tmp_row = []
@@ -370,12 +377,12 @@ def store_csv_in_model(csv_rows, csv_id=None, csv_raw=None, file_name=None):
                     m_column = Column(csv=m_csv)
                     m_column.topic = row
                     m_column.save()
-                    print("column "+str(m_column.id))
+                    #print("column "+str(m_column.id))
                 else:
                     m_field = Field(content=field, index=num_field, data_type=0, column=m_column)
                     m_field.save()
         m_csv.save()
-        print("CSV #"+str(m_csv.id)+" stored in DB.")
+        #print("CSV #"+str(m_csv.id)+" stored in DB.")
     else:
         m_csv = CSV.objects.filter(id=csv_id)[0]
     #if m_csv == None

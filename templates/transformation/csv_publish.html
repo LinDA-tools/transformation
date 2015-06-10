@@ -22,14 +22,14 @@
 
 	<div class="col-5-10 right-side-box">
 		
-
+	<input type="submit" id="button_publish" value="Publish to triple store">
 
 
 	</div>
 
 </div>
 
-<div class="content scrollit">
+<!--div class="content scrollit">
 	<h3>DATA VIEW</h3>
 	File: <b>{{ filename }}</b> (10 rows example)
 	<table class="table_view">
@@ -48,7 +48,7 @@
 		</tr>
 		{% endfor %}	
 	</table>
-</div>
+</div-->
 
 <div class="content" id="rdf_view">
 	<h3>RDF VIEW</h3>
@@ -153,7 +153,7 @@ $( document ).ready(function() {
 		askOracle(i+1);
 	});*/
 
-	//$("#button_next").attr("disabled", "disabled");
+	$("#button_next").css("display", "none");
 
 });
 
