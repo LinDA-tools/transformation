@@ -297,10 +297,13 @@ $( document ).ready(function() {
 
 	$("td[id^='id_table_field_']").each( function(i){
 		var id = $(this).attr("id");
-		var lastChar = id.slice(-3,-2);
-		if(lastChar!="1"){//not first row = table header
+		//get row and column field as included in table td id field
+		id_array = id.split("_");
+		var column = id_array[3];
+		var row = id_array[4];
+		if(column!="1"){//not first row = table header
 			//get first row
-			var topic_field = id.slice(0,-3) + "1" + id.slice(-2);
+			var topic_field = "id_table_field_1_" + row;
 			var topic = $("#"+topic_field).text().trim();
 			askOracle($(this), topic, $(this).text().trim());
 		}
