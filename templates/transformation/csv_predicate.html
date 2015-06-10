@@ -286,10 +286,10 @@ function displayChosenURI(w, widget_num) {
 function adapt_RDF_preview() {
 
 
-	var rdf_array = eval(rdf_content.value);
+	eval($("#id_hidden_rdf_array_field").val());
 
 	if( Object.prototype.toString.call( rdf_array ) !== '[object Array]' ) {
-		var tbl = "<span class=\"red\">NO RDF</span>";
+		var tbl = document.createTextNode("No RDF");
 	}else{
 
 		//how many columns
