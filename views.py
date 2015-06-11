@@ -17,7 +17,7 @@ import json
 
 
 # ###############################################
-#  MODELS 
+#  MODELS
 # ###############################################
 
 
@@ -60,7 +60,7 @@ def csv_upload(request):
                 uploadFileName = form.cleaned_data['hidden_filename_field']
 
             # if page is loaded without POST
-            else: 
+            else:
                 print("PATH 1.2")
 
         # when an upload file was selected in html form, APPLY BUTTON
@@ -158,7 +158,7 @@ def csv_subject(request):
     # csv without rows that were not selected in html form
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
-        'action': form_action, 
+        'action': form_action,
         'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name']
     }
@@ -173,7 +173,7 @@ def csv_predicate(request):
                 # content  is passed on via hidden html input fields
                 if form.cleaned_data['hidden_rdf_array_field']:
                     request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
-                else: 
+                else:
                     request.session['rdf_array'] = "no rdf"
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)
@@ -194,7 +194,7 @@ def csv_object(request):
                 # content  is passed on via hidden html input fields
                 if form.cleaned_data['hidden_rdf_array_field']:
                     request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
-                else: 
+                else:
                     request.session['rdf_array'] = "no rdf"
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)
@@ -215,7 +215,7 @@ def csv_enrich(request):
                 # content  is passed on via hidden html input fields
                 if form.cleaned_data['hidden_rdf_array_field']:
                     request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
-                else: 
+                else:
                     request.session['rdf_array'] = "no rdf"
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)
@@ -232,18 +232,23 @@ def csv_publish(request):
     print("VIEW csv_publish")
     form_action = 7 #refers to itself
     form = PublishForm(request.POST)
-    rdf_n3 = "@prefix dbpedia: http://dbpedia.org/resource\n"
+    rdf_n3 = "@prefix dbpedia: <http://dbpedia.org/resource> .\n"
     if request.POST and form.is_valid() and form != None:
                 # content  is passed on via hidden html input fields
                 if form.cleaned_data['hidden_rdf_array_field']:
                     request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
                     for row in eval(request.session['rdf_array']):
                         for elem in row:
-                            rdf_n3 += elem + "	"
+                            rdf_n3 += elem + " "
                         rdf_n3 += ".\n"
                     #print(rdf_n3)
-                else: 
+                else:
                     request.session['rdf_array'] = "no rdf"
+                if 'button_publish' in request.POST:
+                    print("PUBLISH BUTTON PRESSED")
+                    payload = {'title': request.session['file_name'], 'content': rdf_n3, 'format': 'text/rdf+n3'}
+                    r = requests.post('http://linda.epu.ntua.gr:8000/api/datasource/create/', data=payload)
+                    print(r.content)
 
     # ALAN: rdf_n3 beinhaltet RDF N3 als String, eval(request.session['rdf_array']) array (ohne prefixe)
 
