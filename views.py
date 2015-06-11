@@ -239,13 +239,16 @@ def csv_publish(request):
                     request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
                     for row in eval(request.session['rdf_array']):
                         for elem in row:
+                            #elem = elem.replace(".", "\U0000002E")
+                            elem = elem.replace(".", "")
                             rdf_n3 += elem + " "
                         rdf_n3 += ".\n"
-                    #print(rdf_n3)
+
                 else:
                     request.session['rdf_array'] = "no rdf"
                 if 'button_publish' in request.POST:
                     print("PUBLISH BUTTON PRESSED")
+                    print(rdf_n3)
                     payload = {'title': request.session['file_name'], 'content': rdf_n3, 'format': 'text/rdf+n3'}
                     r = requests.post('http://linda.epu.ntua.gr:8000/api/datasource/create/', data=payload)
                     print(r.content)
