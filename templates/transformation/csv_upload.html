@@ -123,7 +123,7 @@
             {% for line in csvContent|slice:":1" %}
                 <tr>
                     {% for field in line %}
-                        <td>{{ field }}
+                        <td id="id_table_head_{{ forloop.counter }}">{{ field }}
                         </td>
                     {% endfor %}
                 </tr>
