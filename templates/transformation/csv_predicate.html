@@ -13,6 +13,7 @@
 {% endfor %}
 
 <input type="hidden" name="hidden_rdf_array_field" id ="id_hidden_rdf_array_field" value="{{ rdfArray }}">
+<input type="hidden" name="hidden_rdf_prefix_field" id ="id_hidden_rdf_prefix_field" value="{{ rdfPrefix }}">
 
 <div class="content grid">
 	<div class="col-6-10 left-side-box">
@@ -286,8 +287,8 @@ function displayChosenURI(w, widget_num) {
 	document.getElementById('search_result_'+widget_num).scrollTop = topPos;
 }*/
 
-function adapt_RDF_preview() {
 
+function adapt_RDF_preview() {
 
 	var rdf_array = eval($("#id_hidden_rdf_array_field").val());
 
@@ -298,19 +299,47 @@ function adapt_RDF_preview() {
 		//how many columns
 		var num_columns = eval(csv_content.value)[0].length;
 
-		var found_one_undefined = false;
+		var found_one_undefined = false; // nothing could be retrieved via oracle api call
 		for(var i=0; i<rdf_array.length/num_columns; i++) {
 			for(var j=0; j<num_columns; j++) {
 				var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
 
 				if(typeof href === "undefined") {
-					href=" ? ";
 					found_one_undefined = true;
+					rdf_array[i*num_columns+j][1]="< ? >";
+				}else{
+/*
+					var prefixed = replacePrefix(href);
+					if(prefixed[1]=="none")
+						rdf_array[i*num_columns+j][1]="<"+href+">";
+					else{
+						rdf_array[i*num_columns+j][1]=prefixed[0];
+
+
+						// no duplicates
+						var already_in = false;
+						for(var k = 0 ; k < used_prefixes.length; k++){
+							if(used_prefixes[k][1] == prefixed[1]+":"){
+								already_in = true;
+								//break;
+							}
+						}
+
+						if(already_in === false){
+							used_prefixes.push(["prefix", prefixed[1] + ":", href]);
+						}
+
+					}
+*/
+					rdf_array[i*num_columns+j][1] = prefixise(href);
 				}
-				rdf_array[i*num_columns+j][1]="<"+href+">";
 
 			}
-		}	
+		}
+
+		$("#id_hidden_rdf_prefix_field").val(JSON.stringify(used_prefixes));
+
+		rdf_content.value = JSON.stringify(rdf_array);	
 
 		//enables or disabled next button depending on rdf graph completeness
 		if(!found_one_undefined) {
@@ -320,11 +349,12 @@ function adapt_RDF_preview() {
 			$("#button_next").attr("disabled", "disabled");
 		}
 
-		var tbl = rdf_array_to_table(rdf_array);
+
 		//store in form and make available in backend
 		rdf_content.value = JSON.stringify(rdf_array);
+		$("#id_hidden_rdf_prefix_field").val(JSON.stringify(used_prefixes));
 		//make visible in frontend
-		var tbl = rdf_array_to_table(rdf_array);
+		var tbl = rdf_array_to_table(rdf_array, used_prefixes);
 	}
 	while (rdf_view.firstChild) { //remove all children
     		rdf_view.removeChild(rdf_view.firstChild);
@@ -337,44 +367,49 @@ function adapt_RDF_preview() {
 }
 
 
-function rdf_array_to_table(rdf_array) {
-	// create elements <table> and a <tbody>
-	var tbl     = document.createElement("table");
-	var tblBody = document.createElement("tbody");
 
-	// cells creation
-	for(var i=0; i<rdf_array.length; i++){
-		// table row creation
-		var row = document.createElement("tr");
 
-		for(var j=0; j<rdf_array[i].length; j++){
-			// create element <td> and text node 
-		        //Make text node the contents of <td> element
-		        // put <td> at end of the table row
-			var cell = document.createElement("td");    
-			var cellText = document.createTextNode(rdf_array[i][j]); 
 
-                	cell.appendChild(cellText);
-                	row.appendChild(cell);
+function replacePrefix(uri){
+	var result = [uri, "none"];
+	$.each(prefixes, function(key, value){
+		if(uri.indexOf(key) >- 1){
+			result[0] = value + ":" + uri.replace(key, "");
+			result[1] = value;
+			return;
+		}
+	return;
+	});
+	return result;
+};
+
+used_prefixes = [];
+
+//takes uri and reflaces with prefix or otherwise surrounds with <>
+function prefixise(href){
+	var prefixed = replacePrefix(href);
+	var result = "";
+	if(prefixed[1]=="none"){
+		result = "<"+href+">";
+	}else{
+		result = prefixed[0];
+
+
+		// no duplicates
+		var already_in = false;
+		for(var k = 0 ; k < used_prefixes.length; k++){
+			if(used_prefixes[k][1] == prefixed[1]+":"){
+				already_in = true;
+				break;
+			}
 		}
 
-		//trailing "." for turtle document
-		var cell = document.createElement("td");
-		var cellText = document.createTextNode(".");
-                cell.appendChild(cellText);
-                row.appendChild(cell);
-
-		//row added to end of table body
-		tblBody.appendChild(row);
+		if(already_in === false){
+			used_prefixes.push(["prefix", prefixed[1] + ":", href]);
+		}
 	}
-
-        // append the <tbody> inside the <table>
-        tbl.appendChild(tblBody);
- 
-        tbl.setAttribute("class", "rdf_table");
-	return tbl;
+	return result;
 }
-
 
 
 $( document ).ready(function() {
@@ -389,7 +424,6 @@ $( document ).ready(function() {
 	});
 
 	$("#button_next").attr("disabled", "disabled");
-
 });
 
 

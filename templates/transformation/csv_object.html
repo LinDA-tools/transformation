@@ -13,6 +13,7 @@
 {% endfor %}
 
 <input type="hidden" name="hidden_rdf_array_field" id ="id_hidden_rdf_array_field" value="{{ rdfArray }}">
+<input type="hidden" name="hidden_rdf_prefix_field" id ="id_hidden_rdf_prefix_field" value="{{ rdfPrefix }}">
 
 <div class="content grid">
 	<div class="col-5-10 left-side-box">
@@ -149,11 +150,10 @@
 
 //http://localhost:8000/transformation/lookup/place/Berlin/
 
-var zindex = 0;
 
 // e.g. domain = bird; term = sparrow, tit, ..
 function askOracle(widget, domain, term){
-//console.log('http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + domain + '&QueryString=' + term);
+	//console.log('http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + domain + '&QueryString=' + term);
 	var request = $.ajax({
 		type: 'GET',
 		dataType: 'json',
@@ -175,7 +175,7 @@ function askOracle(widget, domain, term){
 			var list = "<div class=\"bb_select\" id=\""+new_id+"\">";
 			for(var i=0; i<data.results.length; i++){
 				var link = "<a href=\""+data.results[i].uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"
-				list += "<div>"+link+data.results[i].uri.replace("http://dbpedia.org/resource/","dbpedia:")+"</div>"
+				list += "<div>"+link+data.results[i].uri+"</div>";
 
 			}
 			list += "</div>";
@@ -211,24 +211,65 @@ function shortenURI(uri, maxlength){
 	}	
 }
 
+
+function replacePrefix(uri){
+	var result = [uri, "none"];
+	$.each(prefixes, function(key, value){
+		if(uri.indexOf(key) >- 1){
+			result[0] = value + ":" + uri.replace(key, "");
+			result[1] = value;
+			return;
+		}
+	return;
+	});
+	return result;
+};
+
+used_prefixes = [];
+
+//takes uri and reflaces with prefix or otherwise surrounds with <>
+function prefixise(href){
+	var prefixed = replacePrefix(href);
+	var result = "";
+	if(prefixed[1]=="none"){
+		result = "<"+href+">";
+	}else{
+		result = prefixed[0];
+
+
+		// no duplicates
+		var already_in = false;
+		for(var k = 0 ; k < used_prefixes.length; k++){
+			if(used_prefixes[k][1] == prefixed[1]+":"){
+				already_in = true;
+				break;
+			}
+		}
+
+		if(already_in === false){
+			used_prefixes.push(["prefix", prefixed[1] + ":", href]);
+		}
+	}
+	return result;
+}
+
+
 function adapt_RDF_preview() {
 	var rdf_array = eval($("#id_hidden_rdf_array_field").val());
 
 	if( Object.prototype.toString.call( rdf_array ) !== '[object Array]' ) {
 		var tbl = document.createTextNode("No RDF");
 	}else{
-		var num_cols = $("table.table_view tbody tr:first-child td").length;
 		$("td[id^='id_table_field']").each(function(i){
-			i-=num_cols;
 			if($(this).find(".bb_select").length>0) { // has reconsiliation result (dropbox)
-				rdf_array[i][2] = $(this).find(".bb_select_selection").text();
+				rdf_array[i][2] = prefixise($(this).find(".bb_select_selection").text());
 			}
 		});
-
 		//store in form and make available in backend
 		$("#id_hidden_rdf_array_field").val(JSON.stringify(rdf_array));
+		$("#id_hidden_rdf_prefix_field").val(JSON.stringify(used_prefixes));
 		//make visible in frontend
-		var tbl = rdf_array_to_table(rdf_array);
+		var tbl = rdf_array_to_table(rdf_array, eval($("#id_hidden_rdf_prefix_field").val()));
 	}
 	while (rdf_view.firstChild) { //remove all children
 	    	rdf_view.removeChild(rdf_view.firstChild);
@@ -240,69 +281,15 @@ function adapt_RDF_preview() {
 }
 
 
-function rdf_array_to_table(rdf_array) {
-	// create elements <table> and a <tbody>
-	var tbl     = document.createElement("table");
-	var tblBody = document.createElement("tbody");
-
-	//Prefixes
-	var row = document.createElement("tr");
-	var cell = document.createElement("td");
-	var cellText = document.createTextNode("@prefix");
-        cell.appendChild(cellText);
-        row.appendChild(cell);
-	cell = document.createElement("td");
-	cellText = document.createTextNode("dbpedia:");
-        cell.appendChild(cellText);
-        row.appendChild(cell);
-	cell = document.createElement("td");
-	cellText = document.createTextNode("http://dbpedia.org/resource");
-        cell.appendChild(cellText);
-        row.appendChild(cell);
-	cell = document.createElement("td");
-	cellText = document.createTextNode(".");
-        cell.appendChild(cellText);
-        row.appendChild(cell);
-	tblBody.appendChild(row);
-
-
-	// cells creation
-	for(var i=0; i<rdf_array.length; i++){
-		// table row creation
-		var row = document.createElement("tr");
-
-		for(var j=0; j<rdf_array[i].length; j++){
-			// create element <td> and text node 
-		        //Make text node the contents of <td> element
-		        // put <td> at end of the table row
-			var cell = document.createElement("td");    
-			var cellText = document.createTextNode(rdf_array[i][j]); 
-
-                	cell.appendChild(cellText);
-                	row.appendChild(cell);
-		}
-
-		//trailing "." for turtle document
-		var cell = document.createElement("td");
-		var cellText = document.createTextNode(".");
-                cell.appendChild(cellText);
-                row.appendChild(cell);
-
-		//row added to end of table body
-		tblBody.appendChild(row);
-	}
-
-        // append the <tbody> inside the <table>
-        tbl.appendChild(tblBody);
- 
-        tbl.setAttribute("class", "rdf_table");
-	return tbl;
-}
 
 var rdf_content = $("#id_hidden_rdf_array_field");
 
 
 $( document ).ready(function() {
+
+var rdf_prefix = eval($("#id_hidden_rdf_prefix_field").val());
+used_prefixes = rdf_prefix;
+
 
 	//rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
 	//rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.val())));
@@ -318,12 +305,12 @@ $( document ).ready(function() {
 
 		var topic_field = "id_table_head_" + row;
 		var topic = $("#"+topic_field).text().trim();
-console.log("oracle +"+$(this)+" "+topic+" "+$(this).text().trim());
 		askOracle($(this), topic, $(this).text().trim());
 
 	});
 
 	//$("#button_next").attr("disabled", "disabled");
+
 
 });
 

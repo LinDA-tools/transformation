@@ -5,6 +5,7 @@ hidden_filename_field = forms.CharField(widget=forms.HiddenInput(),required = Fa
 #hidden_csv_content_field = forms.CharField(widget=forms.HiddenInput(),required = False)
 hidden_csv_raw_field = forms.CharField(widget=forms.HiddenInput(),required = False)
 hidden_rdf_array_field = forms.CharField(widget=forms.HiddenInput(),required = False)
+hidden_rdf_prefix_field = forms.CharField(widget=forms.HiddenInput(),required = False)
 #hidden_csv_dialect_field = forms.CharField(widget=forms.HiddenInput(),required = False)
 
 class DataChoiceForm(forms.Form):
@@ -47,19 +48,23 @@ class PredicateForm(forms.Form):
     hidden_filename_field = hidden_filename_field
     hidden_csv_raw_field = hidden_csv_raw_field
     hidden_rdf_array_field = hidden_rdf_array_field
+    hidden_rdf_prefix_field = hidden_rdf_prefix_field
 
 class ObjectForm(forms.Form):
     hidden_filename_field = hidden_filename_field
     hidden_csv_raw_field = hidden_csv_raw_field
     hidden_rdf_array_field = hidden_rdf_array_field
+    hidden_rdf_prefix_field = hidden_rdf_prefix_field
 
 class EnrichForm(forms.Form):
     hidden_filename_field = hidden_filename_field
     hidden_csv_raw_field = hidden_csv_raw_field
     hidden_rdf_array_field = hidden_rdf_array_field
+    hidden_rdf_prefix_field = hidden_rdf_prefix_field
 
 class PublishForm(forms.Form):
     hidden_filename_field = hidden_filename_field
     hidden_csv_raw_field = hidden_csv_raw_field
     hidden_rdf_array_field = hidden_rdf_array_field
+    hidden_rdf_prefix_field = hidden_rdf_prefix_field
 

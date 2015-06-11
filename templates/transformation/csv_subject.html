@@ -13,6 +13,7 @@
 {% endfor %}
 
 <input type="hidden" name="hidden_rdf_array_field" id ="id_hidden_rdf_array_field" value="{{ rdfArray }}">
+<input type="hidden" name="hidden_rdf_prefix_field" id ="id_hidden_rdf_prefix_field" value="{{ rdfPrefix }}">
 
 <div class="content grid">
 	<div class="col-5-10 left-side-box">
@@ -191,7 +192,7 @@ function adapt_RDF_preview(){
 	//store in form and make available in backend
 	rdf_content.value = JSON.stringify(rdf_array);
 	//make visible in frontend
-	var tbl = rdf_array_to_table(rdf_array);
+	var tbl = rdf_array_to_table(rdf_array, []);
 	while (rdf_view.firstChild) { //remove all children
     		rdf_view.removeChild(rdf_view.firstChild);
 	}
@@ -211,37 +212,7 @@ function toLetters(num) {
     return pow ? toLetters(pow) + out : out;
 }
 
-function rdf_array_to_table(rdf_array) {
-	// create elements <table> and a <tbody>
-	var tbl     = document.createElement("table");
-	var tblBody = document.createElement("tbody");
 
-	// cells creation
-	for(var i=0; i<rdf_array.length; i++){
-		// table row creation
-		var row = document.createElement("tr");
-
-		for(var j=0; j<rdf_array[i].length; j++){
-			// create element <td> and text node 
-		        //Make text node the contents of <td> element
-		        // put <td> at end of the table row
-			var cell = document.createElement("td");    
-			var cellText = document.createTextNode(rdf_array[i][j]); 
-
-                	cell.appendChild(cellText);
-                	row.appendChild(cell);
-		}
-
-		//row added to end of table body
-		tblBody.appendChild(row);
-	}
-
-        // append the <tbody> inside the <table>
-        tbl.appendChild(tblBody);
- 
-        tbl.setAttribute("class", "rdf_table");
-	return tbl;
-}
 
 function create_multidim_array(x,y){
 	var f = [];

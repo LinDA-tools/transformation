@@ -176,12 +176,18 @@ def csv_predicate(request):
                 else:
                     request.session['rdf_array'] = "no rdf"
 
+                if form.cleaned_data['hidden_rdf_prefix_field']:
+                    request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
+                else:
+                    request.session['rdf_prefix'] = "no rdf"
+
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'action': form_action,
         'csvContent':  csv_rows_selected_columns[:11],
         'filename': request.session['file_name'],
-        'rdfArray': request.session['rdf_array']
+        'rdfArray': request.session['rdf_array'],
+	'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_predicate.html', html_post_data)
 
@@ -197,12 +203,18 @@ def csv_object(request):
                 else:
                     request.session['rdf_array'] = "no rdf"
 
+                if form.cleaned_data['hidden_rdf_prefix_field']:
+                    request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
+                else:
+                    request.session['rdf_prefix'] = "no rdf"
+
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'action': form_action,
-        'csvContent':  csv_rows_selected_columns,
+        'csvContent':  csv_rows_selected_columns[:11],
         'filename': request.session['file_name'],
-        'rdfArray': request.session['rdf_array']
+        'rdfArray': request.session['rdf_array'],
+	'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_object.html', html_post_data)
 
@@ -218,12 +230,18 @@ def csv_enrich(request):
                 else:
                     request.session['rdf_array'] = "no rdf"
 
+                if form.cleaned_data['hidden_rdf_prefix_field']:
+                    request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
+                else:
+                    request.session['rdf_prefix'] = "no rdf"
+
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'action': form_action,
         'csvContent':  csv_rows_selected_columns[:11],
         'filename': request.session['file_name'],
-        'rdfArray': request.session['rdf_array']
+        'rdfArray': request.session['rdf_array'],
+	'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_enrich.html', html_post_data)
 
@@ -244,6 +262,12 @@ def csv_publish(request):
                     #print(rdf_n3)
                 else:
                     request.session['rdf_array'] = "no rdf"
+
+                if form.cleaned_data['hidden_rdf_prefix_field']:
+                    request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
+                else:
+                    request.session['rdf_prefix'] = "no rdf"
+
                 if 'button_publish' in request.POST:
                     print("PUBLISH BUTTON PRESSED")
                     payload = {'title': request.session['file_name'], 'content': rdf_n3, 'format': 'text/rdf+n3'}
@@ -257,7 +281,8 @@ def csv_publish(request):
         'action': form_action,
         'csvContent':  csv_rows_selected_columns[:11],
         'filename': request.session['file_name'],
-        'rdfArray': request.session['rdf_array']
+        'rdfArray': request.session['rdf_array'],
+	'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_publish.html', html_post_data)
 
