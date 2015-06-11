@@ -235,8 +235,8 @@ def csv_publish(request):
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
             for row in eval(request.session['rdf_array']):
                 for elem in row:
-                    #elem = elem.replace(".", "\U0000002E")
-                    elem = elem.replace(".", "")
+                    if elem[-1:] == ".":
+                        elem = elem[:-1]
                     rdf_n3 += elem + " "
                 rdf_n3 += ".\n"
 
