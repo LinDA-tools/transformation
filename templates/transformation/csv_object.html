@@ -1,86 +1,89 @@
-	{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block css %}
 {% endblock %}
 
 {% block content %}
 
-{% include "transformation/snippets/title_snippet.html" with format='CSV' %}
+    {% include "transformation/snippets/title_snippet.html" with format='CSV' %}
 
-<!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
-{% for hidden in form.hidden_fields %}
-    {{ hidden }}
-{% endfor %}
+    <!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
+    {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+    {% endfor %}
 
-<input type="hidden" name="hidden_rdf_array_field" id ="id_hidden_rdf_array_field" value="{{ rdfArray }}">
+    <input type="hidden" name="hidden_rdf_array_field" id="id_hidden_rdf_array_field" value="{{ rdfArray }}">
 
-<div class="content grid">
-	<div class="col-5-10 left-side-box">
-		<h3>Specify the RDF Object</h3>
-		<p>In this step, you can either choose a datatype (such as "Text", "Floating Point Number", "Integer", ...) for a table row or try and let us reconsiliate your data against the DBPedia triple store. That is, we will automatically look up an URI in the DBPedia-Project that might represent the data within each of your table rows.</p>
-		<p>As always, the results can be seen in the RDF preview at the page bottom.</p>
-	</div>
+    <div class="content grid">
+        <div class="col-5-10 left-side-box">
+            <h3>Specify the RDF Object</h3>
 
-	<div class="col-5-10 right-side-box">
-		
+            <p>In this step, you can either choose a datatype (such as "Text", "Floating Point Number", "Integer", ...)
+                for a table row or try and let us reconsiliate your data against the DBPedia triple store. That is, we
+                will automatically look up an URI in the DBPedia-Project that might represent the data within each of
+                your table rows.</p>
 
+            <p>As always, the results can be seen in the RDF preview at the page bottom.</p>
+        </div>
 
-
-	</div>
-
-</div>
-
-<div class="content scrollit">
-	<h3>DATA VIEW</h3>
-	File: <b>{{ filename }}</b> (10 rows example)
-	<table class="table_view">
-	<thead>
-
-		{% for line in csvContent|slice:":1" %}
-		<tr>
-			{% for field in line %}
-				<td id="id_table_settings_{{ forloop.counter }}">
-					<span>somesetting</span>
-				</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}
-
-		{% for line in csvContent|slice:":1" %}
-		<tr>
-			{% for field in line %}
-				<td id="id_table_head_{{ forloop.counter }}">
-					<span>{{ field }}</span>
-				</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}
+        <div class="col-5-10 right-side-box">
 
 
-	</thead>
-	<tbody>
-		{% for line in csvContent|slice:"1:" %}
-		<tr>
-			{% for field in line %}
-				<td id="id_table_field_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
-					<span>{{ field }}</span>
-				</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}	
-	</tbody>
-	</table>
-<div style="clear:both;"></div>
-</div>
+        </div>
 
-<div class="content" id="rdf_view">
-	<h3>RDF VIEW</h3>
+    </div>
 
-</div>
+    <div class="content scrollit">
+        <h3>DATA VIEW</h3>
+        File: <b>{{ filename }}</b> (10 rows example)
+        <table class="table_view">
+            <thead>
 
-</form>
+            {% for line in csvContent|slice:":1" %}
+                <tr>
+                    {% for field in line %}
+                        <td id="id_table_settings_{{ forloop.counter }}">
+                            <span>somesetting</span>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
 
-<script>
+            {% for line in csvContent|slice:":1" %}
+                <tr>
+                    {% for field in line %}
+                        <td id="id_table_head_{{ forloop.counter }}">
+                            <span>{{ field }}</span>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+
+
+            </thead>
+            <tbody>
+            {% for line in csvContent|slice:"1:" %}
+                <tr>
+                    {% for field in line %}
+                        <td id="id_table_field_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
+                            <span>{{ field }}</span>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div style="clear:both;"></div>
+    </div>
+
+    <div class="content" id="rdf_view">
+        <h3>RDF VIEW</h3>
+
+    </div>
+
+    </form>
+
+    <script>
 
     function addInnerDiv(elem) {
 
@@ -97,32 +100,32 @@
             text: "please chose"
         }).appendTo(innerDiv);
 
-	selectionDiv.css("position","relative");
+        selectionDiv.css("position", "relative");
 
-	//font awesome arrow down
+        //font awesome arrow down
         var caretDown = jQuery('<i/>', {
             class: "fa fa-caret-square-o-down fa-2x"
         }).appendTo(selectionDiv);
 
-        caretDown.css("position","absolute");
-        caretDown.css("top",".1em");
-        caretDown.css("right",".2em");
-        caretDown.css("color","#888");
+        caretDown.css("position", "absolute");
+        caretDown.css("top", ".1em");
+        caretDown.css("right", ".2em");
+        caretDown.css("color", "#888");
 
-        elem.on("mouseover", function() {
-        	$(this).find("i:last-child").css("opacity","1");
-		$(this).find("div div").css("z-index", 999999);
+        elem.on("mouseover", function () {
+            $(this).find("i:last-child").css("opacity", "1");
+            $(this).find("div div").css("z-index", 999999);
         });
 
-        elem.on("mouseout", function() {
-        	$(this).find("i:last-child").css("opacity",".3");
-		$(this).find("div div").css("z-index", "auto");
+        elem.on("mouseout", function () {
+            $(this).find("i:last-child").css("opacity", ".3");
+            $(this).find("div div").css("z-index", "auto");
         });
 
         var elementsDiv = jQuery('<div/>', {
             class: "bb_select_elements"
         }).appendTo(innerDiv);
-        
+
         elementsDiv.append(kids);
 
         kids.each(function (i) {
@@ -147,187 +150,187 @@
     }
 
 
-//http://localhost:8000/transformation/lookup/place/Berlin/
+    //http://localhost:8000/transformation/lookup/place/Berlin/
 
-var zindex = 0;
+    var zindex = 0;
 
-// e.g. domain = bird; term = sparrow, tit, ..
-function askOracle(widget, domain, term){
+    // e.g. domain = bird; term = sparrow, tit, ..
+    function askOracle(widget, domain, term) {
 //console.log('http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + domain + '&QueryString=' + term);
-	var request = $.ajax({
-		type: 'GET',
-		dataType: 'json',
-		//url: "http://localhost:8000/transformation/lookup/"+domain+"/"+term+"/",
-		url: 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + domain + '&QueryString=' + term,
-	});
+        var request = $.ajax({
+            type: 'GET',
+            dataType: 'json',
+            //url: "http://localhost:8000/transformation/lookup/"+domain+"/"+term+"/",
+            url: 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + domain + '&QueryString=' + term,
+        });
 
-	request.fail(function (xhr, ajaxOptions, thrownError) {
-		widget.html(widget.text()+ " (ERROR<br>"+thrownError+")");
+        request.fail(function (xhr, ajaxOptions, thrownError) {
+            widget.html(widget.text() + " (ERROR<br>" + thrownError + ")");
 
-	});
+        });
 
-	var new_id = "search_result_"+widget.attr("id");
-	request.success(function (data) {
+        var new_id = "search_result_" + widget.attr("id");
+        request.success(function (data) {
 
-		if(data.results.length===0){
-			widget.html(widget.html()+"<br><span class=\"red\" onmouseover=\"Tip('We were unable to find results in DBPedia which match this table cell.')\" onmouseout=\"UnTip()\">No reconciliation results.</span>");
-		}else{
-			var list = "<div class=\"bb_select\" id=\""+new_id+"\">";
-			for(var i=0; i<data.results.length; i++){
-				var link = "<a href=\""+data.results[i].uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"
-				list += "<div>"+link+data.results[i].uri.replace("http://dbpedia.org/resource/","dbpedia:")+"</div>"
+            if (data.results.length === 0) {
+                widget.html(widget.html() + "<br><span class=\"red\" onmouseover=\"Tip('We were unable to find results in DBPedia which match this table cell.')\" onmouseout=\"UnTip()\">No reconciliation results.</span>");
+            } else {
+                var list = "<div class=\"bb_select\" id=\"" + new_id + "\">";
+                for (var i = 0; i < data.results.length; i++) {
+                    var link = "<a href=\"" + data.results[i].uri + "\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"
+                    list += "<div>" + link + data.results[i].uri.replace("http://dbpedia.org/resource/", "dbpedia:") + "</div>"
 
-			}
-			list += "</div>";
-			widget.html(widget.html()+"<br>"+list);
-			addInnerDiv($("#"+new_id));
-			//auto-select first element after oracle call
-			$(widget).find("* .bb_select_elements").children().first().trigger("click");
-		}
+                }
+                list += "</div>";
+                widget.html(widget.html() + "<br>" + list);
+                addInnerDiv($("#" + new_id));
+                //auto-select first element after oracle call
+                $(widget).find("* .bb_select_elements").children().first().trigger("click");
+            }
 
-	});
+        });
 
-	return request;
-}
+        return request;
+    }
 
-function shortenURI(uri, maxlength){
-	if(uri.length <= maxlength)
-		return uri;
+    function shortenURI(uri, maxlength) {
+        if (uri.length <= maxlength)
+            return uri;
 
-	maxlength = maxlength -3; //because we include "..."
+        maxlength = maxlength - 3; //because we include "..."
 
-	var parts = uri.split("/");
-	var head = parts[0];
-	var tail = "";
-	for(var i = 1; i <= (parts.length/2); i++){
-		if((head.length + tail.length+parts[i].length + 1) >= maxlength)
-			return head + "..." + tail;
-		else 
-			head += parts[i] + "/";
-		if((head.length + tail.length + parts[parts.length-i] + 1)>=maxlength)
-			return head + "..." + tail;
-		else
-			tail = "/" + parts[parts.length-i] + tail;
-	}	
-}
+        var parts = uri.split("/");
+        var head = parts[0];
+        var tail = "";
+        for (var i = 1; i <= (parts.length / 2); i++) {
+            if ((head.length + tail.length + parts[i].length + 1) >= maxlength)
+                return head + "..." + tail;
+            else
+                head += parts[i] + "/";
+            if ((head.length + tail.length + parts[parts.length - i] + 1) >= maxlength)
+                return head + "..." + tail;
+            else
+                tail = "/" + parts[parts.length - i] + tail;
+        }
+    }
 
-function adapt_RDF_preview() {
-	var rdf_array = eval($("#id_hidden_rdf_array_field").val());
+    function adapt_RDF_preview() {
+        var rdf_array = eval($("#id_hidden_rdf_array_field").val());
 
-	if( Object.prototype.toString.call( rdf_array ) !== '[object Array]' ) {
-		var tbl = document.createTextNode("No RDF");
-	}else{
-		var num_cols = $("table.table_view tbody tr:first-child td").length;
-		$("td[id^='id_table_field']").each(function(i){
-			i-=num_cols;
-			if($(this).find(".bb_select").length>0) { // has reconsiliation result (dropbox)
-				rdf_array[i][2] = $(this).find(".bb_select_selection").text();
-			}
-		});
+        if (Object.prototype.toString.call(rdf_array) !== '[object Array]') {
+            var tbl = document.createTextNode("No RDF");
+        } else {
+            var num_cols = $("table.table_view tbody tr:first-child td").length;
+            $("td[id^='id_table_field']").each(function (i) {
+                i -= num_cols;
+                if ($(this).find(".bb_select").length > 0) { // has reconsiliation result (dropbox)
+                    rdf_array[i][2] = $(this).find(".bb_select_selection").text();
+                }
+            });
 
-		//store in form and make available in backend
-		$("#id_hidden_rdf_array_field").val(JSON.stringify(rdf_array));
-		//make visible in frontend
-		var tbl = rdf_array_to_table(rdf_array);
-	}
-	while (rdf_view.firstChild) { //remove all children
-	    	rdf_view.removeChild(rdf_view.firstChild);
-	}
-	var myH3 = document.createElement("h3");
-	myH3.appendChild(document.createTextNode("RDF VIEW"));
-	rdf_view.appendChild(myH3);
-	rdf_view.appendChild(tbl);
-}
+            //store in form and make available in backend
+            $("#id_hidden_rdf_array_field").val(JSON.stringify(rdf_array));
+            //make visible in frontend
+            var tbl = rdf_array_to_table(rdf_array);
+        }
+        while (rdf_view.firstChild) { //remove all children
+            rdf_view.removeChild(rdf_view.firstChild);
+        }
+        var myH3 = document.createElement("h3");
+        myH3.appendChild(document.createTextNode("RDF VIEW"));
+        rdf_view.appendChild(myH3);
+        rdf_view.appendChild(tbl);
+    }
 
 
-function rdf_array_to_table(rdf_array) {
-	// create elements <table> and a <tbody>
-	var tbl     = document.createElement("table");
-	var tblBody = document.createElement("tbody");
+    function rdf_array_to_table(rdf_array) {
+        // create elements <table> and a <tbody>
+        var tbl = document.createElement("table");
+        var tblBody = document.createElement("tbody");
 
-	//Prefixes
-	var row = document.createElement("tr");
-	var cell = document.createElement("td");
-	var cellText = document.createTextNode("@prefix");
+        //Prefixes
+        var row = document.createElement("tr");
+        var cell = document.createElement("td");
+        var cellText = document.createTextNode("@prefix");
         cell.appendChild(cellText);
         row.appendChild(cell);
-	cell = document.createElement("td");
-	cellText = document.createTextNode("dbpedia:");
+        cell = document.createElement("td");
+        cellText = document.createTextNode("dbpedia:");
         cell.appendChild(cellText);
         row.appendChild(cell);
-	cell = document.createElement("td");
-	cellText = document.createTextNode("http://dbpedia.org/resource");
+        cell = document.createElement("td");
+        cellText = document.createTextNode("http://dbpedia.org/resource");
         cell.appendChild(cellText);
         row.appendChild(cell);
-	cell = document.createElement("td");
-	cellText = document.createTextNode(".");
+        cell = document.createElement("td");
+        cellText = document.createTextNode(".");
         cell.appendChild(cellText);
         row.appendChild(cell);
-	tblBody.appendChild(row);
+        tblBody.appendChild(row);
 
 
-	// cells creation
-	for(var i=0; i<rdf_array.length; i++){
-		// table row creation
-		var row = document.createElement("tr");
+        // cells creation
+        for (var i = 0; i < rdf_array.length; i++) {
+            // table row creation
+            var row = document.createElement("tr");
 
-		for(var j=0; j<rdf_array[i].length; j++){
-			// create element <td> and text node 
-		        //Make text node the contents of <td> element
-		        // put <td> at end of the table row
-			var cell = document.createElement("td");    
-			var cellText = document.createTextNode(rdf_array[i][j]); 
+            for (var j = 0; j < rdf_array[i].length; j++) {
+                // create element <td> and text node
+                //Make text node the contents of <td> element
+                // put <td> at end of the table row
+                var cell = document.createElement("td");
+                var cellText = document.createTextNode(rdf_array[i][j]);
 
-                	cell.appendChild(cellText);
-                	row.appendChild(cell);
-		}
-
-		//trailing "." for turtle document
-		var cell = document.createElement("td");
-		var cellText = document.createTextNode(".");
                 cell.appendChild(cellText);
                 row.appendChild(cell);
+            }
 
-		//row added to end of table body
-		tblBody.appendChild(row);
-	}
+            //trailing "." for turtle document
+            var cell = document.createElement("td");
+            var cellText = document.createTextNode(".");
+            cell.appendChild(cellText);
+            row.appendChild(cell);
+
+            //row added to end of table body
+            tblBody.appendChild(row);
+        }
 
         // append the <tbody> inside the <table>
         tbl.appendChild(tblBody);
- 
+
         tbl.setAttribute("class", "rdf_table");
-	return tbl;
-}
+        return tbl;
+    }
 
-var rdf_content = $("#id_hidden_rdf_array_field");
+    var rdf_content = $("#id_hidden_rdf_array_field");
 
 
-$( document ).ready(function() {
+    $(document).ready(function () {
 
-	//rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
-	//rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.val())));
-	adapt_RDF_preview();
-	// do an oracle lookup on page load
+        //rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
+        //rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.val())));
+        adapt_RDF_preview();
+        // do an oracle lookup on page load
 
-	$("td[id^='id_table_field_']").each( function(i){
-		var id = $(this).attr("id");
-		//get row and column field as included in table td id field
-		id_array = id.split("_");
-		//var column = id_array[3];
-		var row = id_array[4];
+        $("td[id^='id_table_field_']").each(function (i) {
+            var id = $(this).attr("id");
+            //get row and column field as included in table td id field
+            id_array = id.split("_");
+            //var column = id_array[3];
+            var row = id_array[4];
 
-		var topic_field = "id_table_head_" + row;
-		var topic = $("#"+topic_field).text().trim();
-console.log("oracle +"+$(this)+" "+topic+" "+$(this).text().trim());
-		askOracle($(this), topic, $(this).text().trim());
+            var topic_field = "id_table_head_" + row;
+            var topic = $("#" + topic_field).text().trim();
+            console.log("oracle +" + $(this) + " " + topic + " " + $(this).text().trim());
+            askOracle($(this), topic, $(this).text().trim());
 
-	});
+        });
 
-	//$("#button_next").attr("disabled", "disabled");
+        //$("#button_next").attr("disabled", "disabled");
 
-});
+    });
 
-</script>
+    </script>
 
 {% endblock %}
 

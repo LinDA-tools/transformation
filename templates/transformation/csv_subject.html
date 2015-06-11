@@ -1,301 +1,321 @@
-	{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block css %}
 {% endblock %}
 
 {% block content %}
 
-{% include "transformation/snippets/title_snippet.html" with format='CSV' %}
+    {% include "transformation/snippets/title_snippet.html" with format='CSV' %}
 
-<!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
-{% for hidden in form.hidden_fields %}
-    {{ hidden }}
-{% endfor %}
+    <!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
+    {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+    {% endfor %}
 
-<input type="hidden" name="hidden_rdf_array_field" id ="id_hidden_rdf_array_field" value="{{ rdfArray }}">
+    <input type="hidden" name="hidden_rdf_array_field" id="id_hidden_rdf_array_field" value="{{ rdfArray }}">
 
-<div class="content grid">
-	<div class="col-5-10 left-side-box">
-		<h3>Specify the RDF Subject</h3>
-		<p>In this step, you can specify the RDF subject. It can be constructed from a base URL and a combination of the content of one or multiple column names (i.e. the first row of your CSV file).</p>
-		<p>The base URL may be the one of your organization. You can also leave it blank.</p>
-		<p>Note that you can also add characters like e.g. hyphens or underscores to construct your subject URI.</p>
-		<p>If you do not want to construct an URI, you can also use Blank Nodes instead by marking the respective checkbox on the right hand menu.</p>
-	</div>
+    <div class="content grid">
+        <div class="col-5-10 left-side-box">
+            <h3>Specify the RDF Subject</h3>
 
-	<div class="col-5-10 right-side-box">
-		
-		<p>
-			<input type="checkbox" name="blanknodes_only" id="id_blanknodes_only"> I don't want to provide a subject! Use Blank Nodes only!
-		</p>
-		<div id="id_uri_container">
-			<p>
-				Base URL: <input type="text" name="base_url" id="id_base_url" placeholder="e.g. http://example.net/" value="http://example.net">
-			</p>
-			<p>
-				To build you subject URI, drag and drop the column name fields below into the subject URI field.
-			</p>
-			<p>
-			{% for line in csvContent|slice:":1" %}
-			{% for colname in line %}
-				<span class="uribuilder" draggable="true" ondragstart="drag(event)" id="id_dragme_{{ colname }}" name="dragme_{{ colname }}" onmouseover="Tip('Drag this column name to the URI text field below.')" onmouseout="UnTip()">{{ colname }}</span>
-			{% endfor %}
-			{% endfor %}
-			</p>
-			<p>
-				Subject URI: <span id="id_base_url_insert"></span><input type="text" class="drop-box" name="subject_uri" id="id_subject_uri" ondrop="drop(event)" ondragover="allowDrop(event)">
-				<br>
-				<span class="warning-text red" id="base_url_insert_warning" style="visibility:hidden;">Wrong formatting. Build the URI template using terms like '{columnName}' surrounded by single brackets.</span>
+            <p>In this step, you can specify the RDF subject. It can be constructed from a base URL and a combination of
+                the content of one or multiple column names (i.e. the first row of your CSV file).</p>
 
-			</p>
-		</div>
+            <p>The base URL may be the one of your organization. You can also leave it blank.</p>
 
+            <p>Note that you can also add characters like e.g. hyphens or underscores to construct your subject URI.</p>
 
-	</div>
+            <p>If you do not want to construct an URI, you can also use Blank Nodes instead by marking the respective
+                checkbox on the right hand menu.</p>
+        </div>
 
-</div>
+        <div class="col-5-10 right-side-box">
 
-<div class="content scrollit">
-	<h3>DATA VIEW</h3>
-	File: <b>{{ filename }}</b> (10 rows example)
-	<table class="table_view">
+            <p>
+                <input type="checkbox" name="blanknodes_only" id="id_blanknodes_only"> I don't want to provide a
+                subject! Use Blank Nodes only!
+            </p>
 
+            <div id="id_uri_container">
+                <p>
+                    Base URL: <input type="text" name="base_url" id="id_base_url" placeholder="e.g. http://example.net/"
+                                     value="http://example.net">
+                </p>
 
-	<thead>
+                <p>
+                    To build you subject URI, drag and drop the column name fields below into the subject URI field.
+                </p>
 
-		{% for line in csvContent|slice:":1" %}
-		<tr>
-			{% for field in line %}
-				<td id="id_table_head_{{ forloop.counter }}">				
-					<span>{{ field }}</span> <a href="" onclick="addToUri(event)" onmouseover="Tip('Add to subject URI')" onmouseout="UnTip()">[+]</a>
-			{% endfor %}
-		</tr>
-		{% endfor %}
+                <p>
+                    {% for line in csvContent|slice:":1" %}
+                        {% for colname in line %}
+                            <span class="uribuilder" draggable="true" ondragstart="drag(event)"
+                                  id="id_dragme_{{ colname }}" name="dragme_{{ colname }}"
+                                  onmouseover="Tip('Drag this column name to the URI text field below.')"
+                                  onmouseout="UnTip()">{{ colname }}</span>
+                        {% endfor %}
+                    {% endfor %}
+                </p>
+
+                <p>
+                    Subject URI: <span id="id_base_url_insert"></span><input type="text" class="drop-box"
+                                                                             name="subject_uri" id="id_subject_uri"
+                                                                             ondrop="drop(event)"
+                                                                             ondragover="allowDrop(event)">
+                    <br>
+                    <span class="warning-text red" id="base_url_insert_warning" style="visibility:hidden;">Wrong formatting. Build the URI template using terms like '{columnName}' surrounded by single brackets.</span>
+
+                </p>
+            </div>
 
 
-	</thead>
-	<tbody>
-		{% for line in csvContent|slice:"1:" %}
-		<tr>
-			{% for field in line %}
-				<td>
-					<span>{{ field }}</span>
-				</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}	
-	</tbody>
-	</table>
-</div>
+        </div>
 
-<div class="content" id="rdf_view">
-	<h3>RDF VIEW</h3>
+    </div>
 
-</div>
-
-</form>
-
-<script>
-
-function isUrl(s) {
-   var regexp = /http:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
-   return regexp.test(s);
-}
-
-function allowDrop(ev) {
-	ev.preventDefault();
-}
-
-function drag(ev) {
-	ev.dataTransfer.setData("text", ev.target.innerHTML);
-}
-
-function drop(ev) {
-	var curser_pos = ev.target.selectionStart;
-	ev.preventDefault();
-	var data = ev.dataTransfer.getData("text");
-	//ev.target.appendChild(document.getElementById(data));
-	ev.target.value = ev.target.value.substr(0, curser_pos) + "{"+data+"}" + ev.target.value.substr(curser_pos, ev.target.value.length);
-}
-
-function insert_into_uri(s, widget){
-	var curser_pos = widget.selectionStart;
-	widget.value = widget.value.substr(0, curser_pos) + "{"+s+"}" + widget.value.substr(curser_pos, widget.value.length);
-}
-
-var base_url = document.getElementById("id_base_url");
-var base_url_insert = document.getElementById("id_base_url_insert");
-var subject_uri = document.getElementById("id_subject_uri");
-var base_url_insert_warning = document.getElementById("base_url_insert_warning");
-var blanknodes_only = document.getElementById("id_blanknodes_only");
-var uri_container = document.getElementById("id_uri_container");
-var csv_content = document.getElementById("id_hidden_csv_content_field");
-var rdf_content = document.getElementById("id_hidden_rdf_array_field");
-var rdf_view = document.getElementById("rdf_view");
+    <div class="content scrollit">
+        <h3>DATA VIEW</h3>
+        File: <b>{{ filename }}</b> (10 rows example)
+        <table class="table_view">
 
 
-blanknodes_only.addEventListener('change', function(){
-	adapt_RDF_preview();
-	if(blanknodes_only.checked)
-		uri_container.style.visibility = "hidden";
-	else
-		uri_container.style.visibility = "visible";
-});
+            <thead>
+
+            {% for line in csvContent|slice:":1" %}
+                <tr>
+                    {% for field in line %}
+                        <td id="id_table_head_{{ forloop.counter }}">
+                        <span>{{ field }}</span>
+                        <a href="" onclick="addToUri(event)" onmouseover="Tip('Add to subject URI')"
+                           onmouseout="UnTip()">[+]</a>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
 
 
-function base_url_change(){
-	trailing_slash = "";
-	if(base_url.value[base_url.value.length-1] != "/")
-		trailing_slash = "/";
-	if(isUrl(base_url.value))
-		base_url_insert.innerHTML = base_url.value + trailing_slash;
-	else if(base_url.value == "")
-		base_url_insert.innerHTML = "";
-	else base_url_insert.innerHTML = " [ Invalid Base URL ] ";
+            </thead>
+            <tbody>
+            {% for line in csvContent|slice:"1:" %}
+                <tr>
+                    {% for field in line %}
+                        <td>
+                            <span>{{ field }}</span>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-	adapt_RDF_preview();
-}
+    <div class="content" id="rdf_view">
+        <h3>RDF VIEW</h3>
 
-base_url.addEventListener('keyup', base_url_change);
-base_url.addEventListener('select', base_url_change);
+    </div>
 
-function adapt_RDF_preview(){	
-	var content = eval(csv_content.value);
-	var topic_row = content[0];
-	var num_total_fields_csv = (content.length-1)*content[0].length;
-	//var rdf_array = [num_total_fields_csv][3];
-	var rdf_array = create_multidim_array(num_total_fields_csv,3);
-	//var rdf_array = [];
+    </form>
 
-	//create uri subject
-	for(var i=1; i<content.length; i++){
-		var subject_uri_tmp = subject_uri.value;
-		subject_uri_tmp = "<"+base_url_insert.innerHTML+subject_uri_tmp+">";
-		for(var j=0; j<content[i].length; j++){
-			//parse subject uri
-			subject_uri_tmp = subject_uri_tmp.replace(new RegExp("{"+topic_row[j]+"}", 'g'), content[i][j]);
+    <script>
 
-			
-		}
-		for(var j=0; j<content[i].length; j++){
-			//add rdf subject, predicate, and object value
-			if(blanknodes_only.checked)
-				rdf_array[(i-1)*content[i].length+j][0] = "_:"+toLetters(i);
-			else
-				rdf_array[(i-1)*content[i].length+j][0] = subject_uri_tmp;
-			rdf_array[(i-1)*content[i].length+j][1] = "?predicate:"+topic_row[j]+"?";
-			rdf_array[(i-1)*content[i].length+j][2] = "\""+content[i][j]+"\"";
-		}
-	}
+        function isUrl(s) {
+            var regexp = /http:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+            return regexp.test(s);
+        }
 
-	//store in form and make available in backend
-	rdf_content.value = JSON.stringify(rdf_array);
-	//make visible in frontend
-	var tbl = rdf_array_to_table(rdf_array);
-	while (rdf_view.firstChild) { //remove all children
-    		rdf_view.removeChild(rdf_view.firstChild);
-	}
-	var myH3 = document.createElement("h3");
-	myH3.appendChild(document.createTextNode("RDF VIEW"));
-	rdf_view.appendChild(myH3);
-	rdf_view.appendChild(tbl);
-	//return rdf_array;
-}
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
 
-// used for blank nodes
-function toLetters(num) {
-    "use strict";
-    var mod = num % 26,
-        pow = num / 26 | 0,
-        out = mod ? String.fromCharCode(64 + mod) : (--pow, 'Z');
-    return pow ? toLetters(pow) + out : out;
-}
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.innerHTML);
+        }
 
-function rdf_array_to_table(rdf_array) {
-	// create elements <table> and a <tbody>
-	var tbl     = document.createElement("table");
-	var tblBody = document.createElement("tbody");
+        function drop(ev) {
+            var curser_pos = ev.target.selectionStart;
+            ev.preventDefault();
+            var data = ev.dataTransfer.getData("text");
+            //ev.target.appendChild(document.getElementById(data));
+            ev.target.value = ev.target.value.substr(0, curser_pos) + "{" + data + "}" + ev.target.value.substr(curser_pos, ev.target.value.length);
+        }
 
-	// cells creation
-	for(var i=0; i<rdf_array.length; i++){
-		// table row creation
-		var row = document.createElement("tr");
+        function insert_into_uri(s, widget) {
+            var curser_pos = widget.selectionStart;
+            widget.value = widget.value.substr(0, curser_pos) + "{" + s + "}" + widget.value.substr(curser_pos, widget.value.length);
+        }
 
-		for(var j=0; j<rdf_array[i].length; j++){
-			// create element <td> and text node 
-		        //Make text node the contents of <td> element
-		        // put <td> at end of the table row
-			var cell = document.createElement("td");    
-			var cellText = document.createTextNode(rdf_array[i][j]); 
-
-                	cell.appendChild(cellText);
-                	row.appendChild(cell);
-		}
-
-		//row added to end of table body
-		tblBody.appendChild(row);
-	}
-
-        // append the <tbody> inside the <table>
-        tbl.appendChild(tblBody);
- 
-        tbl.setAttribute("class", "rdf_table");
-	return tbl;
-}
-
-function create_multidim_array(x,y){
-	var f = [];
-	for (i=0;i<x;i++) {
-		f[i]=[];
-		for (j=0;j<y;j++)
-			f[i][j]=0;
-	}
-	return f;
-}
-
-function changeURI(){
-	base_url_insert_warning.style.visibility = "hidden";
-	var last_bracket = "}";
-	var warning = false;
-	for(var i=0; i<subject_uri.value.length; i++){
-
-		if(subject_uri.value[i]	== last_bracket ){
-			base_url_insert_warning.style.visibility = "visible";
-			base_url_insert_warning.innerHTML = "Wrong formatting: Open '{' and closed '}' brackets must come in pairs."		
-		}
-		if(subject_uri.value[i]	== "}" || subject_uri.value[i]	== "{"){
-			last_bracket = subject_uri.value[i];
-		}
-	}
-	if(last_bracket == "{"){
-		base_url_insert_warning.style.visibility = "visible";
-		base_url_insert_warning.innerHTML = "Wrong formatting: Open '{' bracket not closed."
-	}
-
-	adapt_RDF_preview();
-}
+        var base_url = document.getElementById("id_base_url");
+        var base_url_insert = document.getElementById("id_base_url_insert");
+        var subject_uri = document.getElementById("id_subject_uri");
+        var base_url_insert_warning = document.getElementById("base_url_insert_warning");
+        var blanknodes_only = document.getElementById("id_blanknodes_only");
+        var uri_container = document.getElementById("id_uri_container");
+        var csv_content = document.getElementById("id_hidden_csv_content_field");
+        var rdf_content = document.getElementById("id_hidden_rdf_array_field");
+        var rdf_view = document.getElementById("rdf_view");
 
 
-//check if subject uri has a valid formatting / open and closed curly brackets {} pairs
-subject_uri.addEventListener('keyup', changeURI);
-subject_uri.addEventListener('drop', changeURI);
-subject_uri.addEventListener('select', changeURI);
+        blanknodes_only.addEventListener('change', function () {
+            adapt_RDF_preview();
+            if (blanknodes_only.checked)
+                uri_container.style.visibility = "hidden";
+            else
+                uri_container.style.visibility = "visible";
+        });
 
-function addToUri(ev){
-	ev.preventDefault();
-	var column_name = ev.target.parentNode.childNodes[1].innerHTML;
-	insert_into_uri(column_name, subject_uri);
-	//subject_uri.value = subject_uri.value.substr(0, curser_pos) + "{"+data+"}" + ev.target.value.substr(curser_pos, ev.target.value.length);
-	adapt_RDF_preview();
-}
 
-window.onload = function(){
-	//base_url_insert.innerHTML = base_url.value;
-	base_url_change();
-	adapt_RDF_preview();
-}
+        function base_url_change() {
+            trailing_slash = "";
+            if (base_url.value[base_url.value.length - 1] != "/")
+                trailing_slash = "/";
+            if (isUrl(base_url.value))
+                base_url_insert.innerHTML = base_url.value + trailing_slash;
+            else if (base_url.value == "")
+                base_url_insert.innerHTML = "";
+            else base_url_insert.innerHTML = " [ Invalid Base URL ] ";
 
-</script>
+            adapt_RDF_preview();
+        }
+
+        base_url.addEventListener('keyup', base_url_change);
+        base_url.addEventListener('select', base_url_change);
+
+        function adapt_RDF_preview() {
+            var content = eval(csv_content.value);
+            var topic_row = content[0];
+            var num_total_fields_csv = (content.length - 1) * content[0].length;
+            //var rdf_array = [num_total_fields_csv][3];
+            var rdf_array = create_multidim_array(num_total_fields_csv, 3);
+            //var rdf_array = [];
+
+            //create uri subject
+            for (var i = 1; i < content.length; i++) {
+                var subject_uri_tmp = subject_uri.value;
+                subject_uri_tmp = "<" + base_url_insert.innerHTML + subject_uri_tmp + ">";
+                for (var j = 0; j < content[i].length; j++) {
+                    //parse subject uri
+                    subject_uri_tmp = subject_uri_tmp.replace(new RegExp("{" + topic_row[j] + "}", 'g'), content[i][j]);
+
+
+                }
+                for (var j = 0; j < content[i].length; j++) {
+                    //add rdf subject, predicate, and object value
+                    if (blanknodes_only.checked)
+                        rdf_array[(i - 1) * content[i].length + j][0] = "_:" + toLetters(i);
+                    else
+                        rdf_array[(i - 1) * content[i].length + j][0] = subject_uri_tmp;
+                    rdf_array[(i - 1) * content[i].length + j][1] = "?predicate:" + topic_row[j] + "?";
+                    rdf_array[(i - 1) * content[i].length + j][2] = "\"" + content[i][j] + "\"";
+                }
+            }
+
+            //store in form and make available in backend
+            rdf_content.value = JSON.stringify(rdf_array);
+            //make visible in frontend
+            var tbl = rdf_array_to_table(rdf_array);
+            while (rdf_view.firstChild) { //remove all children
+                rdf_view.removeChild(rdf_view.firstChild);
+            }
+            var myH3 = document.createElement("h3");
+            myH3.appendChild(document.createTextNode("RDF VIEW"));
+            rdf_view.appendChild(myH3);
+            rdf_view.appendChild(tbl);
+            //return rdf_array;
+        }
+
+        // used for blank nodes
+        function toLetters(num) {
+            "use strict";
+            var mod = num % 26,
+                    pow = num / 26 | 0,
+                    out = mod ? String.fromCharCode(64 + mod) : (--pow, 'Z');
+            return pow ? toLetters(pow) + out : out;
+        }
+
+        function rdf_array_to_table(rdf_array) {
+            // create elements <table> and a <tbody>
+            var tbl = document.createElement("table");
+            var tblBody = document.createElement("tbody");
+
+            // cells creation
+            for (var i = 0; i < rdf_array.length; i++) {
+                // table row creation
+                var row = document.createElement("tr");
+
+                for (var j = 0; j < rdf_array[i].length; j++) {
+                    // create element <td> and text node
+                    //Make text node the contents of <td> element
+                    // put <td> at end of the table row
+                    var cell = document.createElement("td");
+                    var cellText = document.createTextNode(rdf_array[i][j]);
+
+                    cell.appendChild(cellText);
+                    row.appendChild(cell);
+                }
+
+                //row added to end of table body
+                tblBody.appendChild(row);
+            }
+
+            // append the <tbody> inside the <table>
+            tbl.appendChild(tblBody);
+
+            tbl.setAttribute("class", "rdf_table");
+            return tbl;
+        }
+
+        function create_multidim_array(x, y) {
+            var f = [];
+            for (i = 0; i < x; i++) {
+                f[i] = [];
+                for (j = 0; j < y; j++)
+                    f[i][j] = 0;
+            }
+            return f;
+        }
+
+        function changeURI() {
+            base_url_insert_warning.style.visibility = "hidden";
+            var last_bracket = "}";
+            var warning = false;
+            for (var i = 0; i < subject_uri.value.length; i++) {
+
+                if (subject_uri.value[i] == last_bracket) {
+                    base_url_insert_warning.style.visibility = "visible";
+                    base_url_insert_warning.innerHTML = "Wrong formatting: Open '{' and closed '}' brackets must come in pairs."
+                }
+                if (subject_uri.value[i] == "}" || subject_uri.value[i] == "{") {
+                    last_bracket = subject_uri.value[i];
+                }
+            }
+            if (last_bracket == "{") {
+                base_url_insert_warning.style.visibility = "visible";
+                base_url_insert_warning.innerHTML = "Wrong formatting: Open '{' bracket not closed."
+            }
+
+            adapt_RDF_preview();
+        }
+
+
+        //check if subject uri has a valid formatting / open and closed curly brackets {} pairs
+        subject_uri.addEventListener('keyup', changeURI);
+        subject_uri.addEventListener('drop', changeURI);
+        subject_uri.addEventListener('select', changeURI);
+
+        function addToUri(ev) {
+            ev.preventDefault();
+            var column_name = ev.target.parentNode.childNodes[1].innerHTML;
+            insert_into_uri(column_name, subject_uri);
+            //subject_uri.value = subject_uri.value.substr(0, curser_pos) + "{"+data+"}" + ev.target.value.substr(curser_pos, ev.target.value.length);
+            adapt_RDF_preview();
+        }
+
+        window.onload = function () {
+            //base_url_insert.innerHTML = base_url.value;
+            base_url_change();
+            adapt_RDF_preview();
+        }
+
+    </script>
 
 {% endblock %}
 

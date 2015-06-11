@@ -1,163 +1,163 @@
-	{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block css %}
 {% endblock %}
 
 {% block content %}
 
-{% include "transformation/snippets/title_snippet.html" with format='CSV' %}
+    {% include "transformation/snippets/title_snippet.html" with format='CSV' %}
 
-<!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
-{% for hidden in form.hidden_fields %}
-    {{ hidden }}
-{% endfor %}
+    <!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
+    {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+    {% endfor %}
 
-<input type="hidden" name="hidden_rdf_array_field" id ="id_hidden_rdf_array_field" value="{{ rdfArray }}">
+    <input type="hidden" name="hidden_rdf_array_field" id="id_hidden_rdf_array_field" value="{{ rdfArray }}">
 
-<div class="content grid">
-	<div class="col-5-10 left-side-box">
-		<h3>Enrich the RDF graph</h3>
-		<p>...</p>
-	</div>
+    <div class="content grid">
+        <div class="col-5-10 left-side-box">
+            <h3>Enrich the RDF graph</h3>
 
-	<div class="col-5-10 right-side-box">
-		
+            <p>...</p>
+        </div>
 
-
-
-	</div>
-
-</div>
-
-<div class="content scrollit">
-	<h3>DATA VIEW</h3>
-	File: <b>{{ filename }}</b> (10 rows example)
-	<table class="table_view">
-		{% for line in csvContent %}
-		<tr>
-			{% for field in line %}
-				<td>
-				{% if forloop.parentloop.first %}
-					<span>{{ field }}</span> <a href="" onclick="addToUri(event)" onmouseover="Tip('???')" onmouseout="UnTip()">[+]</a>
-				{% else %}
-					{{ field }}
-				{% endif %}
-			
-				</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}	
-	</table>
-</div>
-
-<div class="content" id="rdf_view">
-	<h3>RDF VIEW</h3>
-
-</div>
-
-</form>
-
-<script>
-
-function adapt_RDF_preview() {
-	var rdf_array = eval(rdf_content.value);
-
-	var same_subject = true;
-	var subject = "";
-
-	//how many columns
-	var num_columns = eval(csv_content.value)[0].length;
-
-/*
-	var found_one_undefined = false;
-	for(var i=0; i<rdf_array.length/num_columns; i++) {
-		for(var j=0; j<num_columns; j++) {
-			var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
-
-			if(typeof href === "undefined") {
-				href=" ? ";
-				found_one_undefined = true;
-			}
-			rdf_array[i*num_columns+j][1]="<"+href+">";
-
-		}
-	}	
-
-	//enables or disabled next button depending on rdf graph completeness
-	if(!found_one_undefined) {
-		$("#button_next").removeAttr("disabled");
-	}
-	else {
-		$("#button_next").attr("disabled", "disabled");
-	}
-*/
-	var tbl = rdf_array_to_table(rdf_array);
-	//store in form and make available in backend
-	rdf_content.value = JSON.stringify(rdf_array);
-	//make visible in frontend
-	var tbl = rdf_array_to_table(rdf_array);
-	while (rdf_view.firstChild) { //remove all children
-    		rdf_view.removeChild(rdf_view.firstChild);
-	}
-	var myH3 = document.createElement("h3");
-	myH3.appendChild(document.createTextNode("RDF VIEW"));
-	rdf_view.appendChild(myH3);
-	rdf_view.appendChild(tbl);
-
-}
+        <div class="col-5-10 right-side-box">
 
 
-function rdf_array_to_table(rdf_array) {
-	// create elements <table> and a <tbody>
-	var tbl     = document.createElement("table");
-	var tblBody = document.createElement("tbody");
+        </div>
 
-	// cells creation
-	for(var i=0; i<rdf_array.length; i++){
-		// table row creation
-		var row = document.createElement("tr");
+    </div>
 
-		for(var j=0; j<rdf_array[i].length; j++){
-			// create element <td> and text node 
-		        //Make text node the contents of <td> element
-		        // put <td> at end of the table row
-			var cell = document.createElement("td");    
-			var cellText = document.createTextNode(rdf_array[i][j]); 
+    <div class="content scrollit">
+        <h3>DATA VIEW</h3>
+        File: <b>{{ filename }}</b> (10 rows example)
+        <table class="table_view">
+            {% for line in csvContent %}
+                <tr>
+                    {% for field in line %}
+                        <td>
+                            {% if forloop.parentloop.first %}
+                                <span>{{ field }}</span><a href="" onclick="addToUri(event)" onmouseover="Tip('???')"
+                                                           onmouseout="UnTip()">[+]</a>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
 
-                	cell.appendChild(cellText);
-                	row.appendChild(cell);
-		}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
 
-		//row added to end of table body
-		tblBody.appendChild(row);
-	}
+    <div class="content" id="rdf_view">
+        <h3>RDF VIEW</h3>
 
-        // append the <tbody> inside the <table>
-        tbl.appendChild(tblBody);
- 
-        tbl.setAttribute("class", "rdf_table");
-	return tbl;
-}
+    </div>
 
-var rdf_content = $("#id_hidden_rdf_array_field");
+    </form>
+
+    <script>
+
+        function adapt_RDF_preview() {
+            var rdf_array = eval(rdf_content.value);
+
+            var same_subject = true;
+            var subject = "";
+
+            //how many columns
+            var num_columns = eval(csv_content.value)[0].length;
+
+            /*
+             var found_one_undefined = false;
+             for(var i=0; i<rdf_array.length/num_columns; i++) {
+             for(var j=0; j<num_columns; j++) {
+             var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
+
+             if(typeof href === "undefined") {
+             href=" ? ";
+             found_one_undefined = true;
+             }
+             rdf_array[i*num_columns+j][1]="<"+href+">";
+
+             }
+             }
+
+             //enables or disabled next button depending on rdf graph completeness
+             if(!found_one_undefined) {
+             $("#button_next").removeAttr("disabled");
+             }
+             else {
+             $("#button_next").attr("disabled", "disabled");
+             }
+             */
+            var tbl = rdf_array_to_table(rdf_array);
+            //store in form and make available in backend
+            rdf_content.value = JSON.stringify(rdf_array);
+            //make visible in frontend
+            var tbl = rdf_array_to_table(rdf_array);
+            while (rdf_view.firstChild) { //remove all children
+                rdf_view.removeChild(rdf_view.firstChild);
+            }
+            var myH3 = document.createElement("h3");
+            myH3.appendChild(document.createTextNode("RDF VIEW"));
+            rdf_view.appendChild(myH3);
+            rdf_view.appendChild(tbl);
+
+        }
 
 
-$( document ).ready(function() {
+        function rdf_array_to_table(rdf_array) {
+            // create elements <table> and a <tbody>
+            var tbl = document.createElement("table");
+            var tblBody = document.createElement("tbody");
 
-	rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
-	rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.val())));
-	
-	// do an oracle lookup on page load
+            // cells creation
+            for (var i = 0; i < rdf_array.length; i++) {
+                // table row creation
+                var row = document.createElement("tr");
 
-	/*$("div[id^='search_result_']").each( function(i, obj){
-		askOracle(i+1);
-	});*/
+                for (var j = 0; j < rdf_array[i].length; j++) {
+                    // create element <td> and text node
+                    //Make text node the contents of <td> element
+                    // put <td> at end of the table row
+                    var cell = document.createElement("td");
+                    var cellText = document.createTextNode(rdf_array[i][j]);
 
-	//$("#button_next").attr("disabled", "disabled");
+                    cell.appendChild(cellText);
+                    row.appendChild(cell);
+                }
 
-});
+                //row added to end of table body
+                tblBody.appendChild(row);
+            }
 
-</script>
+            // append the <tbody> inside the <table>
+            tbl.appendChild(tblBody);
+
+            tbl.setAttribute("class", "rdf_table");
+            return tbl;
+        }
+
+        var rdf_content = $("#id_hidden_rdf_array_field");
+
+
+        $(document).ready(function () {
+
+            rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
+            rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.val())));
+
+            // do an oracle lookup on page load
+
+            /*$("div[id^='search_result_']").each( function(i, obj){
+             askOracle(i+1);
+             });*/
+
+            //$("#button_next").attr("disabled", "disabled");
+
+        });
+
+    </script>
 
 {% endblock %}
 

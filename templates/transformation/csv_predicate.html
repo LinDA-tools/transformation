@@ -1,100 +1,111 @@
-	{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block css %}
 {% endblock %}
 
 {% block content %}
 
-{% include "transformation/snippets/title_snippet.html" with format='CSV' %}
+    {% include "transformation/snippets/title_snippet.html" with format='CSV' %}
 
-<!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
-{% for hidden in form.hidden_fields %}
-    {{ hidden }}
-{% endfor %}
+    <!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
+    {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+    {% endfor %}
 
-<input type="hidden" name="hidden_rdf_array_field" id ="id_hidden_rdf_array_field" value="{{ rdfArray }}">
+    <input type="hidden" name="hidden_rdf_array_field" id="id_hidden_rdf_array_field" value="{{ rdfArray }}">
 
-<div class="content grid">
-	<div class="col-6-10 left-side-box">
-		<h3>Specify the RDF Predicate</h3>
-		<p>In the last step, you constructed a RDF subject URI for each row of your data. As every row represents data for one single real world entity (e.g. a customer, an accounting information, ...), the single fields in that row represent are this entities characteristics (e.g. customer name, date of money transferal, ...). The table's top row though contains information that should describe these characteristics.</p>
-	<p>In this step, we try and find a suitable RDF class that can represent data in one column. We use the column header to find information first, but you also can type in your own search terms if the listed proposals are of no use. Click on a proposal to see the results in the RDF view at the page bottom.</p>
-	</div>
+    <div class="content grid">
+        <div class="col-6-10 left-side-box">
+            <h3>Specify the RDF Predicate</h3>
 
-	<div class="col-4-10 right-side-box">
-		
-	</div>
-</div>
+            <p>In the last step, you constructed a RDF subject URI for each row of your data. As every row represents
+                data for one single real world entity (e.g. a customer, an accounting information, ...), the single
+                fields in that row represent are this entities characteristics (e.g. customer name, date of money
+                transferal, ...). The table's top row though contains information that should describe these
+                characteristics.</p>
 
-<div class="content scrollit">
-	<h3>DATA VIEW</h3>
-	File: <b>{{ filename }}</b> (10 rows example)
-	<table class="table_view">
-	<thead>
+            <p>In this step, we try and find a suitable RDF class that can represent data in one column. We use the
+                column header to find information first, but you also can type in your own search terms if the listed
+                proposals are of no use. Click on a proposal to see the results in the RDF view at the page bottom.</p>
+        </div>
 
-		{% for line in csvContent|slice:":1" %}
-		<tr>
-			{% for field in line %}
-				<td id="id_table_head_{{ forloop.counter }}">				
-					<span>{{ field }}</span>			
-				</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}
+        <div class="col-4-10 right-side-box">
 
-	</thead>
-	<tbody>	
-		{% for line in csvContent|slice:":1" %}
-		<tr>
-			{% for field in line %}
-				<td>				
-					<input type="text" value="{{ field }}" id="search_textinput_{{ forloop.counter }}" onkeyup="delayedOracleCall({{ forloop.counter }})"><i id="icon_{{ forloop.counter }}" class="fa fa-search" onclick="askOracle({{ forloop.counter }})"></i>
-					<br>
-					<div class="bb_select" id="search_result_{{ forloop.counter }}">
-					</div>
-				</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}
+        </div>
+    </div>
 
-		{% for line in csvContent|slice:"1:" %}
-		<tr>
-			{% for field in line %}
-				<td>				
-					<span>{{ field }}</span>			
-				</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}
-	</tbody>
-	</table>
-</div>
+    <div class="content scrollit">
+        <h3>DATA VIEW</h3>
+        File: <b>{{ filename }}</b> (10 rows example)
+        <table class="table_view">
+            <thead>
 
-<div class="content" id="rdf_view">
-	<h3>RDF VIEW</h3>
+            {% for line in csvContent|slice:":1" %}
+                <tr>
+                    {% for field in line %}
+                        <td id="id_table_head_{{ forloop.counter }}">
+                            <span>{{ field }}</span>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+
+            </thead>
+            <tbody>
+            {% for line in csvContent|slice:":1" %}
+                <tr>
+                    {% for field in line %}
+                        <td>
+                            <input type="text" value="{{ field }}" id="search_textinput_{{ forloop.counter }}"
+                                   onkeyup="delayedOracleCall({{ forloop.counter }})"><i id="icon_{{ forloop.counter }}"
+                                                                                         class="fa fa-search"
+                                                                                         onclick="askOracle({{ forloop.counter }})"></i>
+                            <br>
+
+                            <div class="bb_select" id="search_result_{{ forloop.counter }}">
+                            </div>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+
+            {% for line in csvContent|slice:"1:" %}
+                <tr>
+                    {% for field in line %}
+                        <td>
+                            <span>{{ field }}</span>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="content" id="rdf_view">
+        <h3>RDF VIEW</h3>
 
 
+    </div>
 
-</div>
+    </form>
 
-</form>
+    <script>
 
-<script>
-
-	/* vocab selection widgets
-	can be provided in simple html like
-	<div class="bb_select">
-	 <div>item1</div>
-	 <div>item2</div>
-	</div>
-	This function does a lot of dom manipulation to transform it into a cool widget :)
-	*/
+    /* vocab selection widgets
+     can be provided in simple html like
+     <div class="bb_select">
+     <div>item1</div>
+     <div>item2</div>
+     </div>
+     This function does a lot of dom manipulation to transform it into a cool widget :)
+     */
     function addInnerDiv(elem) {
 
         var kids = elem.children();
 
         elem.empty();
-	elem.css("height", "5em");
+        elem.css("height", "5em");
 
         var innerDiv = jQuery('<div/>', {
             class: "bb_select_inner"
@@ -105,32 +116,32 @@
             text: "please chose"
         }).appendTo(innerDiv);
 
-	selectionDiv.css("position","relative");
+        selectionDiv.css("position", "relative");
 
-	//font awesome arrow down
+        //font awesome arrow down
         var caretDown = jQuery('<i/>', {
             class: "fa fa-caret-square-o-down fa-2x"
         }).appendTo(selectionDiv);
 
-        caretDown.css("position","absolute");
-        caretDown.css("top",".1em");
-        caretDown.css("right",".2em");
-        caretDown.css("color","#888");
+        caretDown.css("position", "absolute");
+        caretDown.css("top", ".1em");
+        caretDown.css("right", ".2em");
+        caretDown.css("color", "#888");
 
-        elem.on("mouseover", function() {
-        	$(this).find("i:last-child").css("opacity","1");
-		$(this).find("div div").css("z-index", 999999);
+        elem.on("mouseover", function () {
+            $(this).find("i:last-child").css("opacity", "1");
+            $(this).find("div div").css("z-index", 999999);
         });
 
-        elem.on("mouseout", function() {
-        	$(this).find("i:last-child").css("opacity",".3");
-		$(this).find("div div").css("z-index", "auto");
+        elem.on("mouseout", function () {
+            $(this).find("i:last-child").css("opacity", ".3");
+            $(this).find("div div").css("z-index", "auto");
         });
 
         var elementsDiv = jQuery('<div/>', {
             class: "bb_select_elements"
         }).appendTo(innerDiv);
-        
+
         elementsDiv.append(kids);
 
         kids.each(function (i) {
@@ -155,246 +166,243 @@
     }
 
 
-var rdf_content = document.getElementById("id_hidden_rdf_array_field");
-var rdf_view = document.getElementById("rdf_view");
-var csv_content = document.getElementById("id_hidden_csv_content_field");
+    var rdf_content = document.getElementById("id_hidden_rdf_array_field");
+    var rdf_view = document.getElementById("rdf_view");
+    var csv_content = document.getElementById("id_hidden_csv_content_field");
 
-//supress Enter key for form
-function stopRKey(evt) {
-  var evt = (evt) ? evt : ((event) ? event : null);
-  var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
-  if ((evt.keyCode == 13) && (node.type=="text"))  {return false;}
-}
+    //supress Enter key for form
+    function stopRKey(evt) {
+        var evt = (evt) ? evt : ((event) ? event : null);
+        var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+        if ((evt.keyCode == 13) && (node.type == "text")) {
+            return false;
+        }
+    }
 
-document.onkeypress = stopRKey;
+    document.onkeypress = stopRKey;
 
-var recent_result = null;
-var recent_textinput = null;
-var recent_text = null;
-
-
-function shortenURI(uri, maxlength){
-	if(uri.length <= maxlength)
-		return uri;
-
-	maxlength = maxlength -3; //because we include "..."
-
-	var parts = uri.split("/");
-	var head = parts[0];
-	var tail = "";
-	for(var i = 1; i <= (parts.length/2); i++){
-		if((head.length + tail.length+parts[i].length + 1) >= maxlength)
-			return head + "..." + tail;
-		else 
-			head += parts[i] + "/";
-		if((head.length + tail.length + parts[parts.length-i] + 1)>=maxlength)
-			return head + "..." + tail;
-		else
-			tail = "/" + parts[parts.length-i] + tail;
-	}	
-}
+    var recent_result = null;
+    var recent_textinput = null;
+    var recent_text = null;
 
 
+    function shortenURI(uri, maxlength) {
+        if (uri.length <= maxlength)
+            return uri;
+
+        maxlength = maxlength - 3; //because we include "..."
+
+        var parts = uri.split("/");
+        var head = parts[0];
+        var tail = "";
+        for (var i = 1; i <= (parts.length / 2); i++) {
+            if ((head.length + tail.length + parts[i].length + 1) >= maxlength)
+                return head + "..." + tail;
+            else
+                head += parts[i] + "/";
+            if ((head.length + tail.length + parts[parts.length - i] + 1) >= maxlength)
+                return head + "..." + tail;
+            else
+                tail = "/" + parts[parts.length - i] + tail;
+        }
+    }
 
 
-function askOracle(widget_num){
+    function askOracle(widget_num) {
 
-	recent_result = document.getElementById("search_result_"+widget_num);
-	recent_textinput = document.getElementById("search_textinput_"+widget_num);
-	recent_icon = document.getElementById("icon_"+widget_num);
+        recent_result = document.getElementById("search_result_" + widget_num);
+        recent_textinput = document.getElementById("search_textinput_" + widget_num);
+        recent_icon = document.getElementById("icon_" + widget_num);
 
-	recent_icon.className = "fa fa-refresh fa-spin";
+        recent_icon.className = "fa fa-refresh fa-spin";
 
-	var request = $.ajax({
-		type: 'GET',
-		dataType: 'jsonp',
-		data: { 'q': recent_textinput.value },
-		url: "http://linda.epu.ntua.gr:8000/coreapi/recommend/",
-	});
+        var request = $.ajax({
+            type: 'GET',
+            dataType: 'jsonp',
+            data: { 'q': recent_textinput.value },
+            url: "http://linda.epu.ntua.gr:8000/coreapi/recommend/",
+        });
 
-	request.fail(function (jqXHR, textStatus, errorThrown) {
-			recent_icon = document.getElementById("icon_"+widget_num);
-			recent_icon.className = "fa fa-exclamation-triangle";
-			console.log(jqXHR);
-			console.log(textStatus);
-			console.log(errorThrown);
-		}
-	);
+        request.fail(function (jqXHR, textStatus, errorThrown) {
+                    recent_icon = document.getElementById("icon_" + widget_num);
+                    recent_icon.className = "fa fa-exclamation-triangle";
+                    console.log(jqXHR);
+                    console.log(textStatus);
+                    console.log(errorThrown);
+                }
+        );
 
-	request.success(function (data) {
-			recent_result = $("#search_result_"+widget_num);
-			recent_icon = document.getElementById("icon_"+widget_num);
-			recent_icon.className = "fa fa-check";
-			recent_result.empty();
-			if(data.length===0){
-				recent_icon.className = "fa fa-meh-o";
-				recent_result.append("No results found.<br>Please modify the search term.");
-				return;
-			}			
-			//recent_text.innerHTML = "please choose from list";
-			for(var i = 0; i < data.length; i++){
+        request.success(function (data) {
+                    recent_result = $("#search_result_" + widget_num);
+                    recent_icon = document.getElementById("icon_" + widget_num);
+                    recent_icon.className = "fa fa-check";
+                    recent_result.empty();
+                    if (data.length === 0) {
+                        recent_icon.className = "fa fa-meh-o";
+                        recent_result.append("No results found.<br>Please modify the search term.");
+                        return;
+                    }
+                    //recent_text.innerHTML = "please choose from list";
+                    for (var i = 0; i < data.length; i++) {
 
-				//shorten uri
-				var short_uri = "no uri";
-				if(data[i].full_uri)
-					short_uri = shortenURI(data[i].full_uri, 40);
-				else if(data[i].uri)
-					short_uri = shortenURI(data[i].uri, 40);
+                        //shorten uri
+                        var short_uri = "no uri";
+                        if (data[i].full_uri)
+                            short_uri = shortenURI(data[i].full_uri, 40);
+                        else if (data[i].uri)
+                            short_uri = shortenURI(data[i].uri, 40);
 
-				//css class star symbol for ranking
-				var star ="fa ";
-				if(data[i].ranking>80)
-					star += "fa-star";
-				else if(data[i].ranking>50)
-					star += "fa-star-half-o";
-				else
-					star += "fa-star-o";
+                        //css class star symbol for ranking
+                        var star = "fa ";
+                        if (data[i].ranking > 80)
+                            star += "fa-star";
+                        else if (data[i].ranking > 50)
+                            star += "fa-star-half-o";
+                        else
+                            star += "fa-star-o";
 
-				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i>"+data[i].ranking+"%) <em>"+data[i].label+"</em><br>"+data[i].vocabulary+"</span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>");
-			}
+                        recent_result.append("<div id=\"oracle_result_" + widget_num + "_" + i + "\"><span class=\"oracle_label\">(<i class=\"" + star + "\"></i>" + data[i].ranking + "%) <em>" + data[i].label + "</em><br>" + data[i].vocabulary + "</span><br><a href=\"" + data[i].full_uri + "\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>" + short_uri + "</div>");
+                    }
 
-			addInnerDiv($("#search_result_"+widget_num));
+                    addInnerDiv($("#search_result_" + widget_num));
 
-			//auto-select first element after oracle call
-			$("#search_result_"+widget_num+" * .bb_select_elements").children().first().trigger("click");
-		}
-	
-	);
-	return request;
-}
-
+                    //auto-select first element after oracle call
+                    $("#search_result_" + widget_num + " * .bb_select_elements").children().first().trigger("click");
+                }
+        );
+        return request;
+    }
 
 
+    //only request ajax if no typing for 1 second
 
-//only request ajax if no typing for 1 second
+    var typingTimer;
+    var doneTypingInterval = 1000;
 
-var typingTimer;
-var doneTypingInterval = 1000;
+    function delayedOracleCall(widget_num) {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(function () {
+            askOracle(widget_num);
+        }, doneTypingInterval);
+    }
 
-function delayedOracleCall(widget_num) {
-	clearTimeout(typingTimer);
-	typingTimer = setTimeout(function(){askOracle(widget_num);}, doneTypingInterval);
-}
+    /*
+     function displayChosenURI(w, widget_num) {
+     var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
+     adapt_RDF_preview();
+     //jump to element
+     //location.hash = w.id;
+     var topPos = w.offsetTop;
+     document.getElementById('search_result_'+widget_num).scrollTop = topPos;
+     }*/
 
-/*
-function displayChosenURI(w, widget_num) {
-	var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
-	adapt_RDF_preview();
-	//jump to element
-	//location.hash = w.id;
-	var topPos = w.offsetTop;
-	document.getElementById('search_result_'+widget_num).scrollTop = topPos;
-}*/
-
-function adapt_RDF_preview() {
-
-
-	var rdf_array = eval($("#id_hidden_rdf_array_field").val());
-
-	if( Object.prototype.toString.call( rdf_array ) !== '[object Array]' ) {
-		var tbl = document.createTextNode("No RDF");
-	}else{
-
-		//how many columns
-		var num_columns = eval(csv_content.value)[0].length;
-
-		var found_one_undefined = false;
-		for(var i=0; i<rdf_array.length/num_columns; i++) {
-			for(var j=0; j<num_columns; j++) {
-				var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
-
-				if(typeof href === "undefined") {
-					href=" ? ";
-					found_one_undefined = true;
-				}
-				rdf_array[i*num_columns+j][1]="<"+href+">";
-
-			}
-		}	
-
-		//enables or disabled next button depending on rdf graph completeness
-		if(!found_one_undefined) {
-			$("#button_next").removeAttr("disabled");
-		}
-		else {
-			$("#button_next").attr("disabled", "disabled");
-		}
-
-		var tbl = rdf_array_to_table(rdf_array);
-		//store in form and make available in backend
-		rdf_content.value = JSON.stringify(rdf_array);
-		//make visible in frontend
-		var tbl = rdf_array_to_table(rdf_array);
-	}
-	while (rdf_view.firstChild) { //remove all children
-    		rdf_view.removeChild(rdf_view.firstChild);
-	}
-	var myH3 = document.createElement("h3");
-	myH3.appendChild(document.createTextNode("RDF VIEW"));
-	rdf_view.appendChild(myH3);
-	rdf_view.appendChild(tbl);
-
-}
+    function adapt_RDF_preview() {
 
 
-function rdf_array_to_table(rdf_array) {
-	// create elements <table> and a <tbody>
-	var tbl     = document.createElement("table");
-	var tblBody = document.createElement("tbody");
+        var rdf_array = eval($("#id_hidden_rdf_array_field").val());
 
-	// cells creation
-	for(var i=0; i<rdf_array.length; i++){
-		// table row creation
-		var row = document.createElement("tr");
+        if (Object.prototype.toString.call(rdf_array) !== '[object Array]') {
+            var tbl = document.createTextNode("No RDF");
+        } else {
 
-		for(var j=0; j<rdf_array[i].length; j++){
-			// create element <td> and text node 
-		        //Make text node the contents of <td> element
-		        // put <td> at end of the table row
-			var cell = document.createElement("td");    
-			var cellText = document.createTextNode(rdf_array[i][j]); 
+            //how many columns
+            var num_columns = eval(csv_content.value)[0].length;
 
-                	cell.appendChild(cellText);
-                	row.appendChild(cell);
-		}
+            var found_one_undefined = false;
+            for (var i = 0; i < rdf_array.length / num_columns; i++) {
+                for (var j = 0; j < num_columns; j++) {
+                    var href = $("#search_result_" + (j + 1) + " * .bb_select_selection a").attr("href");
 
-		//trailing "." for turtle document
-		var cell = document.createElement("td");
-		var cellText = document.createTextNode(".");
+                    if (typeof href === "undefined") {
+                        href = " ? ";
+                        found_one_undefined = true;
+                    }
+                    rdf_array[i * num_columns + j][1] = "<" + href + ">";
+
+                }
+            }
+
+            //enables or disabled next button depending on rdf graph completeness
+            if (!found_one_undefined) {
+                $("#button_next").removeAttr("disabled");
+            }
+            else {
+                $("#button_next").attr("disabled", "disabled");
+            }
+
+            var tbl = rdf_array_to_table(rdf_array);
+            //store in form and make available in backend
+            rdf_content.value = JSON.stringify(rdf_array);
+            //make visible in frontend
+            var tbl = rdf_array_to_table(rdf_array);
+        }
+        while (rdf_view.firstChild) { //remove all children
+            rdf_view.removeChild(rdf_view.firstChild);
+        }
+        var myH3 = document.createElement("h3");
+        myH3.appendChild(document.createTextNode("RDF VIEW"));
+        rdf_view.appendChild(myH3);
+        rdf_view.appendChild(tbl);
+
+    }
+
+
+    function rdf_array_to_table(rdf_array) {
+        // create elements <table> and a <tbody>
+        var tbl = document.createElement("table");
+        var tblBody = document.createElement("tbody");
+
+        // cells creation
+        for (var i = 0; i < rdf_array.length; i++) {
+            // table row creation
+            var row = document.createElement("tr");
+
+            for (var j = 0; j < rdf_array[i].length; j++) {
+                // create element <td> and text node
+                //Make text node the contents of <td> element
+                // put <td> at end of the table row
+                var cell = document.createElement("td");
+                var cellText = document.createTextNode(rdf_array[i][j]);
+
                 cell.appendChild(cellText);
                 row.appendChild(cell);
+            }
 
-		//row added to end of table body
-		tblBody.appendChild(row);
-	}
+            //trailing "." for turtle document
+            var cell = document.createElement("td");
+            var cellText = document.createTextNode(".");
+            cell.appendChild(cellText);
+            row.appendChild(cell);
+
+            //row added to end of table body
+            tblBody.appendChild(row);
+        }
 
         // append the <tbody> inside the <table>
         tbl.appendChild(tblBody);
- 
+
         tbl.setAttribute("class", "rdf_table");
-	return tbl;
-}
+        return tbl;
+    }
 
 
+    $(document).ready(function () {
 
-$( document ).ready(function() {
+        rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
+        rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.value)));
 
-	rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
-	rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.value)));
-	
-	// do an oracle lookup on page load
+        // do an oracle lookup on page load
 
-	$("div[id^='search_result_']").each( function(i, obj){
-		askOracle(i+1);
-	});
+        $("div[id^='search_result_']").each(function (i, obj) {
+            askOracle(i + 1);
+        });
 
-	$("#button_next").attr("disabled", "disabled");
+        $("#button_next").attr("disabled", "disabled");
 
-});
-
+    });
 
 
-</script>
+    </script>
 
 {% endblock %}
 
