@@ -226,20 +226,38 @@ table.table_view {
 	margin: 1em;
 }
 
-table.table_view tr:nth-child(2n-1){
+table.table_view tbody tr:nth-child(2n-1){
 	background-color: #eee;
 }
 
-table.table_view tr:nth-child(1){
+table.table_view tbody tr:last-child{
+	border-bottom: 1px solid #ccc;
+}
+
+table.table_view thead td[id^=id_table_head]{
+	border-top: 1px solid #ccc;
+}
+
+table.table_view thead tr{
 	background-color: #ddd;
 	color: black;
+}
+
+table.table_view thead td[id^=id_table_settings] {
+	background-color: white;
+	border-color: #eee;
+	border-width: 0px 0px 0px 1px 
+}
+
+table.table_view thead {
+	
 }
 
 table.table_view td{
 	padding: .6em;
 	vertical-align: top;
 	border-width: 0px 1px;
-	border-color: #eee;
+	border-color: #ccc;
 	border-style: solid;
 	white-space: nowrap;
 }
