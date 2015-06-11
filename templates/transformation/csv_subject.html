@@ -59,20 +59,32 @@
 	<h3>DATA VIEW</h3>
 	File: <b>{{ filename }}</b> (10 rows example)
 	<table class="table_view">
-		{% for line in csvContent %}
+
+
+	<thead>
+
+		{% for line in csvContent|slice:":1" %}
+		<tr>
+			{% for field in line %}
+				<td id="id_table_head_{{ forloop.counter }}">				
+					<span>{{ field }}</span> <a href="" onclick="addToUri(event)" onmouseover="Tip('Add to subject URI')" onmouseout="UnTip()">[+]</a>
+			{% endfor %}
+		</tr>
+		{% endfor %}
+
+
+	</thead>
+	<tbody>
+		{% for line in csvContent|slice:"1:" %}
 		<tr>
 			{% for field in line %}
 				<td>
-				{% if forloop.parentloop.first %}
-					<span>{{ field }}</span> <a href="" onclick="addToUri(event)" onmouseover="Tip('Add to subject URI')" onmouseout="UnTip()">[+]</a>
-				{% else %}
-					{{ field }}
-				{% endif %}
-			
+					<span>{{ field }}</span>
 				</td>
 			{% endfor %}
 		</tr>
 		{% endfor %}	
+	</tbody>
 	</table>
 </div>
 

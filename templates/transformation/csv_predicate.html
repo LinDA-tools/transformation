@@ -30,17 +30,20 @@
 	<h3>DATA VIEW</h3>
 	File: <b>{{ filename }}</b> (10 rows example)
 	<table class="table_view">
+	<thead>
+
 		{% for line in csvContent|slice:":1" %}
 		<tr>
 			{% for field in line %}
-				<td>				
+				<td id="id_table_head_{{ forloop.counter }}">				
 					<span>{{ field }}</span>			
 				</td>
 			{% endfor %}
 		</tr>
 		{% endfor %}
 
-
+	</thead>
+	<tbody>	
 		{% for line in csvContent|slice:":1" %}
 		<tr>
 			{% for field in line %}
@@ -54,7 +57,7 @@
 		</tr>
 		{% endfor %}
 
-		{% for line in csvContent|slice:"1:11" %}
+		{% for line in csvContent|slice:"1:" %}
 		<tr>
 			{% for field in line %}
 				<td>				
@@ -63,7 +66,7 @@
 			{% endfor %}
 		</tr>
 		{% endfor %}
-	
+	</tbody>
 	</table>
 </div>
 

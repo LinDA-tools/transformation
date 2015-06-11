@@ -29,25 +29,32 @@
 	File: <b>{{ filename }}</b> (10 rows example)
 	<input type="button" id="id_select_all_rows" value="deselect all">
 	<table class="table_view">
+	<thead>
 
-
-		{% for line in csvContent|slice:":11" %}
+		{% for line in csvContent|slice:":1" %}
 		<tr>
 			{% for field in line %}
 			<td>
-				{% if forloop.parentloop.first %}
-					<input type="checkbox" name="rowselect{{ forloop.counter }}" value="{{ field }}" id="id_rowselect{{ forloop.counter}}" checked=false>
-				{% endif %}
-				{{ field }}
+				<input type="checkbox" name="rowselect{{ forloop.counter }}" value="{{ field }}" id="id_rowselect{{ forloop.counter}}" checked=false>
 			</td>
 			{% endfor %}
 		</tr>
-		{% endfor %}	
-	</table>
-</div>
+		{% endfor %}
 
-<div class="content">
-	<h3>RDF VIEW</h3>
+
+	</thead>
+	<tbody>
+		{% for line in csvContent|slice:"1:" %}
+		<tr>
+			{% for field in line %}
+				<td>
+					<span>{{ field }}</span>
+				</td>
+			{% endfor %}
+		</tr>
+		{% endfor %}	
+	</tbody>
+	</table>
 </div>
 
 </form>
