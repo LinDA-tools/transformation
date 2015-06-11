@@ -4,7 +4,7 @@ from io import StringIO
 import os
 import json
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, render_to_response, redirect
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
@@ -13,7 +13,7 @@ import pandas as pd
 from SPARQLWrapper import SPARQLWrapper, JSON
 from django.http import JsonResponse
 import requests
-
+from django.core.files.base import ContentFile
 from .forms import *
 from transformation.models import *
 
@@ -22,8 +22,6 @@ from transformation.models import *
 # ###############################################
 # MODELS
 # ###############################################
-
-
 
 
 def data_choice(request):
@@ -239,17 +237,24 @@ def csv_publish(request):
                         elem = elem[:-1]
                     rdf_n3 += elem + " "
                 rdf_n3 += ".\n"
-
         else:
             request.session['rdf_array'] = "no rdf"
+
         if 'button_publish' in request.POST:
             print("PUBLISH BUTTON PRESSED")
-            print(rdf_n3)
-            payload = {'title': request.session['file_name'], 'content': rdf_n3, 'format': 'text/rdf+n3'}
+            #print(rdf_n3)
+            payload = {'title': request.POST.get('name_publish'), 'content': rdf_n3, 'format': 'text/rdf+n3'}
             r = requests.post('http://linda.epu.ntua.gr:8000/api/datasource/create/', data=payload)
             print(r.content)
 
-    # ALAN: rdf_n3 beinhaltet RDF N3 als String, eval(request.session['rdf_array']) array (ohne prefixe)
+        if 'button_download' in request.POST:
+            rdf_string = rdf_n3
+            rdf_file = ContentFile(rdf_string.encode('utf-8'))
+            response = HttpResponse(rdf_file, 'application/force-download')
+            response['Content-Length'] = rdf_file.size
+            response['Content-Disposition'] = 'attachment; filename="generatedRDF.n3"'
+            print(rdf_n3)
+            return response
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
