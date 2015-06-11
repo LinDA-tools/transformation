@@ -6,15 +6,18 @@ Design for Vocabulary selection boxes
     width: 20em;
     height: 2em;
 }
+
 /*inner divs for design purposes*/
 .bb_select_inner {
     width: 20em;
     height: 1.4em;
 }
+
 .bb_select_inner:hover {
     width: 20em;
     height: 15.4em;
 }
+
 /*container that holds the vocab list that is shown on mouseover*/
 .bb_select_elements {
     position: relative;
@@ -24,6 +27,7 @@ Design for Vocabulary selection boxes
     overflow-x: hidden;
     border: 2px solid #bbb;
 }
+
 /*the single items/vocabs in the list*/
 .bb_select_elements div {
     padding: .2em;
@@ -34,12 +38,14 @@ Design for Vocabulary selection boxes
     font-size: smaller;
     overflow: hidden;
 }
+
 .bb_select_elements div:hover {
     padding: .2em;
     min-height: 2em;
     background-color: #eee;
     cursor: pointer;
 }
+
 /*The top part taht shows the selected vocab*/
 .bb_select_selection {
     background-color: #d0d0d0;
@@ -50,6 +56,7 @@ Design for Vocabulary selection boxes
     border: 2px solid #bbb;
     color: #111;
 }
+
 /*The item in the list that is the chosen vocab*/
 .bb_select_clicked {
     background-color: #dfdfdf !important;

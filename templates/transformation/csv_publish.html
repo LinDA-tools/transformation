@@ -1,36 +1,40 @@
-	{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block css %}
 {% endblock %}
 
 {% block content %}
 
-{% include "transformation/snippets/title_snippet.html" with format='CSV' %}
+    {% include "transformation/snippets/title_snippet.html" with format='CSV' %}
 
-<!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
-{% for hidden in form.hidden_fields %}
-    {{ hidden }}
-{% endfor %}
+    <!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
+    {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+    {% endfor %}
+
 
 <input type="hidden" name="hidden_rdf_array_field" id ="id_hidden_rdf_array_field" value="{{ rdfArray }}">
 <input type="hidden" name="hidden_rdf_prefix_field" id ="id_hidden_rdf_prefix_field" value="{{ rdfPrefix }}">
 
-<div class="content grid">
-	<div class="col-5-10 left-side-box">
-		<h3>Publish</h3>
-		<p>...</p>
-	</div>
 
-	<div class="col-5-10 right-side-box">
-		
-	<input type="submit" name="button_publish" id="button_publish" value="Publish to triple store">
+    <div class="content grid">
+        <div class="col-5-10 left-side-box">
+            <h3>Publish</h3>
+
+            <p>...</p>
+        </div>
+
+        <div class="col-5-10 right-side-box">
+            <p>Please enter a name for your publication:<br><input type="text" name="name_publish" id="name_publish" value="Title"></p>
+            <p><input type="submit" name="button_publish" id="button_publish" value="Publish to triple store"></p>
+            <p><input type="submit" name="button_download" id="button_download" value="Download RDF"></p>
 
 
-	</div>
+        </div>
 
-</div>
+    </div>
 
-<!--div class="content scrollit">
+    <!--div class="content scrollit">
 	<h3>DATA VIEW</h3>
 	File: <b>{{ filename }}</b> (10 rows example)
 	<table class="table_view">
@@ -39,7 +43,8 @@
 			{% for field in line %}
 				<td>
 				{% if forloop.parentloop.first %}
-					<span>{{ field }}</span> <a href="" onclick="addToUri(event)" onmouseover="Tip('???')" onmouseout="UnTip()">[+]</a>
+					<span>{{ field }}
+        </span> <a href="" onclick="addToUri(event)" onmouseover="Tip('???')" onmouseout="UnTip()">[+]</a>
 				{% else %}
 					{{ field }}
 				{% endif %}
@@ -51,17 +56,14 @@
 	</table>
 </div-->
 
-<div class="content" id="rdf_view">
-	<h3>RDF VIEW</h3>
+    <div class="content" id="rdf_view">
+        <h3>RDF VIEW</h3>
 
-</div>
+    </div>
 
-</form>
-
+    </form>
 
 <script>
-
-eval($("#id_hidden_rdf_prefix_field").val())
 
 function adapt_RDF_preview() {
 
