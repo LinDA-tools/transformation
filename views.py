@@ -244,6 +244,7 @@ def csv_publish(request):
     form_action = 7  #refers to itself
     form = PublishForm(request.POST)
     rdf_n3 = "@prefix dbpedia: <http://dbpedia.org/resource> .\n"
+    publish_massage = ""
     if request.POST and form.is_valid() and form != None:
 
         # content  is passed on via hidden html input fields
@@ -260,10 +261,12 @@ def csv_publish(request):
 
         if 'button_publish' in request.POST:
             print("PUBLISH BUTTON PRESSED")
-            #print(rdf_n3)
+            print(rdf_n3)
             payload = {'title': request.POST.get('name_publish'), 'content': rdf_n3, 'format': 'text/rdf+n3'}
             r = requests.post('http://linda.epu.ntua.gr:8000/api/datasource/create/', data=payload)
-            print(r.content)
+            j = json.loads(r.text)
+            print(j["message"])
+            publish_massage = j["message"]
 
         if 'button_download' in request.POST:
             rdf_string = rdf_n3
@@ -276,6 +279,7 @@ def csv_publish(request):
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
+        'publish_massage': publish_massage,
         'action': form_action,
         'csvContent': csv_rows_selected_columns[:11],
         'filename': request.session['file_name'],

@@ -28,6 +28,7 @@
             <p>Please enter a name for your publication:<br><input type="text" name="name_publish" id="name_publish" value="Title"></p>
             <p><input type="submit" name="button_publish" id="button_publish" value="Publish to triple store"></p>
             <p><input type="submit" name="button_download" id="button_download" value="Download RDF"></p>
+            <p>{{ publish_massage }}</p>
 
 
         </div>
@@ -64,6 +65,9 @@
     </form>
 
 <script>
+{% if publish_massage %}
+    alert("{{ publish_massage }}");
+{% endif %}
 
 function adapt_RDF_preview() {
 
