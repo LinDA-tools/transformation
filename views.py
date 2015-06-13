@@ -180,7 +180,7 @@ def csv_predicate(request):
         'csvContent': csv_rows_selected_columns[:11],
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
-	'rdfPrefix': request.session['rdf_prefix']
+	    'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_predicate.html', html_post_data)
 
@@ -207,7 +207,7 @@ def csv_object(request):
         'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
-	'rdfPrefix': request.session['rdf_prefix']
+	    'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_object.html', html_post_data)
 
@@ -234,7 +234,7 @@ def csv_enrich(request):
         'csvContent': csv_rows_selected_columns[:11],
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
-	'rdfPrefix': request.session['rdf_prefix']
+	    'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_enrich.html', html_post_data)
 
@@ -248,16 +248,29 @@ def csv_publish(request):
     if request.POST and form.is_valid() and form != None:
 
         # content  is passed on via hidden html input fields
+        if form.cleaned_data['hidden_rdf_prefix_field']:
+            request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
+            for row in eval(request.session['rdf_prefix']):
+                rdf_n3 += "@prefix "
+                rdf_n3 += row[1]
+                rdf_n3 += row[2]
+                rdf_n3 += ".\n"
+        else:
+            request.session['rdf_array'] = "no rdf"
+
         if form.cleaned_data['hidden_rdf_array_field']:
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
             for row in eval(request.session['rdf_array']):
                 for elem in row:
-                    if elem[-1:] == ".":
+                    elem = elem.replace(",","\\,"); # escape commas
+                    if elem[-1:] == ".": # cut off as we had problems when uploading some uri like xyz_inc. with trailing dot
                         elem = elem[:-1]
                     rdf_n3 += elem + " "
                 rdf_n3 += ".\n"
         else:
             request.session['rdf_array'] = "no rdf"
+
+        print(rdf_n3)
 
         if 'button_publish' in request.POST:
             print("PUBLISH BUTTON PRESSED")
@@ -284,7 +297,7 @@ def csv_publish(request):
         'csvContent': csv_rows_selected_columns[:11],
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
-	'rdfPrefix': request.session['rdf_prefix']
+	    'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_publish.html', html_post_data)
 

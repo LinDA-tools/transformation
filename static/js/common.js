@@ -237,8 +237,8 @@ function replacePrefix(uri){
 	return result;
 };
 
-
 used_prefixes = [];
+
 
 //takes uri and reflaces with prefix or otherwise surrounds with <>
 function prefixise(href){
@@ -260,8 +260,30 @@ function prefixise(href){
 		}
 
 		if(already_in === false){
-			used_prefixes.push(["prefix", prefixed[1] + ":", prefixed[2]]);
+			used_prefixes.push(["prefix", prefixed[1] + ":", "<"+prefixed[2]+">"]);
 		}
 	}
 	return result;
+}
+
+
+function shortenURI(uri, maxlength){
+	if(uri.length <= maxlength)
+		return uri;
+
+	maxlength = maxlength -3; //because we include "..."
+
+	var parts = uri.split("/");
+	var head = parts[0];
+	var tail = "";
+	for(var i = 1; i <= (parts.length/2); i++){
+		if((head.length + tail.length+parts[i].length + 1) >= maxlength)
+			return head + "..." + tail;
+		else 
+			head += parts[i] + "/";
+		if((head.length + tail.length + parts[parts.length-i] + 1)>=maxlength)
+			return head + "..." + tail;
+		else
+			tail = "/" + parts[parts.length-i] + tail;
+	}	
 }
