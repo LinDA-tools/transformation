@@ -290,6 +290,8 @@ function displayChosenURI(w, widget_num) {
 
 function adapt_RDF_preview() {
 
+	used_prefixes = [];
+
 	var rdf_array = eval($("#id_hidden_rdf_array_field").val());
 
 	if( Object.prototype.toString.call( rdf_array ) !== '[object Array]' ) {
@@ -368,48 +370,7 @@ function adapt_RDF_preview() {
 
 
 
-
-
-function replacePrefix(uri){
-	var result = [uri, "none"];
-	$.each(prefixes, function(key, value){
-		if(uri.indexOf(key) >- 1){
-			result[0] = value + ":" + uri.replace(key, "");
-			result[1] = value;
-			return;
-		}
-	return;
-	});
-	return result;
-};
-
 used_prefixes = [];
-
-//takes uri and reflaces with prefix or otherwise surrounds with <>
-function prefixise(href){
-	var prefixed = replacePrefix(href);
-	var result = "";
-	if(prefixed[1]=="none"){
-		result = "<"+href+">";
-	}else{
-		result = prefixed[0];
-
-
-		// no duplicates
-		var already_in = false;
-		for(var k = 0 ; k < used_prefixes.length; k++){
-			if(used_prefixes[k][1] == prefixed[1]+":"){
-				already_in = true;
-				break;
-			}
-		}
-
-		if(already_in === false){
-			used_prefixes.push(["prefix", prefixed[1] + ":", href]);
-		}
-	}
-	return result;
-}
 
 
 $( document ).ready(function() {

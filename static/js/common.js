@@ -222,3 +222,46 @@ prefixes = {
 "http://gdata.youtube.com/schemas/2007": "yt",
 "zem": "http://s.zemanta.com/ns#"
 };
+
+function replacePrefix(uri){
+	var result = [uri, "none", "none"];
+	$.each(prefixes, function(key, value){
+		if(uri.indexOf(key) >- 1){
+			result[0] = value + ":" + uri.replace(key, "");
+			result[1] = value;
+			result[2] = key;
+			return;
+		}
+	return;
+	});
+	return result;
+};
+
+
+used_prefixes = [];
+
+//takes uri and reflaces with prefix or otherwise surrounds with <>
+function prefixise(href){
+	var prefixed = replacePrefix(href);
+	var result = "";
+	if(prefixed[1]=="none"){
+		result = "<"+href+">";
+	}else{
+		result = prefixed[0];
+
+
+		// no duplicates
+		var already_in = false;
+		for(var k = 0 ; k < used_prefixes.length; k++){
+			if(used_prefixes[k][1] == prefixed[1]+":"){
+				already_in = true;
+				break;
+			}
+		}
+
+		if(already_in === false){
+			used_prefixes.push(["prefix", prefixed[1] + ":", prefixed[2]]);
+		}
+	}
+	return result;
+}

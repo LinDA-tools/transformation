@@ -212,19 +212,6 @@ function shortenURI(uri, maxlength){
 }
 
 
-function replacePrefix(uri){
-	var result = [uri, "none"];
-	$.each(prefixes, function(key, value){
-		if(uri.indexOf(key) >- 1){
-			result[0] = value + ":" + uri.replace(key, "");
-			result[1] = value;
-			return;
-		}
-	return;
-	});
-	return result;
-};
-
 used_prefixes = [];
 
 //takes uri and reflaces with prefix or otherwise surrounds with <>
@@ -247,7 +234,7 @@ function prefixise(href){
 		}
 
 		if(already_in === false){
-			used_prefixes.push(["prefix", prefixed[1] + ":", href]);
+			used_prefixes.push(["prefix", prefixed[1] + ":", prefixed[2]]);
 		}
 	}
 	return result;
