@@ -3,13 +3,11 @@ from io import TextIOWrapper
 from io import StringIO
 import os
 import json
-from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, render_to_response, redirect
+from django.http import HttpResponse
+from django.shortcuts import render, render_to_response
 from django.template import RequestContext
-from django.core.urlresolvers import reverse
 from django.db import transaction
 import pandas as pd
-from SPARQLWrapper import SPARQLWrapper, JSON
 from django.http import JsonResponse
 import requests
 from django.core.files.base import ContentFile
@@ -310,22 +308,6 @@ def lookup(request, queryClass, queryString, callback):
     text = r.text
     results = json.loads(text)
     return callback + "(" + JsonResponse(results) + ");"
-
-
-def dbpediatest(request):
-    sparql = SPARQLWrapper("http://dbpedia.org/sparql")
-    sparql.setQuery("""
-        PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
-        PREFIX dct: <http://purl.org/dc/terms/>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema>
-
-        select distinct ?s where {?s <http://www.w3.org/2000/01/rdf-schema#label> "Berlin"@de } LIMIT 100
-    """)
-    sparql.setReturnFormat(JSON)
-    results = sparql.query().convert()
-
-    #print(results)
-    return JsonResponse(results)
 
 
 # ###############################################
