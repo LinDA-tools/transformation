@@ -252,17 +252,18 @@ function guessType(column=""){
 
 	//http://www.w3.org/TR/xmlschema11-2/#built-in-primitive-datatypes
 	var datatypes = {
-	"string": {"url": "http://www.w3.org/2001/XMLSchema#string",
-		"regex": ".*"},
-	"boolean": {"url": "http://www.w3.org/2001/XMLSchema#boolean",
-		"regex": "true|false|0|1"},
-	"decimal": {"url": "http://www.w3.org/2001/XMLSchema#decimal",
-		"regex": /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)/},
+
 	"float": {"url": "http://www.w3.org/2001/XMLSchema#float",
 		"regex":  /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)?|(\+|-)?INF|NaN}/},
 	"double": {"url": "http://www.w3.org/2001/XMLSchema#double",
 		"regex":  /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)? |(\+|-)?INF|NaN/},
+	"decimal": {"url": "http://www.w3.org/2001/XMLSchema#decimal",
+		"regex": /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)/},
+	"string": {"url": "http://www.w3.org/2001/XMLSchema#string",
+		"regex": ".*"},
 /*
+	"boolean": {"url": "http://www.w3.org/2001/XMLSchema#boolean",
+		"regex": "true|false|0|1"},
 	"duration": {"url": "http://www.w3.org/2001/XMLSchema#duration",
 		"regex": floatRegex},
 	"dateTime": {"url": "http://www.w3.org/2001/XMLSchema#dateTime",
@@ -309,15 +310,20 @@ function guessType(column=""){
 				console.log(" - "+key+" : "+value.regex);
 			}
 		});
-		recent_field.html(recent_field.html() + "<br><select>" + select_content+"</select>");
+		recent_field.html(recent_field.text() + "<br><select class=\"type_guessing\">" + select_content+"</select>");
 		var id = $(this).attr("id");
 		//get row and column field as included in table td id field
 		id_array = id.split("_");
 		var col = id_array[3];
 		var row = id_array[4];
 		console.log("col:"+col+" row:"+row+" --> "+csv_content[row][col-1]);
+
+		recent_field.find("select.type_guessing").on("change", function() {
+			adapt_RDF_preview();
+		});
 	});
 
+	adapt_RDF_preview();
 
 }
 
@@ -325,7 +331,6 @@ function noAction(column=""){
 
 	var csv_content = eval($("#id_hidden_csv_content_field").val());
 	$("td[id^='id_table_field_"+column+"']").each( function(i){
-		//$(this).val().match(priceRegex)
 		var id = $(this).attr("id");
 		//get row and column field as included in table td id field
 		id_array = id.split("_");
@@ -334,6 +339,7 @@ function noAction(column=""){
 		console.log("col:"+col+" row:"+row+" --> "+csv_content[row][col-1]);
 		$(this).text(csv_content[row][col-1]);
 	});
+	adapt_RDF_preview();
 }
 
 
@@ -343,10 +349,25 @@ function adapt_RDF_preview() {
 	if( Object.prototype.toString.call( rdf_array ) !== '[object Array]' ) {
 		var tbl = document.createTextNode("No RDF");
 	}else{
+//TODO this is done each time anything is clicked, bad performance
 		$("td[id^='id_table_field']").each(function(i){
 			if($(this).find(".bb_select").length>0) { // has reconsiliation result (dropbox)
 				rdf_array[i][2] = prefixise($(this).find(".bb_select_selection").text());
 			}
+			if($(this).find("select.type_guessing").length>0) { // has guessed types
+				//$(this).find("select.type_guessing option:selected").text();
+				if(rdf_array[i][2].indexOf("^")>-1)
+				{
+console.log(rdf_array[i][2] + "    " + rdf_array[i][2].indexOf("^") + "    " + rdf_array[i][2].substring(0, rdf_array[i][2].indexOf("^")));
+					rdf_array[i][2] = rdf_array[i][2].substring(0, rdf_array[i][2].indexOf("^"));
+				}
+				rdf_array[i][2] = rdf_array[i][2] +"^"+$(this).find("select.type_guessing option:selected").text();
+			}
+			/*else { // no action
+				//$(this).find("select.type_guessing option:selected").text();
+				rdf_array[i][2] = rdf_array[i][2].substring(0, rdf_array[i][2].indexOf("^"));
+				rdf_array[i][2] = rdf_array[i][2] +"^"+$(this).find("select.type_guessing option:selected").text();
+			}*/
 		});
 		//store in form and make available in backend
 		$("#id_hidden_rdf_array_field").val(JSON.stringify(rdf_array));
