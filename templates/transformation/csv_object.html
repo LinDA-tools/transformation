@@ -197,6 +197,8 @@ function askOracle(widget, domain, term){
 function guessType(column=""){
 
 	//http://www.sitepoint.com/jquery-basic-regex-selector-examples/
+//baseUris = ['Prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>', 'Prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>', 'Prefix xsd: <http://www.w3.org/2001/XMLSchema#>', 'Prefix fn: <http://aksw.org/sparqlify/>'];
+
 
 	//select integers only
 	var intRegex = /[0-9 -()+]+$/;   
@@ -247,16 +249,73 @@ function guessType(column=""){
 	//match sub domains: www, dev, int, stage, int.travel, stage.travel
 	var subDomainRegex = '/(http://|https://)?(www.|dev.)?(int.|stage.)?(travel.)?(.*)+?/igm';
 
-	var rdf_array = eval($("#id_hidden_csv_content_field").val());
+
+	//http://www.w3.org/TR/xmlschema11-2/#built-in-primitive-datatypes
+	var datatypes = {
+	"string": {"url": "http://www.w3.org/2001/XMLSchema#string",
+		"regex": ".*"},
+	"boolean": {"url": "http://www.w3.org/2001/XMLSchema#boolean",
+		"regex": "true|false|0|1"},
+	"decimal": {"url": "http://www.w3.org/2001/XMLSchema#decimal",
+		"regex": /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)/},
+	"float": {"url": "http://www.w3.org/2001/XMLSchema#float",
+		"regex":  /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)?|(\+|-)?INF|NaN}/},
+	"double": {"url": "http://www.w3.org/2001/XMLSchema#double",
+		"regex":  /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)? |(\+|-)?INF|NaN/},
+/*
+	"duration": {"url": "http://www.w3.org/2001/XMLSchema#duration",
+		"regex": floatRegex},
+	"dateTime": {"url": "http://www.w3.org/2001/XMLSchema#dateTime",
+		"regex": floatRegex},
+	"time": {"url": "http://www.w3.org/2001/XMLSchema#time",
+		"regex": floatRegex},
+	"date": {"url": "http://www.w3.org/2001/XMLSchema#date",
+		"regex": floatRegex},
+	"gYearMonth": {"url": "http://www.w3.org/2001/XMLSchema#gYearMonth",
+		"regex": floatRegex},
+	"gYear": {"url": "http://www.w3.org/2001/XMLSchema#gYear",
+		"regex": floatRegex},
+	"gMonthDay": {"url": "http://www.w3.org/2001/XMLSchema#gMonthDay",
+		"regex": floatRegex},
+	"gDay": {"url": "http://www.w3.org/2001/XMLSchema#gDay",
+		"regex": floatRegex},
+	"gMonth": {"url": "http://www.w3.org/2001/XMLSchema#gMonth",
+		"regex": floatRegex},
+	"hexBinary": {"url": "http://www.w3.org/2001/XMLSchema#hexBinary",
+		"regex": floatRegex},
+	"base64Binary": {"url": "http://www.w3.org/2001/XMLSchema#base64Binary",
+		"regex": floatRegex},
+	"anyURI": {"url": "http://www.w3.org/2001/XMLSchema#anyURI",
+		"regex": floatRegex},
+	"QName": {"url": "http://www.w3.org/2001/XMLSchema#QName",
+		"regex": floatRegex},
+	"NOTATION": {"url": "http://www.w3.org/2001/XMLSchema#NOTATION",
+		"regex": floatRegex},
+*/
+	
+	};
+
+	var csv_content = eval($("#id_hidden_csv_content_field").val());
 
 	$("td[id^='id_table_field_"+column+"']").each( function(i){
-		//$(this).val().match(priceRegex)
+		var recent_field = $(this);
+		console.log(recent_field.text().trim());
+		var select_content = "";
+		$.each(datatypes, function(key, value){					
+			if(recent_field.text().trim().match(value.regex)){
+				console.log(" + "+key+" : "+value.regex);
+				select_content += "<option>"+prefixise(value.url)+"</option>";
+			}else{
+				console.log(" - "+key+" : "+value.regex);
+			}
+		});
+		recent_field.html(recent_field.html() + "<br><select>" + select_content+"</select>");
 		var id = $(this).attr("id");
 		//get row and column field as included in table td id field
 		id_array = id.split("_");
 		var col = id_array[3];
 		var row = id_array[4];
-		//console.log("--> "+rdf_array[col-1][row-1]);
+		console.log("col:"+col+" row:"+row+" --> "+csv_content[row][col-1]);
 	});
 
 
@@ -264,10 +323,7 @@ function guessType(column=""){
 
 function noAction(column=""){
 
-	var rdf_array = eval($("#id_hidden_csv_content_field").val());
-	//TODO
-	console.log("noAction");
-
+	var csv_content = eval($("#id_hidden_csv_content_field").val());
 	$("td[id^='id_table_field_"+column+"']").each( function(i){
 		//$(this).val().match(priceRegex)
 		var id = $(this).attr("id");
@@ -275,8 +331,8 @@ function noAction(column=""){
 		id_array = id.split("_");
 		var col = id_array[3];
 		var row = id_array[4];
-		//console.log("--> "+rdf_array[column-1][row-1]);
-		$(this).text(rdf_array[col-1][row-1]);
+		console.log("col:"+col+" row:"+row+" --> "+csv_content[row][col-1]);
+		$(this).text(csv_content[row][col-1]);
 	});
 }
 
@@ -320,11 +376,13 @@ function calculateCells(column=""){
 		var opt = $("#id_table_settings_" + column + " select").find("option:selected").text();
 
 		if(opt == "auto inference") {
+			noAction(column); //clear field
 			var topic_field = "id_table_head_" + column;
 			var topic = $("#"+topic_field).text().trim();
 			askOracle($(this), topic, $(this).text().trim());
 		}
 		else if(opt == "auto type guessing") {
+			noAction(column); //clear field
 			guessType(column);
 		}
 		else if(opt == "no action") {
