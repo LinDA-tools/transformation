@@ -137,18 +137,36 @@ def csv_subject(request):
     # identify which columns to keep from html form checkboxes
     # like <input name="rowselect2" ... >
     request.session['selected_columns'] = []
-    print("POST ", request.POST)
+    #print("POST ", request.POST)
     for i in range(len(request.session['csv_rows'][0])):
         colnum = i + 1
         colname = 'rowselect' + str(colnum)
         if colname in request.POST:
-            print(colnum, " selected ", request.POST.get(colname))
+            #print(colnum, " selected ", request.POST.get(colname))
             request.session['selected_columns'].append(
                 {"column_number": colnum, "checkbox_name": colname, "column_name": request.POST.get(colname)})
 
     # csv without rows that were not selected in html form
     csv_rows_selected_columns = get_selected_rows_content(request.session)
+
+    # create model that contains all data in json object / python dictionary
+    #if not hasattr(request.session, 'model') or true:
+    request.session['model'] = [] # get csv column-wise
+    inverted_csv = list(zip(*request.session['csv_rows']))
+    print(inverted_csv)
+    for i, col in enumerate(inverted_csv):
+        column_obj = {"column_number": i, "show": "false", "rows": [], "header": {}}
+        for j, field in enumerate(col):
+            if j == 0: # table header / first row
+                column_obj['header'] = {"original_value": field}
+            else:
+                column_obj['rows'].append({"original_value": field, "row_number": j})
+        request.session['model'].append(column_obj)
+
+    mark_selected_rows_in_model(request.session)
+
     html_post_data = {
+        'rdfModel': request.session['model'], 
         'action': form_action,
         'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name']
@@ -175,6 +193,7 @@ def csv_predicate(request):
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'action': form_action,
+        'rdfModel': request.session['model'], 
         'csvContent': csv_rows_selected_columns[:11],
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
@@ -202,6 +221,7 @@ def csv_object(request):
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'action': form_action,
+        'rdfModel': request.session['model'], 
         'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
@@ -229,6 +249,7 @@ def csv_enrich(request):
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'action': form_action,
+        'rdfModel': request.session['model'], 
         'csvContent': csv_rows_selected_columns[:11],
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
@@ -292,6 +313,7 @@ def csv_publish(request):
     html_post_data = {
         'publish_massage': publish_massage,
         'action': form_action,
+        'rdfModel': request.session['model'], 
         'csvContent': csv_rows_selected_columns[:11],
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
@@ -330,6 +352,21 @@ def get_selected_rows_content(session):
             tmp_row.append(row[cn - 1])
         result.append(tmp_row)
     return result
+
+# marks selected columns directly in model
+def mark_selected_rows_in_model(session):
+    # write column numbers in array
+    col_nums = []
+    for col_num in session['selected_columns']:
+        col_nums.append(col_num.get("column_number")-1)
+    for col in session['model']:
+
+        if col["column_number"] in col_nums:
+            print("drin")
+            col["show"] = "true";
+        else:
+            print("nicht drin")
+            col["show"] = "false";
 
 
 def csv_model_2_array(m_id):

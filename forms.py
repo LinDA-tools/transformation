@@ -2,6 +2,7 @@ from django import forms
 
 # global fields
 hidden_filename_field = forms.CharField(widget=forms.HiddenInput(), required=False)
+hidden_model = forms.CharField(widget=forms.HiddenInput(), required=False)
 #hidden_csv_content_field = forms.CharField(widget=forms.HiddenInput(),required = False)
 hidden_csv_raw_field = forms.CharField(widget=forms.HiddenInput(),required = False)
 hidden_rdf_array_field = forms.CharField(widget=forms.HiddenInput(),required = False)
@@ -20,6 +21,7 @@ class UploadFileForm(forms.Form):
     hidden_filename_field = hidden_filename_field
     hidden_csv_raw_field = hidden_csv_raw_field
     hidden_rdf_array_field = hidden_rdf_array_field
+    hidden_model = hidden_model
 
     line_end = forms.CharField(max_length=4, required=False)
     delimiter = forms.CharField(max_length=1, required=False)
@@ -33,6 +35,7 @@ class CsvColumnChoiceForm(forms.Form):
     hidden_filename_field = hidden_filename_field
     hidden_csv_raw_field = hidden_csv_raw_field
     hidden_rdf_array_field = hidden_rdf_array_field
+    hidden_model = hidden_model
 
     FAVORITE_COLORS_CHOICES = (('blue', 'Blue'),
                                ('green', 'Green'),
@@ -45,6 +48,7 @@ class SubjectForm(forms.Form):
     hidden_filename_field = hidden_filename_field
     hidden_csv_raw_field = hidden_csv_raw_field
     hidden_rdf_array_field = hidden_rdf_array_field
+    hidden_model = hidden_model
 
 
 class PredicateForm(forms.Form):
@@ -52,6 +56,7 @@ class PredicateForm(forms.Form):
     hidden_csv_raw_field = hidden_csv_raw_field
     hidden_rdf_array_field = hidden_rdf_array_field
     hidden_rdf_prefix_field = hidden_rdf_prefix_field
+    hidden_model = hidden_model
 
 
 class ObjectForm(forms.Form):
@@ -59,13 +64,14 @@ class ObjectForm(forms.Form):
     hidden_csv_raw_field = hidden_csv_raw_field
     hidden_rdf_array_field = hidden_rdf_array_field
     hidden_rdf_prefix_field = hidden_rdf_prefix_field
-
+    hidden_model = hidden_model
 
 class EnrichForm(forms.Form):
     hidden_filename_field = hidden_filename_field
     hidden_csv_raw_field = hidden_csv_raw_field
     hidden_rdf_array_field = hidden_rdf_array_field
     hidden_rdf_prefix_field = hidden_rdf_prefix_field
+    hidden_model = hidden_model
 
 
 class PublishForm(forms.Form):
@@ -73,4 +79,5 @@ class PublishForm(forms.Form):
     hidden_csv_raw_field = hidden_csv_raw_field
     hidden_rdf_array_field = hidden_rdf_array_field
     hidden_rdf_prefix_field = hidden_rdf_prefix_field
+    hidden_model = hidden_model
 
