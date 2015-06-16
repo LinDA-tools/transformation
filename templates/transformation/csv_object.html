@@ -299,17 +299,13 @@ function guessType(column){
 	};
 
 	var csv_content = eval($("#id_hidden_csv_content_field").val());
-
 	$("td[id^='id_table_field_"+column+"']").each( function(i){
 		var recent_field = $(this);
-		console.log(recent_field.text().trim());
+		//console.log(recent_field.text().trim());
 		var select_content = "";
 		$.each(datatypes, function(key, value){					
 			if(recent_field.text().trim().match(value.regex)){
-				console.log(" + "+key+" : "+value.regex);
 				select_content += "<option>"+prefixise(value.url)+"</option>";
-			}else{
-				console.log(" - "+key+" : "+value.regex);
 			}
 		});
 		recent_field.html(recent_field.text() + "<br><select class=\"type_guessing\">" + select_content+"</select>");
@@ -318,8 +314,6 @@ function guessType(column){
 		id_array = id.split("_");
 		var col = id_array[3];
 		var row = id_array[4];
-		console.log("col:"+col+" row:"+row+" --> "+csv_content[row][col-1]);
-
 		recent_field.find("select.type_guessing").on("change", function() {
 			adapt_RDF_preview();
 		});
@@ -340,7 +334,6 @@ function noAction(column){
 		id_array = id.split("_");
 		var col = id_array[3];
 		var row = id_array[4];
-		console.log("col:"+col+" row:"+row+" --> "+csv_content[row][col-1]);
 		$(this).text(csv_content[row][col-1]);
 	});
 	adapt_RDF_preview();
@@ -358,11 +351,12 @@ function adapt_RDF_preview() {
 			if($(this).find(".bb_select").length>0) { // has reconsiliation result (dropbox)
 				rdf_array[i][2] = prefixise($(this).find(".bb_select_selection").text());
 			}
+			
 			if($(this).find("select.type_guessing").length>0) { // has guessed types
+
 				//$(this).find("select.type_guessing option:selected").text();
 				if(rdf_array[i][2].indexOf("^^")>-1)
 				{
-console.log(rdf_array[i][2] + "    " + rdf_array[i][2].indexOf("^^") + "    " + rdf_array[i][2].substring(0, rdf_array[i][2].indexOf("^^")));
 					rdf_array[i][2] = rdf_array[i][2].substring(0, rdf_array[i][2].indexOf("^^"));
 				}
 				rdf_array[i][2] = rdf_array[i][2] +"^^"+$(this).find("select.type_guessing option:selected").text();
