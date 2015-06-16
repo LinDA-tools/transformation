@@ -194,7 +194,9 @@ function askOracle(widget, domain, term){
 	return request;
 }
 
-function guessType(column=""){
+function guessType(column){
+
+	column = typeof column !== 'undefined' ? column : "";
 
 	//http://www.sitepoint.com/jquery-basic-regex-selector-examples/
 //baseUris = ['Prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>', 'Prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>', 'Prefix xsd: <http://www.w3.org/2001/XMLSchema#>', 'Prefix fn: <http://aksw.org/sparqlify/>'];
@@ -254,9 +256,9 @@ function guessType(column=""){
 	var datatypes = {
 
 	"float": {"url": "http://www.w3.org/2001/XMLSchema#float",
-		"regex":  /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)?|(\+|-)?INF|NaN}/},
+		"regex":  /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)?|(\+|-)?INF|NaN/},
 	"double": {"url": "http://www.w3.org/2001/XMLSchema#double",
-		"regex":  /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)? |(\+|-)?INF|NaN/},
+		"regex":  /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)?|(\+|-)?INF|NaN/},
 	"decimal": {"url": "http://www.w3.org/2001/XMLSchema#decimal",
 		"regex": /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)/},
 	"string": {"url": "http://www.w3.org/2001/XMLSchema#string",
@@ -327,7 +329,9 @@ function guessType(column=""){
 
 }
 
-function noAction(column=""){
+function noAction(column){
+
+	column = typeof column !== 'undefined' ? column : "";
 
 	var csv_content = eval($("#id_hidden_csv_content_field").val());
 	$("td[id^='id_table_field_"+column+"']").each( function(i){
@@ -356,18 +360,20 @@ function adapt_RDF_preview() {
 			}
 			if($(this).find("select.type_guessing").length>0) { // has guessed types
 				//$(this).find("select.type_guessing option:selected").text();
-				if(rdf_array[i][2].indexOf("^")>-1)
+				if(rdf_array[i][2].indexOf("^^")>-1)
 				{
-console.log(rdf_array[i][2] + "    " + rdf_array[i][2].indexOf("^") + "    " + rdf_array[i][2].substring(0, rdf_array[i][2].indexOf("^")));
-					rdf_array[i][2] = rdf_array[i][2].substring(0, rdf_array[i][2].indexOf("^"));
+console.log(rdf_array[i][2] + "    " + rdf_array[i][2].indexOf("^^") + "    " + rdf_array[i][2].substring(0, rdf_array[i][2].indexOf("^^")));
+					rdf_array[i][2] = rdf_array[i][2].substring(0, rdf_array[i][2].indexOf("^^"));
 				}
-				rdf_array[i][2] = rdf_array[i][2] +"^"+$(this).find("select.type_guessing option:selected").text();
+				rdf_array[i][2] = rdf_array[i][2] +"^^"+$(this).find("select.type_guessing option:selected").text();
 			}
-			/*else { // no action
-				//$(this).find("select.type_guessing option:selected").text();
-				rdf_array[i][2] = rdf_array[i][2].substring(0, rdf_array[i][2].indexOf("^"));
-				rdf_array[i][2] = rdf_array[i][2] +"^"+$(this).find("select.type_guessing option:selected").text();
-			}*/
+			else { // no action
+				if(rdf_array[i][2].indexOf("^^")>-1){
+					//$(this).find("select.type_guessing option:selected").text();
+					rdf_array[i][2] = rdf_array[i][2].substring(0, rdf_array[i][2].indexOf("^^"));
+					//rdf_array[i][2] = rdf_array[i][2] +"^^"+$(this).find("select.type_guessing option:selected").text();
+				}
+			}
 		});
 		//store in form and make available in backend
 		$("#id_hidden_rdf_array_field").val(JSON.stringify(rdf_array));
@@ -386,7 +392,10 @@ console.log(rdf_array[i][2] + "    " + rdf_array[i][2].indexOf("^") + "    " + r
 
 //check whether to to auto type guessing, econciliation or nothing (select dropbox)
 //when providing no param, all fields are checked
-function calculateCells(column=""){
+function calculateCells(column){
+		
+		column = typeof column !== 'undefined' ? column : "";
+
 		$("td[id^='id_table_field_"+column+"']").each( function(i){
 		var id = $(this).attr("id");
 		//get row and column field as included in table td id field
