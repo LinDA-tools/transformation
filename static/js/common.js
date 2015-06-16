@@ -240,7 +240,7 @@ function replacePrefix(uri){
 used_prefixes = [];
 
 
-//takes uri and reflaces with prefix or otherwise surrounds with <>
+//takes uri and replaces with prefix or otherwise surrounds with <>
 function prefixise(href){
 	var prefixed = replacePrefix(href);
 	var result = "";
