@@ -129,7 +129,7 @@
     <script>
 
         function isUrl(s) {
-            var regexp = /http:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+            var regexp = /(http:\/\/)?(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
             return regexp.test(s);
         }
 
@@ -353,6 +353,7 @@ function adapt_RDF_preview() {
         }
 
         function changeURI() {
+            console.log("cu");
             base_url_insert_warning.css("visibility", "hidden");
             var last_bracket = "}";
             var warning = false;
@@ -393,6 +394,7 @@ function adapt_RDF_preview() {
             add_model_filename($("#id_hidden_filename_field").val());
 
             //check if subject uri has a valid formatting / open and closed curly brackets {} pairs
+            var subject_uri = $("#id_subject_uri");
             subject_uri.on('keyup', changeURI);
             subject_uri.on('drop', changeURI);
             subject_uri.on('select', changeURI);
