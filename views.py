@@ -180,7 +180,7 @@ def csv_subject(request):
             if j == 0: # table header / first row
                 column_obj['header'] = {"orig_val": field}
             else:
-                column_obj['rows'].append({"orig_val": field, "row_number": j})
+                column_obj['rows'].append({"orig_val": field, "row_num": j})
         request.session['model']['content'].append(column_obj)
 
     mark_selected_rows_in_model(request.session)

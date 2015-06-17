@@ -2,6 +2,7 @@ from django import template
 
 register = template.Library()
 
+#swaps file ending in filename for .n3
 @register.filter(name='n3')
 def n3(filename):
 	return filename.split(".", 1)[0]+".n3"

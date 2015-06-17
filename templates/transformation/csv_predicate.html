@@ -237,7 +237,7 @@ function askOracle(widget_num){
 				else
 					star += "fa-star-o";
 
-				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i>"+data[i].ranking+") <em>"+data[i].label+"</em><br>"+data[i].vocabulary+"</span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>");
+				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i><span class=\"vocab_score\">"+data[i].ranking+"</span>) <em>"+data[i].label+"</em><br><span class=\"vocab_description\">"+data[i].vocabulary+"</span></span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>");
 			}
 
 			addInnerDiv($("#search_result_"+widget_num));
@@ -289,6 +289,13 @@ function adapt_RDF_preview() {
 		for(var i=0; i<rdf_array.length/num_columns; i++) {
 			for(var j=0; j<num_columns; j++) {
 				var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
+				var vocab_name = $("#search_result_"+(j+1)+" * .bb_select_selection em").text();
+				var vocab_description = $("#search_result_"+(j+1)+" * .bb_select_selection .oracle_label span.vocab_description").text();
+				var vocab_score = $("#search_result_"+(j+1)+" * .bb_select_selection span.vocab_score").text();
+				var search_term = $("#search_textinput_"+(j+1)).val();
+
+				//add to model
+                add_to_model_predicate({"url":href, "vocab_name":vocab_name, "vocab_description":vocab_description, "score": vocab_score, "search_term":search_term}, (j+1));//, "html":$(this).html()
 
 				if(typeof href === "undefined") {
 					found_one_undefined = true;
@@ -333,6 +340,10 @@ used_prefixes = [];
 
 
 $( document ).ready(function() {
+
+	//add_to_model_content_field("XXXXXXXXX", "YYYYYYYYYYY", "Meier");
+	//add_to_model_field_where_col_and_row("CCCCCCCCCCCCCCC", "DDDDDDDDDDD", 3 , 1);
+	//add_to_model_predicate({"name":"THIS IS PREDICATE!!! HARR!!", "uri":"someuri"}, 1);
 
 	rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
 	rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.value)));

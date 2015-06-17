@@ -1678,19 +1678,14 @@ prefixes = {
 
 
 function replacePrefix(uri){
-
-	console.log(uri);
 	var result = [uri, "none", "none"];
 	$.each(prefixes, function(key, value){	
 		if(uri.indexOf(key) == 0 && uri.replace(key, "").indexOf("#")==-1 && uri.replace(key, "").indexOf("/")==-1){
-			console.log(uri+" "+key);
 			result[0] = value + ":" + uri.replace(key, "");
 			result[1] = value;
 			result[2] = key;
-			return;
-			
+			return;			
 		}
-
 	});
 	return result;
 };
@@ -1872,10 +1867,10 @@ function get_model(){
 }
 
 function write_model(m){
-	console.log("write "+JSON.stringify(m));
 	$("#id_hidden_model").val(JSON.stringify(m));
 }
 
+//GENERIC
 function add_model_field(fieldname, subj){
 	var model = get_model();
 	model[fieldname] = subj;
@@ -1888,6 +1883,50 @@ function add_model_subject(subj){
 
 function add_model_filename(subj){
 	add_model_field("file_name", subj);
+}
+
+//GENERIC
+function add_to_model_where_fieldname(new_key, new_value, field_name, field_property){
+	var model = get_model();
+	$.each(model["content"], function(i, v1){
+		$.each(v1["rows"], function(j, v2){
+			if(v2[field_name]==field_property)
+				v2[new_key] = new_value;
+		});
+	});
+	write_model(model);
+}
+
+//GENERIC
+function add_to_model_field_where_col_and_row(new_key, new_value, col, row){
+	var model = get_model();
+	$.each(model["content"], function(i, v1){
+		if(v1["col_num_new"]==col)
+			$.each(v1["rows"], function(j, v2){
+				if(v2["row_num"]==row)
+					v2[new_key] = new_value;
+			});
+	});
+	write_model(model);
+}
+
+//GENERIC
+function add_to_model_header_where_col_and_row(new_key, new_value, col){
+	var model = get_model();
+	$.each(model["content"], function(i, v1){
+		if(v1["col_num_new"]==col)
+			v1["header"][new_key] = new_value;
+	});
+	write_model(model);
+}
+
+//adds to content field in table
+function add_to_model_content_field(new_key, new_value, field){
+	add_to_model_where_fieldname(new_key, new_value, "orig_val", field);
+}
+
+function add_to_model_predicate(new_value, col){
+	add_to_model_header_where_col_and_row("predicate", new_value, col);
 }
 
 
