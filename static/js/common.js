@@ -1863,6 +1863,32 @@ function transpose_matrix(matrix) {
         elementsDiv.trigger("mouseout");
     }
 
+
+
+// ///////////////// MODEL ///////////////////////////////
+
+function get_model(){
+	return JSON.parse($("#id_hidden_model").val().replace(/'/g,"\""));
+}
+
+function write_model(m){
+	console.log("write "+JSON.stringify(m));
+	$("#id_hidden_model").val(JSON.stringify(m));
+}
+
+function add_model_subject(subj){
+	console.log("adding "+subj);
+	var model = get_model();
+	model["subject_sceleton"] = subj;
+	console.log(model);
+	write_model(model);
+
+}
+
+// ///////////////// MODEL ///////////////////////////////
+
+
+
 $( document ).ready(function() {
 
 	$("div.content").each(function(){

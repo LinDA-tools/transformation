@@ -131,7 +131,9 @@ def csv_column_choice(request):
 
 def csv_subject(request):
     print("VIEW csv_subject")
-
+    mdl = '{"content":[{"col_num_orig":1,"rows":[{"orig_val":"Bernd","row_number":1},{"orig_val":"Sabine","row_number":2},{"orig_val":"Samuel","row_number":3}],"header":{"orig_val":"First Name"},"show":"false","col_num_new":-1},{"col_num_orig":2,"rows":[{"orig_val":"Meier","row_number":1},{"orig_val":"Schmidt","row_number":2},{"orig_val":"Wood","row_number":3}],"header":{"orig_val":"Family Name"},"show":"false","col_num_new":-1},{"col_num_orig":3,"rows":[{"orig_val":"Berlin","row_number":1},{"orig_val":"Dortmund","row_number":2},{"orig_val":"Chicago","row_number":3}],"header":{"orig_val":"Place"},"show":"false","col_num_new":-1},{"col_num_orig":4,"rows":[{"orig_val":"Microsoft","row_number":1},{"orig_val":"Apple","row_number":2},{"orig_val":"IBM","row_number":3}],"header":{"orig_val":"Company"},"show":"false","col_num_new":-1},{"col_num_orig":5,"rows":[{"orig_val":"12.80","row_number":1},{"orig_val":"13.40","row_number":2},{"orig_val":"145","row_number":3}],"header":{"orig_val":"Price"},"show":"false","col_num_new":-1},{"col_num_orig":6,"rows":[{"orig_val":"12","row_number":1},{"orig_val":"145","row_number":2},{"orig_val":"86","row_number":3}],"header":{"orig_val":"Amount"},"show":"false","col_num_new":-1}],"num_total_rows":6,"num_cols_selected":0,"subject_sceleton":""}'
+    print(json.loads('[{"a":1}]'))
+    print(json.loads(mdl))
     form_action = 4
     form = SubjectForm(request.POST)
     if request.POST and form.is_valid() and form != None:
@@ -145,7 +147,12 @@ def csv_subject(request):
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
         else:
             request.session['rdf_prefix'] = ""
-
+        '''
+        if 'hidden_model' in form.cleaned_data:
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'","\""))
+        else:
+            request.session['model'] = ""
+        '''
     # identify which columns to keep from html form checkboxes
     # like <input name="rowselect2" ... >
     request.session['selected_columns'] = []
@@ -205,6 +212,11 @@ def csv_predicate(request):
         else:
             request.session['rdf_prefix'] = ""
 
+        if 'hidden_model' in form.cleaned_data:
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'","\""))
+        else:
+            request.session['model'] = ""
+
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'action': form_action,
@@ -233,6 +245,11 @@ def csv_object(request):
         else:
             request.session['rdf_prefix'] = ""
 
+        if 'hidden_model' in form.cleaned_data:
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'","\""))
+        else:
+            request.session['model'] = ""
+
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'action': form_action,
@@ -260,6 +277,11 @@ def csv_enrich(request):
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
         else:
             request.session['rdf_prefix'] = ""
+
+        if 'hidden_model' in form.cleaned_data:
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'","\""))
+        else:
+            request.session['model'] = ""
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
@@ -303,6 +325,11 @@ def csv_publish(request):
                 rdf_n3 += ".\n"
         else:
             request.session['rdf_array'] = ""
+
+        if 'hidden_model' in form.cleaned_data:
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'","\""))
+        else:
+            request.session['model'] = ""
 
         print(rdf_n3)
 

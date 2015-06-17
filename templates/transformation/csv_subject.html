@@ -174,7 +174,6 @@
         function base_url_change() {
             var base_url = $("#id_base_url");
             var base_url_insert = $("#id_base_url_insert");
-            console.log("base");
             trailing_slash = "";
             if (base_url.val()[base_url.val().length - 1] != "/")
                 trailing_slash = "/";
@@ -193,13 +192,12 @@ function adapt_RDF_preview() {
 
     used_prefixes = [];
 
-    //var rdf_array = eval($("#id_hidden_rdf_array_field").val());
+
     var subject_uri = $("#id_subject_uri");
     var base_url_insert = $("#id_base_url_insert");
-    console.log(subject_uri);
-    //if( Object.prototype.toString.call( rdf_array ) === '[object Array]' ) {
-     //   var rdf_array = eval($("#id_hidden_rdf_array_field").val());
-    //}else{
+
+    add_model_subject(base_url_insert.text()+subject_uri.val());
+
 
         var content = eval(csv_content.value);
         var topic_row = content[0];
@@ -427,6 +425,8 @@ function adapt_RDF_preview() {
 
         base_url_change();
         adapt_RDF_preview();
+
+
         });
 
     </script>
