@@ -77,6 +77,7 @@ function rdf_array_to_table(rdf_array, rdf_prefixes) {
 
 //source: http://prefix.cc/context
 prefixes = {
+"http://dbpedia.org/resource/": "dbpedia",
 "http://a9.com/-/spec/opensearch/1.1/": "opensearch",
 "http://abs.270a.info/dataset/": "abs",
 "http://advene.org/ns/cinelab/": "cl",
@@ -209,7 +210,6 @@ prefixes = {
 "http://datos.localidata.com/def/City#": "city",
 "http://dayta.me/resource#": "dayta",
 "http://dblp.l3s.de/d2r/page/authors/": "dblp",
-"http://dbpedia.org/": "db",
 "http://dbpedia.org/class/yago/": "dbyago",
 "http://dbpedia.org/datatype/": "dt",
 "http://dbpedia.org/ontology/": "dbo",
@@ -217,8 +217,8 @@ prefixes = {
 "http://dbpedia.org/ontology/Stream/": "stream",
 "http://dbpedia.org/property/": "dbp",
 "http://dbpedia.org/resource/Category:": "category",
-"http://dbpedia.org/resource/:": "dbpedia",
 "http://dbpedia.org/resource/Category:": "dbcat",
+"http://dbpedia.org/": "db",
 "http://dbpedialite.org/things/": "dpl",
 "http://dbtropes.org/ont/": "dbtont",
 "http://dbtune.org/musicbrainz/resource/instrument/": "mb",
@@ -1676,31 +1676,25 @@ prefixes = {
 "https://w3id.org/payswarm#": "ps",
 "https://w3id.org/security#": "sec",};
 
-function replacePrefix(uri){
-	var result = [uri, "none", "none"];
-	var keys = [];
-	var values = [];
-	$.each(prefixes, function(key, value){
-		if(uri.indexOf(key) >- 1){
-			keys.push(key);
-			values.push(value);
-		}	
-	});
-	//if multiple match, make sure the most comprehensive will be chosen
-	var longest_uri = -1;
-	var index = -1;
-	for(var i=0; i<keys.length; i++){
-		if(keys[i].length>longest_uri){
-			longest_uri = keys[i].length;
-			index = i;
-		}
-	}
 
-	result[0] = values[index] + ":" + uri.replace(keys[index], "");
-	result[1] = values[index];
-	result[2] = keys[index];
+function replacePrefix(uri){
+
+	console.log(uri);
+	var result = [uri, "none", "none"];
+	$.each(prefixes, function(key, value){	
+		if(uri.indexOf(key) == 0 && uri.replace(key, "").indexOf("#")==-1 && uri.replace(key, "").indexOf("/")==-1){
+			console.log(uri+" "+key);
+			result[0] = value + ":" + uri.replace(key, "");
+			result[1] = value;
+			result[2] = key;
+			return;
+			
+		}
+
+	});
 	return result;
 };
+
 
 used_prefixes = [];
 

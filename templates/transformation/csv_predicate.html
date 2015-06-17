@@ -5,6 +5,8 @@
 
 {% block content %}
 
+{% load modelview_tags %}
+
 {% include "transformation/snippets/title_snippet.html" with format='CSV' %}
 
 <!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
@@ -28,7 +30,7 @@
 	</div>
 </div>
 
-<div class="content scrollit">
+<!--div class="content scrollit">
 	<h3>DATA VIEW</h3>
 	File: <b>{{ filename }}</b> (10 rows example)
 	<table class="table_view">
@@ -70,7 +72,13 @@
 		{% endfor %}
 	</tbody>
 	</table>
-</div>
+</div-->
+
+    <div class="content scrollit">
+        <h3>DATA VIEW</h3>
+        File: <b>{{ filename }}</b> (10 rows example)
+        {{ rdfModel | model_as_table_predicate | safe }}
+    </div>
 
 <div class="content" id="rdf_view">
 	<h3>RDF VIEW</h3>

@@ -5,6 +5,8 @@
 
 {% block content %}
 
+{% load modelview_tags %}
+
 {% include "transformation/snippets/title_snippet.html" with format='CSV' %}
 
 <!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
@@ -32,7 +34,7 @@
 
 </div>
 
-<div class="content scrollit">
+<!--div class="content scrollit">
 	<h3>DATA VIEW</h3>
 	File: <b>{{ filename }}</b> (10 rows example)
 	<table class="table_view">
@@ -77,7 +79,13 @@
 	</tbody>
 	</table>
 <div style="clear:both;"></div>
-</div>
+</div-->
+
+    <div class="content scrollit">
+        <h3>DATA VIEW</h3>
+        File: <b>{{ filename }}</b> (10 rows example)
+        {{ rdfModel | model_as_table_object | safe }}
+    </div>
 
 <div class="content" id="rdf_view">
 	<h3>RDF VIEW</h3>
@@ -425,13 +433,8 @@ $( document ).ready(function() {
 	used_prefixes = eval($("#id_hidden_rdf_prefix_field").val());
 	if( Object.prototype.toString.call( used_prefixes ) !== '[object Array]' )
 		used_prefixes = [];
-	console.log(used_prefixes);
-
-
-	//rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
-	//rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.val())));
+	
 	adapt_RDF_preview();
-	// do an oracle lookup on page load
 
 	$("td[id^='id_table_settings_'] select").each(function(){
 		$(this).on("change", function(){

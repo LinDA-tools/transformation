@@ -138,30 +138,31 @@ def csv_subject(request):
     # like <input name="rowselect2" ... >
     request.session['selected_columns'] = []
     #print("POST ", request.POST)
+    num_csv_rows = len(request.session['csv_rows'][0])
     for i in range(len(request.session['csv_rows'][0])):
         colnum = i + 1
         colname = 'rowselect' + str(colnum)
         if colname in request.POST:
             #print(colnum, " selected ", request.POST.get(colname))
             request.session['selected_columns'].append(
-                {"column_number": colnum, "checkbox_name": colname, "column_name": request.POST.get(colname)})
+                {"col_num_orig": colnum, "checkbox_name": colname, "column_name": request.POST.get(colname)})
 
     # csv without rows that were not selected in html form
     csv_rows_selected_columns = get_selected_rows_content(request.session)
 
     # create model that contains all data in json object / python dictionary
     #if not hasattr(request.session, 'model') or true:
-    request.session['model'] = [] # get csv column-wise
+    request.session['model'] = {"num_total_rows": num_csv_rows, "content": []} # get csv column-wise
     inverted_csv = list(zip(*request.session['csv_rows']))
     print(inverted_csv)
     for i, col in enumerate(inverted_csv):
-        column_obj = {"column_number": i, "show": "false", "rows": [], "header": {}}
+        column_obj = {"col_num_orig": i+1, "show": "false", "rows": []}
         for j, field in enumerate(col):
             if j == 0: # table header / first row
-                column_obj['header'] = {"original_value": field}
+                column_obj['header'] = {"orig_val": field}
             else:
-                column_obj['rows'].append({"original_value": field, "row_number": j})
-        request.session['model'].append(column_obj)
+                column_obj['rows'].append({"orig_val": field, "row_number": j})
+        request.session['model']['content'].append(column_obj)
 
     mark_selected_rows_in_model(request.session)
 
@@ -343,7 +344,7 @@ def get_selected_rows_content(session):
     # write column numbers in array
     col_nums = []
     for col_num in session['selected_columns']:
-        col_nums.append(col_num.get("column_number"))
+        col_nums.append(col_num.get("col_num_orig"))
     #print("colnums ", col_nums)
 
     for row in session['csv_rows']:
@@ -358,15 +359,18 @@ def mark_selected_rows_in_model(session):
     # write column numbers in array
     col_nums = []
     for col_num in session['selected_columns']:
-        col_nums.append(col_num.get("column_number")-1)
-    for col in session['model']:
-
-        if col["column_number"] in col_nums:
-            print("drin")
+        col_nums.append(col_num.get("col_num_orig"))
+    session['model']['num_cols_selected'] = len(col_nums)
+    counter = 1;
+    print(col_nums)
+    for i, col in enumerate(session['model']['content']):
+        if col["col_num_orig"] in col_nums:
             col["show"] = "true";
+            col["col_num_new"] = counter
+            counter = counter + 1
         else:
-            print("nicht drin")
             col["show"] = "false";
+            col["col_num_new"] = -1
 
 
 def csv_model_2_array(m_id):

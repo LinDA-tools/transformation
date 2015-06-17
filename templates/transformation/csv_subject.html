@@ -5,6 +5,7 @@
 
 {% block content %}
 
+{% load modelview_tags %}
 
     {% include "transformation/snippets/title_snippet.html" with format='CSV' %}
 
@@ -75,7 +76,7 @@
 
     </div>
 
-    <div class="content scrollit">
+    <!--div class="content scrollit">
         <h3>DATA VIEW</h3>
         File: <b>{{ filename }}</b> (10 rows example)
         <table class="table_view">
@@ -108,6 +109,15 @@
             {% endfor %}
             </tbody>
         </table>
+    </div-->
+
+    
+
+
+    <div class="content scrollit">
+        <h3>DATA VIEW</h3>
+        File: <b>{{ filename }}</b> (10 rows example)
+        {{ rdfModel | model_as_table | safe }}
     </div>
 
     <div class="content" id="rdf_view">
