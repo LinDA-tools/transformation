@@ -1876,14 +1876,20 @@ function write_model(m){
 	$("#id_hidden_model").val(JSON.stringify(m));
 }
 
-function add_model_subject(subj){
-	console.log("adding "+subj);
+function add_model_field(fieldname, subj){
 	var model = get_model();
-	model["subject_sceleton"] = subj;
-	console.log(model);
+	model[fieldname] = subj;
 	write_model(model);
-
 }
+
+function add_model_subject(subj){
+	add_model_field("subject_sceleton", subj);
+}
+
+function add_model_filename(subj){
+	add_model_field("file_name", subj);
+}
+
 
 // ///////////////// MODEL ///////////////////////////////
 

@@ -198,7 +198,6 @@ function adapt_RDF_preview() {
 
     add_model_subject(base_url_insert.text()+subject_uri.val());
 
-
         var content = eval(csv_content.value);
         var topic_row = content[0];
         var num_total_fields_csv = (content.length - 1) * content[0].length;
@@ -390,6 +389,8 @@ function adapt_RDF_preview() {
 
 
         $( document ).ready(function() {
+
+            add_model_filename($("#id_hidden_filename_field").val());
 
             //check if subject uri has a valid formatting / open and closed curly brackets {} pairs
             subject_uri.on('keyup', changeURI);
