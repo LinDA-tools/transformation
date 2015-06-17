@@ -1746,3 +1746,64 @@ function shortenURI(uri, maxlength){
 			tail = "/" + parts[parts.length-i] + tail;
 	}	
 }
+
+jQuery.fn.extend({
+insertAtCaret: function(myValue){
+  return this.each(function(i) {
+    if (document.selection) {
+      //For browsers like Internet Explorer
+      this.focus();
+      var sel = document.selection.createRange();
+      sel.text = myValue;
+      this.focus();
+    }
+    else if (this.selectionStart || this.selectionStart == '0') {
+      //For browsers like Firefox and Webkit based
+      var startPos = this.selectionStart;
+      var endPos = this.selectionEnd;
+      var scrollTop = this.scrollTop;
+      this.value = this.value.substring(0, startPos)+myValue+this.value.substring(endPos,this.value.length);
+      this.focus();
+      this.selectionStart = startPos + myValue.length;
+      this.selectionEnd = startPos + myValue.length;
+      this.scrollTop = scrollTop;
+    } else {
+      this.value += myValue;
+      this.focus();
+    }
+  });
+}
+});
+
+$( document ).ready(function() {
+
+	$("div.content").each(function(){
+		$(this).css("position","relative");
+		$(this).html($(this).html()+'<i class="fa fa-caret-square-o-down fa-2x content-resizer" style="position: absolute; top: 0.1em; right: 0.2em; color: rgb(136, 136, 136); opacity: 0.4;"></i>');
+	});
+
+	$("i.content-resizer").each(function(){
+		$(this).on("click", function(){
+			if($(this).hasClass("fa-caret-square-o-down")){
+				$(this).parent().css("height", "4.3em");
+				$(this).parent().css("overflow", "hidden");
+				$(this).parent().scrollTop("0");
+				$(this).removeClass("fa-caret-square-o-down");
+				$(this).addClass("fa-caret-square-o-left");
+			}else{
+				$(this).parent().css("height", "");
+				$(this).parent().css("overflow", "");
+				$(this).removeClass("fa-caret-square-o-left");
+				$(this).addClass("fa-caret-square-o-down");
+			}
+		});
+		$(this).on("mouseover", function(){
+			$(this).css("opacity","1");
+		});
+		$(this).on("mouseoout", function(){
+			$(this).css("opacity","0.4");
+		});
+	});
+});
+
+//<i class="fa fa-caret-square-o-down fa-2x" style="position: absolute; top: 0.1em; right: 0.2em; color: rgb(136, 136, 136); opacity: 0.3;"></i>

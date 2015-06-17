@@ -133,6 +133,18 @@ def csv_subject(request):
     print("VIEW csv_subject")
 
     form_action = 4
+    form = SubjectForm(request.POST)
+    if request.POST and form.is_valid() and form != None:
+        # content  is passed on via hidden html input fields
+        if 'hidden_rdf_array_field' in form.cleaned_data:
+            request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
+        else:
+            request.session['rdf_array'] = ""
+
+        if 'hidden_rdf_prefix_field' in form.cleaned_data:
+            request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
+        else:
+            request.session['rdf_prefix'] = ""
 
     # identify which columns to keep from html form checkboxes
     # like <input name="rowselect2" ... >
@@ -167,10 +179,12 @@ def csv_subject(request):
     mark_selected_rows_in_model(request.session)
 
     html_post_data = {
-        'rdfModel': request.session['model'], 
+        'rdfModel': request.session['model'],         
         'action': form_action,
         'csvContent': csv_rows_selected_columns,
-        'filename': request.session['file_name']
+        'filename': request.session['file_name'],
+        'rdfArray': request.session['rdf_array'],
+        'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_subject.html', html_post_data)
 
@@ -181,15 +195,15 @@ def csv_predicate(request):
     form = PredicateForm(request.POST)
     if request.POST and form.is_valid() and form != None:
         # content  is passed on via hidden html input fields
-        if form.cleaned_data['hidden_rdf_array_field']:
+        if 'hidden_rdf_array_field' in form.cleaned_data:
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
         else:
-            request.session['rdf_array'] = "no rdf"
+            request.session['rdf_array'] = ""
 
-        if form.cleaned_data['hidden_rdf_prefix_field']:
+        if 'hidden_rdf_prefix_field' in form.cleaned_data:
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
         else:
-            request.session['rdf_prefix'] = "no rdf"
+            request.session['rdf_prefix'] = ""
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
@@ -209,15 +223,15 @@ def csv_object(request):
     form = ObjectForm(request.POST)
     if request.POST and form.is_valid() and form != None:
         # content  is passed on via hidden html input fields
-        if form.cleaned_data['hidden_rdf_array_field']:
+        if 'hidden_rdf_array_field' in form.cleaned_data:
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
         else:
-            request.session['rdf_array'] = "no rdf"
+            request.session['rdf_array'] = ""
 
-        if form.cleaned_data['hidden_rdf_prefix_field']:
+        if 'hidden_rdf_prefix_field' in form.cleaned_data:
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
         else:
-            request.session['rdf_prefix'] = "no rdf"
+            request.session['rdf_prefix'] = ""
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
@@ -237,15 +251,15 @@ def csv_enrich(request):
     form = EnrichForm(request.POST)
     if request.POST and form.is_valid() and form != None:
         # content  is passed on via hidden html input fields
-        if form.cleaned_data['hidden_rdf_array_field']:
+        if 'hidden_rdf_array_field' in form.cleaned_data:
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
         else:
-            request.session['rdf_array'] = "no rdf"
+            request.session['rdf_array'] = ""
 
-        if form.cleaned_data['hidden_rdf_prefix_field']:
+        if 'hidden_rdf_prefix_field' in form.cleaned_data:
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
         else:
-            request.session['rdf_prefix'] = "no rdf"
+            request.session['rdf_prefix'] = ""
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
@@ -267,8 +281,8 @@ def csv_publish(request):
     publish_massage = ""
     if request.POST and form.is_valid() and form != None:
 
-        # content  is passed on via hidden html input fields
-        if form.cleaned_data['hidden_rdf_prefix_field']:
+        # content is passed on via hidden html input fields
+        if 'hidden_rdf_prefix_field' in form.cleaned_data:
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
             for row in eval(request.session['rdf_prefix']):
                 rdf_n3 += "@prefix "
@@ -276,9 +290,9 @@ def csv_publish(request):
                 rdf_n3 += row[2]
                 rdf_n3 += ".\n"
         else:
-            request.session['rdf_array'] = "no rdf"
+            request.session['rdf_array'] = ""
 
-        if form.cleaned_data['hidden_rdf_array_field']:
+        if 'hidden_rdf_array_field' in form.cleaned_data:
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
             for row in eval(request.session['rdf_array']):
                 for elem in row:
@@ -288,7 +302,7 @@ def csv_publish(request):
                     rdf_n3 += elem + " "
                 rdf_n3 += ".\n"
         else:
-            request.session['rdf_array'] = "no rdf"
+            request.session['rdf_array'] = ""
 
         print(rdf_n3)
 

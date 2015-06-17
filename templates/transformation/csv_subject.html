@@ -15,7 +15,7 @@
     {% endfor %}
 
     <input type="hidden" name="hidden_rdf_array_field" id="id_hidden_rdf_array_field" value="{{ rdfArray }}">
-    <input type="hidden" name="hidden_model" id="id_hidden_hidden_model" value="{{ rdfModel }}">
+    <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ rdfModel }}">
 
     <div class="content grid">
         <div class="col-5-10 left-side-box">
@@ -41,8 +41,7 @@
 
             <div id="id_uri_container">
                 <p>
-                    Base URL: <input type="text" name="base_url" id="id_base_url" placeholder="e.g. http://example.net/"
-                                     value="http://example.net">
+                    Base URL: <input type="text" name="base_url" id="id_base_url" placeholder="e.g. http://example.net/">
                 </p>
 
                 <p>
@@ -143,11 +142,14 @@
         }
 
         function drop(ev) {
-            var curser_pos = ev.target.selectionStart;
+            //var curser_pos = ev.target.selectionStart;
             ev.preventDefault();
             var data = ev.dataTransfer.getData("text");
+            //alert(data);
             //ev.target.appendChild(document.getElementById(data));
-            ev.target.value = ev.target.value.substr(0, curser_pos) + "{" + data + "}" + ev.target.value.substr(curser_pos, ev.target.value.length);
+            //ev.target.value = ev.target.value.substr(0, curser_pos) + "{" + data + "}" + ev.target.value.substr(curser_pos, ev.target.value.length);
+            $("#id_subject_uri").insertAtCaret("{" + data + "}");
+            changeURI();
         }
 
         function insert_into_uri(s, widget) {
@@ -155,43 +157,109 @@
             widget.value = widget.value.substr(0, curser_pos) + "{" + s + "}" + widget.value.substr(curser_pos, widget.value.length);
         }
 
-        var base_url = document.getElementById("id_base_url");
-        var base_url_insert = document.getElementById("id_base_url_insert");
-        var subject_uri = document.getElementById("id_subject_uri");
-        var base_url_insert_warning = document.getElementById("base_url_insert_warning");
-        var blanknodes_only = document.getElementById("id_blanknodes_only");
-        var uri_container = document.getElementById("id_uri_container");
+        var base_url = $("#id_base_url");
+        var base_url_insert = $("#id_base_url_insert");
+        var subject_uri = $("#id_subject_uri");
+        var base_url_insert_warning = $("#base_url_insert_warning");
+        var blanknodes_only = $("#id_blanknodes_only");
+        var uri_container = $("#id_uri_container");
         var csv_content = document.getElementById("id_hidden_csv_content_field");
         var rdf_content = document.getElementById("id_hidden_rdf_array_field");
         var rdf_view = document.getElementById("rdf_view");
 
 
-        blanknodes_only.addEventListener('change', function () {
-            adapt_RDF_preview();
-            if (blanknodes_only.checked)
-                uri_container.style.visibility = "hidden";
-            else
-                uri_container.style.visibility = "visible";
-        });
+
 
 
         function base_url_change() {
+            var base_url = $("#id_base_url");
+            var base_url_insert = $("#id_base_url_insert");
+            console.log("base");
             trailing_slash = "";
-            if (base_url.value[base_url.value.length - 1] != "/")
+            if (base_url.val()[base_url.val().length - 1] != "/")
                 trailing_slash = "/";
-            if (isUrl(base_url.value))
-                base_url_insert.innerHTML = base_url.value + trailing_slash;
-            else if (base_url.value == "")
-                base_url_insert.innerHTML = "";
-            else base_url_insert.innerHTML = " [ Invalid Base URL ] ";
+            if (isUrl(base_url.val()))
+                base_url_insert.html(base_url.val() + trailing_slash);
+            else if (base_url.val()=="")
+                base_url_insert.html("");
+            else base_url_insert.html(" [ Invalid Base URL ] ");
 
             adapt_RDF_preview();
         }
 
-        base_url.addEventListener('keyup', base_url_change);
-        base_url.addEventListener('select', base_url_change);
+
+
+function adapt_RDF_preview() {
+
+    used_prefixes = [];
+
+    //var rdf_array = eval($("#id_hidden_rdf_array_field").val());
+    var subject_uri = $("#id_subject_uri");
+    var base_url_insert = $("#id_base_url_insert");
+    console.log(subject_uri);
+    //if( Object.prototype.toString.call( rdf_array ) === '[object Array]' ) {
+     //   var rdf_array = eval($("#id_hidden_rdf_array_field").val());
+    //}else{
+
+        var content = eval(csv_content.value);
+        var topic_row = content[0];
+        var num_total_fields_csv = (content.length - 1) * content[0].length;
+        //var rdf_array = [num_total_fields_csv][3];
+        var rdf_array = create_multidim_array(num_total_fields_csv, 3);
+        //var rdf_array = [];
+
+        //create uri subject
+        for (var i = 1; i < content.length; i++) {
+            var subject_uri_tmp = subject_uri.val();
+            subject_uri_tmp = "<" + base_url_insert.html() + subject_uri_tmp + ">";
+            for (var j = 0; j < content[i].length; j++) {
+                //parse subject uri
+                subject_uri_tmp = subject_uri_tmp.replace(new RegExp("{" + topic_row[j] + "}", 'g'), content[i][j]);
+
+
+            }
+            for (var j = 0; j < content[i].length; j++) {
+                //add rdf subject, predicate, and object value
+                if ($("#id_blanknodes_only").is(":checked"))
+                    rdf_array[(i - 1) * content[i].length + j][0] = "_:" + toLetters(i);
+                else
+                    rdf_array[(i - 1) * content[i].length + j][0] = subject_uri_tmp;
+                rdf_array[(i - 1) * content[i].length + j][1] = "?predicate:" + topic_row[j] + "?";
+                rdf_array[(i - 1) * content[i].length + j][2] = "\"" + content[i][j] + "\"";
+            }
+        }
+    //}
+
+
+
+        //store in form and make available in backend
+        rdf_content.value = JSON.stringify(rdf_array);
+        $("#id_hidden_rdf_prefix_field").val(JSON.stringify(used_prefixes));
+        //make visible in frontend
+        var tbl = rdf_array_to_table(rdf_array, used_prefixes);
+    
+    while (rdf_view.firstChild) { //remove all children
+            rdf_view.removeChild(rdf_view.firstChild);
+    }
+    var myH3 = document.createElement("h3");
+    myH3.appendChild(document.createTextNode("RDF VIEW"));
+    rdf_view.appendChild(myH3);
+    rdf_view.appendChild(tbl);
+
+}
+/*
 
         function adapt_RDF_preview() {
+
+            used_prefixes = [];
+
+            var rdf_array = eval($("#id_hidden_rdf_array_field").val());
+
+            if( Object.prototype.toString.call( rdf_array ) !== '[object Array]' ) {
+                var tbl = document.createTextNode("No RDF");
+                return;
+            }
+
             var content = eval(csv_content.value);
             var topic_row = content[0];
             var num_total_fields_csv = (content.length - 1) * content[0].length;
@@ -232,7 +300,9 @@
             rdf_view.appendChild(myH3);
             rdf_view.appendChild(tbl);
             //return rdf_array;
+            
         }
+        */
 
         // used for blank nodes
         function toLetters(num) {
@@ -286,10 +356,10 @@
         }
 
         function changeURI() {
-            base_url_insert_warning.style.visibility = "hidden";
+            base_url_insert_warning.css("visibility", "hidden");
             var last_bracket = "}";
             var warning = false;
-            for (var i = 0; i < subject_uri.value.length; i++) {
+            for (var i = 0; i < subject_uri.val().length; i++) {
 
                 if (subject_uri.value[i] == last_bracket) {
                     base_url_insert_warning.style.visibility = "visible";
@@ -308,10 +378,8 @@
         }
 
 
-        //check if subject uri has a valid formatting / open and closed curly brackets {} pairs
-        subject_uri.addEventListener('keyup', changeURI);
-        subject_uri.addEventListener('drop', changeURI);
-        subject_uri.addEventListener('select', changeURI);
+
+
 
         function addToUri(ev) {
             ev.preventDefault();
@@ -321,11 +389,45 @@
             adapt_RDF_preview();
         }
 
-        window.onload = function () {
+
+
+        $( document ).ready(function() {
+
+            //check if subject uri has a valid formatting / open and closed curly brackets {} pairs
+            subject_uri.on('keyup', changeURI);
+            subject_uri.on('drop', changeURI);
+            subject_uri.on('select', changeURI);
+
             //base_url_insert.innerHTML = base_url.value;
-            base_url_change();
+            var tipText = "'Add to subject URI'";
+            //onclick="addToUri(event)"
+            var addToUriButton = ' <a href="" onmouseover="Tip('+tipText+')" onmouseout="UnTip()"> <i class="fa fa-plus-square"></i></a>'
+            $("td[id^='id_table_head_']").each(function(){
+                $(this).html($(this).html()+addToUriButton);
+                $(this).find("a").first().on("click", function(event){
+                    event.preventDefault();
+                    var column_name = $(this).parent().contents().first().text().trim();
+                    $("#id_subject_uri").insertAtCaret("{"+column_name+"}");
+                    adapt_RDF_preview();
+                });
+            });
+
+        var base_url = $("#id_base_url");
+        base_url.on('keyup', base_url_change);
+        base_url.on('select', base_url_change);
+
+        $("#id_blanknodes_only").on('change', function () {
             adapt_RDF_preview();
-        }
+            var uri_container = $("#id_uri_container");
+            if ($(this).is(':checked'))
+                uri_container.css("visibility", "hidden");
+            else
+                uri_container.css("visibility", "visible");
+        });
+
+        base_url_change();
+        adapt_RDF_preview();
+        });
 
     </script>
 
