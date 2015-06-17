@@ -359,6 +359,9 @@ function adapt_RDF_preview() {
 		$("td[id^='id_table_field']").each(function(i){
 			if($(this).find(".bb_select").length>0) { // has reconsiliation result (dropbox)
 				rdf_array[i][2] = prefixise($(this).find(".bb_select_selection").text());
+				if(rdf_array[i][2].slice(-1)==".") { // problems with trailing dots, cant be saved in triple store
+					rdf_array[i][2] = rdf_array[i][2].substring(0,rdf_array[i][2].length-1);
+				}
 			}
 			
 			if($(this).find("select.type_guessing").length>0) { // has guessed types
