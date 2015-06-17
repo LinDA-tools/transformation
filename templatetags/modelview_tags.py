@@ -2,6 +2,10 @@ from django import template
 
 register = template.Library()
 
+@register.filter(name='n3')
+def n3(filename):
+	return filename.split(".", 1)[0]+".n3"
+
 @register.filter(name='model_as_table')
 def model_as_table(model):
 	result =  '<table class="table_view">'
