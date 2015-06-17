@@ -1775,6 +1775,94 @@ insertAtCaret: function(myValue){
 }
 });
 
+function transpose_matrix(matrix) {
+  var w = matrix.length ? matrix.length : 0,
+    h = matrix[0] instanceof Array ? matrix[0].length : 0;
+  if(h === 0 || w === 0) { return []; }
+  var i, j, k = [];
+  for(i=0; i<h; i++) {
+    k[i] = [];
+    for(j=0; j<w; j++) {
+      k[i][j] = matrix[j][i];
+    }
+  }
+  return k;
+};
+
+
+	/* vocab selection widgets
+	can be provided in simple html like
+	<div class="bb_select">
+	 <div>item1</div>
+	 <div>item2</div>
+	</div>
+	This function does a lot of dom manipulation to transform it into a cool widget :)
+	*/
+    function addInnerDiv(elem) {
+
+        var kids = elem.children();
+
+        elem.empty();
+	elem.css("height", "5em");
+
+        var innerDiv = jQuery('<div/>', {
+            class: "bb_select_inner"
+        }).appendTo(elem);
+
+        var selectionDiv = jQuery('<div/>', {
+            class: "bb_select_selection",
+            text: "please chose"
+        }).appendTo(innerDiv);
+
+	selectionDiv.css("position","relative");
+
+	//font awesome arrow down
+        var caretDown = jQuery('<i/>', {
+            class: "fa fa-caret-square-o-down fa-2x"
+        }).appendTo(selectionDiv);
+
+        caretDown.css("position","absolute");
+        caretDown.css("top",".1em");
+        caretDown.css("right",".2em");
+        caretDown.css("color","#888");
+
+        elem.on("mouseover", function() {
+        	$(this).find("i:last-child").css("opacity","1");
+		$(this).find("div div").css("z-index", 999999);
+        });
+
+        elem.on("mouseout", function() {
+        	$(this).find("i:last-child").css("opacity",".3");
+		$(this).find("div div").css("z-index", "auto");
+        });
+
+        var elementsDiv = jQuery('<div/>', {
+            class: "bb_select_elements"
+        }).appendTo(innerDiv);
+        
+        elementsDiv.append(kids);
+
+        kids.each(function (i) {
+            $(this).on("click", function () {
+                $(this).parent().siblings().first().html($(this).html());
+                $(this).addClass("bb_select_clicked");
+                $(this).siblings().removeClass("bb_select_clicked");
+                caretDown.appendTo(selectionDiv);
+                adapt_RDF_preview();
+            });
+        });
+
+        innerDiv.on("mouseover", function () {
+            elementsDiv.css("visibility", "visible");
+        });
+
+        innerDiv.on("mouseout", function () {
+            elementsDiv.css("visibility", "hidden");
+        });
+
+        elementsDiv.trigger("mouseout");
+    }
+
 $( document ).ready(function() {
 
 	$("div.content").each(function(){
@@ -1782,6 +1870,7 @@ $( document ).ready(function() {
 		$(this).html($(this).html()+'<i class="fa fa-caret-square-o-down fa-2x content-resizer" style="position: absolute; top: 0.1em; right: 0.2em; color: rgb(136, 136, 136); opacity: 0.4;"></i>');
 	});
 
+	$("i.content-resizer").css("cursor", "pointer");
 	$("i.content-resizer").each(function(){
 		$(this).on("click", function(){
 			if($(this).hasClass("fa-caret-square-o-down")){

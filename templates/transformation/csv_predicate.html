@@ -254,10 +254,8 @@ function askOracle(widget_num){
 
 
 //only request ajax if no typing for 1 second
-
 var typingTimer;
 var doneTypingInterval = 1000;
-
 function delayedOracleCall(widget_num) {
 	clearTimeout(typingTimer);
 	typingTimer = setTimeout(function(){askOracle(widget_num);}, doneTypingInterval);

@@ -19,21 +19,27 @@
 <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ rdfModel }}">
 
 <div class="content grid">
-	<div class="col-5-10 left-side-box">
+	<div class="col-4-10 left-side-box">
 		<h3>Enrich the RDF graph</h3>
-		<p>...</p>
+		<p>In this step you can add one or several attributes that match all your entities (e.g. 'table rows').</p>
 	</div>
 
-	<div class="col-5-10 right-side-box">
-		
 
+	<div class="col-6-10 right-side-box">
+		<p>
+		<button style="" disabled>+</button><input type="text" id="search_textinput_1" onkeyup="delayedOracleCall(1)">
+		<i id="icon_1" class="fa fa-search" onclick="askOracle(1)"></i>
+		<br>
+			<div class="bb_select" id="search_result_1">
+			</div>
+		</p>
 
 
 	</div>
 
 </div>
 
-<div class="content scrollit">
+<!--div class="content scrollit">
 	<h3>DATA VIEW</h3>
 	File: <b>{{ filename }}</b> (10 rows example)
 	<table class="table_view">
@@ -52,7 +58,13 @@
 		</tr>
 		{% endfor %}	
 	</table>
-</div>
+</div-->
+
+    <div class="content scrollit">
+        <h3>DATA VIEW</h3>
+        File: <b>{{ filename }}</b> (10 rows example)
+        {{ rdfModel | model_as_table | safe }}
+    </div>
 
 <div class="content" id="rdf_view">
 	<h3>RDF VIEW</h3>
@@ -63,13 +75,102 @@
 
 <script>
 
+//only request ajax if no typing for 1 second
+var typingTimer;
+var doneTypingInterval = 1000;
+function delayedOracleCall(widget_num) {
+	clearTimeout(typingTimer);
+	typingTimer = setTimeout(function(){askOracle(widget_num);}, doneTypingInterval);
+}
 
-eval($("#id_hidden_rdf_prefix_field").val())
+function askOracle(widget_num){
+
+	recent_result = document.getElementById("search_result_"+widget_num);
+	recent_textinput = document.getElementById("search_textinput_"+widget_num);
+	recent_icon = document.getElementById("icon_"+widget_num);
+
+	recent_icon.className = "fa fa-refresh fa-spin";
+
+	var request = $.ajax({
+		type: 'GET',
+		dataType: 'jsonp',
+		data: { 'q': recent_textinput.value },
+		url: "http://linda.epu.ntua.gr:8000/coreapi/recommend/",
+	});
+
+	request.fail(function (jqXHR, textStatus, errorThrown) {
+			recent_icon = document.getElementById("icon_"+widget_num);
+			recent_icon.className = "fa fa-exclamation-triangle";
+			console.log(jqXHR);
+			console.log(textStatus);
+			console.log(errorThrown);
+		}
+	);
+
+	request.success(function (data) {
+			recent_result = $("#search_result_"+widget_num);
+			recent_icon = document.getElementById("icon_"+widget_num);
+			recent_icon.className = "fa fa-check";
+			recent_result.empty();
+			if(data.length===0){
+				recent_icon.className = "fa fa-meh-o";
+				recent_result.append("No results found.<br>Please modify the search term.");
+				return;
+			}			
+			//recent_text.innerHTML = "please choose from list";
+			for(var i = 0; i < data.length; i++){
+
+				//shorten uri
+				var short_uri = "no uri";
+				if(data[i].full_uri)
+					short_uri = shortenURI(data[i].full_uri, 40);
+				else if(data[i].uri)
+					short_uri = shortenURI(data[i].uri, 40);
+
+				//css class star symbol for ranking
+				var star ="fa ";
+				if(data[i].ranking>80)
+					star += "fa-star";
+				else if(data[i].ranking>50)
+					star += "fa-star-half-o";
+				else
+					star += "fa-star-o";
+
+				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i>"+data[i].ranking+"%) <em>"+data[i].label+"</em><br>"+data[i].vocabulary+"</span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>");
+			}
+
+			addInnerDiv($("#search_result_"+widget_num));
+
+			//auto-select first element after oracle call
+			$("#search_result_"+widget_num+" * .bb_select_elements").children().first().trigger("click");
+		}
+	
+	);
+	return request;
+}
+
+
+function calculate_rdf_array_from_model(model){
+	var result = []
+	$.each(model['content'], function(index, value){
+		var row = [];
+		//console.log(value['header']['orig_val']);
+		row.push(value['header']['orig_val']);
+		$.each(value['rows'], function(index, value){
+			row.push(value['orig_val']);
+		});
+		result.push(row);
+	});
+	return transpose_matrix(result);
+}
 
 function adapt_RDF_preview() {
 
 	var rdf_array = eval($("#id_hidden_rdf_array_field").val());
-
+	var model = JSON.parse($("#id_hidden_model").val().replace(/'/g,"\""));
+	var rdf_array2 = calculate_rdf_array_from_model(model);
+console.log(rdf_array);
+console.log(rdf_array2);
 	var same_subject = true;
 	var subject = "";
 
@@ -98,14 +199,19 @@ $( document ).ready(function() {
 	rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
 	rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.val())));
 	
-	// do an oracle lookup on page load
+	//close DATA VIEW
+	$(".content-resizer").eq(1).click();
 
-	/*$("div[id^='search_result_']").each( function(i, obj){
-		askOracle(i+1);
-	});*/
+	adapt_RDF_preview();
+/*
+	var mod = $("#id_hidden_model").val().replace(/'/g,"\"");
+	//console.log(mod);
+	var modeval = JSON.parse(mod);
+	//console.log(modeval);
+	var bla = calculate_rdf_array_from_model(modeval);
+	console.log(bla);
+	*/
 
-	//$("#button_next").attr("disabled", "disabled");
-adapt_RDF_preview();
 });
 
 </script>

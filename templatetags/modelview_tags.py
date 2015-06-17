@@ -97,7 +97,7 @@ def model_header_as_table_predicate(model):
 	result += "<tr>"
 	for i, field in enumerate(headers):
 		result += '<td>'
-		result += '<input type="text" value="field" id="search_textinput_'+str(i+1)+'" onkeyup="delayedOracleCall('+str(i+1)+')">'
+		result += '<input type="text" value="'+field+'" id="search_textinput_'+str(i+1)+'" onkeyup="delayedOracleCall('+str(i+1)+')">'
 		result += '<i id="icon_'+str(i+1)+'" class="fa fa-search" onclick="askOracle('+str(i+1)+')"></i>'
 		result += '<br>'
 		result += '<div class="bb_select" id="search_result_'+str(i+1)+'">'
