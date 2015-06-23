@@ -1,7 +1,4 @@
-{% extends "base.html" %}
-
-{% block css %}
-{% endblock %}
+{% extends "transformation-base.html" %}
 
 {% block content %}
 
@@ -65,7 +62,12 @@
 
     </form>
 
-<script>
+
+
+{% endblock %}
+
+{% block extra_scripts %}
+	<script>
 {% if publish_massage %}
     alert("{{ publish_massage }}");
 {% endif %}
@@ -101,7 +103,7 @@ $( document ).ready(function() {
 
 	rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
 	rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.val())));
-	
+
 	// do an oracle lookup on page load
 
 	/*$("div[id^='search_result_']").each( function(i, obj){
@@ -113,8 +115,4 @@ adapt_RDF_preview();
 });
 
 </script>
-
-{% endblock %}
-
-{% block scripts %}
 {% endblock %}

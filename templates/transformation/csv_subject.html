@@ -1,7 +1,5 @@
-{% extends "base.html" %}
+{% extends "transformation-base.html" %}
 
-{% block css %}
-{% endblock %}
 
 {% block content %}
 
@@ -126,7 +124,11 @@
 
     </form>
 
-    <script>
+
+
+{% endblock %}
+
+{% block extra_scripts %}<script>
 
         function isUrl(s) {
             var regexp = /(http:\/\/)?(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
@@ -234,7 +236,7 @@ function adapt_RDF_preview() {
         $("#id_hidden_rdf_prefix_field").val(JSON.stringify(used_prefixes));
         //make visible in frontend
         var tbl = rdf_array_to_table(rdf_array, used_prefixes);
-    
+
     while (rdf_view.firstChild) { //remove all children
             rdf_view.removeChild(rdf_view.firstChild);
     }
@@ -297,7 +299,7 @@ function adapt_RDF_preview() {
             rdf_view.appendChild(myH3);
             rdf_view.appendChild(tbl);
             //return rdf_array;
-            
+
         }
         */
 
@@ -433,8 +435,4 @@ function adapt_RDF_preview() {
         });
 
     </script>
-
-{% endblock %}
-
-{% block scripts %}
 {% endblock %}

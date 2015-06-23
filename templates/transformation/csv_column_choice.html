@@ -1,7 +1,4 @@
-	{% extends "base.html" %}
-
-{% block css %}
-{% endblock %}
+	{% extends "transformation-base.html" %}
 
 {% block content %}
 
@@ -60,7 +57,12 @@
 
 </form>
 
-<script>
+
+
+{% endblock %}
+
+{% block extra_scripts %}
+	<script>
 $( document ).ready(function() {
 	var select_status = false;
 	var rowselect_button = document.getElementById('id_select_all_rows');
@@ -87,7 +89,7 @@ $( document ).ready(function() {
 				return;
 			}
 		});
-	
+
 		if(one_selected) {
 			$("#button_next").removeAttr("disabled");
 		}
@@ -104,8 +106,4 @@ $( document ).ready(function() {
 
 });
 </script>
-
-{% endblock %}
-
-{% block scripts %}
 {% endblock %}

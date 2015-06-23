@@ -337,7 +337,7 @@ def csv_publish(request):
             print("PUBLISH BUTTON PRESSED")
             print(rdf_n3)
             payload = {'title': request.POST.get('name_publish'), 'content': rdf_n3, 'format': 'text/rdf+n3'}
-            r = requests.post('http://linda.epu.ntua.gr:8000/api/datasource/create/', data=payload)
+            r = requests.post('http://' + request.META['HTTP_HOST'] + '/api/datasource/create/', data=payload)
             j = json.loads(r.text)
             print(j["message"])
             publish_massage = j["message"]
@@ -468,7 +468,8 @@ def process_csv(csvfile, form):
 
 
 # http://stackoverflow.com/questions/1136106/what-is-an-efficent-way-of-inserting-thousands-of-records-into-an-sqlite-table-u
-@transaction.commit_manually
+#@transaction.commit_manually
+@transaction.atomic
 def store_csv_in_model(csv_rows, csv_id=None, csv_raw=None, file_name=None):
     '''
     Stores the 2dim array representation of the CSV file in the database.

@@ -1,7 +1,4 @@
-{% extends "base.html" %}
-
-{% block css %}
-{% endblock %}
+{% extends "transformation-base.html" %}
 
 {% block content %}
 
@@ -157,7 +154,13 @@
     processing...
     </div-->
 
-    <script>
+
+
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
 
 
         $(document).ready(function () {
@@ -197,7 +200,7 @@
 
             toggle_buttons();
 
-// disable upload button when no file is selected 
+// disable upload button when no file is selected
             upload_widget.addEventListener('change', toggle_buttons);
             /*next_button.addEventListener('click', function(){
              document.getElementById('processing').style.visibility = "visible";
@@ -213,9 +216,4 @@
 
 
     </script>
-
-
-{% endblock %}
-
-{% block scripts %}
 {% endblock %}

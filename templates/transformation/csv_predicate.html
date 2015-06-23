@@ -1,7 +1,5 @@
-	{% extends "base.html" %}
+	{% extends "transformation-base.html" %}
 
-{% block css %}
-{% endblock %}
 
 {% block content %}
 
@@ -89,7 +87,12 @@
 
 </form>
 
-<script>
+
+
+{% endblock %}
+
+{% block extra_scripts %}
+	<script>
 
 	/* vocab selection widgets
 	can be provided in simple html like
@@ -140,7 +143,7 @@
         var elementsDiv = jQuery('<div/>', {
             class: "bb_select_elements"
         }).appendTo(innerDiv);
-        
+
         elementsDiv.append(kids);
 
         kids.each(function (i) {
@@ -217,7 +220,7 @@ function askOracle(widget_num){
 				recent_icon.className = "fa fa-meh-o";
 				recent_result.append("No results found.<br>Please modify the search term.");
 				return;
-			}			
+			}
 			//recent_text.innerHTML = "please choose from list";
 			for(var i = 0; i < data.length; i++){
 
@@ -245,7 +248,7 @@ function askOracle(widget_num){
 			//auto-select first element after oracle call
 			$("#search_result_"+widget_num+" * .bb_select_elements").children().first().trigger("click");
 		}
-	
+
 	);
 	return request;
 }
@@ -347,7 +350,7 @@ $( document ).ready(function() {
 
 	rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
 	rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.value)));
-	
+
 	// do an oracle lookup on page load
 
 	$("div[id^='search_result_']").each( function(i, obj){
@@ -360,8 +363,4 @@ $( document ).ready(function() {
 
 
 </script>
-
-{% endblock %}
-
-{% block scripts %}
 {% endblock %}

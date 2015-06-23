@@ -1,7 +1,4 @@
-	{% extends "base.html" %}
-
-{% block css %}
-{% endblock %}
+	{% extends "transformation-base.html" %}
 
 {% block content %}
 
@@ -73,7 +70,12 @@
 
 </form>
 
-<script>
+
+
+{% endblock %}
+
+{% block extra_scripts %}
+	<script>
 
 //only request ajax if no typing for 1 second
 var typingTimer;
@@ -116,7 +118,7 @@ function askOracle(widget_num){
 				recent_icon.className = "fa fa-meh-o";
 				recent_result.append("No results found.<br>Please modify the search term.");
 				return;
-			}			
+			}
 			//recent_text.innerHTML = "please choose from list";
 			for(var i = 0; i < data.length; i++){
 
@@ -144,7 +146,7 @@ function askOracle(widget_num){
 			//auto-select first element after oracle call
 			$("#search_result_"+widget_num+" * .bb_select_elements").children().first().trigger("click");
 		}
-	
+
 	);
 	return request;
 }
@@ -198,7 +200,7 @@ $( document ).ready(function() {
 
 	rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
 	rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.val())));
-	
+
 	//close DATA VIEW
 	$(".content-resizer").eq(1).click();
 
@@ -215,8 +217,4 @@ $( document ).ready(function() {
 });
 
 </script>
-
-{% endblock %}
-
-{% block scripts %}
 {% endblock %}
