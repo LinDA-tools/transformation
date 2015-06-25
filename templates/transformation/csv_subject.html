@@ -194,13 +194,16 @@ function adapt_RDF_preview() {
 
     used_prefixes = [];
 
-
+    var csv_content= $("#id_hidden_csv_content_field");
+    var rdf_content= $("#id_hidden_rdf_array_field");
     var subject_uri = $("#id_subject_uri");
     var base_url_insert = $("#id_base_url_insert");
+    var rdf_array = $("#id_hidden_rdf_array_field");
+    var rdf_view = document.getElementById("rdf_view");
 
     add_model_subject(base_url_insert.text()+subject_uri.val());
 
-        var content = eval(csv_content.value);
+        var content = eval(csv_content.val());
         var topic_row = content[0];
         var num_total_fields_csv = (content.length - 1) * content[0].length;
         //var rdf_array = [num_total_fields_csv][3];
@@ -355,23 +358,25 @@ function adapt_RDF_preview() {
         }
 
         function changeURI() {
+            var subject_uri = $("#id_subject_uri");
+            var base_url_insert_warning = $("#base_url_insert_warning");
             console.log("cu");
             base_url_insert_warning.css("visibility", "hidden");
             var last_bracket = "}";
             var warning = false;
             for (var i = 0; i < subject_uri.val().length; i++) {
 
-                if (subject_uri.value[i] == last_bracket) {
-                    base_url_insert_warning.style.visibility = "visible";
+                if (subject_uri.val()[i] == last_bracket) {
+                    base_url_insert_warning.css("visibility", "visible");
                     base_url_insert_warning.innerHTML = "Wrong formatting: Open '{' and closed '}' brackets must come in pairs."
                 }
-                if (subject_uri.value[i] == "}" || subject_uri.value[i] == "{") {
-                    last_bracket = subject_uri.value[i];
+                if (subject_uri.val()[i] == "}" || subject_uri.val()[i] == "{") {
+                    last_bracket = subject_uri.val()[i];
                 }
             }
             if (last_bracket == "{") {
-                base_url_insert_warning.style.visibility = "visible";
-                base_url_insert_warning.innerHTML = "Wrong formatting: Open '{' bracket not closed."
+                base_url_insert_warning.css("visibility", "visible");
+                base_url_insert_warning.text("Wrong formatting: Open '{' bracket not closed.");
             }
 
             adapt_RDF_preview();

@@ -1,3 +1,10 @@
+function create_rdf_array_from_model(model) {
+	console.log("function create_rdf_array_from_model");
+	$.each(model['content'], function(){
+		console.log($(this)[0]['header']);
+	});
+}
+
 function rdf_array_to_table(rdf_array, rdf_prefixes) {
 
 	if( Object.prototype.toString.call( rdf_array ) !== '[object Array]' )
