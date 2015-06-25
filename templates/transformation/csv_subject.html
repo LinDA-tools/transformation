@@ -222,8 +222,10 @@ function adapt_RDF_preview() {
             }
             for (var j = 0; j < content[i].length; j++) {
                 //add rdf subject, predicate, and object value
-                if ($("#id_blanknodes_only").is(":checked"))
+                if ($("#id_blanknodes_only").is(":checked")){
                     rdf_array[(i - 1) * content[i].length + j][0] = "_:" + toLetters(i);
+                    add_model_subject("blank nodes");
+                }
                 else
                     rdf_array[(i - 1) * content[i].length + j][0] = subject_uri_tmp;
                 rdf_array[(i - 1) * content[i].length + j][1] = "?predicate:" + topic_row[j] + "?";

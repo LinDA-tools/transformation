@@ -1918,7 +1918,7 @@ function add_to_model_field_where_col_and_row(new_key, new_value, col, row){
 }
 
 //GENERIC
-function add_to_model_header_where_col_and_row(new_key, new_value, col){
+function add_to_model_header_where_col(new_key, new_value, col){
 	var model = get_model();
 	$.each(model["content"], function(i, v1){
 		if(v1["col_num_new"]==col)
@@ -1933,7 +1933,7 @@ function add_to_model_content_field(new_key, new_value, field){
 }
 
 function add_to_model_predicate(new_value, col){
-	add_to_model_header_where_col_and_row("predicate", new_value, col);
+	add_to_model_header_where_col("predicate", new_value, col);
 }
 
 

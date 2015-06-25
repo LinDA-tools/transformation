@@ -360,14 +360,32 @@ function adapt_RDF_preview() {
 	}else{
 //TODO this is done each time anything is clicked, bad performance
 		$("td[id^='id_table_field']").each(function(i){
+
+			var id_as_array = $(this).attr("id").split("_");
+			var row = id_as_array[id_as_array.length-1];
+			var col = id_as_array[id_as_array.length-2];
+
+			var recon_result = $(this).find(".bb_select_selection").text();
 			if($(this).find(".bb_select").length>0) { // has reconsiliation result (dropbox)
-				rdf_array[i][2] = prefixise($(this).find(".bb_select_selection").text());
-				if(rdf_array[i][2].slice(-1)==".") { // problems with trailing dots, cant be saved in triple store
-					rdf_array[i][2] = rdf_array[i][2].substring(0,rdf_array[i][2].length-1);
+				var recon_result = prefixise(recon_result);
+				if(recon_result.slice(-1)==".") { // problems with trailing dots, cant be saved in triple store
+					recon_result = recon_result.substring(0, recon_result.length-1);
 				}
+
+			add_to_model_field_where_col_and_row("recociliation", recon_result, col, row);
+			add_to_model_header_where_col("object_method", "uri", col);
+
+			rdf_array[i][2] = recon_result;
+
 			}
 
-			if($(this).find("select.type_guessing").length>0) { // has guessed types
+			
+			else if($(this).find("select.type_guessing").length>0) { // has guessed types
+
+				var data_type = $(this).find("select.type_guessing option:selected").text();
+			
+				add_to_model_field_where_col_and_row("data_type", data_type, col, row);
+				add_to_model_header_where_col("object_method", "data type", col);
 
 				//$(this).find("select.type_guessing option:selected").text();
 				if(rdf_array[i][2].indexOf("^^")>-1)
@@ -377,6 +395,9 @@ function adapt_RDF_preview() {
 				rdf_array[i][2] = rdf_array[i][2] +"^^"+$(this).find("select.type_guessing option:selected").text();
 			}
 			else { // no action
+
+				add_to_model_header_where_col("object_method", "no action", col);
+
 				if(rdf_array[i][2].indexOf("^^")>-1){
 					//$(this).find("select.type_guessing option:selected").text();
 					rdf_array[i][2] = rdf_array[i][2].substring(0, rdf_array[i][2].indexOf("^^"));
