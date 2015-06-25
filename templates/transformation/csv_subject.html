@@ -349,15 +349,6 @@ function adapt_RDF_preview() {
             return tbl;
         }
 
-        function create_multidim_array(x, y) {
-            var f = [];
-            for (i = 0; i < x; i++) {
-                f[i] = [];
-                for (j = 0; j < y; j++)
-                    f[i][j] = 0;
-            }
-            return f;
-        }
 
         function changeURI() {
             var subject_uri = $("#id_subject_uri");

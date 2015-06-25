@@ -1,9 +1,177 @@
-function create_rdf_array_from_model(model) {
-	console.log("function create_rdf_array_from_model");
-	$.each(model['content'], function(){
-		console.log($(this)[0]['header']);
+
+/*
+You can either gibe a subject sceleton (e.g. http://bla.com/{Place}) as a parameter
+or the 'subject_sceleton' element of the model object will be taken.
+Returns array of subject uris for each row or [] empty array if no sceleton or model
+*/
+function create_subjects_from_model_sceleton(model, sceleton) {
+
+	scel = typeof sceleton !== 'undefined' ? sceleton : model['subject_sceleton'];
+	if(scel == undefined || model == undefined){
+		console.log("no subject sceleton found");
+		return [];
+	}
+
+	var subjects_array = [];
+	$.each(model['content'], function(row){
+		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
+			var col_name = $(this)[0]['header']['orig_val'];
+			$.each($(this)[0]['rows'], function(elem){
+				if(subjects_array[elem] == undefined){
+					subjects_array[elem] = scel;
+				}
+				subjects_array[elem] = subjects_array[elem].replace(new RegExp("{"+col_name+"}","g"), $(this)[0]['orig_val']);				
+			});
+		}
 	});
+	return subjects_array;
 }
+
+
+function create_predicates_from_model(model) {
+	var predicates_array = [];
+	$.each(model['content'], function(row){
+		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
+			predicates_array.push($(this)[0]['predicate']['url']);
+		}
+	});
+	return predicates_array;
+}
+
+
+function create_objects_from_model(model) {
+	var objects_array = [];
+	$.each(model['content'], function(row){
+		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
+			var col_name = $(this)[0]['header']['orig_val'];
+			$.each($(this)[0]['rows'], function(elem){
+				objects_array.push(elem['orig_val']);
+			});
+		}
+	});
+	return objects_array;
+}
+
+
+function create_multidim_array(x, y) {
+	var f = [];
+	for (i = 0; i < x; i++) {
+		f[i] = [];
+		for (j = 0; j < y; j++)
+			f[i][j] = 0;
+	}
+	return f;
+}
+
+
+
+function model_to_table(model){
+
+	var tbl = jQuery('<table/>', {
+		class: "rdf_table"
+	});//.appendTo(elem);
+
+	if(model == undefined){
+		console.log("model undefinded");
+		return tbl;
+	}
+
+	var num_total_rows_rdf = 0;
+	var num_total_cols = 0;
+
+	//count
+	$.each(model['content'], function(){
+		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
+			var col_name = $(this)[0]['header']['orig_val'];
+			//num_total_rows_rdf++;
+			num_total_cols++;
+			$.each($(this)[0]['rows'], function(){
+				num_total_rows_rdf++;
+			
+			});
+		}
+	});
+
+	var rdf_array = create_multidim_array(num_total_rows_rdf, 3);
+
+
+
+	//insert subjects
+	var subjects = create_subjects_from_model_sceleton(model);
+	var counter_subj = 0;
+	for(var i = 0; i < rdf_array.length; i++){
+		rdf_array[i][0] = subjects[Math.floor(i/num_total_cols)];
+		if(i % num_total_cols == 0){
+			counter_subj++;
+		}
+	}
+
+	//insert predictes
+	var predicates = create_predicates_from_model(model);
+	for(var i = 0; i < rdf_array.length; i++){
+
+		rdf_array[i][1] = prefixise(predicates[i % predicates.length]);
+	}
+
+
+	//insert objects
+	//var objects = ??
+	/*for(var i = 0; i < rdf_array.length; i++){
+
+		rdf_array[i][2] = "OBJECT";
+	}*/
+
+	var counter = 0;
+	$.each(model['content'], function(i, row){
+		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
+			var col_name = row['header']['orig_val'];
+			console.log(col_name);
+			$.each($(this)[0]['rows'], function(i, elem){	
+				console.log(elem);
+				rdf_array[counter][2] = '"'+elem['orig_val']+'"';
+				counter++;			
+			});
+		}
+	});
+
+
+	//create table content: prefixes
+	for(var i = 0; i < used_prefixes.length; i++){
+			var tr = jQuery('<tr/>', {});
+			for(var j = 0; j < 3; j++){
+				var at = "";
+				if(j == 0)
+					at = "@";
+				var td = jQuery('<td/>', {});
+				td.text(at+used_prefixes[i][j]);
+				td.appendTo(tr);
+			}
+			var td = jQuery('<td/>', {});
+			td.text(".");
+			td.appendTo(tr);
+			tr.appendTo(tbl);
+	}
+
+	//create table content: rest
+	for(var i = 0; i < rdf_array.length; i++){
+
+			var tr = jQuery('<tr/>', {});
+			for(var j = 0; j < 3; j++){
+				var td = jQuery('<td/>', {});
+				td.text(rdf_array[i][j]);
+				td.appendTo(tr);
+			}
+			var td = jQuery('<td/>', {});
+			td.text(".");
+			td.appendTo(tr);
+			tr.appendTo(tbl);
+
+	}
+
+	return tbl;
+}
+
+
 
 function rdf_array_to_table(rdf_array, rdf_prefixes) {
 
@@ -1805,7 +1973,7 @@ function transpose_matrix(matrix) {
         var kids = elem.children();
 
         elem.empty();
-	elem.css("height", "5em");
+		elem.css("height", "5em");
 
         var innerDiv = jQuery('<div/>', {
             class: "bb_select_inner"
@@ -1816,7 +1984,7 @@ function transpose_matrix(matrix) {
             text: "please chose"
         }).appendTo(innerDiv);
 
-	selectionDiv.css("position","relative");
+		selectionDiv.css("position","relative");
 
 	//font awesome arrow down
         var caretDown = jQuery('<i/>', {
@@ -1918,6 +2086,16 @@ function add_to_model_field_where_col_and_row(new_key, new_value, col, row){
 }
 
 //GENERIC
+function add_to_content_where_col(new_key, new_value, col){
+	var model = get_model();
+	$.each(model["content"], function(i, v1){
+		if(v1["col_num_new"]==col)
+			v1[new_key] = new_value;
+	});
+	write_model(model);
+}
+
+//GENERIC
 function add_to_model_header_where_col(new_key, new_value, col){
 	var model = get_model();
 	$.each(model["content"], function(i, v1){
@@ -1933,7 +2111,7 @@ function add_to_model_content_field(new_key, new_value, field){
 }
 
 function add_to_model_predicate(new_value, col){
-	add_to_model_header_where_col("predicate", new_value, col);
+	add_to_content_where_col("predicate", new_value, col);
 }
 
 
@@ -1974,3 +2152,4 @@ $( document ).ready(function() {
 });
 
 //<i class="fa fa-caret-square-o-down fa-2x" style="position: absolute; top: 0.1em; right: 0.2em; color: rgb(136, 136, 136); opacity: 0.3;"></i>
+

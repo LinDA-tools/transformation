@@ -88,7 +88,6 @@
 </form>
 
 
-
 {% endblock %}
 
 {% block extra_scripts %}
@@ -213,12 +212,14 @@ function askOracle(widget_num){
 
 	request.success(function (data) {
 			recent_result = $("#search_result_"+widget_num);
+			console.log(widget_num);
 			recent_icon = document.getElementById("icon_"+widget_num);
 			recent_icon.className = "fa fa-check";
 			recent_result.empty();
 			if(data.length===0){
 				recent_icon.className = "fa fa-meh-o";
 				recent_result.append("No results found.<br>Please modify the search term.");
+				adapt_RDF_preview();
 				return;
 			}
 			//recent_text.innerHTML = "please choose from list";
@@ -247,6 +248,7 @@ function askOracle(widget_num){
 
 			//auto-select first element after oracle call
 			$("#search_result_"+widget_num+" * .bb_select_elements").children().first().trigger("click");
+			//adapt_RDF_preview();
 		}
 
 	);
@@ -277,48 +279,28 @@ function displayChosenURI(w, widget_num) {
 
 function adapt_RDF_preview() {
 
-	var model_json_str = $("#id_hidden_model").val().replace(/'/g, "\"").replace(/}, /g , "},\n");
-	//console.log(model_json_str);
-	var model = $.parseJSON(model_json_str);
-	create_rdf_array_from_model(model);
 
-	var rdf_view = document.getElementById("rdf_view");
 	var csv_content= $("#id_hidden_csv_content_field");
 
 	used_prefixes = [];
 
-	var rdf_array = eval($("#id_hidden_rdf_array_field").val());
-	console.log($("#id_hidden_rdf_array_field").val());
-	console.log(rdf_array);
-/*
-	if( Object.prototype.toString.call( rdf_array ) !== '[object Array]' ) {
-		var tbl = document.createTextNode("No RDF");
-	}else{
-*/
-		//how many columns
 		var num_columns = eval(csv_content.val())[0].length;
 
 		var found_one_undefined = false; // nothing could be retrieved via oracle api call
-		for(var i=0; i<rdf_array.length/num_columns; i++) {
-			for(var j=0; j<num_columns; j++) {
-				var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
-				var vocab_name = $("#search_result_"+(j+1)+" * .bb_select_selection em").text();
-				var vocab_description = $("#search_result_"+(j+1)+" * .bb_select_selection .oracle_label span.vocab_description").text();
-				var vocab_score = $("#search_result_"+(j+1)+" * .bb_select_selection span.vocab_score").text();
-				var search_term = $("#search_textinput_"+(j+1)).val();
 
-				//add to model
-                add_to_model_predicate({"url":href, "vocab_name":vocab_name, "vocab_description":vocab_description, "score": vocab_score, "search_term":search_term}, (j+1));//, "html":$(this).html()
+		for(var j=0; j<num_columns; j++) {
+			var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
+			var vocab_name = $("#search_result_"+(j+1)+" * .bb_select_selection em").text();
+			var vocab_description = $("#search_result_"+(j+1)+" * .bb_select_selection .oracle_label span.vocab_description").text();
+			var vocab_score = $("#search_result_"+(j+1)+" * .bb_select_selection span.vocab_score").text();
+			var search_term = $("#search_textinput_"+(j+1)).val();
+			//add to model
 
-				if(typeof href === "undefined") {
-					found_one_undefined = true;
-					rdf_array[i*num_columns+j][1]="< ? >";
-				}else{
-
-					rdf_array[i*num_columns+j][1] = prefixise(href);
-				}
-
+			if(typeof href == undefined) {
+				found_one_undefined = true;
 			}
+			add_to_model_predicate({"url":href, "vocab_name":vocab_name, "vocab_description":vocab_description, "score": vocab_score, "search_term":search_term}, (j+1));//, "html":$(this).html()
+
 		}
 
 
@@ -330,20 +312,12 @@ function adapt_RDF_preview() {
 			$("#button_next").attr("disabled", "disabled");
 		}
 
-
-		//store in form and make available in backend
-		rdf_content.value = JSON.stringify(rdf_array);
 		$("#id_hidden_rdf_prefix_field").val(JSON.stringify(used_prefixes));
-		//make visible in frontend
-		var tbl = rdf_array_to_table(rdf_array, used_prefixes);
-	//}
-	while (rdf_view.firstChild) { //remove all children
-    		rdf_view.removeChild(rdf_view.firstChild);
-	}
-	var myH3 = document.createElement("h3");
-	myH3.appendChild(document.createTextNode("RDF VIEW"));
-	rdf_view.appendChild(myH3);
-	rdf_view.appendChild(tbl);
+
+	var rdf_view = $("#rdf_view");
+	var tbl = model_to_table(get_model());
+	rdf_view.find("table").remove();
+	rdf_view.append(tbl);
 
 }
 
@@ -354,14 +328,6 @@ used_prefixes = [];
 
 $( document ).ready(function() {
 
-	//add_to_model_content_field("XXXXXXXXX", "YYYYYYYYYYY", "Meier");
-	//add_to_model_field_where_col_and_row("CCCCCCCCCCCCCCC", "DDDDDDDDDDD", 3 , 1);
-	//add_to_model_predicate({"name":"THIS IS PREDICATE!!! HARR!!", "uri":"someuri"}, 1);
-	var rdf_content= $("#id_hidden_rdf_array_field");
-	var rdf_view = document.getElementById("rdf_view");
-	rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
-	rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.val())));
-
 	// do an oracle lookup on page load
 
 	$("div[id^='search_result_']").each( function(i, obj){
@@ -369,6 +335,7 @@ $( document ).ready(function() {
 	});
 
 	$("#button_next").attr("disabled", "disabled");
+
 });
 
 
