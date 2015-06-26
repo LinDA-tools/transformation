@@ -28,6 +28,7 @@ function create_subjects_from_model_sceleton(model, sceleton) {
 }
 
 
+
 function create_predicates_from_model(model) {
 	var predicates_array = [];
 	$.each(model['content'], function(row){
@@ -2040,6 +2041,15 @@ function transpose_matrix(matrix) {
 
 function get_model(){
 	return JSON.parse($("#id_hidden_model").val().replace(/'/g,"\""));
+}
+
+function get_num_selected_cols_model(){
+	var counter = 0;
+	$.each(get_model()['content'], function(){
+		if($(this)[0]['col_num_new'] >- 1)
+			counter++;
+	});
+	return counter;
 }
 
 function write_model(m){
