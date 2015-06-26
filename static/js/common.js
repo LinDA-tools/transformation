@@ -109,8 +109,9 @@ function model_to_table(model){
 	//insert predictes
 	var predicates = create_predicates_from_model(model);
 	for(var i = 0; i < rdf_array.length; i++){
-
-		rdf_array[i][1] = prefixise(predicates[i % predicates.length]);
+		var pred_index = i % predicates.length;
+		if(predicates[pred_index])
+			rdf_array[i][1] = prefixise(predicates[pred_index]);
 	}
 
 
@@ -125,9 +126,7 @@ function model_to_table(model){
 	$.each(model['content'], function(i, row){
 		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
 			var col_name = row['header']['orig_val'];
-			console.log(col_name);
 			$.each($(this)[0]['rows'], function(i, elem){	
-				console.log(elem);
 				rdf_array[counter][2] = '"'+elem['orig_val']+'"';
 				counter++;			
 			});
@@ -1870,11 +1869,13 @@ used_prefixes = [];
 
 
 //takes uri and replaces with prefix or otherwise surrounds with <>
-function prefixise(href){
-	var prefixed = replacePrefix(href);
+function prefixise(uri){
+	if(typeof uri == undefined)
+		return "no uri";
+	var prefixed = replacePrefix(uri);
 	var result = "";
 	if(prefixed[1]=="none"){
-		result = "<"+href+">";
+		result = "<"+uri+">";
 	}else{
 		result = prefixed[0];
 

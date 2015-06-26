@@ -212,7 +212,6 @@ function askOracle(widget_num){
 
 	request.success(function (data) {
 			recent_result = $("#search_result_"+widget_num);
-			console.log(widget_num);
 			recent_icon = document.getElementById("icon_"+widget_num);
 			recent_icon.className = "fa fa-check";
 			recent_result.empty();
