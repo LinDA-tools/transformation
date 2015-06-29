@@ -131,9 +131,6 @@ def csv_column_choice(request):
 
 def csv_subject(request):
     print("VIEW csv_subject")
-    mdl = '{"content":[{"col_num_orig":1,"predicate":false,"rows":[{"orig_val":"Bernd","row_number":1},{"orig_val":"Sabine","row_number":2},{"orig_val":"Samuel","row_number":3}],"header":{"orig_val":"First Name"},"show":"false","col_num_new":-1},{"col_num_orig":2,"rows":[{"orig_val":"Meier","row_number":1},{"orig_val":"Schmidt","row_number":2},{"orig_val":"Wood","row_number":3}],"header":{"orig_val":"Family Name"},"show":"false","col_num_new":-1},{"col_num_orig":3,"rows":[{"orig_val":"Berlin","row_number":1},{"orig_val":"Dortmund","row_number":2},{"orig_val":"Chicago","row_number":3}],"header":{"orig_val":"Place"},"show":"false","col_num_new":-1},{"col_num_orig":4,"rows":[{"orig_val":"Microsoft","row_number":1},{"orig_val":"Apple","row_number":2},{"orig_val":"IBM","row_number":3}],"header":{"orig_val":"Company"},"show":"false","col_num_new":-1},{"col_num_orig":5,"rows":[{"orig_val":"12.80","row_number":1},{"orig_val":"13.40","row_number":2},{"orig_val":"145","row_number":3}],"header":{"orig_val":"Price"},"show":"false","col_num_new":-1},{"col_num_orig":6,"rows":[{"orig_val":"12","row_number":1},{"orig_val":"145","row_number":2},{"orig_val":"86","row_number":3}],"header":{"orig_val":"Amount"},"show":"false","col_num_new":-1}],"num_total_rows":6,"num_cols_selected":0,"subject_sceleton":""}'
-    print(json.loads('[{"a":1}]'))
-    print(json.loads(mdl))
     form_action = 4
     form = SubjectForm(request.POST)
     if request.POST and form.is_valid() and form != None:
@@ -147,48 +144,49 @@ def csv_subject(request):
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
         else:
             request.session['rdf_prefix'] = ""
-        '''
-        if 'hidden_model' in form.cleaned_data:
-            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'","\""))
+        print(form.cleaned_data)
+        if form.cleaned_data['hidden_model']:
+        #if 'hidden_model' in form.cleaned_data:
+            print('model existing')
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model'])#.replace("'","\""))
+
         else:
-            request.session['model'] = ""
-        '''
-    # identify which columns to keep from html form checkboxes
-    # like <input name="rowselect2" ... >
-    request.session['selected_columns'] = []
-    #print("POST ", request.POST)
-    num_csv_rows = len(request.session['csv_rows'][0])
-    for i in range(len(request.session['csv_rows'][0])):
-        colnum = i + 1
-        colname = 'rowselect' + str(colnum)
-        if colname in request.POST:
-            #print(colnum, " selected ", request.POST.get(colname))
-            request.session['selected_columns'].append(
-                {"col_num_orig": colnum, "checkbox_name": colname, "column_name": request.POST.get(colname)})
+            print('creating model')
+            # identify which columns to keep from html form checkboxes
+            # like <input name="rowselect2" ... >
+            request.session['selected_columns'] = []
+            #print("POST ", request.POST)
+            num_csv_rows = len(request.session['csv_rows'][0])
+            for i in range(len(request.session['csv_rows'][0])):
+                colnum = i + 1
+                colname = 'rowselect' + str(colnum)
+                if colname in request.POST:
+                    #print(colnum, " selected ", request.POST.get(colname))
+                    request.session['selected_columns'].append(
+                        {"col_num_orig": colnum, "checkbox_name": colname, "column_name": request.POST.get(colname)})
 
-    # csv without rows that were not selected in html form
-    csv_rows_selected_columns = get_selected_rows_content(request.session)
+            # csv without rows that were not selected in html form
+            csv_rows_selected_columns = get_selected_rows_content(request.session)
 
-    # create model that contains all data in json object / python dictionary
-    #if not hasattr(request.session, 'model') or true:
-    request.session['model'] = {"num_total_rows": num_csv_rows, "content": []} # get csv column-wise
-    inverted_csv = list(zip(*request.session['csv_rows']))
-    print(inverted_csv)
-    for i, col in enumerate(inverted_csv):
-        column_obj = {"col_num_orig": i+1, "show": "false", "rows": []}
-        for j, field in enumerate(col):
-            if j == 0: # table header / first row
-                column_obj['header'] = {"orig_val": field}
-            else:
-                column_obj['rows'].append({"orig_val": field, "row_num": j})
-        request.session['model']['content'].append(column_obj)
+            # create model that contains all data in json object / python dictionary
+            #if not hasattr(request.session, 'model') or true:
+            request.session['model'] = {"num_total_rows": num_csv_rows, "content": []} # get csv column-wise
+            inverted_csv = list(zip(*request.session['csv_rows']))
+            for i, col in enumerate(inverted_csv):
+                column_obj = {"col_num_orig": i+1, "show": "false", "rows": []}
+                for j, field in enumerate(col):
+                    if j == 0: # table header / first row
+                        column_obj['header'] = {"orig_val": field}
+                    else:
+                        column_obj['rows'].append({"orig_val": field, "row_num": j})
+                request.session['model']['content'].append(column_obj)
 
-    mark_selected_rows_in_model(request.session)
+            mark_selected_rows_in_model(request.session)
 
     html_post_data = {
         'rdfModel': request.session['model'],         
         'action': form_action,
-        'csvContent': csv_rows_selected_columns,
+        #'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
         'rdfPrefix': request.session['rdf_prefix']

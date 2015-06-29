@@ -163,56 +163,58 @@
 <script>
 
 
-        $(document).ready(function () {
+$(document).ready(function () {
 
 
-            var upload_button = document.getElementById('id_button_upload');
-            var upload_widget = document.getElementById('id_upload_file');
-            var next_button = document.getElementById('button_next');
-            var filename = document.getElementById('id_hidden_filename_field');
-            var form = document.getElementById('main_form');
+    var upload_button = document.getElementById('id_button_upload');
+    var upload_widget = document.getElementById('id_upload_file');
+    var next_button = document.getElementById('button_next');
+    var filename = document.getElementById('id_hidden_filename_field');
+    var form = document.getElementById('main_form');
 
-            function toggle_buttons() {
-                if (upload_widget.files.length == 0) { // no file selected
+    function toggle_buttons() {
+        if (upload_widget.files.length == 0) { // no file selected
 
-                    if (filename == null) { // nothing happened so far, no uploads
-                        console.log("fn null");
-                        upload_button.disabled = true;
-                        upload_button.value = "Upload file";
-                        next_button.disabled = true;
-                    }
-                    else { // file was uploaded and submitted via form / html post in the previous step
-                        console.log("cxxxx");
-                        console.log(filename.value);
-                        upload_button.disabled = false;
-                        upload_button.value = "Apply";
-                        next_button.disabled = false;
-                    }
-                }
-                else { // file selected for upload
-                    console.log("file selected for upload");
-                    upload_button.disabled = false;
-                    upload_button.value = "Upload file";
-                    next_button.disabled = true;
-                }
-
+            if (filename == null) { // nothing happened so far, no uploads
+                console.log("fn null");
+                upload_button.disabled = true;
+                upload_button.value = "Upload file";
+                next_button.disabled = true;
             }
+            else { // file was uploaded and submitted via form / html post in the previous step
+                console.log("cxxxx");
+                console.log(filename.value);
+                upload_button.disabled = false;
+                upload_button.value = "Apply";
+                next_button.disabled = false;
+            }
+        }
+        else { // file selected for upload
+            console.log("file selected for upload");
+            upload_button.disabled = false;
+            upload_button.value = "Upload file";
+            next_button.disabled = true;
+        }
 
-            toggle_buttons();
+    }
+
+    toggle_buttons();
 
 // disable upload button when no file is selected
-            upload_widget.addEventListener('change', toggle_buttons);
-            /*next_button.addEventListener('click', function(){
-             document.getElementById('processing').style.visibility = "visible";
-             });*/
+    upload_widget.addEventListener('change', toggle_buttons);
+    /*next_button.addEventListener('click', function(){
+     document.getElementById('processing').style.visibility = "visible";
+     });*/
 
 // add an alternative target page (i.e. form action) (itself) when clicking the file upload button
-            upload_button.onclick = function () {
-                form.action = '1';
-                form.submit();
-            }
+    upload_button.onclick = function () {
+        form.action = '1';
+        form.submit();
+    }
 
-        });
+    $("#button_back").prop('disabled', true);
+
+});
 
 
     </script>

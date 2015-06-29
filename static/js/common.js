@@ -1,15 +1,27 @@
 
-/*
-You can either gibe a subject sceleton (e.g. http://bla.com/{Place}) as a parameter
-or the 'subject_sceleton' element of the model object will be taken.
-Returns array of subject uris for each row or [] empty array if no sceleton or model
-*/
-function create_subjects_from_model_sceleton(model, sceleton) {
 
-	scel = typeof sceleton !== 'undefined' ? sceleton : model['subject_sceleton'];
-	if(scel == undefined || model == undefined){
-		console.log("no subject sceleton found");
-		return [];
+// used for blank nodes
+function toLetters(num) {
+    "use strict";
+    var mod = num % 26,
+            pow = num / 26 | 0,
+            out = mod ? String.fromCharCode(64 + mod) : (--pow, 'Z');
+    return pow ? toLetters(pow) + out : out;
+}
+
+
+function create_subjects_from_model_sceleton(model) {
+	var sceleton = "";
+	var base_url = "";
+
+	if(model['subject']){
+		sceleton = model['subject']['sceleton'];//(model['subject']['sceleton']) ? model['subject']['sceleton'] : "";
+		base_url = model['subject']['base_url'];//(model['subject']['base_url']) ? model['subject']['base_url'] : "";;
+	}
+
+	if((!sceleton && !base_url) || !model){
+		console.log("no subjects could be created");
+		sceleton = "?subject?"
 	}
 
 	var subjects_array = [];
@@ -17,11 +29,17 @@ function create_subjects_from_model_sceleton(model, sceleton) {
 		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
 			var col_name = $(this)[0]['header']['orig_val'];
 			$.each($(this)[0]['rows'], function(elem){
-				if(subjects_array[elem] == undefined){
-					subjects_array[elem] = scel;
-				}
-				subjects_array[elem] = subjects_array[elem].replace(new RegExp("{"+col_name+"}","g"), $(this)[0]['orig_val']);				
+				if(model && model['subject']['blank_nodes'] == "true"){
+						subjects_array[elem] = "_:"+toLetters(elem+1);
+				}else{
+					if(subjects_array[elem] == undefined){
+						subjects_array[elem] = sceleton;
+					}
+					subjects_array[elem] = subjects_array[elem].replace(new RegExp("{"+col_name+"}","g"), $(this)[0]['orig_val']);
+				}				
 			});
+			if(model && model['subject']['blank_nodes'] == "false" || !model['subject']['blank_nodes'])
+				subjects_array[row] = "<" + base_url + subjects_array[row] + ">";
 		}
 	});
 	return subjects_array;
@@ -33,7 +51,11 @@ function create_predicates_from_model(model) {
 	var predicates_array = [];
 	$.each(model['content'], function(row){
 		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
-			predicates_array.push($(this)[0]['predicate']['url']);
+			if(typeof $(this)[0]['predicate'] == 'undefined')
+				$(this)[0]['predicate'] = "";
+			var url = $(this)[0]['predicate']['url'];
+			var replaced_prefix = $(this)[0]['predicate']['prefix'];//replacePrefix(url);
+			predicates_array.push(replaced_prefix);
 		}
 	});
 	return predicates_array;
@@ -99,20 +121,47 @@ function model_to_table(model){
 
 	//insert subjects
 	var subjects = create_subjects_from_model_sceleton(model);
-	var counter_subj = 0;
 	for(var i = 0; i < rdf_array.length; i++){
-		rdf_array[i][0] = subjects[Math.floor(i/num_total_cols)];
-		if(i % num_total_cols == 0){
-			counter_subj++;
-		}
+		var subj_index = Math.floor(i/num_total_cols);
+		rdf_array[i][0] = subjects[subj_index];
 	}
 
-	//insert predictes
+	//insert predicates
+	var used_prefixes_2 = {};
 	var predicates = create_predicates_from_model(model);
 	for(var i = 0; i < rdf_array.length; i++){
 		var pred_index = i % predicates.length;
-		if(predicates[pred_index])
-			rdf_array[i][1] = prefixise(predicates[pred_index]);
+		if(predicates[pred_index] && predicates[pred_index]['url']){ // uri exists (earlier sucessful ajax call)
+			if(predicates[pred_index]['suffix'] && predicates[pred_index]['prefix']){ // prefix exists
+				rdf_array[i][1] = predicates[pred_index]['prefix']+":"+predicates[pred_index]['suffix']; // prefixed url
+				// TODO can be problem if keys are not unique 
+				used_prefixes_2[predicates[pred_index]['prefix']] = predicates[pred_index];
+			}else{
+				rdf_array[i][1] = predicates[pred_index]['url']+predicates[pred_index]['suffix']; // = original url	
+			}
+		}else{
+			rdf_array[i][1] = "<?predicate?>" // no ajax call yet
+		}
+		//console.log(used_prefixes_2);
+/*
+		//insert Prefix
+		var prefix_exists = false;
+		//console.log(used_prefixes_2);
+		//console.log(prefixes);
+		
+		//for(var k=0; k<prefixes.length; k++){
+			for(var j=0; j<used_prefixes_2.length; j++){
+				//console.log(used_prefixes_2[j]+ "   " +prefixes);
+				if(prefixes && used_prefixes_2[j] == prefixes ){
+					//TODO hier weiter
+					prefix_exists = true;
+					break;
+				}
+			}
+			if(!prefix_exists)
+				used_prefixes_2.push(prefixes);
+		//}
+*/
 	}
 
 
@@ -136,21 +185,30 @@ function model_to_table(model){
 
 
 	//create table content: prefixes
-	for(var i = 0; i < used_prefixes.length; i++){
-			var tr = jQuery('<tr/>', {});
-			for(var j = 0; j < 3; j++){
-				var at = "";
-				if(j == 0)
-					at = "@";
-				var td = jQuery('<td/>', {});
-				td.text(at+used_prefixes[i][j]);
-				td.appendTo(tr);
-			}
-			var td = jQuery('<td/>', {});
-			td.text(".");
-			td.appendTo(tr);
-			tr.appendTo(tbl);
-	}
+	//TODO
+	//for(var i = 0; i < used_prefixes_2.length; i++){
+	$.each(used_prefixes_2, function(i, prefix){
+		
+		var tr = jQuery('<tr/>', {});
+
+		var td = jQuery('<td/>', {});
+		td.text("@prefix");
+		td.appendTo(tr);
+
+		var td = jQuery('<td/>', {});
+		td.text(prefix['prefix']+":");
+		td.appendTo(tr);
+
+		var td = jQuery('<td/>', {});
+		td.text(prefix['url']);
+		td.appendTo(tr);
+		
+		var td = jQuery('<td/>', {});
+		td.text(".");
+		td.appendTo(tr);
+		tr.appendTo(tbl);
+		
+	});
 
 	//create table content: rest
 	for(var i = 0; i < rdf_array.length; i++){
@@ -1852,13 +1910,15 @@ prefixes = {
 "https://w3id.org/security#": "sec",};
 
 
+//resturns sth like 
+//'http.someurl.org/first_name'  -->  ['http.someurl.org/', 'first_name', 'some']
 function replacePrefix(uri){
-	var result = [uri, "none", "none"];
+	var result = {'url': uri, 'suffix':"", 'prefix':""};
 	$.each(prefixes, function(key, value){	
-		if(uri.indexOf(key) == 0 && uri.replace(key, "").indexOf("#")==-1 && uri.replace(key, "").indexOf("/")==-1){
-			result[0] = value + ":" + uri.replace(key, "");
-			result[1] = value;
-			result[2] = key;
+		if(uri && uri.indexOf(key) == 0 && uri.replace(key, "").indexOf("#")==-1 && uri.replace(key, "").indexOf("/")==-1){
+			result['suffix'] = uri.replace(key, "");
+			result['prefix'] = value;
+			result['url'] = key;
 			return;			
 		}
 	});
@@ -1867,20 +1927,20 @@ function replacePrefix(uri){
 
 
 used_prefixes = [];
-
-
+/*
+//TODO delete this?
 //takes uri and replaces with prefix or otherwise surrounds with <>
 function prefixise(uri){
 	if(typeof uri == undefined)
 		return "no uri";
 	var prefixed = replacePrefix(uri);
 	var result = "";
-	if(prefixed[1]=="none"){
+	if(prefixed['suffix']==""){
 		result = "<"+uri+">";
 	}else{
 		result = prefixed[0];
 
-
+/*
 		// no duplicates
 		var already_in = false;
 		for(var k = 0 ; k < used_prefixes.length; k++){
@@ -1893,9 +1953,54 @@ function prefixise(uri){
 		if(already_in === false){
 			used_prefixes.push(["prefix", prefixed[1] + ":", "<"+prefixed[2]+">"]);
 		}
+
+		var model = get_model();
+		//console.log(model);
+
+		if(!model){
+			console.log("model undefined");
+		}else{
+
+
+			if(!model['prefixes'])
+				model['prefixes'] = [];
+
+			// no duplicates
+			var already_in = false;
+			for(var k = 0 ; k < model['prefixes'].length; k++){
+				if(model['prefixes'][k]['prefix'] == prefixed[1]){
+					already_in = true;
+					break;
+				}
+			}
+
+			if(already_in === false){
+				model['prefixes'].push({'prefix': prefixed[1], 'full_uri': prefixed[2]});
+			}
+
+			//remove unused prefixes from model
+			$.each(model['content'], function(i, elem){
+				//console.log(elem['predicate']['url']);
+				var keep = false;
+				$.each(model['prefixes'], function(j,prefix){
+					if(elem['predicate']['url'] && elem['predicate']['url'].indexOf(prefix['full_uri']) == 0){
+						keep = true;
+						//console.log("!! "+elem['predicate']['url']);
+						return;
+					}
+				});
+				if(!keep)
+					console.log("raus "+elem['predicate']['url']);
+			});
+
+			write_model(model);
+		}
+
 	}
+
 	return result;
 }
+*/
 
 
 function shortenURI(uri, maxlength){
@@ -2044,12 +2149,16 @@ function get_model(){
 }
 
 function get_num_selected_cols_model(){
-	var counter = 0;
-	$.each(get_model()['content'], function(){
-		if($(this)[0]['col_num_new'] >- 1)
-			counter++;
-	});
-	return counter;
+	var nums = get_model()['num_cols_selected']; // take info from model if existing
+	if(!nums){ // otherwise calculate
+		var counter = 0;
+		$.each(get_model()['content'], function(){
+			if($(this)[0]['col_num_new'] >- 1)
+				counter++;
+		});
+		return counter;
+	}
+	return nums;
 }
 
 function write_model(m){
@@ -2063,8 +2172,12 @@ function add_model_field(fieldname, subj){
 	write_model(model);
 }
 
-function add_model_subject(subj){
-	add_model_field("subject_sceleton", subj);
+function add_model_subject(k, v){
+	var model = get_model();
+	if(!model['subject'])
+		model['subject'] = {}
+	model['subject'][k] = v;
+	write_model(model);
 }
 
 function add_model_filename(subj){

@@ -47,13 +47,15 @@
                 </p>
 
                 <p>
-                    {% for line in csvContent|slice:":1" %}
-                        {% for colname in line %}
+                    {% for line in rdfModel.content %}
+
+
                             <span class="uribuilder" draggable="true" ondragstart="drag(event)"
-                                  id="id_dragme_{{ colname }}" name="dragme_{{ colname }}"
+                                  id="id_dragme_{{ line.col_num_orig }}" name="dragme_{{ line.col_num_orig }}"
                                   onmouseover="Tip('Drag this column name to the URI text field below.')"
-                                  onmouseout="UnTip()">{{ colname }}</span>
-                        {% endfor %}
+                                  onmouseout="UnTip()">{{ line.header.orig_val }}</span>
+
+
                     {% endfor %}
                 </p>
 
@@ -130,63 +132,64 @@
 
 {% block extra_scripts %}<script>
 
-        function isUrl(s) {
-            var regexp = /(http:\/\/)?(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
-            return regexp.test(s);
-        }
+function isUrl(s) {
+    var regexp = /(http:\/\/)?(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+    return regexp.test(s);
+}
 
-        function allowDrop(ev) {
-            ev.preventDefault();
-        }
+function allowDrop(ev) {
+    ev.preventDefault();
+}
 
-        function drag(ev) {
-            ev.dataTransfer.setData("text", ev.target.innerHTML);
-        }
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.innerHTML);
+}
 
-        function drop(ev) {
-            //var curser_pos = ev.target.selectionStart;
-            ev.preventDefault();
-            var data = ev.dataTransfer.getData("text");
-            //alert(data);
-            //ev.target.appendChild(document.getElementById(data));
-            //ev.target.value = ev.target.value.substr(0, curser_pos) + "{" + data + "}" + ev.target.value.substr(curser_pos, ev.target.value.length);
-            $("#id_subject_uri").insertAtCaret("{" + data + "}");
-            changeURI();
-        }
+function drop(ev) {
+    //var curser_pos = ev.target.selectionStart;
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    //alert(data);
+    //ev.target.appendChild(document.getElementById(data));
+    //ev.target.value = ev.target.value.substr(0, curser_pos) + "{" + data + "}" + ev.target.value.substr(curser_pos, ev.target.value.length);
+    $("#id_subject_uri").insertAtCaret("{" + data + "}");
+    changeURI();
+}
 
-        function insert_into_uri(s, widget) {
-            var curser_pos = widget.selectionStart;
-            widget.value = widget.value.substr(0, curser_pos) + "{" + s + "}" + widget.value.substr(curser_pos, widget.value.length);
-        }
+function insert_into_uri(s, widget) {
+    var curser_pos = widget.selectionStart;
+    widget.value = widget.value.substr(0, curser_pos) + "{" + s + "}" + widget.value.substr(curser_pos, widget.value.length);
+}
 
-        var base_url = $("#id_base_url");
-        var base_url_insert = $("#id_base_url_insert");
-        var subject_uri = $("#id_subject_uri");
-        var base_url_insert_warning = $("#base_url_insert_warning");
-        var blanknodes_only = $("#id_blanknodes_only");
-        var uri_container = $("#id_uri_container");
-        var csv_content = document.getElementById("id_hidden_csv_content_field");
-        var rdf_content = document.getElementById("id_hidden_rdf_array_field");
-        var rdf_view = document.getElementById("rdf_view");
-
-
+var base_url = $("#id_base_url");
+var base_url_insert = $("#id_base_url_insert");
+var subject_uri = $("#id_subject_uri");
+var base_url_insert_warning = $("#base_url_insert_warning");
+var blanknodes_only = $("#id_blanknodes_only");
+var uri_container = $("#id_uri_container");
+var csv_content = document.getElementById("id_hidden_csv_content_field");
+var rdf_content = document.getElementById("id_hidden_rdf_array_field");
+var rdf_view = document.getElementById("rdf_view");
 
 
 
-        function base_url_change() {
-            var base_url = $("#id_base_url");
-            var base_url_insert = $("#id_base_url_insert");
-            trailing_slash = "";
-            if (base_url.val()[base_url.val().length - 1] != "/")
-                trailing_slash = "/";
-            if (isUrl(base_url.val()))
-                base_url_insert.html(base_url.val() + trailing_slash);
-            else if (base_url.val()=="")
-                base_url_insert.html("");
-            else base_url_insert.html(" [ Invalid Base URL ] ");
 
-            adapt_RDF_preview();
-        }
+
+function base_url_change() {
+    console.log("buc");
+    var base_url = $("#id_base_url");
+    var base_url_insert = $("#id_base_url_insert");
+    trailing_slash = "";
+    if (base_url.val()[base_url.val().length - 1] != "/")
+        trailing_slash = "/";
+    if (isUrl(base_url.val()))
+        base_url_insert.html(base_url.val() + trailing_slash);
+    else if (base_url.val()=="")
+        base_url_insert.html("");
+    else base_url_insert.html(" [ Invalid Base URL ] ");
+
+    adapt_RDF_preview();
+}
 
 
 
@@ -199,10 +202,11 @@ function adapt_RDF_preview() {
     var subject_uri = $("#id_subject_uri");
     var base_url_insert = $("#id_base_url_insert");
     var rdf_array = $("#id_hidden_rdf_array_field");
-    var rdf_view = document.getElementById("rdf_view");
 
-    add_model_subject(base_url_insert.text()+subject_uri.val());
+    add_model_subject("sceleton",subject_uri.val());
+    add_model_subject("base_url",base_url_insert.text());
 
+/*
         var content = eval(csv_content.val());
         var topic_row = content[0];
         var num_total_fields_csv = (content.length - 1) * content[0].length;
@@ -211,6 +215,7 @@ function adapt_RDF_preview() {
         //var rdf_array = [];
 
         //create uri subject
+        
         for (var i = 1; i < content.length; i++) {
             var subject_uri_tmp = subject_uri.val();
             subject_uri_tmp = "<" + base_url_insert.html() + subject_uri_tmp + ">";
@@ -224,7 +229,7 @@ function adapt_RDF_preview() {
                 //add rdf subject, predicate, and object value
                 if ($("#id_blanknodes_only").is(":checked")){
                     rdf_array[(i - 1) * content[i].length + j][0] = "_:" + toLetters(i);
-                    add_model_subject("blank nodes");
+                    add_model_subject("blank_nodes","true");
                 }
                 else
                     rdf_array[(i - 1) * content[i].length + j][0] = subject_uri_tmp;
@@ -242,6 +247,8 @@ function adapt_RDF_preview() {
         //make visible in frontend
         var tbl = rdf_array_to_table(rdf_array, used_prefixes);
 
+        */
+/*
     while (rdf_view.firstChild) { //remove all children
             rdf_view.removeChild(rdf_view.firstChild);
     }
@@ -249,6 +256,15 @@ function adapt_RDF_preview() {
     myH3.appendChild(document.createTextNode("RDF VIEW"));
     rdf_view.appendChild(myH3);
     rdf_view.appendChild(tbl);
+*/
+
+    /*if ($("#id_blanknodes_only").is(":checked")){
+       add_model_subject("blank_nodes","true");
+    }*/
+    var rdf_view = $("#rdf_view");
+    var tbl = model_to_table(get_model());
+    rdf_view.find("table").remove();
+    rdf_view.append(tbl);
 
 }
 /*
@@ -308,129 +324,152 @@ function adapt_RDF_preview() {
         }
         */
 
-        // used for blank nodes
-        function toLetters(num) {
-            "use strict";
-            var mod = num % 26,
-                    pow = num / 26 | 0,
-                    out = mod ? String.fromCharCode(64 + mod) : (--pow, 'Z');
-            return pow ? toLetters(pow) + out : out;
+/*
+function rdf_array_to_table(rdf_array) {
+    // create elements <table> and a <tbody>
+    var tbl = document.createElement("table");
+    var tblBody = document.createElement("tbody");
+
+    // cells creation
+    for (var i = 0; i < rdf_array.length; i++) {
+        // table row creation
+        var row = document.createElement("tr");
+
+        for (var j = 0; j < rdf_array[i].length; j++) {
+            // create element <td> and text node
+            //Make text node the contents of <td> element
+            // put <td> at end of the table row
+            var cell = document.createElement("td");
+            var cellText = document.createTextNode(rdf_array[i][j]);
+
+            cell.appendChild(cellText);
+            row.appendChild(cell);
         }
 
-        function rdf_array_to_table(rdf_array) {
-            // create elements <table> and a <tbody>
-            var tbl = document.createElement("table");
-            var tblBody = document.createElement("tbody");
+        //row added to end of table body
+        tblBody.appendChild(row);
+    }
 
-            // cells creation
-            for (var i = 0; i < rdf_array.length; i++) {
-                // table row creation
-                var row = document.createElement("tr");
+    // append the <tbody> inside the <table>
+    tbl.appendChild(tblBody);
 
-                for (var j = 0; j < rdf_array[i].length; j++) {
-                    // create element <td> and text node
-                    //Make text node the contents of <td> element
-                    // put <td> at end of the table row
-                    var cell = document.createElement("td");
-                    var cellText = document.createTextNode(rdf_array[i][j]);
+    tbl.setAttribute("class", "rdf_table");
+    return tbl;
+}
+*/
 
-                    cell.appendChild(cellText);
-                    row.appendChild(cell);
-                }
+function changeURI() {
+    var subject_uri = $("#id_subject_uri");
+    var base_url_insert_warning = $("#base_url_insert_warning");
+    base_url_insert_warning.css("visibility", "hidden");
+    var last_bracket = "}";
+    var warning = false;
+    for (var i = 0; i < subject_uri.val().length; i++) {
 
-                //row added to end of table body
-                tblBody.appendChild(row);
-            }
-
-            // append the <tbody> inside the <table>
-            tbl.appendChild(tblBody);
-
-            tbl.setAttribute("class", "rdf_table");
-            return tbl;
+        if (subject_uri.val()[i] == last_bracket) {
+            base_url_insert_warning.css("visibility", "visible");
+            base_url_insert_warning.innerHTML = "Wrong formatting: Open '{' and closed '}' brackets must come in pairs."
         }
+        if (subject_uri.val()[i] == "}" || subject_uri.val()[i] == "{") {
+            last_bracket = subject_uri.val()[i];
+        }
+    }
+    if (last_bracket == "{") {
+        base_url_insert_warning.css("visibility", "visible");
+        base_url_insert_warning.text("Wrong formatting: Open '{' bracket not closed.");
+    }
+
+    adapt_RDF_preview();
+}
 
 
-        function changeURI() {
-            var subject_uri = $("#id_subject_uri");
-            var base_url_insert_warning = $("#base_url_insert_warning");
-            console.log("cu");
-            base_url_insert_warning.css("visibility", "hidden");
-            var last_bracket = "}";
-            var warning = false;
-            for (var i = 0; i < subject_uri.val().length; i++) {
 
-                if (subject_uri.val()[i] == last_bracket) {
-                    base_url_insert_warning.css("visibility", "visible");
-                    base_url_insert_warning.innerHTML = "Wrong formatting: Open '{' and closed '}' brackets must come in pairs."
-                }
-                if (subject_uri.val()[i] == "}" || subject_uri.val()[i] == "{") {
-                    last_bracket = subject_uri.val()[i];
-                }
-            }
-            if (last_bracket == "{") {
-                base_url_insert_warning.css("visibility", "visible");
-                base_url_insert_warning.text("Wrong formatting: Open '{' bracket not closed.");
-            }
 
+
+function addToUri(ev) {
+    ev.preventDefault();
+    var column_name = ev.target.parentNode.childNodes[1].innerHTML;
+    insert_into_uri(column_name, subject_uri);
+    //subject_uri.value = subject_uri.value.substr(0, curser_pos) + "{"+data+"}" + ev.target.value.substr(curser_pos, ev.target.value.length);
+    adapt_RDF_preview();
+}
+
+
+
+$( document ).ready(function() {
+
+    add_model_filename($("#id_hidden_filename_field").val());
+
+    //check if subject uri has a valid formatting / open and closed curly brackets {} pairs
+    var subject_uri = $("#id_subject_uri");
+    subject_uri.on('keyup', changeURI);
+    subject_uri.on('drop', changeURI);
+    subject_uri.on('select', changeURI);
+
+
+    //base_url_insert.innerHTML = base_url.value;
+    var tipText = "'Add to subject URI'";
+    //onclick="addToUri(event)"
+    var addToUriButton = ' <a href="" onmouseover="Tip('+tipText+')" onmouseout="UnTip()"> <i class="fa fa-plus-square"></i></a>'
+    $("td[id^='id_table_head_']").each(function(){
+        $(this).html($(this).html()+addToUriButton);
+        $(this).find("a").first().on("click", function(event){
+            event.preventDefault();
+            var column_name = $(this).parent().contents().first().text().trim();
+            $("#id_subject_uri").insertAtCaret("{"+column_name+"}");
             adapt_RDF_preview();
-        }
-
-
-
-
-
-        function addToUri(ev) {
-            ev.preventDefault();
-            var column_name = ev.target.parentNode.childNodes[1].innerHTML;
-            insert_into_uri(column_name, subject_uri);
-            //subject_uri.value = subject_uri.value.substr(0, curser_pos) + "{"+data+"}" + ev.target.value.substr(curser_pos, ev.target.value.length);
-            adapt_RDF_preview();
-        }
-
-
-
-        $( document ).ready(function() {
-
-            add_model_filename($("#id_hidden_filename_field").val());
-
-            //check if subject uri has a valid formatting / open and closed curly brackets {} pairs
-            var subject_uri = $("#id_subject_uri");
-            subject_uri.on('keyup', changeURI);
-            subject_uri.on('drop', changeURI);
-            subject_uri.on('select', changeURI);
-
-            //base_url_insert.innerHTML = base_url.value;
-            var tipText = "'Add to subject URI'";
-            //onclick="addToUri(event)"
-            var addToUriButton = ' <a href="" onmouseover="Tip('+tipText+')" onmouseout="UnTip()"> <i class="fa fa-plus-square"></i></a>'
-            $("td[id^='id_table_head_']").each(function(){
-                $(this).html($(this).html()+addToUriButton);
-                $(this).find("a").first().on("click", function(event){
-                    event.preventDefault();
-                    var column_name = $(this).parent().contents().first().text().trim();
-                    $("#id_subject_uri").insertAtCaret("{"+column_name+"}");
-                    adapt_RDF_preview();
-                });
-            });
-
-        var base_url = $("#id_base_url");
-        base_url.on('keyup', base_url_change);
-        base_url.on('select', base_url_change);
-
-        $("#id_blanknodes_only").on('change', function () {
-            adapt_RDF_preview();
-            var uri_container = $("#id_uri_container");
-            if ($(this).is(':checked'))
-                uri_container.css("visibility", "hidden");
-            else
-                uri_container.css("visibility", "visible");
         });
-
-        base_url_change();
-        adapt_RDF_preview();
-
-
+    });
+    $("span[id^='id_dragme_']").each(function(){
+        $(this).on("click", function(){
+            $("#id_subject_uri").insertAtCaret("{"+$(this).text()+"}");
         });
+    });
+
+
+var base_url = $("#id_base_url");
+base_url.on('keyup', base_url_change);
+base_url.on('select', base_url_change);
+
+$("#id_blanknodes_only").on('change', function () {
+    var uri_container = $("#id_uri_container");
+    if ($(this).is(':checked')){
+        uri_container.css("visibility", "hidden");
+        add_model_subject("blank_nodes","true");
+    }
+    else{
+        uri_container.css("visibility", "visible");
+        add_model_subject("blank_nodes","false");
+    }
+    adapt_RDF_preview();
+});
+
+//predefine form from model
+var model = get_model();
+if(model['subject'] && model['subject']['base_url'])
+    $("#id_base_url").val(model['subject']['base_url']);
+
+if(model['subject'] && model['subject']['sceleton'])
+    $("#id_subject_uri").val(model['subject']['sceleton']);
+
+if(model['subject'] && model['subject']['blank_nodes'] && model['subject']['blank_nodes'] == "true")
+    $("#id_blanknodes_only").click();//prop('checked', true);
+
+/*
+$("#button_back").on("click", function () {
+        var form = $("#main_form");
+        form.attr("action", "2");
+        form.submit();
+});
+*/
+$("#button_back").prop('disabled', true);
+
+
+base_url_change();
+adapt_RDF_preview();
+
+
+});
 
     </script>
 {% endblock %}

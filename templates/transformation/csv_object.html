@@ -310,14 +310,13 @@ function guessType(column){
 
 	};
 
-	var csv_content = eval($("#id_hidden_csv_content_field").val());
 	$("td[id^='id_table_field_"+column+"']").each( function(i){
 		var recent_field = $(this);
 		//console.log(recent_field.text().trim());
 		var select_content = "";
 		$.each(datatypes, function(key, value){
 			if(recent_field.text().trim().match(value.regex)){
-				select_content += "<option>"+prefixise(value.url)+"</option>";
+				select_content += "<option>"+replacePrefix(value.url)['suffix']+"</option>";
 			}
 		});
 		recent_field.html(recent_field.text() + "<br><select class=\"type_guessing\">" + select_content+"</select>");
@@ -354,10 +353,11 @@ function noAction(column){
 
 function adapt_RDF_preview() {
 	var rdf_array = eval($("#id_hidden_rdf_array_field").val());
-
+/*
 	if( Object.prototype.toString.call( rdf_array ) !== '[object Array]' ) {
 		var tbl = document.createTextNode("No RDF");
 	}else{
+		*/
 //TODO this is done each time anything is clicked, bad performance
 		$("td[id^='id_table_field']").each(function(i){
 
@@ -367,44 +367,46 @@ function adapt_RDF_preview() {
 
 			var recon_result = $(this).find(".bb_select_selection").text();
 			if($(this).find(".bb_select").length>0) { // has reconsiliation result (dropbox)
-				var recon_result = prefixise(recon_result);
-				if(recon_result.slice(-1)==".") { // problems with trailing dots, cant be saved in triple store
-					recon_result = recon_result.substring(0, recon_result.length-1);
+				var recon_result_prefixed = replacePrefix(recon_result);
+				//recon_result = recon_result['prefix'];
+				if(recon_result_prefixed['suffix'].slice(-1)==".") { // problems with trailing dots, cant be saved in triple store
+					recon_result_prefixed['suffix'] = recon_result_prefixed['suffix'].substring(0, recon_result_prefixed['suffix'].length-1);
+					recon_result_prefixed['url'] = recon_result_prefixed['url'].substring(0, recon_result_prefixed['url'].length-1);
 				}
-
-			add_to_model_field_where_col_and_row("recociliation", recon_result, col, row);
+console.log("recociliation "+ recon_result+" "+ col+" "+ row);
+console.log(recon_result);
+			add_to_model_field_where_col_and_row("reconciliation", {"url":recon_result,"prefix": recon_result_prefixed}, col, row);
 			add_to_model_header_where_col("object_method", "uri", col);
 
-			rdf_array[i][2] = recon_result;
+			//rdf_array[i][2] = recon_result;
 
-			}
-
-			
-			else if($(this).find("select.type_guessing").length>0) { // has guessed types
+			}else if($(this).find("select.type_guessing").length>0) { // has guessed types
 
 				var data_type = $(this).find("select.type_guessing option:selected").text();
 			
 				add_to_model_field_where_col_and_row("data_type", data_type, col, row);
 				add_to_model_header_where_col("object_method", "data type", col);
 
-				//$(this).find("select.type_guessing option:selected").text();
+/*				
 				if(rdf_array[i][2].indexOf("^^")>-1)
 				{
 					rdf_array[i][2] = rdf_array[i][2].substring(0, rdf_array[i][2].indexOf("^^"));
 				}
 				rdf_array[i][2] = rdf_array[i][2] +"^^"+$(this).find("select.type_guessing option:selected").text();
-			}
-			else { // no action
+*/
+			}else{ // no action
 
 				add_to_model_header_where_col("object_method", "no action", col);
-
+/*
 				if(rdf_array[i][2].indexOf("^^")>-1){
 					//$(this).find("select.type_guessing option:selected").text();
 					rdf_array[i][2] = rdf_array[i][2].substring(0, rdf_array[i][2].indexOf("^^"));
 					//rdf_array[i][2] = rdf_array[i][2] +"^^"+$(this).find("select.type_guessing option:selected").text();
 				}
+*/
 			}
 		});
+/*
 		//store in form and make available in backend
 		$("#id_hidden_rdf_array_field").val(JSON.stringify(rdf_array));
 		$("#id_hidden_rdf_prefix_field").val(JSON.stringify(used_prefixes));
@@ -418,6 +420,13 @@ function adapt_RDF_preview() {
 	myH3.appendChild(document.createTextNode("RDF VIEW"));
 	rdf_view.appendChild(myH3);
 	rdf_view.appendChild(tbl);
+*/
+
+	var rdf_view = $("#rdf_view");
+	var tbl = model_to_table(get_model());
+	rdf_view.find("table").remove();
+	rdf_view.append(tbl);
+
 }
 
 //check whether to to auto type guessing, econciliation or nothing (select dropbox)
