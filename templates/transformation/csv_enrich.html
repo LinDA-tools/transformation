@@ -198,6 +198,12 @@ var rdf_content = $("#id_hidden_rdf_array_field");
 
 $( document ).ready(function() {
 
+	$("#button_back").on("click", function () {
+		var form = $("#main_form");
+		form.attr("action", "5");
+		form.submit();
+	});
+
 	rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
 	rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.val())));
 

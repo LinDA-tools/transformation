@@ -1,5 +1,3 @@
-
-
 // used for blank nodes
 function toLetters(num) {
     "use strict";
@@ -142,42 +140,23 @@ function model_to_table(model){
 		}else{
 			rdf_array[i][1] = "<?predicate?>" // no ajax call yet
 		}
-		//console.log(used_prefixes_2);
-/*
-		//insert Prefix
-		var prefix_exists = false;
-		//console.log(used_prefixes_2);
-		//console.log(prefixes);
-		
-		//for(var k=0; k<prefixes.length; k++){
-			for(var j=0; j<used_prefixes_2.length; j++){
-				//console.log(used_prefixes_2[j]+ "   " +prefixes);
-				if(prefixes && used_prefixes_2[j] == prefixes ){
-					//TODO hier weiter
-					prefix_exists = true;
-					break;
-				}
-			}
-			if(!prefix_exists)
-				used_prefixes_2.push(prefixes);
-		//}
-*/
 	}
 
-
 	//insert objects
-	//var objects = ??
-	/*for(var i = 0; i < rdf_array.length; i++){
-
-		rdf_array[i][2] = "OBJECT";
-	}*/
-
 	var counter = 0;
 	$.each(model['content'], function(i, row){
 		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
 			var col_name = row['header']['orig_val'];
-			$.each($(this)[0]['rows'], function(i, elem){	
-				rdf_array[counter][2] = '"'+elem['orig_val']+'"';
+			var method = row['object_method'];
+			console.log(col_name+ " : " +method);
+			$.each($(this)[0]['rows'], function(i, elem){
+				var suffix = "";
+				if(method == "data type" && elem['data_type'])//reconciliation, no action, data type
+					suffix = "^^"+elem['data_type'];
+
+				if(method == "reconciliation" && elem['reconciliation'])//reconciliation, no action, data type
+					suffix = "^^"+elem['reconciliation']['prefix']['prefix']+":"+elem['reconciliation']['prefix']['suffix'];
+				rdf_array[counter][2] = '"'+elem['orig_val']+'"'+suffix;
 				counter++;			
 			});
 		}
@@ -185,8 +164,6 @@ function model_to_table(model){
 
 
 	//create table content: prefixes
-	//TODO
-	//for(var i = 0; i < used_prefixes_2.length; i++){
 	$.each(used_prefixes_2, function(i, prefix){
 		
 		var tr = jQuery('<tr/>', {});
@@ -230,82 +207,6 @@ function model_to_table(model){
 }
 
 
-
-function rdf_array_to_table(rdf_array, rdf_prefixes) {
-
-	if( Object.prototype.toString.call( rdf_array ) !== '[object Array]' )
-	rdf_array = [];
-
-	if( Object.prototype.toString.call( rdf_prefixes ) !== '[object Array]' )
-	rdf_prefixes = [];
-
-	// create elements <table> and a <tbody>
-	var tbl     = document.createElement("table");
-	var tblBody = document.createElement("tbody");
-
-	// cells creation
-	if(typeof rdf_prefixes == "undefined")
-	rdf_prefixes = [];
-	for(var i=0; i<rdf_prefixes.length; i++){
-		// table row creation
-		var row = document.createElement("tr");
-
-		for(var j=0; j<rdf_prefixes[i].length; j++){
-			// create element <td> and text node 
-		        //Make text node the contents of <td> element
-		        // put <td> at end of the table row
-			var cell = document.createElement("td");
-			//cannot submit @ character via hidden fields as in @prefix
-			var at = "";
-			if(j==0)
-				at = "@";    
-			var cellText = document.createTextNode(at+rdf_prefixes[i][j]); 
-
-                	cell.appendChild(cellText);
-                	row.appendChild(cell);
-		}
-
-		//trailing "." for turtle document
-		var cell = document.createElement("td");
-		var cellText = document.createTextNode(".");
-                cell.appendChild(cellText);
-                row.appendChild(cell);
-
-		//row added to end of table body
-		tblBody.appendChild(row);
-	}
-
-	for(var i=0; i<rdf_array.length; i++){
-		// table row creation
-		var row = document.createElement("tr");
-
-		for(var j=0; j<rdf_array[i].length; j++){
-			// create element <td> and text node 
-		        //Make text node the contents of <td> element
-		        // put <td> at end of the table row
-			var cell = document.createElement("td");    
-			var cellText = document.createTextNode(rdf_array[i][j]); 
-
-                	cell.appendChild(cellText);
-                	row.appendChild(cell);
-		}
-
-		//trailing "." for turtle document
-		var cell = document.createElement("td");
-		var cellText = document.createTextNode(".");
-                cell.appendChild(cellText);
-                row.appendChild(cell);
-
-		//row added to end of table body
-		tblBody.appendChild(row);
-	}
-
-        // append the <tbody> inside the <table>
-        tbl.appendChild(tblBody);
- 
-        tbl.setAttribute("class", "rdf_table");
-	return tbl;
-}
 
 
 //source: http://prefix.cc/context
