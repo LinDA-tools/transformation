@@ -13,8 +13,8 @@
 <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ rdfModel }}">
 
 <div class="content grid">
+	<h3>CSV Column Selection</h3>
 	<div class="col-10-10">
-		<h3>CSV Column Selection</h3>
 		<p>
 		Please select the colums you want to transfer from the table view below.
 		</p>
@@ -22,8 +22,9 @@
 
 </div>
 
-<div class="content scrollit">
+<div class="content scrollit no-minimize">
 	<h3>DATA VIEW</h3>
+	<div>
 	File: <b>{{ filename }}</b> (10 rows example)
 	<input type="button" id="id_select_all_rows" value="deselect all">
 	<table class="table_view">
@@ -53,6 +54,7 @@
 		{% endfor %}	
 	</tbody>
 	</table>
+	</div>
 </div>
 
 </form>

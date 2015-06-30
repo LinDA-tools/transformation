@@ -17,8 +17,8 @@
 <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ rdfModel }}">
 
 <div class="content grid">
+	<h3>Specify the RDF Predicate</h3>
 	<div class="col-6-10 left-side-box">
-		<h3>Specify the RDF Predicate</h3>
 		<p>In the last step, you constructed a RDF subject URI for each row of your data. As every row represents data for one single real world entity (e.g. a customer, an accounting information, ...), the single fields in that row represent are this entities characteristics (e.g. customer name, date of money transferal, ...). The table's top row though contains information that should describe these characteristics.</p>
 	<p>In this step, we try and find a suitable RDF class that can represent data in one column. We use the column header to find information first, but you also can type in your own search terms if the listed proposals are of no use. Click on a proposal to see the results in the RDF view at the page bottom.</p>
 	</div>
@@ -28,55 +28,14 @@
 	</div>
 </div>
 
-<!--div class="content scrollit">
-	<h3>DATA VIEW</h3>
-	File: <b>{{ filename }}</b> (10 rows example)
-	<table class="table_view">
-	<thead>
 
-		{% for line in csvContent|slice:":1" %}
-		<tr>
-			{% for field in line %}
-				<td id="id_table_head_{{ forloop.counter }}">				
-					<span>{{ field }}</span>			
-				</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}
-
-	</thead>
-	<tbody>	
-		{% for line in csvContent|slice:":1" %}
-		<tr>
-			{% for field in line %}
-				<td>				
-					<input type="text" value="{{ field }}" id="search_textinput_{{ forloop.counter }}" onkeyup="delayedOracleCall({{ forloop.counter }})"><i id="icon_{{ forloop.counter }}" class="fa fa-search" onclick="askOracle({{ forloop.counter }})"></i>
-					<br>
-					<div class="bb_select" id="search_result_{{ forloop.counter }}">
-					</div>
-				</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}
-
-		{% for line in csvContent|slice:"1:" %}
-		<tr>
-			{% for field in line %}
-				<td>				
-					<span>{{ field }}</span>			
-				</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}
-	</tbody>
-	</table>
-</div-->
-
-    <div class="content scrollit">
-        <h3>DATA VIEW</h3>
+<div class="content scrollit">
+    <h3>DATA VIEW</h3>
+    <div>
         File: <b>{{ filename }}</b> (10 rows example)
         {{ rdfModel | model_as_table_predicate | safe }}
     </div>
+</div>
 
 <div class="content" id="rdf_view">
 	<h3>RDF VIEW</h3>

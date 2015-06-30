@@ -16,72 +16,25 @@
 <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ rdfModel }}">
 
 <div class="content grid">
+	<h3>Specify the RDF Object</h3>
 	<div class="col-5-10 left-side-box">
-		<h3>Specify the RDF Object</h3>
+
 		<p>In this step, you can either choose a datatype (such as "Text", "Floating Point Number", "Integer", ...) for a table row or try and let us reconsiliate your data against the DBPedia triple store. That is, we will automatically look up an URI in the DBPedia-Project that might represent the data within each of your table rows.</p>
 		<p>As always, the results can be seen in the RDF preview at the page bottom.</p>
 	</div>
 
 	<div class="col-5-10 right-side-box">
-		
-
-
 
 	</div>
-
 </div>
 
-<!--div class="content scrollit">
-	<h3>DATA VIEW</h3>
-	File: <b>{{ filename }}</b> (10 rows example)
-	<table class="table_view">
-	<thead>
-
-		{% for line in csvContent|slice:":1" %}
-		<tr>
-			{% for field in line %}
-				<td id="id_table_settings_{{ forloop.counter }}">
-					<select>
-						<option>no action</option>
-						<option>auto inference</option>
-						<option>auto type guessing</option>
-					</select>
-				</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}
-
-		{% for line in csvContent|slice:":1" %}
-		<tr>
-			{% for field in line %}
-				<td id="id_table_head_{{ forloop.counter }}">
-					<span>{{ field }}</span>
-				</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}
-
-
-	</thead>
-	<tbody>
-		{% for line in csvContent|slice:"1:" %}
-		<tr>
-			{% for field in line %}
-				<td id="id_table_field_{{ forloop.counter }}_{{ forloop.parentloop.counter }}">
-					<span>{{ field }}</span>
-				</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}	
-	</tbody>
-	</table>
-<div style="clear:both;"></div>
-</div-->
 
     <div class="content scrollit">
         <h3>DATA VIEW</h3>
+        <div>
         File: <b>{{ filename }}</b> (10 rows example)
         {{ rdfModel | model_as_table_object | safe }}
+        </div>
     </div>
 
 <div class="content" id="rdf_view">

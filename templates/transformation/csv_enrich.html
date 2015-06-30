@@ -16,8 +16,9 @@
 <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ rdfModel }}">
 
 <div class="content grid">
+	<h3>Enrich the RDF graph</h3>
 	<div class="col-4-10 left-side-box">
-		<h3>Enrich the RDF graph</h3>
+
 		<p>In this step you can add one or several attributes that match all your entities (e.g. 'table rows').</p>
 	</div>
 
@@ -33,37 +34,18 @@
 
 
 	</div>
-
 </div>
-
-<!--div class="content scrollit">
-	<h3>DATA VIEW</h3>
-	File: <b>{{ filename }}</b> (10 rows example)
-	<table class="table_view">
-		{% for line in csvContent %}
-		<tr>
-			{% for field in line %}
-				<td>
-				{% if forloop.parentloop.first %}
-					<span>{{ field }}</span> <a href="" onclick="addToUri(event)" onmouseover="Tip('???')" onmouseout="UnTip()">[+]</a>
-				{% else %}
-					{{ field }}
-				{% endif %}
-			
-				</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}	
-	</table>
-</div-->
 
     <div class="content scrollit">
         <h3>DATA VIEW</h3>
-        File: <b>{{ filename }}</b> (10 rows example)
+        <div>
+        <span>File: {{ filename }} (10 rows example)</span>
         {{ rdfModel | model_as_table | safe }}
+        </div>
     </div>
 
 <div class="content" id="rdf_view">
+
 	<h3>RDF VIEW</h3>
 
 </div>

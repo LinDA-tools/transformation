@@ -8,8 +8,8 @@
     <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ rdfModel }}">
 
     <div class="grid content">
+        <h3>CSV Upload</h3>
         <div class="col-5-10 left-side-box">
-            <h3>CSV Upload</h3>
 
             <p>Please select a CSV file. We will try and guess the CSV parameters for you.</p>
 
@@ -112,8 +112,9 @@
     </div>
 
 
-    <div class="content scrollit">
+    <div class="content scrollit no-minimize">
         <h3>DATA VIEW</h3>
+        <div>
         File: <b>{{ filename }}</b> (10 rows example)
         <table class="table_view">
             <thead>
@@ -140,11 +141,7 @@
             {% endfor %}
             </tbody>
         </table>
-
-    </div>
-
-    <div class="content">
-        <h3>RDF VIEW</h3>
+        </div>
 
     </div>
 

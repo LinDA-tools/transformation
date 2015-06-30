@@ -16,8 +16,8 @@
     <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ rdfModel }}">
 
     <div class="content grid">
+        <h3>Specify the RDF Subject</h3>
         <div class="col-5-10 left-side-box">
-            <h3>Specify the RDF Subject</h3>
 
             <p>In this step, you can specify the RDF subject. It can be constructed from a base URL and a combination of
                 the content of one or multiple column names (i.e. the first row of your CSV file).</p>
@@ -78,8 +78,10 @@
 
     <div class="content scrollit">
         <h3>DATA VIEW</h3>
+        <div>
         File: <b>{{ filename }}</b> (10 rows example)
         {{ rdfModel | model_as_table | safe }}
+        </div>
     </div>
 
     <div class="content" id="rdf_view">
