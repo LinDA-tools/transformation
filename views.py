@@ -301,6 +301,8 @@ def csv_publish(request):
     publish_massage = ""
     if request.POST and form.is_valid() and form != None:
 
+
+        '''
         # content is passed on via hidden html input fields
         if 'hidden_rdf_prefix_field' in form.cleaned_data:
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
@@ -323,12 +325,13 @@ def csv_publish(request):
                 rdf_n3 += ".\n"
         else:
             request.session['rdf_array'] = ""
-
+        '''
         if 'hidden_model' in form.cleaned_data:
             request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'","\""))
         else:
             request.session['model'] = ""
-
+            print("ERROR: no model")
+        
         print(rdf_n3)
 
         if 'button_publish' in request.POST:

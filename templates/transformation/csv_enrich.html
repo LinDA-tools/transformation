@@ -168,27 +168,10 @@ function calculate_rdf_array_from_model(model){
 
 function adapt_RDF_preview() {
 
-	var rdf_array = eval($("#id_hidden_rdf_array_field").val());
-	var model = JSON.parse($("#id_hidden_model").val().replace(/'/g,"\""));
-	var rdf_array2 = calculate_rdf_array_from_model(model);
-console.log(rdf_array);
-console.log(rdf_array2);
-	var same_subject = true;
-	var subject = "";
-
-	//how many columns
-	var num_columns = eval($("#id_hidden_csv_content_field").val())[0].length;
-
-	//make visible in frontend
-
-	var tbl = rdf_array_to_table(rdf_array, eval($("#id_hidden_rdf_prefix_field").val()));
-	while (rdf_view.firstChild) { //remove all children
-    		rdf_view.removeChild(rdf_view.firstChild);
-	}
-	var myH3 = document.createElement("h3");
-	myH3.appendChild(document.createTextNode("RDF VIEW"));
-	rdf_view.appendChild(myH3);
-	rdf_view.appendChild(tbl);
+    var rdf_view = $("#rdf_view");
+    var tbl = model_to_table(get_model());
+    rdf_view.find("table").remove();
+    rdf_view.append(tbl);
 }
 
 
@@ -204,22 +187,11 @@ $( document ).ready(function() {
 		form.submit();
 	});
 
-	rdf_view.innerHTML = "<h3>RDF VIEW +++</h3>";
-	rdf_view.appendChild(rdf_array_to_table(eval(rdf_content.val())));
 
 	//close DATA VIEW
 	$(".content-resizer").eq(1).click();
 
 	adapt_RDF_preview();
-/*
-	var mod = $("#id_hidden_model").val().replace(/'/g,"\"");
-	//console.log(mod);
-	var modeval = JSON.parse(mod);
-	//console.log(modeval);
-	var bla = calculate_rdf_array_from_model(modeval);
-	console.log(bla);
-	*/
-
 });
 
 </script>

@@ -195,168 +195,19 @@ function base_url_change() {
 
 function adapt_RDF_preview() {
 
-    used_prefixes = [];
-
-    var csv_content= $("#id_hidden_csv_content_field");
-    var rdf_content= $("#id_hidden_rdf_array_field");
     var subject_uri = $("#id_subject_uri");
     var base_url_insert = $("#id_base_url_insert");
-    var rdf_array = $("#id_hidden_rdf_array_field");
 
     add_model_subject("sceleton",subject_uri.val());
     add_model_subject("base_url",base_url_insert.text());
 
-/*
-        var content = eval(csv_content.val());
-        var topic_row = content[0];
-        var num_total_fields_csv = (content.length - 1) * content[0].length;
-        //var rdf_array = [num_total_fields_csv][3];
-        var rdf_array = create_multidim_array(num_total_fields_csv, 3);
-        //var rdf_array = [];
-
-        //create uri subject
-        
-        for (var i = 1; i < content.length; i++) {
-            var subject_uri_tmp = subject_uri.val();
-            subject_uri_tmp = "<" + base_url_insert.html() + subject_uri_tmp + ">";
-            for (var j = 0; j < content[i].length; j++) {
-                //parse subject uri
-                subject_uri_tmp = subject_uri_tmp.replace(new RegExp("{" + topic_row[j] + "}", 'g'), content[i][j]);
-
-
-            }
-            for (var j = 0; j < content[i].length; j++) {
-                //add rdf subject, predicate, and object value
-                if ($("#id_blanknodes_only").is(":checked")){
-                    rdf_array[(i - 1) * content[i].length + j][0] = "_:" + toLetters(i);
-                    add_model_subject("blank_nodes","true");
-                }
-                else
-                    rdf_array[(i - 1) * content[i].length + j][0] = subject_uri_tmp;
-                rdf_array[(i - 1) * content[i].length + j][1] = "?predicate:" + topic_row[j] + "?";
-                rdf_array[(i - 1) * content[i].length + j][2] = "\"" + content[i][j] + "\"";
-            }
-        }
-    //}
-
-
-
-        //store in form and make available in backend
-        rdf_content.value = JSON.stringify(rdf_array);
-        $("#id_hidden_rdf_prefix_field").val(JSON.stringify(used_prefixes));
-        //make visible in frontend
-        var tbl = rdf_array_to_table(rdf_array, used_prefixes);
-
-        */
-/*
-    while (rdf_view.firstChild) { //remove all children
-            rdf_view.removeChild(rdf_view.firstChild);
-    }
-    var myH3 = document.createElement("h3");
-    myH3.appendChild(document.createTextNode("RDF VIEW"));
-    rdf_view.appendChild(myH3);
-    rdf_view.appendChild(tbl);
-*/
-
-    /*if ($("#id_blanknodes_only").is(":checked")){
-       add_model_subject("blank_nodes","true");
-    }*/
     var rdf_view = $("#rdf_view");
     var tbl = model_to_table(get_model());
     rdf_view.find("table").remove();
     rdf_view.append(tbl);
 
 }
-/*
 
-        function adapt_RDF_preview() {
-
-            used_prefixes = [];
-
-            var rdf_array = eval($("#id_hidden_rdf_array_field").val());
-
-            if( Object.prototype.toString.call( rdf_array ) !== '[object Array]' ) {
-                var tbl = document.createTextNode("No RDF");
-                return;
-            }
-
-            var content = eval(csv_content.value);
-            var topic_row = content[0];
-            var num_total_fields_csv = (content.length - 1) * content[0].length;
-            //var rdf_array = [num_total_fields_csv][3];
-            var rdf_array = create_multidim_array(num_total_fields_csv, 3);
-            //var rdf_array = [];
-
-            //create uri subject
-            for (var i = 1; i < content.length; i++) {
-                var subject_uri_tmp = subject_uri.value;
-                subject_uri_tmp = "<" + base_url_insert.innerHTML + subject_uri_tmp + ">";
-                for (var j = 0; j < content[i].length; j++) {
-                    //parse subject uri
-                    subject_uri_tmp = subject_uri_tmp.replace(new RegExp("{" + topic_row[j] + "}", 'g'), content[i][j]);
-
-
-                }
-                for (var j = 0; j < content[i].length; j++) {
-                    //add rdf subject, predicate, and object value
-                    if (blanknodes_only.checked)
-                        rdf_array[(i - 1) * content[i].length + j][0] = "_:" + toLetters(i);
-                    else
-                        rdf_array[(i - 1) * content[i].length + j][0] = subject_uri_tmp;
-                    rdf_array[(i - 1) * content[i].length + j][1] = "?predicate:" + topic_row[j] + "?";
-                    rdf_array[(i - 1) * content[i].length + j][2] = "\"" + content[i][j] + "\"";
-                }
-            }
-
-            //store in form and make available in backend
-            rdf_content.value = JSON.stringify(rdf_array);
-            //make visible in frontend
-            var tbl = rdf_array_to_table(rdf_array);
-            while (rdf_view.firstChild) { //remove all children
-                rdf_view.removeChild(rdf_view.firstChild);
-            }
-            var myH3 = document.createElement("h3");
-            myH3.appendChild(document.createTextNode("RDF VIEW"));
-            rdf_view.appendChild(myH3);
-            rdf_view.appendChild(tbl);
-            //return rdf_array;
-
-        }
-        */
-
-/*
-function rdf_array_to_table(rdf_array) {
-    // create elements <table> and a <tbody>
-    var tbl = document.createElement("table");
-    var tblBody = document.createElement("tbody");
-
-    // cells creation
-    for (var i = 0; i < rdf_array.length; i++) {
-        // table row creation
-        var row = document.createElement("tr");
-
-        for (var j = 0; j < rdf_array[i].length; j++) {
-            // create element <td> and text node
-            //Make text node the contents of <td> element
-            // put <td> at end of the table row
-            var cell = document.createElement("td");
-            var cellText = document.createTextNode(rdf_array[i][j]);
-
-            cell.appendChild(cellText);
-            row.appendChild(cell);
-        }
-
-        //row added to end of table body
-        tblBody.appendChild(row);
-    }
-
-    // append the <tbody> inside the <table>
-    tbl.appendChild(tblBody);
-
-    tbl.setAttribute("class", "rdf_table");
-    return tbl;
-}
-*/
 
 function changeURI() {
     var subject_uri = $("#id_subject_uri");
