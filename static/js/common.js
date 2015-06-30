@@ -143,20 +143,18 @@ function model_to_table(model){
 	}
 
 	//insert objects
-	var counter = 0;
+	var cols_count = model['content'].length
 	$.each(model['content'], function(i, row){
 		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
-			var col_name = row['header']['orig_val'];
 			var method = row['object_method'];
-			$.each($(this)[0]['rows'], function(i, elem){
+			$.each($(this)[0]['rows'], function(j, elem){
 				var suffix = "";
 				if(method == "data type" && elem['data_type'])//reconciliation, no action, data type
 					suffix = "^^"+elem['data_type'];
-
 				if(method == "reconciliation" && elem['reconciliation'])//reconciliation, no action, data type
 					suffix = "^^"+elem['reconciliation']['prefix']['prefix']+":"+elem['reconciliation']['prefix']['suffix'];
-				rdf_array[counter][2] = '"'+elem['orig_val']+'"'+suffix;
-				counter++;			
+				rdf_array[j*cols_count+i][2] = '"'+elem['orig_val']+'"'+suffix;
+	
 			});
 		}
 	});
