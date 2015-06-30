@@ -148,7 +148,6 @@ function model_to_table(model){
 		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
 			var col_name = row['header']['orig_val'];
 			var method = row['object_method'];
-			console.log(col_name+ " : " +method);
 			$.each($(this)[0]['rows'], function(i, elem){
 				var suffix = "";
 				if(method == "data type" && elem['data_type'])//reconciliation, no action, data type
