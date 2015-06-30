@@ -328,11 +328,12 @@ def csv_publish(request):
         '''
         if 'hidden_model' in form.cleaned_data:
             request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'","\""))
+            rdf_n3 = get_model_as_rdf_n3(request.session['model'])
         else:
             request.session['model'] = ""
             print("ERROR: no model")
         
-        print(rdf_n3)
+        print("rdfn3 "+str(rdf_n3))
 
         if 'button_publish' in request.POST:
             print("PUBLISH BUTTON PRESSED")
@@ -415,16 +416,6 @@ def mark_selected_rows_in_model(session):
             col["col_num_new"] = -1
 
 
-def csv_model_2_array(m_id):
-    m_csv = CSV.objects.filter(id=m_id)[0]
-    m_columns = Column.objects.filter(csv=m_csv.id)
-    m_fields = []
-    for col in m_columns:
-        m_fields.append(Field.objects.filter(column=col.id))
-
-
-# TODO WIP hier weitermachen, db model nach array struktur wie 'csvContent': csv_rows
-# oder einfach JSON object speichern?? einfacher?
 
 
 
@@ -468,40 +459,14 @@ def process_csv(csvfile, form):
     return [csv_rows, csv_dialect]
 
 
-# http://stackoverflow.com/questions/1136106/what-is-an-efficent-way-of-inserting-thousands-of-records-into-an-sqlite-table-u
-#@transaction.commit_manually
-@transaction.atomic
-def store_csv_in_model(csv_rows, csv_id=None, csv_raw=None, file_name=None):
-    '''
-    Stores the 2dim array representation of the CSV file in the database.
-    '''
-    num_columns = len(csv_rows[0])
-    # http://stackoverflow.com/questions/17037566/transpose-a-matrix-in-python
-    csv_transpose = list(zip(*csv_rows))
-    if csv_id == None:
-        #create CSV model
-        m_csv = CSV()
-        m_csv.save()
-        if csv_raw and file_name:
-            #create CSVFile model
-            m_csv_file = CSVFile(data=csv_raw, file_name=file_name, csv=m_csv)
-            m_csv_file.save()
-        for row in csv_transpose:
-            m_column = None
-            for num_field, field in enumerate(row):
-                if num_field == 0:  # csv row topic
-                    m_column = Column(csv=m_csv)
-                    m_column.topic = row
-                    m_column.save()
-                    #print("column "+str(m_column.id))
-                else:
-                    m_field = Field(content=field, index=num_field, data_type=0, column=m_column)
-                    m_field.save()
-        m_csv.save()
-        #print("CSV #"+str(m_csv.id)+" stored in DB.")
-    else:
-        m_csv = CSV.objects.filter(id=csv_id)[0]
-    #if m_csv == None
-    # TODO catch
-    transaction.commit()
-    return m_csv.id
+def get_model_as_rdf_n3(model):
+    print("def get_model_as_rdf_n3(model):")
+    if type(model) != dict:
+        print("invalid model")
+        return "invalid model"
+    result = ""
+    col_count = len(model['content'])
+    row_count = len(model['content'][0]['rows'])
+
+    return str(col_count)+" x "+str(row_count)
+    

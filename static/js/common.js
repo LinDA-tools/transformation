@@ -84,7 +84,7 @@ function create_multidim_array(x, y) {
 	return f;
 }
 
-
+/*
 
 function model_to_table(model){
 
@@ -201,6 +201,126 @@ function model_to_table(model){
 	}
 
 	return tbl;
+}*/
+
+
+function model_to_table(model){
+
+	var tbl = jQuery('<table/>', {
+		class: "rdf_table"
+	});//.appendTo(elem);
+
+	if(model == undefined){
+		console.log("model undefinded");
+		return tbl;
+	}
+
+	var rdf_array = model_to_array(model);
+
+
+	//create table content
+	for(var i = 0; i < rdf_array.length; i++){
+
+			var tr = jQuery('<tr/>', {});
+			for(var j = 0; j < 3; j++){
+				var td = jQuery('<td/>', {});
+				td.text(rdf_array[i][j]);
+				td.appendTo(tr);
+			}
+			var td = jQuery('<td/>', {});
+			td.text(".");
+			td.appendTo(tr);
+			tr.appendTo(tbl);
+
+	}
+
+	return tbl;
+}
+
+
+function model_to_array(model){
+
+
+	if(model == undefined){
+		console.log("model undefinded");
+		return tbl;
+	}
+
+	var num_total_rows_rdf = 0;
+	var num_total_cols = 0;
+
+	//count
+	$.each(model['content'], function(){
+		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
+			var col_name = $(this)[0]['header']['orig_val'];
+			//num_total_rows_rdf++;
+			num_total_cols++;
+			$.each($(this)[0]['rows'], function(){
+				num_total_rows_rdf++;
+			
+			});
+		}
+	});
+
+	var rdf_array = create_multidim_array(num_total_rows_rdf, 3);
+
+
+	//insert subjects
+	var subjects = create_subjects_from_model_sceleton(model);
+	for(var i = 0; i < rdf_array.length; i++){
+		var subj_index = Math.floor(i/num_total_cols);
+		rdf_array[i][0] = subjects[subj_index];
+	}
+
+	//insert predicates
+	var used_prefixes_2 = {};
+	var predicates = create_predicates_from_model(model);
+	for(var i = 0; i < rdf_array.length; i++){
+		var pred_index = i % predicates.length;
+		if(predicates[pred_index] && predicates[pred_index]['url']){ // uri exists (earlier sucessful ajax call)
+			if(predicates[pred_index]['suffix'] && predicates[pred_index]['prefix']){ // prefix exists
+				rdf_array[i][1] = predicates[pred_index]['prefix']+":"+predicates[pred_index]['suffix']; // prefixed url
+				// TODO can be problem if keys are not unique 
+				used_prefixes_2[predicates[pred_index]['prefix']] = predicates[pred_index];
+			}else{
+				rdf_array[i][1] = predicates[pred_index]['url']+predicates[pred_index]['suffix']; // = original url	
+			}
+		}else{
+			rdf_array[i][1] = "<?predicate?>" // no ajax call yet
+		}
+	}
+
+	//insert objects
+	var cols_count = model['content'].length
+	$.each(model['content'], function(i, row){
+		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
+			var method = row['object_method'];
+			$.each($(this)[0]['rows'], function(j, elem){
+				var suffix = "";
+				if(method == "data type" && elem['data_type'])//reconciliation, no action, data type
+					suffix = "^^"+elem['data_type'];
+				if(method == "reconciliation" && elem['reconciliation'])//reconciliation, no action, data type
+					suffix = "^^"+elem['reconciliation']['prefix']['prefix']+":"+elem['reconciliation']['prefix']['suffix'];
+				rdf_array[j*cols_count+i][2] = '"'+elem['orig_val']+'"'+suffix;
+	
+			});
+		}
+	});
+
+
+	//create table content: prefixes
+	var prefix_array = []
+	$.each(used_prefixes_2, function(i, prefix){
+		
+		var p = [];
+		p[0]="@prefix";
+		p[1]=prefix['prefix']+":";
+		p[2]=prefix['url'];
+		prefix_array.push(p);
+		
+	});
+
+	return prefix_array.concat(rdf_array);
 }
 
 
