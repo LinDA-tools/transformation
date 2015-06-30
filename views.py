@@ -301,20 +301,7 @@ def csv_publish(request):
     publish_massage = ""
     if request.POST and form.is_valid() and form != None:
 
-
-        '''
-        # content is passed on via hidden html input fields
-        if 'hidden_rdf_prefix_field' in form.cleaned_data:
-            request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
-            for row in eval(request.session['rdf_prefix']):
-                rdf_n3 += "@prefix "
-                rdf_n3 += row[1]
-                rdf_n3 += row[2]
-                rdf_n3 += ".\n"
-        else:
-            request.session['rdf_array'] = ""
-
-        if 'hidden_rdf_array_field' in form.cleaned_data:
+        if form.cleaned_data['hidden_rdf_array_field']:
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
             for row in eval(request.session['rdf_array']):
                 for elem in row:
@@ -328,10 +315,10 @@ def csv_publish(request):
         '''
         if 'hidden_model' in form.cleaned_data:
             request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'","\""))
-            rdf_n3 = get_model_as_rdf_n3(request.session['model'])
         else:
             request.session['model'] = ""
             print("ERROR: no model")
+        '''
         
         print("rdfn3 "+str(rdf_n3))
 
@@ -458,15 +445,3 @@ def process_csv(csvfile, form):
 
     return [csv_rows, csv_dialect]
 
-
-def get_model_as_rdf_n3(model):
-    print("def get_model_as_rdf_n3(model):")
-    if type(model) != dict:
-        print("invalid model")
-        return "invalid model"
-    result = ""
-    col_count = len(model['content'])
-    row_count = len(model['content'][0]['rows'])
-
-    return str(col_count)+" x "+str(row_count)
-    

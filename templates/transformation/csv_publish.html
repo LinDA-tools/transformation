@@ -33,27 +33,6 @@
 
     </div>
 
-    <!--div class="content scrollit">
-	<h3>DATA VIEW</h3>
-	File: <b>{{ filename }}</b> (10 rows example)
-	<table class="table_view">
-		{% for line in csvContent %}
-		<tr>
-			{% for field in line %}
-				<td>
-				{% if forloop.parentloop.first %}
-					<span>{{ field }}
-        </span> <a href="" onclick="addToUri(event)" onmouseover="Tip('???')" onmouseout="UnTip()">[+]</a>
-				{% else %}
-					{{ field }}
-				{% endif %}
-			
-				</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}	
-	</table>
-</div-->
 
     <div class="content" id="rdf_view">
         <h3>RDF VIEW</h3>
@@ -74,6 +53,8 @@
 
 
 function adapt_RDF_preview() {
+
+	$("#id_hidden_rdf_array_field").val(JSON.stringify(model_to_array(get_model())));
 
     var rdf_view = $("#rdf_view");
     var tbl = model_to_table(get_model());
