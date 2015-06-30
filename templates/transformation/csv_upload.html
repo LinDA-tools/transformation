@@ -200,13 +200,9 @@ $(document).ready(function () {
 
     toggle_buttons();
 
-// disable upload button when no file is selected
     upload_widget.addEventListener('change', toggle_buttons);
-    /*next_button.addEventListener('click', function(){
-     document.getElementById('processing').style.visibility = "visible";
-     });*/
 
-// add an alternative target page (i.e. form action) (itself) when clicking the file upload button
+    // add an alternative target page (i.e. form action) (itself) when clicking the file upload button
     upload_button.onclick = function () {
         form.action = '1';
         form.submit();

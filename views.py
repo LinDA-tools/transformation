@@ -170,16 +170,16 @@ def csv_subject(request):
 
             # create model that contains all data in json object / python dictionary
             #if not hasattr(request.session, 'model') or true:
-            request.session['model'] = {"num_total_rows": num_csv_rows, "content": []} # get csv column-wise
+            request.session['model'] = {"num_total_fields": num_csv_rows, "columns": []} # get csv column-wise
             inverted_csv = list(zip(*request.session['csv_rows']))
             for i, col in enumerate(inverted_csv):
-                column_obj = {"col_num_orig": i+1, "show": "false", "rows": []}
+                column_obj = {"col_num_orig": i+1, "fields": []}
                 for j, field in enumerate(col):
                     if j == 0: # table header / first row
                         column_obj['header'] = {"orig_val": field}
                     else:
-                        column_obj['rows'].append({"orig_val": field, "row_num": j})
-                request.session['model']['content'].append(column_obj)
+                        column_obj['fields'].append({"orig_val": field, "field_num": j})
+                request.session['model']['columns'].append(column_obj)
 
             mark_selected_rows_in_model(request.session)
 
@@ -319,7 +319,7 @@ def csv_publish(request):
             request.session['model'] = ""
             print("ERROR: no model")
         '''
-        
+
         print("rdfn3 "+str(rdf_n3))
 
         if 'button_publish' in request.POST:
@@ -393,13 +393,11 @@ def mark_selected_rows_in_model(session):
     session['model']['num_cols_selected'] = len(col_nums)
     counter = 1;
     print(col_nums)
-    for i, col in enumerate(session['model']['content']):
+    for i, col in enumerate(session['model']['columns']):
         if col["col_num_orig"] in col_nums:
-            col["show"] = "true";
             col["col_num_new"] = counter
             counter = counter + 1
         else:
-            col["show"] = "false";
             col["col_num_new"] = -1
 
 

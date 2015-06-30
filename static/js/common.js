@@ -23,10 +23,10 @@ function create_subjects_from_model_sceleton(model) {
 	}
 
 	var subjects_array = [];
-	$.each(model['content'], function(row){
+	$.each(model['columns'], function(row){
 		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
 			var col_name = $(this)[0]['header']['orig_val'];
-			$.each($(this)[0]['rows'], function(elem){
+			$.each($(this)[0]['fields'], function(elem){
 				if(model && model['subject']['blank_nodes'] == "true"){
 						subjects_array[elem] = "_:"+toLetters(elem+1);
 				}else{
@@ -47,7 +47,7 @@ function create_subjects_from_model_sceleton(model) {
 
 function create_predicates_from_model(model) {
 	var predicates_array = [];
-	$.each(model['content'], function(row){
+	$.each(model['columns'], function(row){
 		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
 			if(typeof $(this)[0]['predicate'] == 'undefined')
 				$(this)[0]['predicate'] = "";
@@ -62,10 +62,10 @@ function create_predicates_from_model(model) {
 
 function create_objects_from_model(model) {
 	var objects_array = [];
-	$.each(model['content'], function(row){
+	$.each(model['columns'], function(row){
 		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
 			var col_name = $(this)[0]['header']['orig_val'];
-			$.each($(this)[0]['rows'], function(elem){
+			$.each($(this)[0]['fields'], function(elem){
 				objects_array.push(elem['orig_val']);
 			});
 		}
@@ -84,124 +84,6 @@ function create_multidim_array(x, y) {
 	return f;
 }
 
-/*
-
-function model_to_table(model){
-
-	var tbl = jQuery('<table/>', {
-		class: "rdf_table"
-	});//.appendTo(elem);
-
-	if(model == undefined){
-		console.log("model undefinded");
-		return tbl;
-	}
-
-	var num_total_rows_rdf = 0;
-	var num_total_cols = 0;
-
-	//count
-	$.each(model['content'], function(){
-		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
-			var col_name = $(this)[0]['header']['orig_val'];
-			//num_total_rows_rdf++;
-			num_total_cols++;
-			$.each($(this)[0]['rows'], function(){
-				num_total_rows_rdf++;
-			
-			});
-		}
-	});
-
-	var rdf_array = create_multidim_array(num_total_rows_rdf, 3);
-
-
-
-	//insert subjects
-	var subjects = create_subjects_from_model_sceleton(model);
-	for(var i = 0; i < rdf_array.length; i++){
-		var subj_index = Math.floor(i/num_total_cols);
-		rdf_array[i][0] = subjects[subj_index];
-	}
-
-	//insert predicates
-	var used_prefixes_2 = {};
-	var predicates = create_predicates_from_model(model);
-	for(var i = 0; i < rdf_array.length; i++){
-		var pred_index = i % predicates.length;
-		if(predicates[pred_index] && predicates[pred_index]['url']){ // uri exists (earlier sucessful ajax call)
-			if(predicates[pred_index]['suffix'] && predicates[pred_index]['prefix']){ // prefix exists
-				rdf_array[i][1] = predicates[pred_index]['prefix']+":"+predicates[pred_index]['suffix']; // prefixed url
-				// TODO can be problem if keys are not unique 
-				used_prefixes_2[predicates[pred_index]['prefix']] = predicates[pred_index];
-			}else{
-				rdf_array[i][1] = predicates[pred_index]['url']+predicates[pred_index]['suffix']; // = original url	
-			}
-		}else{
-			rdf_array[i][1] = "<?predicate?>" // no ajax call yet
-		}
-	}
-
-	//insert objects
-	var cols_count = model['content'].length
-	$.each(model['content'], function(i, row){
-		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
-			var method = row['object_method'];
-			$.each($(this)[0]['rows'], function(j, elem){
-				var suffix = "";
-				if(method == "data type" && elem['data_type'])//reconciliation, no action, data type
-					suffix = "^^"+elem['data_type'];
-				if(method == "reconciliation" && elem['reconciliation'])//reconciliation, no action, data type
-					suffix = "^^"+elem['reconciliation']['prefix']['prefix']+":"+elem['reconciliation']['prefix']['suffix'];
-				rdf_array[j*cols_count+i][2] = '"'+elem['orig_val']+'"'+suffix;
-	
-			});
-		}
-	});
-
-
-	//create table content: prefixes
-	$.each(used_prefixes_2, function(i, prefix){
-		
-		var tr = jQuery('<tr/>', {});
-
-		var td = jQuery('<td/>', {});
-		td.text("@prefix");
-		td.appendTo(tr);
-
-		var td = jQuery('<td/>', {});
-		td.text(prefix['prefix']+":");
-		td.appendTo(tr);
-
-		var td = jQuery('<td/>', {});
-		td.text(prefix['url']);
-		td.appendTo(tr);
-		
-		var td = jQuery('<td/>', {});
-		td.text(".");
-		td.appendTo(tr);
-		tr.appendTo(tbl);
-		
-	});
-
-	//create table content: rest
-	for(var i = 0; i < rdf_array.length; i++){
-
-			var tr = jQuery('<tr/>', {});
-			for(var j = 0; j < 3; j++){
-				var td = jQuery('<td/>', {});
-				td.text(rdf_array[i][j]);
-				td.appendTo(tr);
-			}
-			var td = jQuery('<td/>', {});
-			td.text(".");
-			td.appendTo(tr);
-			tr.appendTo(tbl);
-
-	}
-
-	return tbl;
-}*/
 
 
 function model_to_table(model){
@@ -250,12 +132,12 @@ function model_to_array(model){
 	var num_total_cols = 0;
 
 	//count
-	$.each(model['content'], function(){
+	$.each(model['columns'], function(){
 		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
 			var col_name = $(this)[0]['header']['orig_val'];
 			//num_total_rows_rdf++;
 			num_total_cols++;
-			$.each($(this)[0]['rows'], function(){
+			$.each($(this)[0]['fields'], function(){
 				num_total_rows_rdf++;
 			
 			});
@@ -291,11 +173,11 @@ function model_to_array(model){
 	}
 
 	//insert objects
-	var cols_count = model['content'].length
-	$.each(model['content'], function(i, row){
+	var cols_count = model['columns'].length
+	$.each(model['columns'], function(i, row){
 		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
 			var method = row['object_method'];
-			$.each($(this)[0]['rows'], function(j, elem){
+			$.each($(this)[0]['fields'], function(j, elem){
 				var suffix = "";
 				if(method == "data type" && elem['data_type'])//reconciliation, no action, data type
 					suffix = "^^"+elem['data_type'];
@@ -315,7 +197,7 @@ function model_to_array(model){
 		var p = [];
 		p[0]="@prefix";
 		p[1]=prefix['prefix']+":";
-		p[2]=prefix['url'];
+		p[2]="<"+prefix['url']+">";
 		prefix_array.push(p);
 		
 	});
@@ -1058,7 +940,7 @@ prefixes = {
 "http://purl.org/req/": "req",
 "http://purl.org/restdesc/http-template#": "tmpl",
 "http://purl.org/rss/1.0/": "rss",
-"http://purl.org/rss/1.0/modules/content/": "content",
+"http://purl.org/rss/1.0/modules/content/": 'columns',
 "http://purl.org/rss/1.0/modules/taxonomy/": "taxo",
 "http://purl.org/rvl/": "rvl",
 "http://purl.org/saws/ontology#": "saws",
@@ -1997,7 +1879,7 @@ function prefixise(uri){
 			}
 
 			//remove unused prefixes from model
-			$.each(model['content'], function(i, elem){
+			$.each(model['columns'], function(i, elem){
 				//console.log(elem['predicate']['url']);
 				var keep = false;
 				$.each(model['prefixes'], function(j,prefix){
@@ -2170,7 +2052,7 @@ function get_num_selected_cols_model(){
 	var nums = get_model()['num_cols_selected']; // take info from model if existing
 	if(!nums){ // otherwise calculate
 		var counter = 0;
-		$.each(get_model()['content'], function(){
+		$.each(get_model()['columns'], function(){
 			if($(this)[0]['col_num_new'] >- 1)
 				counter++;
 		});
@@ -2205,8 +2087,8 @@ function add_model_filename(subj){
 //GENERIC
 function add_to_model_where_fieldname(new_key, new_value, field_name, field_property){
 	var model = get_model();
-	$.each(model["content"], function(i, v1){
-		$.each(v1["rows"], function(j, v2){
+	$.each(model['columns'], function(i, v1){
+		$.each(v1['fields'], function(j, v2){
 			if(v2[field_name]==field_property)
 				v2[new_key] = new_value;
 		});
@@ -2217,10 +2099,10 @@ function add_to_model_where_fieldname(new_key, new_value, field_name, field_prop
 //GENERIC
 function add_to_model_field_where_col_and_row(new_key, new_value, col, row){
 	var model = get_model();
-	$.each(model["content"], function(i, v1){
+	$.each(model['columns'], function(i, v1){
 		if(v1["col_num_new"]==col)
-			$.each(v1["rows"], function(j, v2){
-				if(v2["row_num"]==row)
+			$.each(v1['fields'], function(j, v2){
+				if(v2['field_num']==row)
 					v2[new_key] = new_value;
 			});
 	});
@@ -2230,7 +2112,7 @@ function add_to_model_field_where_col_and_row(new_key, new_value, col, row){
 //GENERIC
 function add_to_content_where_col(new_key, new_value, col){
 	var model = get_model();
-	$.each(model["content"], function(i, v1){
+	$.each(model['columns'], function(i, v1){
 		if(v1["col_num_new"]==col)
 			v1[new_key] = new_value;
 	});
@@ -2240,7 +2122,7 @@ function add_to_content_where_col(new_key, new_value, col){
 //GENERIC
 function add_to_model_header_where_col(new_key, new_value, col){
 	var model = get_model();
-	$.each(model["content"], function(i, v1){
+	$.each(model['columns'], function(i, v1){
 		if(v1["col_num_new"]==col)
 			v1["header"][new_key] = new_value;
 	});

@@ -35,8 +35,8 @@ def model_as_table_object(model):
 def model_header_as_table(model):
 	num_rows = model['num_cols_selected']
 	headers = []
-	for col in model['content']:
-		if col['show'] == "true":
+	for col in model['columns']:
+		if col['col_num_orig'] > -1: #show column
 			headers.append(col['header']['orig_val'])
 
 	result = "<thead>"	
@@ -56,10 +56,10 @@ def model_header_as_table(model):
 def model_content_as_table(model):
 	num_rows = model['num_cols_selected']
 	content = []
-	for col in model['content']:
-		if col['show'] == "true":
+	for col in model['columns']:
+		if col['col_num_orig'] > -1: #show column
 			row = []
-			for elem in col['rows']:
+			for elem in col['fields']:
 				row.append(elem['orig_val'])
 			content.append(row)
 
@@ -86,8 +86,8 @@ def model_content_as_table(model):
 def model_header_as_table_predicate(model):
 	num_rows = model['num_cols_selected']
 	headers = []
-	for col in model['content']:
-		if col['show'] == "true":
+	for col in model['columns']:
+		if col['col_num_orig'] > -1: #show column
 			headers.append(col['header']['orig_val'])
 
 	result = "<thead>"
@@ -118,8 +118,8 @@ def model_header_as_table_predicate(model):
 def model_header_as_table_object(model):
 	num_rows = model['num_cols_selected']
 	headers = []
-	for col in model['content']:
-		if col['show'] == "true":
+	for col in model['columns']:
+		if col['col_num_orig'] > -1: #show column
 			headers.append(col['header']['orig_val'])
 
 	result = "<thead>"
