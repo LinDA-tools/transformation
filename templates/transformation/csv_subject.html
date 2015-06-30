@@ -48,6 +48,7 @@
 
                 <p>
                     {% for col in rdfModel.columns %}
+                    {% if col.col_num_new > -1%}
 
 
                             <span class="uribuilder" draggable="true" ondragstart="drag(event)"
@@ -55,7 +56,7 @@
                                   onmouseover="Tip('Drag this column name to the URI text field below.')"
                                   onmouseout="UnTip()">{{ col.header.orig_val }}</span>
 
-
+                    {% endif %}
                     {% endfor %}
                 </p>
 

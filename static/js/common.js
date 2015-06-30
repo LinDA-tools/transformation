@@ -125,7 +125,7 @@ function model_to_array(model){
 
 	if(model == undefined){
 		console.log("model undefinded");
-		return tbl;
+		return;
 	}
 
 	var num_total_rows_rdf = 0;
@@ -134,8 +134,6 @@ function model_to_array(model){
 	//count
 	$.each(model['columns'], function(){
 		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
-			var col_name = $(this)[0]['header']['orig_val'];
-			//num_total_rows_rdf++;
 			num_total_cols++;
 			$.each($(this)[0]['fields'], function(){
 				num_total_rows_rdf++;
@@ -173,9 +171,10 @@ function model_to_array(model){
 	}
 
 	//insert objects
-	var cols_count = model['columns'].length
+	var col_count = -1;
 	$.each(model['columns'], function(i, row){
-		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
+		if(row['col_num_new'] >- 1){ // column was chosen, same as show==true
+			col_count++;
 			var method = row['object_method'];
 			$.each($(this)[0]['fields'], function(j, elem){
 				var suffix = "";
@@ -183,8 +182,7 @@ function model_to_array(model){
 					suffix = "^^"+elem['data_type'];
 				if(method == "reconciliation" && elem['reconciliation'])//reconciliation, no action, data type
 					suffix = "^^"+elem['reconciliation']['prefix']['prefix']+":"+elem['reconciliation']['prefix']['suffix'];
-				rdf_array[j*cols_count+i][2] = '"'+elem['orig_val']+'"'+suffix;
-	
+				rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
 			});
 		}
 	});

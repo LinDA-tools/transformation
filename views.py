@@ -148,7 +148,7 @@ def csv_subject(request):
         if form.cleaned_data['hidden_model']:
         #if 'hidden_model' in form.cleaned_data:
             print('model existing')
-            request.session['model'] = json.loads(form.cleaned_data['hidden_model'])#.replace("'","\""))
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'","\""))
 
         else:
             print('creating model')
