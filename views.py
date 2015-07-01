@@ -6,13 +6,12 @@ import json
 from django.http import HttpResponse
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
-from django.db import transaction
 import pandas as pd
 from django.http import JsonResponse
 import requests
 from django.core.files.base import ContentFile
 from .forms import *
-from transformation.models import *
+from django.conf import settings
 
 
 
@@ -326,7 +325,8 @@ def csv_publish(request):
             print("PUBLISH BUTTON PRESSED")
             print(rdf_n3)
             payload = {'title': request.POST.get('name_publish'), 'content': rdf_n3, 'format': 'text/rdf+n3'}
-            r = requests.post('http://' + request.META['HTTP_HOST'] + '/api/datasource/create/', data=payload)
+            #Please set the API_HOST in the settings file
+            r = requests.post('http://' + settings.API_HOST + '/api/datasource/create/', data=payload)
             j = json.loads(r.text)
             print(j["message"])
             publish_massage = j["message"]
