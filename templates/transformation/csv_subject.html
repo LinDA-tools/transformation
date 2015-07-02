@@ -39,7 +39,7 @@
 
             <div id="id_uri_container">
                 <p>
-                    Base URL: <input type="url" pattern="https?://.+" name="base_url" oninvalid="setCustomValidity('Please enter a valid URL')" id="id_base_url" placeholder="e.g. http://example.net/">
+                    Base URL: <input type="url" pattern="https?://.+" name="base_url" oninvalid="setCustomValidity('Please enter a valid URI')" id="id_base_url" placeholder="e.g. http://example.net/">
                 </p>
 
                 <p>
@@ -67,6 +67,7 @@
                                                                              ondragover="allowDrop(event)">
                     <br>
                     <span class="warning-text red" id="base_url_insert_warning" style="visibility:hidden;">Wrong formatting. Build the URI template using terms like '{columnName}' surrounded by single brackets.</span>
+                    <br><span class="warning-text red" id="subject_url_insert_warning" style="visibility:hidden;">Please make sure the URIs are valid in the file.</span>
 
                 </p>
             </div>
@@ -130,6 +131,7 @@ var base_url = $("#id_base_url");
 var base_url_insert = $("#id_base_url_insert");
 var subject_uri = $("#id_subject_uri");
 var base_url_insert_warning = $("#base_url_insert_warning");
+var subject_url_insert_warning = $("#subject_url_insert_warning");
 var blanknodes_only = $("#id_blanknodes_only");
 var uri_container = $("#id_uri_container");
 var csv_content = document.getElementById("id_hidden_csv_content_field");
@@ -177,7 +179,9 @@ function adapt_RDF_preview() {
 function changeURI() {
     var subject_uri = $("#id_subject_uri");
     var base_url_insert_warning = $("#base_url_insert_warning");
+    var subject_url_insert_warning = $("#subject_url_insert_warning");
     base_url_insert_warning.css("visibility", "hidden");
+    subject_url_insert_warning.css("visibility", "hidden");
     var last_bracket = "}";
     var warning = false;
     for (var i = 0; i < subject_uri.val().length; i++) {
@@ -193,6 +197,9 @@ function changeURI() {
     if (last_bracket == "{") {
         base_url_insert_warning.css("visibility", "visible");
         base_url_insert_warning.text("Wrong formatting: Open '{' bracket not closed.");
+    }
+    if (!validURL) {
+        subject_url_insert_warning.css("visibility", "visible");
     }
 
     adapt_RDF_preview();
