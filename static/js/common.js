@@ -48,8 +48,8 @@ function create_subjects_from_model_sceleton(model) {
             result = entry.substring(1, entry.length - 1);
         }
         validURL = validURL && testURL.test(result);
-        console.log(result);
-        console.log(validURL);
+        //console.log(result);
+        //console.log(validURL);
     });
 	return subjects_array;
 }

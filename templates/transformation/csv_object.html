@@ -160,7 +160,6 @@ function askOracle(widget, domain, term){
 }
 
 function guessType(column){
-
 	column = typeof column !== 'undefined' ? column : "";
 
 	//http://www.sitepoint.com/jquery-basic-regex-selector-examples/
@@ -201,7 +200,7 @@ function guessType(column){
 	var dateDDMMYYYRegex = '^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)dd$';
 
 	//match a url
-	var urlRegex = '/^(https?://)?([da-z.-]+).([a-z.]{2,6})([/w .-]*)*/?$/';
+	//var urlRegex = '/^(https?://)?([da-z.-]+).([a-z.]{2,6})([/w .-]*)*/?$/';
 	//match a url slug (letters/numbers/hypens)
 	var urlslugRegex = '/^[a-z0-9-]+$/';
 	//match a url string (Fixes spaces and querystrings)
@@ -220,12 +219,13 @@ function guessType(column){
 	//http://www.w3.org/TR/xmlschema11-2/#built-in-primitive-datatypes
 	var datatypes = {
 
-	"float": {"url": "http://www.w3.org/2001/XMLSchema#float",
-		"regex":  /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)?|(\+|-)?INF|NaN/},
-	"double": {"url": "http://www.w3.org/2001/XMLSchema#double",
-		"regex":  /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)?|(\+|-)?INF|NaN/},
+
 	"decimal": {"url": "http://www.w3.org/2001/XMLSchema#decimal",
 		"regex": /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)/},
+	"double": {"url": "http://www.w3.org/2001/XMLSchema#double",
+		"regex":  /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)?|(\+|-)?INF|NaN/},
+	"float": {"url": "http://www.w3.org/2001/XMLSchema#float",
+		"regex":  /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)?|(\+|-)?INF|NaN/},
 	"string": {"url": "http://www.w3.org/2001/XMLSchema#string",
 		"regex": ".*"},
 /*
@@ -263,27 +263,38 @@ function guessType(column){
 
 	};
 
-	$("td[id^='id_table_field_"+column+"']").each( function(i){
-		var recent_field = $(this);
-		//console.log(recent_field.text().trim());
-		var select_content = "";
+	var matching = {};
+	var all_fields = $("td[id^='id_table_field_"+column+"']");
+	var num_fields = all_fields.length;
+	all_fields.each( function(i){
+	var recent_field = $(this);
 		$.each(datatypes, function(key, value){
+
+			//var repl = replacePrefix(value.url);
+			var repl = value.url;
 			if(recent_field.text().trim().match(value.regex)){
-				select_content += "<option>"+replacePrefix(value.url)['suffix']+"</option>";
+				if(typeof matching[repl] == 'undefined'){
+					matching[repl] = 1;
+				}
+				else{
+					matching[repl] += 1;
+				}
 			}
 		});
-		recent_field.html(recent_field.text() + "<br><select class=\"type_guessing\">" + select_content+"</select>");
-		var id = $(this).attr("id");
-		//get row and column field as included in table td id field
-		id_array = id.split("_");
-		var col = id_array[3];
-		var row = id_array[4];
-		recent_field.find("select.type_guessing").on("change", function() {
-			adapt_RDF_preview();
-		});
+
 	});
 
-	adapt_RDF_preview();
+	var select = "<br><select class=\"type_guessing\">";
+	$.each(matching, function(k,v){
+		if(v == num_fields){
+			select += "<option>"+k+"</option>";
+		}
+	});
+	select += "</select>";
+	var table_header = $("td[id^='id_table_head_"+column+"']");
+	table_header.html(table_header.html()+select);
+
+	adapt_RDF_preview(column);
 
 }
 
@@ -291,55 +302,60 @@ function noAction(column){
 
 	column = typeof column !== 'undefined' ? column : "";
 
+	//remove data type select field from table header
+	$("td[id^='id_table_head_"+column+"']").find("select").remove();
+	$("td[id^='id_table_head_"+column+"']").find("br").remove();
+
 	var csv_content = eval($("#id_hidden_csv_content_field").val());
 	$("td[id^='id_table_field_"+column+"']").each( function(i){
 		var id = $(this).attr("id");
 		//get row and column field as included in table td id field
-		id_array = id.split("_");
-		var col = id_array[3];
-		var row = id_array[4];
+		id_as_array = id.split("_");
+		var row = id_as_array[id_as_array.length-1];
+		var col = id_as_array[id_as_array.length-2];
 		$(this).text(csv_content[row][col-1]);
 	});
-	adapt_RDF_preview();
+	adapt_RDF_preview(column);
 }
 
 
-function adapt_RDF_preview() {
-	var rdf_array = eval($("#id_hidden_rdf_array_field").val());
+function adapt_RDF_preview(column) {
+	column = typeof column !== 'undefined' ? column : "";
+
 
 //TODO this is done each time anything is clicked, bad performance
-		$("td[id^='id_table_field']").each(function(i){
+	$("td[id^='id_table_field_"+column+"']").each(function(i){
 
-			var id_as_array = $(this).attr("id").split("_");
-			var row = id_as_array[id_as_array.length-1];
-			var col = id_as_array[id_as_array.length-2];
+		var id_as_array = $(this).attr("id").split("_");
+		var row = id_as_array[id_as_array.length-1];
+		var col = id_as_array[id_as_array.length-2];
 
-			var recon_result = $(this).find(".bb_select_selection").text();
-			if($(this).find(".bb_select").length>0) { // has reconsiliation result (dropbox)
-				var recon_result_prefixed = replacePrefix(recon_result);
-				//recon_result = recon_result['prefix'];
-				if(recon_result_prefixed['suffix'].slice(-1)==".") { // problems with trailing dots, cant be saved in triple store
-					recon_result_prefixed['suffix'] = recon_result_prefixed['suffix'].substring(0, recon_result_prefixed['suffix'].length-1);
-					recon_result_prefixed['url'] = recon_result_prefixed['url'].substring(0, recon_result_prefixed['url'].length-1);
-				}
-console.log("recociliation "+ recon_result+" "+ col+" "+ row);
-console.log(recon_result);
-			add_to_model_field_where_col_and_row("reconciliation", {"url":recon_result,"prefix": recon_result_prefixed}, col, row);
-			add_to_content_where_col("object_method", "reconciliation", col);
+		var recon_result = $(this).find(".bb_select_selection").text();
 
-			}else if($(this).find("select.type_guessing").length>0) { // has guessed types
-
-				var data_type = $(this).find("select.type_guessing option:selected").text();
-			
-				add_to_model_field_where_col_and_row("data_type", data_type, col, row);
-				add_to_content_where_col("object_method", "data type", col);
-
-
-			}else{ // no action
-
-				add_to_content_where_col("object_method", "no action", col);
+		if($(this).find(".bb_select").length>0) { // has reconsiliation result (dropbox)
+			var recon_result_prefixed = replacePrefix(recon_result);
+			//recon_result = recon_result['prefix'];
+			if(recon_result_prefixed['suffix'].slice(-1)==".") { // problems with trailing dots, cant be saved in triple store
+				recon_result_prefixed['suffix'] = recon_result_prefixed['suffix'].substring(0, recon_result_prefixed['suffix'].length-1);
+				recon_result_prefixed['url'] = recon_result_prefixed['url'].substring(0, recon_result_prefixed['url'].length-1);
 			}
-		});
+
+		add_to_model_field_where_col_and_row("reconciliation", {"url":recon_result,"prefix": recon_result_prefixed}, col, row);
+		add_to_content_where_col("object_method", "reconciliation", col);
+
+		}else if($("#id_table_head_"+col).find("select.type_guessing").length>0) { // has guessed types
+
+			var data_type = $("#id_table_head_"+col).find("select.type_guessing option:selected").text();
+		
+			add_to_content_where_col("data type", replacePrefix(data_type), col);
+			add_to_content_where_col("object_method", "data type", col);
+
+
+		}else{ // no action
+
+			add_to_content_where_col("object_method", "no action", col);
+		}
+	});
 
 	var rdf_view = $("#rdf_view");
 	var tbl = model_to_table(get_model());
@@ -351,10 +367,9 @@ console.log(recon_result);
 //check whether to to auto type guessing, econciliation or nothing (select dropbox)
 //when providing no param, all fields are checked
 function calculateCells(column){
-
-		column = typeof column !== 'undefined' ? column : "";
-
-		$("td[id^='id_table_field_"+column+"']").each( function(i){
+	column = typeof column !== 'undefined' ? column : "";
+/*
+	$("td[id^='id_table_field_"+column+"']").each( function(i){
 		var id = $(this).attr("id");
 		//get row and column field as included in table td id field
 		id_array = id.split("_");
@@ -378,7 +393,25 @@ function calculateCells(column){
 		}
 
 	});
+	*/
+	var opt = $("#id_table_settings_" + column).find("select option:selected").text();
+	if(opt == "auto inference") {
+		noAction(column); //clear field
+		var topic_field = "id_table_head_" + column;
+		var topic = $("#"+topic_field).text().trim();
+		$("td[id^='id_table_field_"+column+"']").each( function(i){
+			askOracle($(this), topic, $(this).text().trim());
+		});
+	}
+	else if(opt == "auto type guessing") {
+		noAction(column); //clear field
+		guessType(column);
+	}
+	else if(opt == "no action") {
+		noAction(column);
+	}
 }
+
 
 var rdf_content = $("#id_hidden_rdf_array_field");
 
@@ -399,7 +432,8 @@ $( document ).ready(function() {
 
 	$("td[id^='id_table_settings_'] select").each(function(){
 		$(this).on("change", function(){
-			calculateCells(column=$(this).parent().attr("id").slice(-1));
+			var id = $(this).parent().attr("id");
+			calculateCells(column=id.substring(id.lastIndexOf("_")+1));
 		});
 	});
 
