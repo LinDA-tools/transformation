@@ -23,7 +23,6 @@ function create_subjects_from_model_sceleton(model) {
 	}
 
 	var subjects_array = [];
-	console.log(model['columns']);
 	$.each(model['columns'], function(i, col){
 		if(col['col_num_new'] >- 1){ // column was chosen, same as show==true
 			var col_name = col['header']['orig_val'];
@@ -37,12 +36,6 @@ function create_subjects_from_model_sceleton(model) {
 					subjects_array[j] = subjects_array[j].replace(new RegExp("{"+col_name.trim()+"}","g"), elem['orig_val'].trim()).trim();
 				}
 			});
-			/*
-			console.log(i+"   <" + base_url + subjects_array[i+1] + ">");
-			if(model && model['subject']['blank_nodes'] == "false" || !model['subject']['blank_nodes']){
-				subjects_array[i] = "<" + base_url + sceleton + ">";
-				console.log("+");
-			}*/
 		}
 	});
 	
@@ -186,7 +179,7 @@ function model_to_array(model){
 			rdf_array[i][1] = "<?predicate?>" // no ajax call yet
 		}
 	}
-
+console.log(used_prefixes_2);
 	//insert objects
 	var col_count = -1;
 	$.each(model['columns'], function(i, row){
@@ -195,11 +188,18 @@ function model_to_array(model){
 			var method = row['object_method'];
 			$.each($(this)[0]['fields'], function(j, elem){
 				var suffix = "";
-				if(method == "data type" && elem['data_type'])//reconciliation, no action, data type
-					suffix = "^^"+elem['data_type'];
-				if(method == "reconciliation" && elem['reconciliation'])//reconciliation, no action, data type
-					suffix = "^^"+elem['reconciliation']['prefix']['prefix']+":"+elem['reconciliation']['prefix']['suffix'];
-				rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
+
+				if(method === "data type" && row['data type'] ){//reconciliation, no action, data type
+					suffix = "^^"+row['data type']['prefix']+":"+row['data type']['suffix'];
+					rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
+					used_prefixes_2[row['data type']['prefix']] = row['data type'];
+				}
+				if(method == "reconciliation" && elem['reconciliation']){//reconciliation, no action, data type
+					rdf_array[j*num_total_cols+col_count][2] = elem['reconciliation']['prefix']['prefix']+":"+elem['reconciliation']['prefix']['suffix'];
+					used_prefixes_2[elem['reconciliation']['prefix']] = elem['reconciliation']['prefix'];
+				}else{
+					rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
+				}
 			});
 		}
 	});
