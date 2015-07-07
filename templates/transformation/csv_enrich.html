@@ -17,18 +17,25 @@
 
 <div class="content grid">
 	<h3>Enrich the RDF graph</h3>
-	<div class="col-4-10 left-side-box">
+	<div class="col-3-10 left-side-box">
 
 		<p>In this step you can add one or several attributes that match all your entities (e.g. 'table rows').</p>
 	</div>
 
 
-	<div class="col-6-10 right-side-box">
+	<div class="col-7-10 right-side-box">
 		<p>
 		<button style="" disabled>+</button><input type="text" id="search_textinput_1" onkeyup="delayedOracleCall(1)">
 		<i id="icon_1" class="fa fa-search" onclick="askOracle(1)"></i>
 		<br>
 			<div class="bb_select" id="search_result_1">
+			</div>
+		</p>
+		<p>
+		<button style="" disabled>+</button><input type="text" id="search_textinput_2" onkeyup="delayedOracleCall(2)">
+		<i id="icon_2" class="fa fa-search" onclick="askOracle(2)"></i>
+		<br>
+			<div class="bb_select" id="search_result_2">
 			</div>
 		</p>
 
@@ -78,7 +85,7 @@ function askOracle(widget_num){
 	var request = $.ajax({
 		type: 'GET',
 		dataType: 'jsonp',
-		data: { 'q': recent_textinput.value },
+		data: { 'class': recent_textinput.value },
 		url: "http://linda.epu.ntua.gr:8000/coreapi/recommend/",
 	});
 
@@ -120,7 +127,7 @@ function askOracle(widget_num){
 				else
 					star += "fa-star-o";
 
-				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i>"+data[i].ranking+"%) <em>"+data[i].label+"</em><br>"+data[i].vocabulary+"</span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>");
+				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i>"+data[i].ranking+") <em>"+data[i].label+"</em><br>"+data[i].vocabulary+"</span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>");
 			}
 
 			addInnerDiv($("#search_result_"+widget_num));
