@@ -179,7 +179,7 @@ function model_to_array(model){
 			rdf_array[i][1] = "<?predicate?>" // no ajax call yet
 		}
 	}
-console.log(used_prefixes_2);
+
 	//insert objects
 	var col_count = -1;
 	$.each(model['columns'], function(i, row){
@@ -2090,8 +2090,23 @@ function add_model_field(fieldname, subj){
 function add_model_subject(k, v){
 	var model = get_model();
 	if(!model['subject'])
-		model['subject'] = {}
+		model['subject'] = {};
 	model['subject'][k] = v;
+	write_model(model);
+}
+
+function add_model_enrich(e){
+	var model = get_model();
+	if(!model['enrich'])
+		model['enrich'] = [];
+	model['enrich'].push(e);
+	write_model(model);
+}
+
+function delete_model_enrich(){
+	var model = get_model();
+	if(model['enrich'])
+		model['enrich'] = [];
 	write_model(model);
 }
 
@@ -2153,8 +2168,12 @@ function add_to_model_predicate(new_value, col){
 	add_to_content_where_col("predicate", new_value, col);
 }
 
+function add_to_model_enrich(new_value, col){
+	add_to_content_where_col("enrich", new_value, col);
+}
 
-// ///////////////// MODEL ///////////////////////////////
+
+// ///////////////// MODEL END ///////////////////////////////
 
 
 
