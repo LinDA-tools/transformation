@@ -210,7 +210,7 @@ def csv_predicate(request):
             request.session['rdf_prefix'] = ""
 
         if 'hidden_model' in form.cleaned_data:
-            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'","\""))
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'",'"').replace("\\",""))
         else:
             request.session['model'] = ""
 
