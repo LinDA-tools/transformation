@@ -23,23 +23,29 @@ function create_subjects_from_model_sceleton(model) {
 	}
 
 	var subjects_array = [];
-	$.each(model['columns'], function(row){
-		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
-			var col_name = $(this)[0]['header']['orig_val'];
-			$.each($(this)[0]['fields'], function(elem){
+	console.log(model['columns']);
+	$.each(model['columns'], function(i, col){
+		if(col['col_num_new'] >- 1){ // column was chosen, same as show==true
+			var col_name = col['header']['orig_val'];
+			$.each(col['fields'], function(j, elem){
 				if(model && model['subject']['blank_nodes'] == "true"){
-						subjects_array[elem] = "_:"+toLetters(elem+1);
+						subjects_array[j] = "_:"+toLetters(j+1);
 				}else{
-					if(subjects_array[elem] == undefined){
-						subjects_array[elem] = sceleton;
+					if(subjects_array[j] == undefined){
+						subjects_array[j] = "<" + base_url.trim() + sceleton.trim() + ">";
 					}
-					subjects_array[elem] = subjects_array[elem].replace(new RegExp("{"+col_name+"}","g"), $(this)[0]['orig_val']);
+					subjects_array[j] = subjects_array[j].replace(new RegExp("{"+col_name.trim()+"}","g"), elem['orig_val'].trim()).trim();
 				}
 			});
-			if(model && model['subject']['blank_nodes'] == "false" || !model['subject']['blank_nodes'])
-				subjects_array[row] = "<" + base_url + subjects_array[row] + ">";
+			/*
+			console.log(i+"   <" + base_url + subjects_array[i+1] + ">");
+			if(model && model['subject']['blank_nodes'] == "false" || !model['subject']['blank_nodes']){
+				subjects_array[i] = "<" + base_url + sceleton + ">";
+				console.log("+");
+			}*/
 		}
 	});
+	
     validURL = true;
     var testURL = /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?$/i;
     subjects_array.forEach(function(entry) {
