@@ -221,11 +221,11 @@ function guessType(column){
 
 
 	"decimal": {"url": "http://www.w3.org/2001/XMLSchema#decimal",
-		"regex": /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)/},
+		"regex": /^(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)$/},
 	"double": {"url": "http://www.w3.org/2001/XMLSchema#double",
-		"regex":  /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)?|(\+|-)?INF|NaN/},
+		"regex":  /^(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)?|(\+|-)?INF|NaN$/},
 	"float": {"url": "http://www.w3.org/2001/XMLSchema#float",
-		"regex":  /(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)?|(\+|-)?INF|NaN/},
+		"regex":  /^(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)?|(\+|-)?INF|NaN$/},
 	"string": {"url": "http://www.w3.org/2001/XMLSchema#string",
 		"regex": ".*"},
 /*
@@ -272,6 +272,7 @@ function guessType(column){
 
 			//var repl = replacePrefix(value.url);
 			var repl = value.url;
+			console.log(recent_field.text().trim()+"  "+value.regex)
 			if(recent_field.text().trim().match(value.regex)){
 				if(typeof matching[repl] == 'undefined'){
 					matching[repl] = 1;
@@ -347,8 +348,8 @@ function adapt_RDF_preview(column) {
 
 			var data_type = $("#id_table_head_"+col).find("select.type_guessing option:selected").text();
 		
-			add_to_content_where_col("data type", replacePrefix(data_type), col);
-			add_to_content_where_col("object_method", "data type", col);
+			add_to_content_where_col("data_type", replacePrefix(data_type), col);
+			add_to_content_where_col("object_method", "data_type", col);
 
 
 		}else{ // no action

@@ -8,18 +8,18 @@ function toLetters(num) {
 }
 
 var validURL;
-function create_subjects_from_model_sceleton(model) {
-	var sceleton = "";
+function create_subjects_from_model_skeleton(model) {
+	var skeleton = "";
 	var base_url = "";
 
 	if(model['subject']){
-		sceleton = model['subject']['sceleton'];//(model['subject']['sceleton']) ? model['subject']['sceleton'] : "";
+		skeleton = model['subject']['skeleton'];//(model['subject']['skeleton']) ? model['subject']['skeleton'] : "";
 		base_url = model['subject']['base_url'];//(model['subject']['base_url']) ? model['subject']['base_url'] : "";;
 	}
 
-	if((!sceleton && !base_url) || !model){
+	if((!skeleton && !base_url) || !model){
 		console.log("no subjects could be created");
-		sceleton = "?subject?"
+		skeleton = "?subject?"
 	}
 
 	var subjects_array = [];
@@ -31,7 +31,7 @@ function create_subjects_from_model_sceleton(model) {
 						subjects_array[j] = "_:"+toLetters(j+1);
 				}else{
 					if(subjects_array[j] == undefined){
-						subjects_array[j] = "<" + base_url.trim() + sceleton.trim() + ">";
+						subjects_array[j] = "<" + base_url.trim() + skeleton.trim() + ">";
 					}
 					subjects_array[j] = subjects_array[j].replace(new RegExp("{"+col_name.trim()+"}","g"), elem['orig_val'].trim()).trim();
 				}
@@ -156,7 +156,7 @@ function model_to_array(model){
 
 
 	//insert subjects
-	var subjects = create_subjects_from_model_sceleton(model);
+	var subjects = create_subjects_from_model_skeleton(model);
 	for(var i = 0; i < rdf_array.length; i++){
 		var subj_index = Math.floor(i/num_total_cols);
 		rdf_array[i][0] = subjects[subj_index];
@@ -189,10 +189,10 @@ console.log(used_prefixes_2);
 			$.each($(this)[0]['fields'], function(j, elem){
 				var suffix = "";
 
-				if(method === "data type" && row['data type'] ){//reconciliation, no action, data type
-					suffix = "^^"+row['data type']['prefix']+":"+row['data type']['suffix'];
+				if(method === "data type" && row['data_type'] ){//reconciliation, no action, data type
+					suffix = "^^"+row['data_type']['prefix']+":"+row['data_type']['suffix'];
 					rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
-					used_prefixes_2[row['data type']['prefix']] = row['data type'];
+					used_prefixes_2[row['data_type']['prefix']] = row['data_type'];
 				}
 				if(method == "reconciliation" && elem['reconciliation']){//reconciliation, no action, data type
 					rdf_array[j*num_total_cols+col_count][2] = elem['reconciliation']['prefix']['prefix']+":"+elem['reconciliation']['prefix']['suffix'];

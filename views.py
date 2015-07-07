@@ -147,7 +147,7 @@ def csv_subject(request):
         if form.cleaned_data['hidden_model']:
         #if 'hidden_model' in form.cleaned_data:
             print('model existing')
-            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'","\""))
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'",'"').replace("\\",""))
 
         else:
             print('creating model')
@@ -243,7 +243,7 @@ def csv_object(request):
             request.session['rdf_prefix'] = ""
 
         if 'hidden_model' in form.cleaned_data:
-            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'","\""))
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'",'"').replace("\\",""))
         else:
             request.session['model'] = ""
 
@@ -276,7 +276,7 @@ def csv_enrich(request):
             request.session['rdf_prefix'] = ""
 
         if 'hidden_model' in form.cleaned_data:
-            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'","\""))
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'",'"').replace("\\",""))
         else:
             request.session['model'] = ""
 
@@ -313,7 +313,7 @@ def csv_publish(request):
             request.session['rdf_array'] = ""
         '''
         if 'hidden_model' in form.cleaned_data:
-            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'","\""))
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'",'"').replace("\\","")
         else:
             request.session['model'] = ""
             print("ERROR: no model")

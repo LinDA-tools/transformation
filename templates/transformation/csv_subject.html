@@ -39,7 +39,7 @@
 
             <div id="id_uri_container">
                 <p>
-                    Base URL: <input type="url" pattern="https?://.+" name="base_url" oninvalid="setCustomValidity('Please enter a valid URI')" id="id_base_url" placeholder="e.g. http://example.net/">
+                    Base URL: <input type="url" id="id_base_url" placeholder="e.g. http://example.net/">
                 </p>
 
                 <p>
@@ -165,7 +165,7 @@ function adapt_RDF_preview() {
     var subject_uri = $("#id_subject_uri");
     var base_url_insert = $("#id_base_url_insert");
 
-    add_model_subject("sceleton",subject_uri.val());
+    add_model_subject("skeleton",subject_uri.val());
     add_model_subject("base_url",base_url_insert.text());
 
     var rdf_view = $("#rdf_view");
@@ -272,8 +272,8 @@ var model = get_model();
 if(model['subject'] && model['subject']['base_url'])
     $("#id_base_url").val(model['subject']['base_url']);
 
-if(model['subject'] && model['subject']['sceleton'])
-    $("#id_subject_uri").val(model['subject']['sceleton']);
+if(model['subject'] && model['subject']['skeleton'])
+    $("#id_subject_uri").val(model['subject']['skeleton']);
 
 if(model['subject'] && model['subject']['blank_nodes'] && model['subject']['blank_nodes'] == "true")
     $("#id_blanknodes_only").click();//prop('checked', true);
