@@ -143,7 +143,7 @@ def csv_subject(request):
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
         else:
             request.session['rdf_prefix'] = ""
-        print(form.cleaned_data)
+        #print(form.cleaned_data)
         if form.cleaned_data['hidden_model']:
         #if 'hidden_model' in form.cleaned_data:
             print('model existing')
@@ -311,19 +311,15 @@ def csv_publish(request):
                 rdf_n3 += ".\n"
         else:
             request.session['rdf_array'] = ""
-        '''
+
         if 'hidden_model' in form.cleaned_data:
-            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'",'"').replace("\\","")
-        else:
-            request.session['model'] = ""
-            print("ERROR: no model")
-        '''
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'",'"').replace("\\",""))
 
         print("rdfn3 "+str(rdf_n3))
 
         if 'button_publish' in request.POST:
             print("PUBLISH BUTTON PRESSED")
-            print(rdf_n3)
+            #print(rdf_n3)
             payload = {'title': request.POST.get('name_publish'), 'content': rdf_n3, 'format': 'text/rdf+n3'}
             #Please set the API_HOST in the settings file
             r = requests.post('http://' + settings.API_HOST + '/api/datasource/create/', data=payload)
@@ -337,7 +333,7 @@ def csv_publish(request):
             response = HttpResponse(rdf_file, 'application/force-download')
             response['Content-Length'] = rdf_file.size
             response['Content-Disposition'] = 'attachment; filename="generatedRDF.n3"'
-            print(rdf_n3)
+            #print(rdf_n3)
             return response
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)

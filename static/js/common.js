@@ -205,6 +205,30 @@ function model_to_array(model){
 	});
 
 
+	/*array.splice(index, 0, item);
+	var num_total_rows_rdf = 0;
+	var num_total_cols = 0;
+*/
+
+	//insert from enrichment
+	if(model['enrich'])
+		for(var i=num_total_cols; i<=rdf_array.length; i+=num_total_cols){
+			//console.log("enrich" + i);
+			$.each(model['enrich'], function(j,elem){
+				var r = replacePrefix(elem.url);
+				var object = "";
+				if(r['prefix']){
+					object = r['prefix']+":"+r['suffix'];
+					used_prefixes_2[r['prefix']] = r;
+				}
+				else
+					object = "<"+r['url']+">";
+
+				rdf_array.splice(i, 0, [rdf_array[i-1][0], "a", object]);
+				//console.log(rdf_array);
+			});
+		}
+
 	//create table content: prefixes
 	var prefix_array = []
 	$.each(used_prefixes_2, function(i, prefix){
@@ -216,7 +240,7 @@ function model_to_array(model){
 		prefix_array.push(p);
 		
 	});
-
+console.log(rdf_array);
 	return prefix_array.concat(rdf_array);
 }
 

@@ -162,9 +162,7 @@ function adapt_RDF_preview() {
 
 	delete_model_enrich();
 	$(".bb_select").each(function(i, elem){
-		console.log($(this));
 		var vocab_name = $(this).find(".bb_select_selection em").text();
-		console.log($(this).find(".bb_select_selection em"));
 		var href = $(this).find(".bb_select_selection a").attr("href")
 		var vocab_description = $(this).find(".bb_select_selection .oracle_label span.vocab_description").text();
 		var vocab_score = $(this).find(".bb_select_selection span.vocab_score").text();
