@@ -150,7 +150,7 @@ function askOracle(widget_num){
 function populate_from_model(){
 
 	var enrich = get_model().enrich;
-				console.log(enrich);
+
 	if(enrich)
 		var enrich_list = "";
 		for(var i=0; i<enrich.length; i++){
@@ -176,16 +176,13 @@ function populate_from_model(){
 }
 
 function adapt_RDF_preview() {
-
-
-	delete_model_enrich();
+	//delete_model_enrich();
 	$(".bb_select").each(function(i, elem){
 		var vocab_name = $(this).find(".bb_select_selection em").text();
 		var href = $(this).find(".bb_select_selection a").attr("href")
 		var vocab_description = $(this).find(".bb_select_selection span.vocab_description").text();
 		var vocab_score = $(this).find(".bb_select_selection span.vocab_score").text();
 		var search_term = ""; // TODO
-	 	//console.log($(this).find(".bb_select_selection em").text());
 	 	if(vocab_name){
 	 		add_model_enrich({"url":href, "prefix": replacePrefix(href), "label":vocab_name, "vocab_description":vocab_description, "score": vocab_score, "search_term":search_term});
 	 		console.log({"url":href, "prefix": replacePrefix(href), "label":vocab_name, "vocab_description":vocab_description, "score": vocab_score, "search_term":search_term});
@@ -197,7 +194,6 @@ function adapt_RDF_preview() {
     rdf_view.find("table").remove();
     rdf_view.append(tbl);
 
-    populate_from_model();
 }
 
 
@@ -216,7 +212,7 @@ $( document ).ready(function() {
 
 	//close DATA VIEW
 	$(".content-resizer").eq(1).click();
-
+    populate_from_model();
 	adapt_RDF_preview();
 });
 

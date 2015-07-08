@@ -211,23 +211,25 @@ function model_to_array(model){
 */
 
 	//insert from enrichment
-	if(model['enrich'])
-		for(var i=num_total_cols; i<=rdf_array.length; i+=num_total_cols){
-			//console.log("enrich" + i);
-			$.each(model['enrich'], function(j,elem){
-				var r = replacePrefix(elem.url);
+	if(model['enrich']){
+		var inserted = 0;
+		for(var i=num_total_cols; i<=(rdf_array.length-inserted); i+=num_total_cols){
+			for(var j=0; j<model['enrich'].length; j++){
+				var elem = model['enrich'][j];
 				var object = "";
-				if(r['prefix']){
-					object = r['prefix']+":"+r['suffix'];
-					used_prefixes_2[r['prefix']] = r;
+				if(elem['prefix']['prefix']){
+					object = elem['prefix']['prefix']+":"+elem['prefix']['suffix'];
+					used_prefixes_2[elem['prefix']['prefix']] = elem['prefix'];
 				}
 				else
-					object = "<"+r['url']+">";
+					object = "<"+elem['url']+">";
 
-				rdf_array.splice(i, 0, [rdf_array[i-1][0], "a", object]);
+				rdf_array.splice(i+inserted, 0, [rdf_array[i+inserted-1][0], "a", object]);
+				inserted++;
 				//console.log(rdf_array);
-			});
+			}
 		}
+	}
 
 	//create table content: prefixes
 	var prefix_array = []
