@@ -179,7 +179,7 @@ function model_to_array(model){
 			rdf_array[i][1] = "<?predicate?>" // no ajax call yet
 		}
 	}
-console.log(used_prefixes_2);
+
 	//insert objects
 	var col_count = -1;
 	$.each(model['columns'], function(i, row){
@@ -188,8 +188,8 @@ console.log(used_prefixes_2);
 			var method = row['object_method'];
 			$.each($(this)[0]['fields'], function(j, elem){
 				var suffix = "";
-
 				if(method === "data type" && row['data_type'] ){//reconciliation, no action, data type
+
 					suffix = "^^"+row['data_type']['prefix']+":"+row['data_type']['suffix'];
 					rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
 					used_prefixes_2[row['data_type']['prefix']] = row['data_type'];
@@ -1839,83 +1839,6 @@ function replacePrefix(uri){
 	});
 	return result;
 };
-
-
-used_prefixes = [];
-/*
-//TODO delete this?
-//takes uri and replaces with prefix or otherwise surrounds with <>
-function prefixise(uri){
-	if(typeof uri == undefined)
-		return "no uri";
-	var prefixed = replacePrefix(uri);
-	var result = "";
-	if(prefixed['suffix']==""){
-		result = "<"+uri+">";
-	}else{
-		result = prefixed[0];
-
-/*
-		// no duplicates
-		var already_in = false;
-		for(var k = 0 ; k < used_prefixes.length; k++){
-			if(used_prefixes[k][1] == prefixed[1]+":"){
-				already_in = true;
-				break;
-			}
-		}
-
-		if(already_in === false){
-			used_prefixes.push(["prefix", prefixed[1] + ":", "<"+prefixed[2]+">"]);
-		}
-
-		var model = get_model();
-		//console.log(model);
-
-		if(!model){
-			console.log("model undefined");
-		}else{
-
-
-			if(!model['prefixes'])
-				model['prefixes'] = [];
-
-			// no duplicates
-			var already_in = false;
-			for(var k = 0 ; k < model['prefixes'].length; k++){
-				if(model['prefixes'][k]['prefix'] == prefixed[1]){
-					already_in = true;
-					break;
-				}
-			}
-
-			if(already_in === false){
-				model['prefixes'].push({'prefix': prefixed[1], 'full_uri': prefixed[2]});
-			}
-
-			//remove unused prefixes from model
-			$.each(model['columns'], function(i, elem){
-				//console.log(elem['predicate']['url']);
-				var keep = false;
-				$.each(model['prefixes'], function(j,prefix){
-					if(elem['predicate']['url'] && elem['predicate']['url'].indexOf(prefix['full_uri']) == 0){
-						keep = true;
-						//console.log("!! "+elem['predicate']['url']);
-						return;
-					}
-				});
-				if(!keep)
-					console.log("raus "+elem['predicate']['url']);
-			});
-
-			write_model(model);
-		}
-
-	}
-
-	return result;
-}
-*/
 
 
 function shortenURI(uri, maxlength){

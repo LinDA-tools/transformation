@@ -272,7 +272,6 @@ function guessType(column){
 
 			//var repl = replacePrefix(value.url);
 			var repl = value.url;
-			console.log(recent_field.text().trim()+"  "+value.regex)
 			if(recent_field.text().trim().match(value.regex)){
 				if(typeof matching[repl] == 'undefined'){
 					matching[repl] = 1;
@@ -294,6 +293,9 @@ function guessType(column){
 	select += "</select>";
 	var table_header = $("td[id^='id_table_head_"+column+"']");
 	table_header.html(table_header.html()+select);
+	table_header.find(".type_guessing").on("change", function(){
+		adapt_RDF_preview(column);
+	});
 
 	adapt_RDF_preview(column);
 
@@ -349,7 +351,7 @@ function adapt_RDF_preview(column) {
 			var data_type = $("#id_table_head_"+col).find("select.type_guessing option:selected").text();
 		
 			add_to_content_where_col("data_type", replacePrefix(data_type), col);
-			add_to_content_where_col("object_method", "data_type", col);
+			add_to_content_where_col("object_method", "data type", col);
 
 
 		}else{ // no action
