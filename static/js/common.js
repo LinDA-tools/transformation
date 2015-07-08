@@ -1,228 +1,494 @@
-// used for blank nodes
-function toLetters(num) {
-    "use strict";
-    var mod = num % 26,
-            pow = num / 26 | 0,
-            out = mod ? String.fromCharCode(64 + mod) : (--pow, 'Z');
-    return pow ? toLetters(pow) + out : out;
-}
-
-var validURL;
-function create_subjects_from_model_skeleton(model) {
-	var skeleton = "";
-	var base_url = "";
-
-	if(model['subject']){
-		skeleton = model['subject']['skeleton'];//(model['subject']['skeleton']) ? model['subject']['skeleton'] : "";
-		base_url = model['subject']['base_url'];//(model['subject']['base_url']) ? model['subject']['base_url'] : "";;
-	}
-
-	if((!skeleton && !base_url) || !model){
-		console.log("no subjects could be created");
-		skeleton = "?subject?"
-	}
-
-	var subjects_array = [];
-	$.each(model['columns'], function(i, col){
-		if(col['col_num_new'] >- 1){ // column was chosen, same as show==true
-			var col_name = col['header']['orig_val'];
-			$.each(col['fields'], function(j, elem){
-				if(model && model['subject']['blank_nodes'] == "true"){
-						subjects_array[j] = "_:"+toLetters(j+1);
-				}else{
-					if(subjects_array[j] == undefined){
-						subjects_array[j] = "<" + base_url.trim() + skeleton.trim() + ">";
-					}
-					subjects_array[j] = subjects_array[j].replace(new RegExp("{"+col_name.trim()+"}","g"), elem['orig_val'].trim()).trim();
-				}
-			});
+lindaGlobals = {
+	"prefixes": {},
+	"validUrl" : false,
+	/*
+	"ajax": {
+		"predicate": {
+			type: 'GET',
+			dataType: 'jsonp',
+			data: { 'q': "" },
+			//data: { 'class_property': recent_textinput.value },
+			url: "http://linda.epu.ntua.gr:8000/coreapi/recommend/",
+		},
+		"object": {
+			type: 'GET',
+			dataType: 'json',
+			//url: "http://localhost:8000/transformation/lookup/"+domain+"/"+term+"/",
+			url: 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + domain + '&QueryString=' + term,
+		},
+		"enrich": {
+			type: 'GET',
+			dataType: 'jsonp',
+			data: { 'q': "" },
+			//data: { 'q': recent_textinput.value },
+			url: "http://linda.epu.ntua.gr:8000/coreapi/recommend/",
 		}
-	});
-	
-    validURL = true;
-    var testURL = /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?$/i;
-    subjects_array.forEach(function(entry) {
-        var result = entry
-        if ((entry.charAt(0) == '<') && (entry.charAt(entry.length - 1) == '>')) {
-            result = entry.substring(1, entry.length - 1);
-        }
-        validURL = validURL && testURL.test(result);
-        //console.log(result);
-        //console.log(validURL);
-    });
-	return subjects_array;
+	}*/
 }
 
 
-
-function create_predicates_from_model(model) {
-	var predicates_array = [];
-	$.each(model['columns'], function(row){
-		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
-			if(typeof $(this)[0]['predicate'] == 'undefined')
-				$(this)[0]['predicate'] = "";
-			var url = $(this)[0]['predicate']['url'];
-			var replaced_prefix = $(this)[0]['predicate']['prefix'];//replacePrefix(url);
-			predicates_array.push(replaced_prefix);
-		}
-	});
-	return predicates_array;
-}
-
-
-function create_objects_from_model(model) {
-	var objects_array = [];
-	$.each(model['columns'], function(row){
-		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
-			var col_name = $(this)[0]['header']['orig_val'];
-			$.each($(this)[0]['fields'], function(elem){
-				objects_array.push(elem['orig_val']);
-			});
-		}
-	});
-	return objects_array;
-}
-
-
-function create_multidim_array(x, y) {
-	var f = [];
-	for (i = 0; i < x; i++) {
-		f[i] = [];
-		for (j = 0; j < y; j++)
-			f[i][j] = 0;
-	}
-	return f;
-}
-
-
-
-function model_to_table(model){
-
-	var tbl = jQuery('<table/>', {
-		class: "rdf_table"
-	});//.appendTo(elem);
-
-	if(model == undefined){
-		console.log("model undefinded");
-		return tbl;
-	}
-
-	var rdf_array = model_to_array(model);
-
-
-	//create table content
-	for(var i = 0; i < rdf_array.length; i++){
-
-			var tr = jQuery('<tr/>', {});
-			for(var j = 0; j < 3; j++){
-				var td = jQuery('<td/>', {});
-				td.text(rdf_array[i][j]);
-				td.appendTo(tr);
-			}
-			var td = jQuery('<td/>', {});
-			td.text(".");
-			td.appendTo(tr);
-			tr.appendTo(tbl);
-
-	}
-
-	return tbl;
-}
-
-
-function model_to_array(model){
-
-
-	if(model == undefined){
-		console.log("model undefinded");
-		return;
-	}
-
-	var num_total_rows_rdf = 0;
-	var num_total_cols = 0;
-
-	//count
-	$.each(model['columns'], function(){
-		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
-			num_total_cols++;
-			$.each($(this)[0]['fields'], function(){
-				num_total_rows_rdf++;
-			
-			});
-		}
-	});
-
-	var rdf_array = create_multidim_array(num_total_rows_rdf, 3);
-
-
-	//insert subjects
-	var subjects = create_subjects_from_model_skeleton(model);
-	for(var i = 0; i < rdf_array.length; i++){
-		var subj_index = Math.floor(i/num_total_cols);
-		rdf_array[i][0] = subjects[subj_index];
-	}
-
-	//insert predicates
-	var used_prefixes_2 = {};
-	var predicates = create_predicates_from_model(model);
-	for(var i = 0; i < rdf_array.length; i++){
-		var pred_index = i % predicates.length;
-		if(predicates[pred_index] && predicates[pred_index]['url']){ // uri exists (earlier sucessful ajax call)
-			if(predicates[pred_index]['suffix'] && predicates[pred_index]['prefix']){ // prefix exists
-				rdf_array[i][1] = predicates[pred_index]['prefix']+":"+predicates[pred_index]['suffix']; // prefixed url
-				// TODO can be problem if keys are not unique 
-				used_prefixes_2[predicates[pred_index]['prefix']] = predicates[pred_index];
-			}else{
-				rdf_array[i][1] = predicates[pred_index]['url']+predicates[pred_index]['suffix']; // = original url	
-			}
-		}else{
-			rdf_array[i][1] = "<?predicate?>" // no ajax call yet
-		}
-	}
-
-	//insert objects
-	var col_count = -1;
-	$.each(model['columns'], function(i, row){
-		if(row['col_num_new'] >- 1){ // column was chosen, same as show==true
-			col_count++;
-			var method = row['object_method'];
-			$.each($(this)[0]['fields'], function(j, elem){
-				var suffix = "";
-				if(method === "data type" && row['data_type'] ){//reconciliation, no action, data type
-
-					suffix = "^^"+row['data_type']['prefix']+":"+row['data_type']['suffix'];
-					rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
-					used_prefixes_2[row['data_type']['prefix']] = row['data_type'];
-				}
-				if(method == "reconciliation" && elem['reconciliation']){//reconciliation, no action, data type
-					rdf_array[j*num_total_cols+col_count][2] = elem['reconciliation']['prefix']['prefix']+":"+elem['reconciliation']['prefix']['suffix'];
-					used_prefixes_2[elem['reconciliation']['prefix']] = elem['reconciliation']['prefix'];
-				}else{
-					rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
-				}
-			});
-		}
-	});
-
-
-	//create table content: prefixes
-	var prefix_array = []
-	$.each(used_prefixes_2, function(i, prefix){
-		
-		var p = [];
-		p[0]="@prefix";
-		p[1]=prefix['prefix']+":";
-		p[2]="<"+prefix['url']+">";
-		prefix_array.push(p);
-		
-	});
-
-	return prefix_array.concat(rdf_array);
-}
-
-
-
-
+//from http://linda.epu.ntua.gr:8000/api/vocabularies/versions/
+lindaGlobals.prefixes = {
+"http://www.ontotext.com/proton/protontop#": "ptop",
+"http://www.openarchives.org/ore/terms/": "ore",
+"http://www.opengis.net/ont/geosparql": "gsp",
+"http://www.opengis.net/ont/gml": "gml",
+"http://www.opengis.net/ont/sf#": "sf",
+"http://www.opmw.org/ontology/": "opmw",
+"http://www.ordnancesurvey.co.uk/ontology/Topography/v0.1/Topography.owl#": "ostop",
+"http://www.samos.gr/ontologies/helpdeskOnto.owl#": "hdo",
+"http://www.semanticdesktop.org/ontologies/2007/01/19/nie": "nie",
+"http://www.semanticdesktop.org/ontologies/2007/03/22/nco#": "nco",
+"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#": "nfo",
+"http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#": "ncal",
+"http://www.semanticdesktop.org/ontologies/2007/08/15/nao": "nao",
+"http://www.semanticdesktop.org/ontologies/2007/08/15/nrl": "nrl",
+"http://www.semanticweb.org/ontologies/2008/11/OntologySecurity.owl#": "ontosec",
+"http://www.sensormeasurement.appspot.com/ont/transport/traffic": "traffic",
+"http://www.tele.pw.edu.pl/~sims-onto/ConnectivityType.owl#": "ct",
+"http://www.telegraphis.net/ontology/geography/geography#": "geos",
+"http://www.telegraphis.net/ontology/measurement/measurement#": "msr",
+"http://www.telegraphis.net/ontology/measurement/quantity#": "quty",
+"http://www.w3.org/1999/02/22-rdf-syntax-ns#": "rdf",
+"http://www.w3.org/1999/xhtml/vocab": "xhv",
+"http://www.w3.org/2000/01/rdf-schema#": "rdfs",
+"http://www.w3.org/2000/10/swap/log#": "log",
+"http://www.w3.org/2000/10/swap/pim/contact#": "con",
+"http://acm.rkbexplorer.com/ontologies/acm#": "acm",
+"http://aims.fao.org/aos/geopolitical.owl": "geop",
+"http://www.w3.org/2000/10/swap/pim/doc#": "doc",
+"http://www.w3.org/2001/02pd/rec54#": "rec54",
+"http://www.w3.org/2001/sw/hcls/ns/transmed/": "tmo",
+"http://www.w3.org/2002/07/owl": "owl",
+"http://www.w3.org/2002/12/cal/ical": "cal",
+"http://www.w3.org/2003/01/geo/wgs84_pos": "geo",
+"http://www.w3.org/2003/06/sw-vocab-status/ns": "vs",
+"http://www.w3.org/2003/11/swrl": "swrl",
+"http://www.w3.org/2003/12/exif/ns": "exif",
+"http://www.w3.org/2003/g/data-view": "grddl",
+"http://www.w3.org/2004/02/skos/core": "skos",
+"http://www.w3.org/2004/03/trix/rdfg-1/": "rdfg",
+"http://www.w3.org/2004/03/trix/swp-1/": "swp",
+"http://archivi.ibc.regione.emilia-romagna.it/ontology/eac-cpf/": "eac-cpf",
+"http://bblfish.net/work/atom-owl/2006-06-06/": "awol",
+"http://bibframe.org/vocab": "bf",
+"http://code-research.eu/ontology/visual-analytics#": "va",
+"http://commontag.org/ns#": "ctag",
+"http://contextus.net/ontology/ontomedia/core/expression": "oc",
+"http://contextus.net/ontology/ontomedia/core/space#": "osr",
+"http://contextus.net/ontology/ontomedia/ext/common/being#": "being",
+"http://contextus.net/ontology/ontomedia/ext/common/trait#": "trait",
+"http://contextus.net/ontology/ontomedia/misc/date#": "date",
+"http://courseware.rkbexplorer.com/ontologies/courseware#": "crsw",
+"http://creativecommons.org/ns": "cc",
+"http://www.w3.org/2004/09/fresnel": "fresnel",
+"http://www.w3.org/2006/03/test-description": "test",
+"http://www.w3.org/2006/gen/ont#": "gso",
+"http://www.w3.org/2006/time": "time",
+"http://d-nb.info/standards/elementset/agrelon.owl#": "agrelon",
+"http://d-nb.info/standards/elementset/gnd": "gndo",
+"http://data.archiveshub.ac.uk/def/": "locah",
+"http://data.ign.fr/def/geofla": "geofla",
+"http://data.ign.fr/def/geometrie#": "geom",
+"http://data.ign.fr/def/ignf#": "ignf",
+"http://data.ign.fr/def/topo#": "topo",
+"http://data.lirmm.fr/ontologies/food": "food",
+"http://data.lirmm.fr/ontologies/oan/": "oan",
+"http://data.lirmm.fr/ontologies/osp#": "osp",
+"http://data.lirmm.fr/ontologies/passim#": "passim",
+"http://data.lirmm.fr/ontologies/poste#": "poste",
+"http://data.lirmm.fr/ontologies/vdpp#": "vdpp",
+"http://data.ordnancesurvey.co.uk/ontology/50kGazetteer/": "g50k",
+"http://data.ordnancesurvey.co.uk/ontology/admingeo/": "osadm",
+"http://data.ordnancesurvey.co.uk/ontology/geometry/": "osgeom",
+"http://data.ordnancesurvey.co.uk/ontology/postcode/": "postcode",
+"http://data.ordnancesurvey.co.uk/ontology/spatialrelations/": "osspr",
+"http://data.press.net/ontology/asset/": "pna",
+"http://data.press.net/ontology/classification/": "pnc",
+"http://data.press.net/ontology/event/": "pne",
+"http://data.press.net/ontology/identifier/": "pni",
+"http://data.press.net/ontology/stuff/": "pns",
+"http://data.press.net/ontology/tag/": "pnt",
+"http://data.semanticweb.org/ns/swc/ontology": "swc",
+"http://data.totl.net/game/": "game",
+"http://dati.camera.it/ocd/": "ocd",
+"http://def.seegrid.csiro.au/isotc211/iso19103/2005/basic": "basic",
+"http://def.seegrid.csiro.au/isotc211/iso19107/2003/geometry#": "gm",
+"http://def.seegrid.csiro.au/isotc211/iso19108/2002/temporal": "tm",
+"http://def.seegrid.csiro.au/isotc211/iso19109/2005/feature#": "gf",
+"http://def.seegrid.csiro.au/isotc211/iso19115/2003/dataquality#": "dq",
+"http://def.seegrid.csiro.au/isotc211/iso19115/2003/extent#": "ext",
+"http://def.seegrid.csiro.au/isotc211/iso19115/2003/lineage#": "li",
+"http://def.seegrid.csiro.au/isotc211/iso19115/2003/metadata#": "md",
+"http://def.seegrid.csiro.au/isotc211/iso19150/-2/2012/basic#": "h2o",
+"http://def.seegrid.csiro.au/isotc211/iso19156/2011/observation": "om",
+"http://def.seegrid.csiro.au/isotc211/iso19156/2011/sampling": "sam",
+"http://dev.poderopedia.com/vocab/": "poder",
+"http://elite.polito.it/ontologies/dogont": "dogont",
+"http://environment.data.gov.au/def/op#": "op",
+"http://eprints.org/ontology/": "ep",
+"http://geovocab.org/geometry": "ngeo",
+"http://geovocab.org/spatial": "spatial",
+"http://id.loc.gov/vocabulary/relators/": "mrel",
+"http://idi.fundacionctic.org/cruzar/turismo#": "turismo",
+"http://iflastandards.info/ns/fr/frad/": "frad",
+"http://iflastandards.info/ns/fr/frbr/frbrer/": "frbrer",
+"http://inference-web.org/2.0/ds.owl#": "dso",
+"http://inference-web.org/2.0/pml-provenance.owl#": "pmlp",
+"http://iserve.kmi.open.ac.uk/ns/hrests#": "hr",
+"http://iserve.kmi.open.ac.uk/ns/msm#": "msm",
+"http://kdo.render-project.eu/kdo": "kdo",
+"http://kmi.open.ac.uk/projects/smartproducts/ontologies/food.owl#": "spfood",
+"http://labs.mondeca.com/vocab/endpointStatus": "ends",
+"http://lemon-model.net/lemon": "lemon",
+"http://lexvo.org/ontology": "lvont",
+"http://linkedevents.org/ontology/": "lode",
+"http://linkedgeodata.org/ontology/": "lgdo",
+"http://linkedscience.org/lsc/ns#": "lsc",
+"http://linkedscience.org/teach/ns": "teach",
+"http://lod.taxonconcept.org/ontology/sci_people.owl#": "scip",
+"http://lod.taxonconcept.org/ontology/txn.owl": "txn",
+"http://lod.xdams.org/reload/oad/": "oad",
+"http://loted.eu/ontology#": "loted",
+"http://lsdis.cs.uga.edu/projects/semdis/opus": "opus",
+"http://metadataregistry.org/uri/schema/RDARelationshipsGR2/": "rdarel2",
+"http://moat-project.org/ns": "moat",
+"http://ndl.go.jp/dcndl/terms/": "dcndl",
+"http://ns.bergnet.org/tac/0.1/triple-access-control": "tac",
+"http://ns.inria.fr/ast/sql": "sql",
+"http://ns.inria.fr/emoca": "emotion",
+"http://ns.inria.fr/nicetag/2010/09/09/voc": "ntag",
+"http://ns.inria.fr/prissma/v1": "prissma",
+"http://ns.inria.fr/s4ac/v2": "s4ac",
+"http://ns.nature.com/terms/": "npg",
+"http://observedchange.com/moac/ns": "moac",
+"http://observedchange.com/tisc/ns#": "tisc",
+"http://ogp.me/ns#": "og",
+"http://online-presence.net/opo/ns": "opo",
+"http://ontologies.smile.deri.ie/pdo#": "pdo",
+"http://ontology.it/itsmo/v1#": "itsmo",
+"http://open-services.net/ns/asset#": "am",
+"http://open-services.net/ns/core#": "oslc",
+"http://open.vocab.org/terms/": "ov",
+"http://openprovenance.org/model/opmo": "opmo",
+"http://owlrep.eu01.aws.af.cm/fridge#": "of",
+"http://paul.staroch.name/thesis/SmartHomeWeather.owl#": "shw",
+"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#": "nif",
+"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/rlog#": "rlog",
+"http://privatealpha.com/ontology/certification/1": "acrt",
+"http://purl.oclc.org/NET/ldr/ns": "ldr",
+"http://purl.oclc.org/NET/muo/muo#": "muo",
+"http://purl.oclc.org/NET/mvco.owl#": "mvco",
+"http://purl.oclc.org/NET/ssnx/meteo/aws#": "aws",
+"http://purl.oclc.org/NET/ssnx/qu/qu#": "qu",
+"http://purl.oclc.org/NET/ssnx/ssn": "ssn",
+"http://purl.org/LiMo/0.1": "limoo",
+"http://purl.org/NET/biol/botany#": "botany",
+"http://purl.org/NET/biol/ns": "biol",
+"http://purl.org/NET/c4dm/event.owl": "event",
+"http://purl.org/NET/c4dm/keys.owl": "keys",
+"http://purl.org/NET/c4dm/timeline.owl": "tl",
+"http://purl.org/NET/dady#": "dady",
+"http://purl.org/NET/raul#": "raul",
+"http://purl.org/NET/schema-org-csv#": "scsv",
+"http://purl.org/NET/scovo": "scovo",
+"http://purl.org/acco/ns": "acco",
+"http://purl.org/archival/vocab/arch#": "arch",
+"http://purl.org/b2bo#": "b2bo",
+"http://purl.org/biodiversity/taxon/": "taxon",
+"http://purl.org/biotop/biotop.owl": "biotop",
+"http://purl.org/cerif/frapo/": "frapo",
+"http://purl.org/cld/cdtype/": "cdtype",
+"http://purl.org/cld/terms/": "cld",
+"http://purl.org/co/": "coll",
+"http://purl.org/configurationontology": "cold",
+"http://purl.org/coo/ns": "coo",
+"http://purl.org/ctic/dcat": "dcat",
+"http://purl.org/ctic/empleo/oferta#": "emp",
+"http://purl.org/ctic/infraestructuras/localizacion#": "loc",
+"http://purl.org/ctic/infraestructuras/organizacion#": "ctorg",
+"http://purl.org/ctic/sector-publico/elecciones#": "elec",
+"http://purl.org/dc/dcam/": "dcam",
+"http://purl.org/dc/dcmitype/": "dctype",
+"http://purl.org/dc/elements/1.1/": "dce",
+"http://purl.org/dc/terms/": "dcterms",
+"http://purl.org/dqm-vocabulary/v1/dqm": "dqm",
+"http://purl.org/dsnotify/vocab/eventset/": "dsn",
+"http://purl.org/eis/vocab/daq#": "daq",
+"http://purl.org/essglobal/vocab/v1.0/": "essglobal",
+"http://purl.org/gen/0.1#": "gen",
+"http://purl.org/goodrelations/v1": "gr",
+"http://purl.org/healthcarevocab/v1": "dicom",
+"http://purl.org/imbi/ru-meta.owl#": "ru",
+"http://purl.org/innovation/ns": "inno",
+"http://purl.org/iso25964/skos-thes#": "iso-thes",
+"http://purl.org/library/": "lib",
+"http://purl.org/limo-ontology/limo": "limo",
+"http://purl.org/linguistics/gold/": "gold",
+"http://purl.org/linked-data/api/vocab": "api",
+"http://purl.org/linked-data/cube": "qb",
+"http://purl.org/linked-data/sdmx": "sdmx",
+"http://purl.org/linked-data/sdmx/2009/code": "sdmx-code",
+"http://purl.org/linked-data/sdmx/2009/dimension": "sdmx-dimension",
+"http://purl.org/linkingyou/": "lyou",
+"http://purl.org/lobid/lv": "lv",
+"http://purl.org/media#": "media",
+"http://purl.org/muto/core": "muto",
+"http://purl.org/net/lio#": "lio",
+"http://purl.org/net/nknouf/ns/bibtex": "bibtex",
+"http://purl.org/net/ns/ex": "ex",
+"http://purl.org/net/ns/ontology-annot": "ont",
+"http://purl.org/net/opmv/ns": "opmv",
+"http://purl.org/net/p-plan": "p-plan",
+"http://purl.org/net/po#": "plo",
+"http://purl.org/net/provenance/ns": "prv",
+"http://purl.org/net/provenance/types#": "prvt",
+"http://purl.org/net/vocab/2004/03/label": "label",
+"http://purl.org/net/wf-invocation#": "wf-invoc",
+"http://purl.org/net/wf-motifs#": "wfm",
+"http://purl.org/ontology/af/": "af",
+"http://purl.org/ontology/ao/core": "ao",
+"http://purl.org/ontology/bibo/": "bibo",
+"http://purl.org/ontology/cco/core": "cco",
+"http://purl.org/ontology/chord/": "chord",
+"http://purl.org/ontology/co/core": "co",
+"http://purl.org/ontology/daia/": "daia",
+"http://purl.org/ontology/dso#": "docso",
+"http://purl.org/ontology/dvia": "dvia",
+"http://purl.org/ontology/is/core": "is",
+"http://purl.org/ontology/mo/": "mo",
+"http://purl.org/ontology/olo/core": "olo",
+"http://purl.org/ontology/pbo/core": "pbo",
+"http://purl.org/ontology/places#": "place",
+"http://purl.org/ontology/po/": "po",
+"http://purl.org/ontology/prv/core": "prv",
+"http://purl.org/ontology/rec/core": "rec",
+"http://purl.org/ontology/service#": "service",
+"http://purl.org/ontology/similarity/": "sim",
+"http://purl.org/ontology/ssso#": "ssso",
+"http://purl.org/ontology/stories/": "stories",
+"http://purl.org/ontology/storyline/": "nsl",
+"http://purl.org/ontology/wi/core": "wi",
+"http://purl.org/ontology/wo/": "wlo",
+"http://purl.org/ontology/wo/core": "wo",
+"http://purl.org/opdm/refrigerator#": "ofrd",
+"http://purl.org/openorg/": "oo",
+"http://purl.org/oslo/ns/localgov#": "oslo",
+"http://purl.org/pav/": "pav",
+"http://purl.org/procurement/public-contracts": "pc",
+"http://purl.org/rss/1.0/": "rss",
+"http://purl.org/saws/ontology": "saws",
+"http://purl.org/spar/biro/": "biro",
+"http://purl.org/spar/c4o/": "c4o",
+"http://purl.org/spar/cito/": "cito",
+"http://purl.org/spar/datacite/": "dcite",
+"http://purl.org/spar/deo/": "deo",
+"http://purl.org/spar/doco/": "doco",
+"http://purl.org/spar/fabio/": "fabio",
+"http://purl.org/spar/pro/": "pro",
+"http://purl.org/spar/pso/": "pso",
+"http://purl.org/spar/pwo/": "pwo",
+"http://purl.org/spar/scoro/": "scoro",
+"http://purl.org/stuff/rev#": "rev",
+"http://purl.org/swan/2.0/discourse-relationships/": "dr",
+"http://purl.org/theatre#": "theatre",
+"http://purl.org/tio/ns": "tio",
+"http://purl.org/twc/ontologies/cmo.owl": "cmo",
+"http://purl.org/twc/ontology/cdm.owl#": "cdm",
+"http://purl.org/twc/vocab/conversion/": "conversion",
+"http://purl.org/uco/ns": "uco",
+"http://purl.org/voc/vrank": "vrank",
+"http://purl.org/vocab/aiiso/schema#": "aiiso",
+"http://purl.org/vocab/bio/0.1/": "bio",
+"http://purl.org/vocab/changeset/schema": "cs",
+"http://purl.org/vocab/frbr/core": "frbr",
+"http://purl.org/vocab/frbr/extended#": "frbre",
+"http://purl.org/vocab/lifecycle/schema": "lcy",
+"http://purl.org/vocab/participation/schema#": "part",
+"http://purl.org/vocab/relationship/": "rel",
+"http://purl.org/vocab/vann/": "vann",
+"http://purl.org/vocommons/voaf#": "voaf",
+"http://purl.org/vso/ns": "vso",
+"http://purl.org/vvo/ns#": "vvo",
+"http://purl.org/wai#": "wai",
+"http://purl.uniprot.org/core/": "uniprot",
+"http://qudt.org/schema/qudt": "qudt",
+"http://rdf-vocabulary.ddialliance.org/discovery": "disco",
+"http://rdf-vocabulary.ddialliance.org/phdd#": "phdd",
+"http://rdf-vocabulary.ddialliance.org/xkos": "xkos",
+"http://rdf.geospecies.org/methods/observationMethod#": "obsm",
+"http://rdf.geospecies.org/ont/geospecies": "geosp",
+"http://rdf.insee.fr/def/demo#": "idemo",
+"http://rdf.insee.fr/def/geo#": "igeo",
+"http://rdf.muninn-project.org/ontologies/appearances": "aos",
+"http://rdf.muninn-project.org/ontologies/military": "mil",
+"http://rdf.myexperiment.org/ontologies/base/": "meb",
+"http://rdf.myexperiment.org/ontologies/snarm/": "snarm",
+"http://rdfs.co/bevon/": "bevon",
+"http://rdfs.org/ns/void": "void",
+"http://rdfs.org/scot/ns": "scot",
+"http://rdfs.org/sioc/ns": "sioc",
+"http://rdfs.org/sioc/types#": "tsioc",
+"http://rdfunit.aksw.org/ns/core#": "ruto",
+"http://rdvocab.info/Elements/": "rdag1",
+"http://rdvocab.info/ElementsGr2/": "rdag2",
+"http://rdvocab.info/ElementsGr3/": "rdag3",
+"http://rdvocab.info/RDARelationshipsWEMI/": "rdarel",
+"http://rdvocab.info/roles/": "rdarole",
+"http://rdvocab.info/uri/schema/FRBRentitiesRDA/": "rdafrbr",
+"http://reegle.info/schema#": "reegle",
+"http://reference.data.gov.uk/def/central-government/": "cgov",
+"http://reference.data.gov.uk/def/intervals/": "interval",
+"http://reference.data.gov.uk/def/organogram/": "odv",
+"http://reference.data.gov.uk/def/parliament/": "parl",
+"http://reference.data.gov.uk/def/payment": "pay",
+"http://reference.data.gov/def/govdata/": "gd",
+"http://resource.geosciml.org/ontology/timescale/gts#": "gts",
+"http://resource.geosciml.org/ontology/timescale/thors#": "thors",
+"http://rhizomik.net/ontologies/copyrightonto.owl": "cro",
+"http://salt.semanticauthoring.org/ontologies/sao#": "sao",
+"http://salt.semanticauthoring.org/ontologies/sdo#": "sdo",
+"http://salt.semanticauthoring.org/ontologies/sro#": "sro",
+"http://schema.org/": "schema",
+"http://schema.theodi.org/odrs#": "odrs",
+"http://schemas.talis.com/2005/address/schema#": "ad",
+"http://schemas.talis.com/2005/dir/schema#": "dir",
+"http://schemas.talis.com/2005/user/schema#": "user",
+"http://securitytoolbox.appspot.com/MASO#": "maso",
+"http://securitytoolbox.appspot.com/securityAlgorithms": "algo",
+"http://securitytoolbox.appspot.com/securityMain#": "security",
+"http://securitytoolbox.appspot.com/stac#": "stac",
+"http://semanticscience.org/resource/": "sio",
+"http://semanticweb.cs.vu.nl/2009/11/sem/": "sem",
+"http://semweb.mmlab.be/ns/apps4X": "apps4X",
+"http://semweb.mmlab.be/ns/odapps#": "odapps",
+"http://semweb.mmlab.be/ns/oh#": "oh",
+"http://sensormeasurement.appspot.com/ont/home/homeActivity": "homeActivity",
+"http://simile.mit.edu/2003/10/ontologies/vraCore3#": "vra",
+"http://sindice.com/vocab/search#": "search",
+"http://spi-fm.uca.es/spdef/models/deployment/spcm/1.0#": "spcm",
+"http://spi-fm.uca.es/spdef/models/deployment/swpm/1.0#": "swpm",
+"http://spi-fm.uca.es/spdef/models/genericTools/itm/1.0#": "itm",
+"http://spi-fm.uca.es/spdef/models/genericTools/vmm/1.0#": "vmm",
+"http://spi-fm.uca.es/spdef/models/genericTools/wikim/1.0#": "wikim",
+"http://spinrdf.org/sp": "sp",
+"http://spinrdf.org/spin#": "spin",
+"http://spitfire-project.eu/ontology/ns/": "spt",
+"http://sw-portal.deri.org/ontologies/swportal#": "swpo",
+"http://swrc.ontoware.org/ontology": "swrc",
+"http://umbel.org/umbel": "umbel",
+"http://uri4uri.net/vocab#": "uri4uri",
+"http://usefulinc.com/ns/doap#": "doap",
+"http://vivoweb.org/ontology/core#": "vivo",
+"http://voag.linkedmodel.org/voag": "voag",
+"http://vocab.data.gov/def/drm#": "drm",
+"http://vocab.data.gov/def/fea#": "fea",
+"http://vocab.deri.ie/br#": "br",
+"http://vocab.deri.ie/c4n": "c4n",
+"http://vocab.deri.ie/cogs#": "cogs",
+"http://vocab.deri.ie/csp#": "csp",
+"http://vocab.deri.ie/odapp#": "odapp",
+"http://vocab.deri.ie/ppo": "ppo",
+"http://vocab.deri.ie/tao#": "tao",
+"http://vocab.getty.edu/ontology": "gvp",
+"http://vocab.lenka.no/geo-deling#": "geod",
+"http://vocab.org/transit/terms/": "transit",
+"http://vocab.org/whisky/terms/": "whisky",
+"http://vocab.resc.info/communication#": "comm",
+"http://www.agls.gov.au/agls/terms/": "agls",
+"http://www.aktors.org/ontology/portal": "akt",
+"http://www.aktors.org/ontology/support#": "akts",
+"http://www.bbc.co.uk/ontologies/bbc/": "bbc",
+"http://www.bbc.co.uk/ontologies/cms/": "bbccms",
+"http://www.bbc.co.uk/ontologies/coreconcepts/": "bbccore",
+"http://www.bbc.co.uk/ontologies/creativework/": "cwork",
+"http://www.bbc.co.uk/ontologies/provenance/": "bbcprov",
+"http://www.bbc.co.uk/ontologies/sport/": "sport",
+"http://www.biopax.org/release/biopax-level3.owl#": "biopax",
+"http://www.bl.uk/schemas/bibliographic/blterms#": "blt",
+"http://www.cidoc-crm.org/cidoc-crm/": "crm",
+"http://www.daml.org/2001/09/countries/iso-3166-ont#": "coun",
+"http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#": "ebucore",
+"http://www.ebusiness-unibw.org/ontologies/consumerelectronics/v1#": "ceo",
+"http://www.ecole.ensicaen.fr/~vincentj/owl/id.owl": "identity",
+"http://www.essepuntato.it/2008/12/pattern#": "pattern",
+"http://www.essepuntato.it/2012/04/tvc/": "tvc",
+"http://www.essepuntato.it/2013/03/cito-functions#": "citof",
+"http://www.essepuntato.it/2013/10/vagueness/": "vag",
+"http://www.europeana.eu/schemas/edm/": "edm",
+"http://www.geonames.org/ontology": "gn",
+"http://www.gsi.dit.upm.es/ontologies/marl/ns": "marl",
+"http://www.gsi.dit.upm.es/ontologies/onyx/ns": "onyx",
+"http://www.holygoat.co.uk/owl/redwood/0.1/tags/": "tag",
+"http://www.ics.forth.gr/isl/MarineTLO/v4/marinetlo.owl": "mtlo",
+"http://www.ics.forth.gr/isl/VoIDWarehouse/VoID_Extension_Schema.owl": "voidwh",
+"http://www.kanzaki.com/ns/music": "music",
+"http://www.kanzaki.com/ns/whois": "whois",
+"http://www.lexinfo.net/lmf": "lmf",
+"http://www.lexinfo.net/ontology/2.0/lexinfo": "lexinfo",
+"http://www.lingvoj.org/olca": "olca",
+"http://www.lingvoj.org/ontology#": "lingvo",
+"http://www.lingvoj.org/semio#": "semio",
+"http://www.linkedmodel.org/schema/dtype#": "dtype",
+"http://www.linkedmodel.org/schema/vaem#": "vaem",
+"http://www.loc.gov/mads/rdf/v1": "mads",
+"http://www.loc.gov/premis/rdf/v1": "premis",
+"http://www.mindswap.org/2003/owl/geo/geoFeatures20040307.owl#": "geof",
+"http://www.oegov.org/core/owl/cc#": "oecc",
+"http://www.oegov.org/core/owl/gc": "oegov",
+"http://www.ontologydesignpatterns.org/cp/owl/informationrealization.owl#": "infor",
+"http://www.ontologydesignpatterns.org/cp/owl/participation.owl#": "odpart",
+"http://www.ontologydesignpatterns.org/cp/owl/sequence.owl#": "seq",
+"http://www.ontologydesignpatterns.org/cp/owl/situation.owl#": "situ",
+"http://www.ontologydesignpatterns.org/cp/owl/timeindexedsituation.owl": "tis",
+"http://www.ontologydesignpatterns.org/cp/owl/timeinterval.owl#": "ti",
+"http://www.ontologydesignpatterns.org/ont/dul/DUL.owl": "dul",
+"http://www.ontologydesignpatterns.org/ont/dul/IOLite.owl#": "iol",
+"http://www.ontologydesignpatterns.org/ont/dul/ontopic.owl#": "ontopic",
+"http://www.ontologydesignpatterns.org/ont/lmm/LMM_L1.owl#": "lmm1",
+"http://www.ontologydesignpatterns.org/ont/lmm/LMM_L2.owl#": "lmm2",
+"http://www.ontologydesignpatterns.org/ont/web/irw.owl": "irw",
+"http://www.ontologydesignpatterns.org/schemas/cpannotationschema.owl#": "cpa",
+"http://www.ontotext.com/proton/protonext#": "pext",
+"http://www.ontotext.com/proton/protonkm": "pkm",
+"http://www.ontotext.com/proton/protonsys#": "psys",
+"http://www.w3.org/2006/vcard/ns": "vcard",
+"http://www.w3.org/2007/05/powder-s": "wdrs",
+"http://www.w3.org/TR/2003/PR-owl-guide-20031209/wine#": "vin",
+"http://www.w3.org/ns/adms": "adms",
+"http://www.w3.org/ns/auth/acl#": "acl",
+"http://www.w3.org/ns/auth/cert": "cert",
+"http://www.w3.org/ns/dcat": "dcat",
+"http://www.w3.org/ns/earl": "earl",
+"http://www.w3.org/ns/hydra/core": "hydra",
+"http://www.w3.org/ns/ldp": "ldp",
+"http://www.w3.org/ns/locn": "locn",
+"http://www.w3.org/ns/ma-ont": "ma",
+"http://www.w3.org/ns/oa": "oa",
+"http://www.w3.org/ns/org": "org",
+"http://www.w3.org/ns/person#": "person",
+"http://www.w3.org/ns/prov": "prov",
+"http://www.w3.org/ns/r2rml": "rr",
+"http://www.w3.org/ns/radion#": "radion",
+"http://www.w3.org/ns/regorg": "rov",
+"http://www.w3.org/ns/ui#": "ui",
+"http://www.wiwiss.fu-berlin.de/suhl/bizer/D2RQ/0.1": "d2rq",
+"http://xmlns.com/wot/0.1/": "wot",
+"http://zbw.eu/namespaces/zbw-extensions/": "zbwext",
+"https://decision-ontology.googlecode.com/svn/trunk/decision.owl#": "decision",
+"https://raw.githubusercontent.com/airs-linked-data/lov/latest/src/airs_vocabulary.ttl#": "airs",
+"https://www.auto.tuwien.ac.at/downloads/thinkhome/ontology/WeatherOntology.owl": "homeWeather",
+"http://xmlns.com/foaf/": "foaf",
+"http://dbpedia.org/ontology/": "dbpedia",
+"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo": "nfo",
+"http://linda-project.eu/ontology/ldao.owl": "ldao",
+"https://github.com/dipapaspyros/FileSync/CloudStorageUnificationOntology": "csuo",
+"http://linda.epu.ntua.gr/ontolygy/ppsonto": "pps",
+//manually added
+"http://www.w3.org/2001/XMLSchema#": "xmls",
+"http://dbpedia.org/resource/": "dbpres",
+};
+/*
 //source: http://prefix.cc/context
 prefixes = {
 "http://dbpedia.org/resource/": "dbpedia",
@@ -1823,13 +2089,288 @@ prefixes = {
 "https://w3id.org/navigation_menu#": "navm",
 "https://w3id.org/payswarm#": "ps",
 "https://w3id.org/security#": "sec",};
+*/
+
+/*
+
+
+function retrievePrefixes(){
+
+	var request = $.ajax({
+		type: 'GET',
+		dataType: 'jsonp',
+		//data: { "q": "" },
+		url: "http://linda.epu.ntua.gr:8000/api/vocabularies/versions/",
+	});
+
+	request.fail(function (jqXHR, textStatus, errorThrown) {
+			console.log("Prefixes: AJAX call to 'http://linda.epu.ntua.gr:8000/api/vocabularies/versions/' failed.");
+			console.log(jqXHR);
+			console.log(textStatus);
+			console.log(errorThrown);
+		}
+	);
+
+	request.success(function (data) {
+		if(data.length===0){
+				console.log("Prefixes: AJAX call to 'http://linda.epu.ntua.gr:8000/api/vocabularies/versions/' returned en empty set of uris and prefixes.");
+				//return;
+			}
+			lindaGlobals.prefixes = {};
+			//recent_text.innerHTML = "please choose from list";
+			for(var i = 0; i < data.length; i++){
+				lindaGlobals.prefixes[data.prefix] = data.uri;
+				console.log(lindaGlobals.prefixes[data.prefix]);
+			}
+
+	});
+
+	//return request;
+}
+
+retrievePrefixes();
+
+*/
+
+
+
+// used for blank nodes
+function toLetters(num) {
+    "use strict";
+    var mod = num % 26,
+            pow = num / 26 | 0,
+            out = mod ? String.fromCharCode(64 + mod) : (--pow, 'Z');
+    return pow ? toLetters(pow) + out : out;
+}
+
+
+function create_subjects_from_model_skeleton(model) {
+	var skeleton = "";
+	var base_url = "";
+
+	if(model['subject']){
+		skeleton = model['subject']['skeleton'];//(model['subject']['skeleton']) ? model['subject']['skeleton'] : "";
+		base_url = model['subject']['base_url'];//(model['subject']['base_url']) ? model['subject']['base_url'] : "";;
+	}
+
+	if((!skeleton && !base_url) || !model){
+		console.log("no subjects could be created");
+		skeleton = "?subject?"
+	}
+
+	var subjects_array = [];
+	$.each(model['columns'], function(i, col){
+		if(col['col_num_new'] >- 1){ // column was chosen, same as show==true
+			var col_name = col['header']['orig_val'];
+			$.each(col['fields'], function(j, elem){
+				if(model && model['subject']['blank_nodes'] == "true"){
+						subjects_array[j] = "_:"+toLetters(j+1);
+				}else{
+					if(subjects_array[j] == undefined){
+						subjects_array[j] = "<" + base_url.trim() + skeleton.trim() + ">";
+					}
+					subjects_array[j] = subjects_array[j].replace(new RegExp("{"+col_name.trim()+"}","g"), elem['orig_val'].trim()).trim();
+				}
+			});
+		}
+	});
+	
+    lindaGlobals.validURL = true;
+    var testURL = /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?$/i;
+    subjects_array.forEach(function(entry) {
+        var result = entry
+        if ((entry.charAt(0) == '<') && (entry.charAt(entry.length - 1) == '>')) {
+            result = entry.substring(1, entry.length - 1);
+        }
+        lindaGlobals.validURL = lindaGlobals.validURL && testURL.test(result);
+        //console.log(result);
+        //console.log(lindaGlobals.validURL);
+    });
+	return subjects_array;
+}
+
+
+
+function create_predicates_from_model(model) {
+	var predicates_array = [];
+	$.each(model['columns'], function(row){
+		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
+			if(typeof $(this)[0]['predicate'] == 'undefined')
+				$(this)[0]['predicate'] = "";
+			var url = $(this)[0]['predicate']['url'];
+			var replaced_prefix = $(this)[0]['predicate']['prefix'];//replacePrefix(url);
+			predicates_array.push(replaced_prefix);
+		}
+	});
+	return predicates_array;
+}
+
+
+function create_objects_from_model(model) {
+	var objects_array = [];
+	$.each(model['columns'], function(row){
+		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
+			var col_name = $(this)[0]['header']['orig_val'];
+			$.each($(this)[0]['fields'], function(elem){
+				objects_array.push(elem['orig_val']);
+			});
+		}
+	});
+	return objects_array;
+}
+
+
+function create_multidim_array(x, y) {
+	var f = [];
+	for (i = 0; i < x; i++) {
+		f[i] = [];
+		for (j = 0; j < y; j++)
+			f[i][j] = 0;
+	}
+	return f;
+}
+
+
+
+function model_to_table(model){
+
+	var tbl = jQuery('<table/>', {
+		class: "rdf_table"
+	});//.appendTo(elem);
+
+	if(model == undefined){
+		console.log("model undefinded");
+		return tbl;
+	}
+
+	var rdf_array = model_to_array(model);
+
+
+	//create table content
+	for(var i = 0; i < rdf_array.length; i++){
+
+			var tr = jQuery('<tr/>', {});
+			for(var j = 0; j < 3; j++){
+				var td = jQuery('<td/>', {});
+				td.text(rdf_array[i][j]);
+				td.appendTo(tr);
+			}
+			var td = jQuery('<td/>', {});
+			td.text(".");
+			td.appendTo(tr);
+			tr.appendTo(tbl);
+
+	}
+
+	return tbl;
+}
+
+
+function model_to_array(model){
+
+
+	if(model == undefined){
+		console.log("model undefinded");
+		return;
+	}
+
+	var num_total_rows_rdf = 0;
+	var num_total_cols = 0;
+
+	//count
+	$.each(model['columns'], function(){
+		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
+			num_total_cols++;
+			$.each($(this)[0]['fields'], function(){
+				num_total_rows_rdf++;
+			
+			});
+		}
+	});
+
+	var rdf_array = create_multidim_array(num_total_rows_rdf, 3);
+
+
+	//insert subjects
+	var subjects = create_subjects_from_model_skeleton(model);
+	for(var i = 0; i < rdf_array.length; i++){
+		var subj_index = Math.floor(i/num_total_cols);
+		rdf_array[i][0] = subjects[subj_index];
+	}
+
+	//insert predicates
+	var used_prefixes_2 = {};
+	var predicates = create_predicates_from_model(model);
+	for(var i = 0; i < rdf_array.length; i++){
+		var pred_index = i % predicates.length;
+		if(predicates[pred_index] && predicates[pred_index]['url']){ // uri exists (earlier sucessful ajax call)
+			if(predicates[pred_index]['suffix'] && predicates[pred_index]['prefix']){ // prefix exists
+				rdf_array[i][1] = predicates[pred_index]['prefix']+":"+predicates[pred_index]['suffix']; // prefixed url
+				// TODO can be problem if keys are not unique 
+				used_prefixes_2[predicates[pred_index]['prefix']] = predicates[pred_index];
+			}else{
+				rdf_array[i][1] = predicates[pred_index]['url']+predicates[pred_index]['suffix']; // = original url	
+			}
+		}else{
+			rdf_array[i][1] = "<?predicate?>" // no ajax call yet
+		}
+	}
+
+	//insert objects
+	var col_count = -1;
+	$.each(model['columns'], function(i, row){
+		if(row['col_num_new'] >- 1){ // column was chosen, same as show==true
+			col_count++;
+			var method = row['object_method'];
+			$.each($(this)[0]['fields'], function(j, elem){
+				var suffix = "";
+				if(method === "data type" && row['data_type'] ){//reconciliation, no action, data type
+					if(row['data_type']['prefix']){
+						suffix = "^^"+row['data_type']['prefix']+":"+row['data_type']['suffix'];
+						rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
+						used_prefixes_2[row['data_type']['prefix']] = row['data_type'];
+					}else{
+						suffix = "^^"+row['data_type']['url'];
+						rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
+					}
+				}
+				if(method == "reconciliation" && elem['reconciliation']){//reconciliation, no action, data type
+					if(elem['reconciliation']['prefix']['prefix']){
+						rdf_array[j*num_total_cols+col_count][2] = elem['reconciliation']['prefix']['prefix']+":"+elem['reconciliation']['prefix']['suffix'];
+						used_prefixes_2[elem['reconciliation']['prefix']] = elem['reconciliation']['prefix'];
+					}else{
+						rdf_array[j*num_total_cols+col_count][2] = elem['reconciliation']['url'];
+					}
+				}else{
+					rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
+				}
+			});
+		}
+	});
+
+
+	//create table content: prefixes
+	var prefix_array = []
+	$.each(used_prefixes_2, function(i, prefix){
+		
+		var p = [];
+		p[0]="@prefix";
+		p[1]=prefix['prefix']+":";
+		p[2]="<"+prefix['url']+">";
+		prefix_array.push(p);
+		
+	});
+
+	return prefix_array.concat(rdf_array);
+}
+
 
 
 //resturns sth like 
 //'http.someurl.org/first_name'  -->  ['http.someurl.org/', 'first_name', 'some']
 function replacePrefix(uri){
 	var result = {'url': uri, 'suffix':"", 'prefix':""};
-	$.each(prefixes, function(key, value){	
+	$.each(lindaGlobals.prefixes, function(key, value){	
 		if(uri && uri.indexOf(key) == 0 && uri.replace(key, "").indexOf("#")==-1 && uri.replace(key, "").indexOf("/")==-1){
 			result['suffix'] = uri.replace(key, "");
 			result['prefix'] = value;

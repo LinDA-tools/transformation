@@ -337,6 +337,7 @@ function adapt_RDF_preview(column) {
 
 		if($(this).find(".bb_select").length>0) { // has reconsiliation result (dropbox)
 			var recon_result_prefixed = replacePrefix(recon_result);
+			console.log(recon_result_prefixed);
 			//recon_result = recon_result['prefix'];
 			if(recon_result_prefixed['suffix'].slice(-1)==".") { // problems with trailing dots, cant be saved in triple store
 				recon_result_prefixed['suffix'] = recon_result_prefixed['suffix'].substring(0, recon_result_prefixed['suffix'].length-1);
@@ -427,10 +428,11 @@ $( document ).ready(function() {
 		form.submit();
 	});
 
+/*
 	used_prefixes = eval($("#id_hidden_rdf_prefix_field").val());
 	if( Object.prototype.toString.call( used_prefixes ) !== '[object Array]' )
 		used_prefixes = [];
-
+*/
 	adapt_RDF_preview();
 
 	$("td[id^='id_table_settings_'] select").each(function(){

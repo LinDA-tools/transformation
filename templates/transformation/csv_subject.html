@@ -143,7 +143,6 @@ var rdf_view = document.getElementById("rdf_view");
 
 
 function base_url_change() {
-    console.log("buc");
     var base_url = $("#id_base_url");
     var base_url_insert = $("#id_base_url_insert");
     trailing_slash = "";
@@ -198,7 +197,7 @@ function changeURI() {
         base_url_insert_warning.css("visibility", "visible");
         base_url_insert_warning.text("Wrong formatting: Open '{' bracket not closed.");
     }
-    if (!validURL) {
+    if (!lindaGlobals.validURL) {
         subject_url_insert_warning.css("visibility", "visible");
     }
 
