@@ -240,7 +240,7 @@ function model_to_array(model){
 		prefix_array.push(p);
 		
 	});
-console.log(rdf_array);
+
 	return prefix_array.concat(rdf_array);
 }
 
