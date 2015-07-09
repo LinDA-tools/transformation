@@ -2142,11 +2142,11 @@ retrievePrefixes();
 
 // used for blank nodes
 function toLetters(num) {
-    "use strict";
-    var mod = num % 26,
-            pow = num / 26 | 0,
-            out = mod ? String.fromCharCode(64 + mod) : (--pow, 'Z');
-    return pow ? toLetters(pow) + out : out;
+	"use strict";
+	var mod = num % 26,
+			pow = num / 26 | 0,
+			out = mod ? String.fromCharCode(64 + mod) : (--pow, 'Z');
+	return pow ? toLetters(pow) + out : out;
 }
 
 
@@ -2181,17 +2181,17 @@ function create_subjects_from_model_skeleton(model) {
 		}
 	});
 	
-    lindaGlobals.validURL = true;
-    var testURL = /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?$/i;
-    subjects_array.forEach(function(entry) {
-        var result = entry
-        if ((entry.charAt(0) == '<') && (entry.charAt(entry.length - 1) == '>')) {
-            result = entry.substring(1, entry.length - 1);
-        }
-        lindaGlobals.validURL = lindaGlobals.validURL && testURL.test(result);
-        //console.log(result);
-        //console.log(lindaGlobals.validURL);
-    });
+	lindaGlobals.validURL = true;
+	var testURL = /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?$/i;
+	subjects_array.forEach(function(entry) {
+		var result = entry
+		if ((entry.charAt(0) == '<') && (entry.charAt(entry.length - 1) == '>')) {
+			result = entry.substring(1, entry.length - 1);
+		}
+		lindaGlobals.validURL = lindaGlobals.validURL && testURL.test(result);
+		//console.log(result);
+		//console.log(lindaGlobals.validURL);
+	});
 	return subjects_array;
 }
 
@@ -2277,41 +2277,41 @@ function shortenURI(uri, maxlength){
 jQuery.fn.extend({
 insertAtCaret: function(myValue){
   return this.each(function(i) {
-    if (document.selection) {
-      //For browsers like Internet Explorer
-      this.focus();
-      var sel = document.selection.createRange();
-      sel.text = myValue;
-      this.focus();
-    }
-    else if (this.selectionStart || this.selectionStart == '0') {
-      //For browsers like Firefox and Webkit based
-      var startPos = this.selectionStart;
-      var endPos = this.selectionEnd;
-      var scrollTop = this.scrollTop;
-      this.value = this.value.substring(0, startPos)+myValue+this.value.substring(endPos,this.value.length);
-      this.focus();
-      this.selectionStart = startPos + myValue.length;
-      this.selectionEnd = startPos + myValue.length;
-      this.scrollTop = scrollTop;
-    } else {
-      this.value += myValue;
-      this.focus();
-    }
+	if (document.selection) {
+	  //For browsers like Internet Explorer
+	  this.focus();
+	  var sel = document.selection.createRange();
+	  sel.text = myValue;
+	  this.focus();
+	}
+	else if (this.selectionStart || this.selectionStart == '0') {
+	  //For browsers like Firefox and Webkit based
+	  var startPos = this.selectionStart;
+	  var endPos = this.selectionEnd;
+	  var scrollTop = this.scrollTop;
+	  this.value = this.value.substring(0, startPos)+myValue+this.value.substring(endPos,this.value.length);
+	  this.focus();
+	  this.selectionStart = startPos + myValue.length;
+	  this.selectionEnd = startPos + myValue.length;
+	  this.scrollTop = scrollTop;
+	} else {
+	  this.value += myValue;
+	  this.focus();
+	}
   });
 }
 });
 
 function transpose_matrix(matrix) {
   var w = matrix.length ? matrix.length : 0,
-    h = matrix[0] instanceof Array ? matrix[0].length : 0;
+	h = matrix[0] instanceof Array ? matrix[0].length : 0;
   if(h === 0 || w === 0) { return []; }
   var i, j, k = [];
   for(i=0; i<h; i++) {
-    k[i] = [];
-    for(j=0; j<w; j++) {
-      k[i][j] = matrix[j][i];
-    }
+	k[i] = [];
+	for(j=0; j<w; j++) {
+	  k[i][j] = matrix[j][i];
+	}
   }
   return k;
 };
@@ -2327,67 +2327,67 @@ This function does a lot of dom manipulation to transform it into a cool widget 
 */
 function addInnerDiv(elem) {
 
-    var kids = elem.children();
+	var kids = elem.children();
 
-    elem.empty();
+	elem.empty();
 	elem.css("height", "5em");
 
-    var innerDiv = jQuery('<div/>', {
-        class: "bb_select_inner"
-    }).appendTo(elem);
+	var innerDiv = jQuery('<div/>', {
+		class: "bb_select_inner"
+	}).appendTo(elem);
 
-    var selectionDiv = jQuery('<div/>', {
-        class: "bb_select_selection",
-        text: "please chose"
-    }).appendTo(innerDiv);
+	var selectionDiv = jQuery('<div/>', {
+		class: "bb_select_selection",
+		text: "please chose"
+	}).appendTo(innerDiv);
 
 	selectionDiv.css("position","relative");
 
 //font awesome arrow down
-    var caretDown = jQuery('<i/>', {
-        class: "fa fa-caret-square-o-down fa-2x"
-    }).appendTo(selectionDiv);
+	var caretDown = jQuery('<i/>', {
+		class: "fa fa-caret-square-o-down fa-2x"
+	}).appendTo(selectionDiv);
 
-    caretDown.css("position","absolute");
-    caretDown.css("top",".1em");
-    caretDown.css("right",".2em");
-    caretDown.css("color","#888");
+	caretDown.css("position","absolute");
+	caretDown.css("top",".1em");
+	caretDown.css("right",".2em");
+	caretDown.css("color","#888");
 
-    elem.on("mouseover", function() {
-    	$(this).find("i:last-child").css("opacity","1");
+	elem.on("mouseover", function() {
+		$(this).find("i:last-child").css("opacity","1");
 	$(this).find("div div").css("z-index", 999999);
-    });
+	});
 
-    elem.on("mouseout", function() {
-    	$(this).find("i:last-child").css("opacity",".3");
+	elem.on("mouseout", function() {
+		$(this).find("i:last-child").css("opacity",".3");
 	$(this).find("div div").css("z-index", "auto");
-    });
+	});
 
-    var elementsDiv = jQuery('<div/>', {
-        class: "bb_select_elements"
-    }).appendTo(innerDiv);
-    
-    elementsDiv.append(kids);
+	var elementsDiv = jQuery('<div/>', {
+		class: "bb_select_elements"
+	}).appendTo(innerDiv);
+	
+	elementsDiv.append(kids);
 
-    kids.each(function (i) {
-        $(this).on("click", function () {
-            $(this).parent().siblings().first().html($(this).html());
-            $(this).addClass("bb_select_clicked");
-            $(this).siblings().removeClass("bb_select_clicked");
-            caretDown.appendTo(selectionDiv);
-            adapt_RDF_preview();
-        });
-    });
+	kids.each(function (i) {
+		$(this).on("click", function () {
+			$(this).parent().siblings().first().html($(this).html());
+			$(this).addClass("bb_select_clicked");
+			$(this).siblings().removeClass("bb_select_clicked");
+			caretDown.appendTo(selectionDiv);
+			adapt_RDF_preview();
+		});
+	});
 
-    innerDiv.on("mouseover", function () {
-        elementsDiv.css("visibility", "visible");
-    });
+	innerDiv.on("mouseover", function () {
+		elementsDiv.css("visibility", "visible");
+	});
 
-    innerDiv.on("mouseout", function () {
-        elementsDiv.css("visibility", "hidden");
-    });
+	innerDiv.on("mouseout", function () {
+		elementsDiv.css("visibility", "hidden");
+	});
 
-    elementsDiv.trigger("mouseout");
+	elementsDiv.trigger("mouseout");
 }
 
 /* vocab selection widgets
@@ -2402,20 +2402,20 @@ The second argument is a function that is triggered when doubleclicking
 function addInnerDiv2(elem, dblClickFunction, param) {
 
 	var height = "20em";
-    var kids = elem.children();
+	var kids = elem.children();
 
-    elem.empty();
+	elem.empty();
 	elem.css("height", height);
 
-    var elementsDiv = jQuery('<div/>', {
-        class: "bb_select_elements"
-    }).appendTo(elem);
-    elementsDiv.css("max-height", height);
-    //}).appendTo(innerDiv);
-    
-    elementsDiv.append(kids);
+	var elementsDiv = jQuery('<div/>', {
+		class: "bb_select_elements"
+	}).appendTo(elem);
+	elementsDiv.css("max-height", height);
+	//}).appendTo(innerDiv);
+	
+	elementsDiv.append(kids);
 
-    kids.each(function (i) {
+	kids.each(function (i) {
 		$(this).on("dblclick", function(){
 			var vocab_name = $(this).find(".oracle_label em").text()
 			var href = $(this).find("a").attr("href")
@@ -2424,14 +2424,14 @@ function addInnerDiv2(elem, dblClickFunction, param) {
 			//var search_term = ""; // TODO
 			elem.attr("value", '{"url":"'+href+'", "prefix": '+JSON.stringify(replacePrefix(href))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'"}');
 			dblClickFunction(param);
-            adapt_RDF_preview();
+			adapt_RDF_preview();
 
 		});
 		$(this).on("dblclick", function(){
 			$(this).addClass("bb_select_clicked");
-            $(this).siblings().removeClass("bb_select_clicked");
+			$(this).siblings().removeClass("bb_select_clicked");
 		});	
-    });
+	});
 }
 
 
@@ -2733,7 +2733,6 @@ function model_to_array(model){
 
 
 	//insert from enrichment
-	console.log("l");
 	if(model['enrich']){
 		var inserted = 0;
 		for(var i=num_total_cols; i<=(rdf_array.length-inserted); i+=num_total_cols){

@@ -337,7 +337,6 @@ function adapt_RDF_preview(column) {
 
 		if($(this).find(".bb_select").length>0) { // has reconsiliation result (dropbox)
 			var recon_result_prefixed = replacePrefix(recon_result);
-			console.log(recon_result_prefixed);
 			//recon_result = recon_result['prefix'];
 			if(recon_result_prefixed['suffix'].slice(-1)==".") { // problems with trailing dots, cant be saved in triple store
 				recon_result_prefixed['suffix'] = recon_result_prefixed['suffix'].substring(0, recon_result_prefixed['suffix'].length-1);
@@ -372,32 +371,7 @@ function adapt_RDF_preview(column) {
 //when providing no param, all fields are checked
 function calculateCells(column){
 	column = typeof column !== 'undefined' ? column : "";
-/*
-	$("td[id^='id_table_field_"+column+"']").each( function(i){
-		var id = $(this).attr("id");
-		//get row and column field as included in table td id field
-		id_array = id.split("_");
-		var column = id_array[3];
-		//var row = id_array[4];
 
-		var opt = $("#id_table_settings_" + column + " select").find("option:selected").text();
-
-		if(opt == "auto inference") {
-			noAction(column); //clear field
-			var topic_field = "id_table_head_" + column;
-			var topic = $("#"+topic_field).text().trim();
-			askOracle($(this), topic, $(this).text().trim());
-		}
-		else if(opt == "auto type guessing") {
-			noAction(column); //clear field
-			guessType(column);
-		}
-		else if(opt == "no action") {
-			noAction(column);
-		}
-
-	});
-	*/
 	var opt = $("#id_table_settings_" + column).find("select option:selected").text();
 	if(opt == "auto inference") {
 		noAction(column); //clear field
@@ -428,11 +402,6 @@ $( document ).ready(function() {
 		form.submit();
 	});
 
-/*
-	used_prefixes = eval($("#id_hidden_rdf_prefix_field").val());
-	if( Object.prototype.toString.call( used_prefixes ) !== '[object Array]' )
-		used_prefixes = [];
-*/
 	adapt_RDF_preview();
 
 	$("td[id^='id_table_settings_'] select").each(function(){
@@ -443,11 +412,6 @@ $( document ).ready(function() {
 	});
 
 	calculateCells();
-
-
-
-
-
 });
 
 </script>

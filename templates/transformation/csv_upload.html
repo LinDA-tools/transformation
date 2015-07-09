@@ -173,21 +173,17 @@ $(document).ready(function () {
         if (upload_widget.files.length == 0) { // no file selected
 
             if (filename == null) { // nothing happened so far, no uploads
-                console.log("fn null");
                 upload_button.disabled = true;
                 upload_button.value = "Upload file";
                 next_button.disabled = true;
             }
             else { // file was uploaded and submitted via form / html post in the previous step
-                console.log("cxxxx");
-                console.log(filename.value);
                 upload_button.disabled = false;
                 upload_button.value = "Apply";
                 next_button.disabled = false;
             }
         }
         else { // file selected for upload
-            console.log("file selected for upload");
             upload_button.disabled = false;
             upload_button.value = "Upload file";
             next_button.disabled = true;
