@@ -9,7 +9,7 @@
 
 <!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
 {% for hidden in form.hidden_fields %}
-    {{ hidden }}
+	{{ hidden }}
 {% endfor %}
 
 <input type="hidden" name="hidden_rdf_array_field" id ="id_hidden_rdf_array_field" value="{{ rdfArray }}">
@@ -30,11 +30,11 @@
 
 
 <div class="content scrollit">
-    <h3>DATA VIEW</h3>
-    <div>
-        File: <b>{{ filename }}</b> (10 rows example)
-        {{ rdfModel | model_as_table_predicate | safe }}
-    </div>
+	<h3>DATA VIEW</h3>
+	<div>
+		File: <b>{{ filename }}</b> (10 rows example)
+		{{ rdfModel | model_as_table_predicate | safe }}
+	</div>
 </div>
 
 <div class="content" id="rdf_view">
@@ -60,80 +60,71 @@
 	</div>
 	This function does a lot of dom manipulation to transform it into a cool widget :)
 	*/
-    function addInnerDiv(elem) {
+	function addInnerDiv(elem) {
 
-        var kids = elem.children();
+		var kids = elem.children();
 
-        elem.empty();
+		elem.empty();
 	elem.css("height", "5em");
 
-        var innerDiv = jQuery('<div/>', {
-            class: "bb_select_inner"
-        }).appendTo(elem);
+		var innerDiv = jQuery('<div/>', {
+			class: "bb_select_inner"
+		}).appendTo(elem);
 
-        var selectionDiv = jQuery('<div/>', {
-            class: "bb_select_selection",
-            text: "please chose"
-        }).appendTo(innerDiv);
+		var selectionDiv = jQuery('<div/>', {
+			class: "bb_select_selection",
+			text: "please chose"
+		}).appendTo(innerDiv);
 
 	selectionDiv.css("position","relative");
 
 	//font awesome arrow down
-        var caretDown = jQuery('<i/>', {
-            class: "fa fa-caret-square-o-down fa-2x"
-        }).appendTo(selectionDiv);
+		var caretDown = jQuery('<i/>', {
+			class: "fa fa-caret-square-o-down fa-2x"
+		}).appendTo(selectionDiv);
 
-        caretDown.css("position","absolute");
-        caretDown.css("top",".1em");
-        caretDown.css("right",".2em");
-        caretDown.css("color","#888");
+		caretDown.css("position","absolute");
+		caretDown.css("top",".1em");
+		caretDown.css("right",".2em");
+		caretDown.css("color","#888");
 
-        elem.on("mouseover", function() {
-        	$(this).find("i:last-child").css("opacity","1");
+		elem.on("mouseover", function() {
+			$(this).find("i:last-child").css("opacity","1");
 		$(this).find("div div").css("z-index", 999999);
-        });
+		});
 
-        elem.on("mouseout", function() {
-        	$(this).find("i:last-child").css("opacity",".3");
+		elem.on("mouseout", function() {
+			$(this).find("i:last-child").css("opacity",".3");
 		$(this).find("div div").css("z-index", "auto");
-        });
+		});
 
-        var elementsDiv = jQuery('<div/>', {
-            class: "bb_select_elements"
-        }).appendTo(innerDiv);
+		var elementsDiv = jQuery('<div/>', {
+			class: "bb_select_elements"
+		}).appendTo(innerDiv);
 
-        elementsDiv.append(kids);
+		elementsDiv.append(kids);
 
-        kids.each(function (i) {
-            $(this).on("click", function () {
-                $(this).parent().siblings().first().html($(this).html());
-                $(this).addClass("bb_select_clicked");
-                $(this).siblings().removeClass("bb_select_clicked");
-                caretDown.appendTo(selectionDiv);
-                adapt_RDF_preview();
-            });
-        });
+		kids.each(function (i) {
+			$(this).on("click", function () {
+				$(this).parent().siblings().first().html($(this).html());
+				$(this).addClass("bb_select_clicked");
+				$(this).siblings().removeClass("bb_select_clicked");
+				caretDown.appendTo(selectionDiv);
+				adapt_RDF_preview();
+			});
+		});
 
-        innerDiv.on("mouseover", function () {
-            elementsDiv.css("visibility", "visible");
-        });
+		innerDiv.on("mouseover", function () {
+			elementsDiv.css("visibility", "visible");
+		});
 
-        innerDiv.on("mouseout", function () {
-            elementsDiv.css("visibility", "hidden");
-        });
+		innerDiv.on("mouseout", function () {
+			elementsDiv.css("visibility", "hidden");
+		});
 
-        elementsDiv.trigger("mouseout");
-    }
+		elementsDiv.trigger("mouseout");
+	}
 
-
-//supress Enter key for form
-function stopRKey(evt) {
-  var evt = (evt) ? evt : ((event) ? event : null);
-  var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
-  if ((evt.keyCode == 13) && (node.type=="text"))  {return false;}
-}
-
-document.onkeypress = stopRKey;
 
 var recent_result = null;
 var recent_textinput = null;
