@@ -165,7 +165,9 @@ h2 {
 }
 
 .right-side-box {
+    position: relative;
     padding-left: 2em;
+    top: -3em;
 }
 
 #id_escape, #id_delimiter, #id_quotechar, #id_line_end {
@@ -387,6 +389,7 @@ a .fa {
 .oracle_result .oracle_label em {
     font-weight: bold;
 }
+
 
 /* BEGIN http://www.quirksmode.org/dom/inputfile.html 
 div.fileinputs {

@@ -1932,84 +1932,166 @@ function transpose_matrix(matrix) {
 };
 
 
-	/* vocab selection widgets
-	can be provided in simple html like
-	<div class="bb_select">
-	 <div>item1</div>
-	 <div>item2</div>
-	</div>
-	This function does a lot of dom manipulation to transform it into a cool widget :)
-	The second argument is a function that is triggered when doubleclicking
-	*/
-    function addInnerDiv(elem, dblClickFunction, param) {
+/* vocab selection widgets
+can be provided in simple html like
+<div class="bb_select">
+ <div>item1</div>
+ <div>item2</div>
+</div>
+This function does a lot of dom manipulation to transform it into a cool widget :)
+*/
+function addInnerDiv(elem) {
 
-        var kids = elem.children();
+    var kids = elem.children();
 
-        elem.empty();
-		elem.css("height", "5em");
+    elem.empty();
+	elem.css("height", "5em");
 
-        var innerDiv = jQuery('<div/>', {
-            class: "bb_select_inner"
-        }).appendTo(elem);
+    var innerDiv = jQuery('<div/>', {
+        class: "bb_select_inner"
+    }).appendTo(elem);
 
-        var selectionDiv = jQuery('<div/>', {
-            class: "bb_select_selection",
-            text: "please chose"
-        }).appendTo(innerDiv);
+    var selectionDiv = jQuery('<div/>', {
+        class: "bb_select_selection",
+        text: "please chose"
+    }).appendTo(innerDiv);
 
-		selectionDiv.css("position","relative");
+	selectionDiv.css("position","relative");
 
-	//font awesome arrow down
-        var caretDown = jQuery('<i/>', {
-            class: "fa fa-caret-square-o-down fa-2x"
-        }).appendTo(selectionDiv);
+//font awesome arrow down
+    var caretDown = jQuery('<i/>', {
+        class: "fa fa-caret-square-o-down fa-2x"
+    }).appendTo(selectionDiv);
 
-        caretDown.css("position","absolute");
-        caretDown.css("top",".1em");
-        caretDown.css("right",".2em");
-        caretDown.css("color","#888");
+    caretDown.css("position","absolute");
+    caretDown.css("top",".1em");
+    caretDown.css("right",".2em");
+    caretDown.css("color","#888");
 
-        elem.on("mouseover", function() {
-        	$(this).find("i:last-child").css("opacity","1");
+    elem.on("mouseover", function() {
+    	$(this).find("i:last-child").css("opacity","1");
+	$(this).find("div div").css("z-index", 999999);
+    });
+
+    elem.on("mouseout", function() {
+    	$(this).find("i:last-child").css("opacity",".3");
+	$(this).find("div div").css("z-index", "auto");
+    });
+
+    var elementsDiv = jQuery('<div/>', {
+        class: "bb_select_elements"
+    }).appendTo(innerDiv);
+    
+    elementsDiv.append(kids);
+
+    kids.each(function (i) {
+        $(this).on("click", function () {
+            $(this).parent().siblings().first().html($(this).html());
+            $(this).addClass("bb_select_clicked");
+            $(this).siblings().removeClass("bb_select_clicked");
+            caretDown.appendTo(selectionDiv);
+            adapt_RDF_preview();
+        });
+    });
+
+    innerDiv.on("mouseover", function () {
+        elementsDiv.css("visibility", "visible");
+    });
+
+    innerDiv.on("mouseout", function () {
+        elementsDiv.css("visibility", "hidden");
+    });
+
+    elementsDiv.trigger("mouseout");
+}
+
+/* vocab selection widgets
+can be provided in simple html like
+<div class="bb_select">
+ <div>item1</div>
+ <div>item2</div>
+</div>
+This function does a lot of dom manipulation to transform it into a cool widget :)
+The second argument is a function that is triggered when doubleclicking
+*/
+function addInnerDiv2(elem, dblClickFunction, param) {
+
+	var height = "20em";
+
+    var kids = elem.children();
+
+    elem.empty();
+	elem.css("height", height);
+/*
+    var innerDiv = jQuery('<div/>', {
+        class: "bb_select_inner"
+    }).appendTo(elem);
+
+    var selectionDiv = jQuery('<div/>', {
+        class: "bb_select_selection",
+        text: "please chose"
+    }).appendTo(innerDiv);
+
+	selectionDiv.css("position","relative");
+
+//font awesome arrow down
+    var caretDown = jQuery('<i/>', {
+        class: "fa fa-caret-square-o-down fa-2x"
+    }).appendTo(selectionDiv);
+
+    caretDown.css("position","absolute");
+    caretDown.css("top",".1em");
+    caretDown.css("right",".2em");
+    caretDown.css("color","#888");
+
+    elem.on("mouseover", function() {
+   		$(this).find("i:last-child").css("opacity","1");
 		$(this).find("div div").css("z-index", 999999);
-        });
+    });
 
-        elem.on("mouseout", function() {
-        	$(this).find("i:last-child").css("opacity",".3");
-		$(this).find("div div").css("z-index", "auto");
-        });
+    elem.on("mouseout", function() {
+    	$(this).find("i:last-child").css("opacity",".3");
+	$(this).find("div div").css("z-index", "auto");
+    });
+*/
+    var elementsDiv = jQuery('<div/>', {
+        class: "bb_select_elements"
+    }).appendTo(elem);
+    elementsDiv.css("max-height", height);
+    //}).appendTo(innerDiv);
+    
+    elementsDiv.append(kids);
 
-        var elementsDiv = jQuery('<div/>', {
-            class: "bb_select_elements"
-        }).appendTo(innerDiv);
-        
-        elementsDiv.append(kids);
+    kids.each(function (i) {
+		$(this).on("dblclick", function(){
+			var vocab_name = $(this).find(".oracle_label em").text()
+			var href = $(this).find("a").attr("href")
+			var vocab_description = $(this).find("span.vocab_description").text();
+			var vocab_score = $(this).find("span.vocab_score").text();
+			//var search_term = ""; // TODO
+			elem.attr("value", '{"url":"'+href+'", "prefix": '+JSON.stringify(replacePrefix(href))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'"}');
+			dblClickFunction(param);
+            adapt_RDF_preview();
 
-        kids.each(function (i) {
-            $(this).on("click", function () {
-                $(this).parent().siblings().first().html($(this).html());
-                $(this).addClass("bb_select_clicked");
-                $(this).siblings().removeClass("bb_select_clicked");
-                caretDown.appendTo(selectionDiv);
-                adapt_RDF_preview();
-            });
-            if(dblClickFunction && param){
-				$(this).on("dblclick", function(){
-				dblClickFunction(param);
-			});
-		}
-        });
+		});
+		$(this).on("dblclick", function(){
+			$(this).addClass("bb_select_clicked");
+            $(this).siblings().removeClass("bb_select_clicked");
+		});
+//		caretDown.appendTo(selectionDiv);		
+    });
+/*
+    innerDiv.on("mouseover", function () {
+        elementsDiv.css("visibility", "visible");
+    });
 
-        innerDiv.on("mouseover", function () {
-            elementsDiv.css("visibility", "visible");
-        });
+    innerDiv.on("mouseout", function () {
+        elementsDiv.css("visibility", "hidden");
+    });
 
-        innerDiv.on("mouseout", function () {
-            elementsDiv.css("visibility", "hidden");
-        });
-
-        elementsDiv.trigger("mouseout");
-    }
+    elementsDiv.trigger("mouseout");
+    */
+}
 
 
 
@@ -2059,7 +2141,7 @@ function add_model_enrich(e){
 	//avoid duplicates
 	for(var i=0; i<model['enrich'].length; i++){
 		if(model['enrich'][i].url==e.url){ 
-			console.log("enrich already exists");
+			//console.log("enrich already exists");
 			return false;
 		}
 	}
