@@ -2694,7 +2694,7 @@ function model_to_array(model){
 				// TODO can be problem if keys are not unique 
 				lindaGlobals.used_prefixes[predicates[pred_index]['prefix']] = predicates[pred_index];
 			}else{
-				rdf_array[i][1] = predicates[pred_index]['url']+predicates[pred_index]['suffix']; // = original url	
+				rdf_array[i][1] = "<"+predicates[pred_index]['url']+predicates[pred_index]['suffix']+">"; // = original url	
 			}
 		}else{
 			rdf_array[i][1] = "<?predicate?>" // no ajax call yet
@@ -2735,11 +2735,9 @@ function model_to_array(model){
 	//insert from enrichment
 	console.log("l");
 	if(model['enrich']){
-		console.log("enr");
 		var inserted = 0;
 		for(var i=num_total_cols; i<=(rdf_array.length-inserted); i+=num_total_cols){
 			for(var j=0; j<model['enrich'].length; j++){
-				console.log("x");
 				var elem = model['enrich'][j];
 				var object = "";
 				if(elem['prefix']['prefix']){
@@ -2751,7 +2749,6 @@ function model_to_array(model){
 
 				rdf_array.splice(i+inserted, 0, [rdf_array[i+inserted-1][0], "a", object]);
 				inserted++;
-				//console.log(rdf_array);
 			}
 		}
 	}
