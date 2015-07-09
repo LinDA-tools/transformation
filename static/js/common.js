@@ -1939,8 +1939,9 @@ function transpose_matrix(matrix) {
 	 <div>item2</div>
 	</div>
 	This function does a lot of dom manipulation to transform it into a cool widget :)
+	The second argument is a function that is triggered when doubleclicking
 	*/
-    function addInnerDiv(elem) {
+    function addInnerDiv(elem, dblClickFunction, param) {
 
         var kids = elem.children();
 
@@ -1992,6 +1993,11 @@ function transpose_matrix(matrix) {
                 caretDown.appendTo(selectionDiv);
                 adapt_RDF_preview();
             });
+            if(dblClickFunction && param){
+				$(this).on("dblclick", function(){
+				dblClickFunction(param);
+			});
+		}
         });
 
         innerDiv.on("mouseover", function () {
@@ -2061,6 +2067,22 @@ function add_model_enrich(e){
 	model['enrich'].push(e);
 	write_model(model);
 	return true;
+}
+
+//removes enrich entry with specific url
+//returns true if could be removed
+function remove_model_enrich(url){
+	var model = get_model();
+	if(!model['enrich'])
+		return false;
+	for(var i=0; i<model['enrich'].length; i++){
+		if(model['enrich'][i].url==url){ 
+			model['enrich'].splice(i, 1);
+			write_model(model);
+			return true;
+		}
+	}
+	return false;
 }
 
 function delete_model_enrich(){

@@ -27,18 +27,11 @@
 
 	<div class="col-7-10 right-side-box">
 		<div class="col-5-10">
-			<p class="enrich-ajax">
+			<p>
 			<button style="" disabled>+</button><input type="text" id="search_textinput_1" onkeyup="delayedOracleCall(1)">
 			<i id="icon_1" class="fa fa-search" onclick="askOracle(1)"></i>
 			<br>
 				<div class="bb_select" id="search_result_1">
-				</div>
-			</p>
-			<p class="enrich-ajax">
-			<button style="" disabled>+</button><input type="text" id="search_textinput_2" onkeyup="delayedOracleCall(2)">
-			<i id="icon_2" class="fa fa-search" onclick="askOracle(2)"></i>
-			<br>
-				<div class="bb_select" id="search_result_2">
 				</div>
 			</p>
 		</div>
@@ -136,7 +129,7 @@ function askOracle(widget_num){
 				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i><span class=\"vocab_score\">"+data[i].ranking+"</span>) <em>"+data[i].label+"</em><br><span class=\"vocab_description\">"+data[i].vocabulary+"</span></span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>");
 			}
 
-			addInnerDiv($("#search_result_"+widget_num));
+			addInnerDiv($("#search_result_"+widget_num), to_enrich, "search_result_"+widget_num);
 
 			//auto-select first element after oracle call
 			$("#search_result_"+widget_num+" * .bb_select_elements").children().first().trigger("click");
@@ -169,14 +162,34 @@ function populate_from_model(){
 					short_uri = shortenURI(enrich[i].url, 40);
 /*
 			enrich_list += "<div class=\"bb_select_nodropdown\" id=\"oracle_result_"+(i+1)+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i>"+enrich[i].score+") <em>"+enrich[i].label+"</em><br><span class=\"vocab_description\">"+enrich[i].vocab_description+"</span></span><br><a href=\""+enrich[i].url+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>"
-*/				
+*/			
+			enrich_list += "<br><div onclick= \"remove_model_enrich('"+enrich[i].url+"');adapt_RDF_preview();\">x</div>";	
 			enrich_list += "<div class=\"bb_select_nodropdown\" id=\"oracle_result_"+(i+1)+"\"><span class=\"oracle_label\"><em>"+enrich[i].label+"</em><br><span class=\"vocab_description\">"+enrich[i].vocab_description+"</span></span><br><a href=\""+enrich[i].url+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>";
+			
 		}
 		$("div#enriched").html(enrich_list);
 }
 
+function to_enrich(widget_id){
+	console.log("to_enrich");
+	console.log(widget_id);
+	var widget = $("#"+widget_id);
+	console.log(widget);
+	var vocab_name = widget.find(".bb_select_selection em").text();
+	var href = widget.find(".bb_select_selection a").attr("href")
+	var vocab_description = widget.find(".bb_select_selection span.vocab_description").text();
+	var vocab_score = widget.find(".bb_select_selection span.vocab_score").text();
+	var search_term = ""; // TODO
+ 	if(true || vocab_name){
+ 		add_model_enrich({"url":href, "prefix": replacePrefix(href), "label":vocab_name, "vocab_description":vocab_description, "score": vocab_score, "search_term":search_term});
+ 		console.log({"url":href, "prefix": replacePrefix(href), "label":vocab_name, "vocab_description":vocab_description, "score": vocab_score, "search_term":search_term});
+ 	}
+ 	adapt_RDF_preview();
+}
+
 function adapt_RDF_preview() {
 	//delete_model_enrich();
+	/*
 	$(".bb_select").each(function(i, elem){
 		var vocab_name = $(this).find(".bb_select_selection em").text();
 		var href = $(this).find(".bb_select_selection a").attr("href")
@@ -188,6 +201,7 @@ function adapt_RDF_preview() {
 	 		console.log({"url":href, "prefix": replacePrefix(href), "label":vocab_name, "vocab_description":vocab_description, "score": vocab_score, "search_term":search_term});
 	 	}
 	});
+	*/
 
     var rdf_view = $("#rdf_view");
     var tbl = model_to_table(get_model());
