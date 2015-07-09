@@ -1867,82 +1867,6 @@ function replacePrefix(uri){
 };
 
 
-used_prefixes = [];
-/*
-//TODO delete this?
-//takes uri and replaces with prefix or otherwise surrounds with <>
-function prefixise(uri){
-	if(typeof uri == undefined)
-		return "no uri";
-	var prefixed = replacePrefix(uri);
-	var result = "";
-	if(prefixed['suffix']==""){
-		result = "<"+uri+">";
-	}else{
-		result = prefixed[0];
-
-/*
-		// no duplicates
-		var already_in = false;
-		for(var k = 0 ; k < used_prefixes.length; k++){
-			if(used_prefixes[k][1] == prefixed[1]+":"){
-				already_in = true;
-				break;
-			}
-		}
-
-		if(already_in === false){
-			used_prefixes.push(["prefix", prefixed[1] + ":", "<"+prefixed[2]+">"]);
-		}
-
-		var model = get_model();
-		//console.log(model);
-
-		if(!model){
-			console.log("model undefined");
-		}else{
-
-
-			if(!model['prefixes'])
-				model['prefixes'] = [];
-
-			// no duplicates
-			var already_in = false;
-			for(var k = 0 ; k < model['prefixes'].length; k++){
-				if(model['prefixes'][k]['prefix'] == prefixed[1]){
-					already_in = true;
-					break;
-				}
-			}
-
-			if(already_in === false){
-				model['prefixes'].push({'prefix': prefixed[1], 'full_uri': prefixed[2]});
-			}
-
-			//remove unused prefixes from model
-			$.each(model['columns'], function(i, elem){
-				//console.log(elem['predicate']['url']);
-				var keep = false;
-				$.each(model['prefixes'], function(j,prefix){
-					if(elem['predicate']['url'] && elem['predicate']['url'].indexOf(prefix['full_uri']) == 0){
-						keep = true;
-						//console.log("!! "+elem['predicate']['url']);
-						return;
-					}
-				});
-				if(!keep)
-					console.log("raus "+elem['predicate']['url']);
-			});
-
-			write_model(model);
-		}
-
-	}
-
-	return result;
-}
-*/
-
 
 function shortenURI(uri, maxlength){
 	if(uri.length <= maxlength)
@@ -2121,12 +2045,22 @@ function add_model_subject(k, v){
 	write_model(model);
 }
 
+//returns false if already exists
 function add_model_enrich(e){
 	var model = get_model();
 	if(!model['enrich'])
 		model['enrich'] = [];
+	//avoid duplicates
+	for(var i=0; i<model['enrich'].length; i++){
+		if(model['enrich'][i].url==e.url){ 
+			console.log("enrich already exists");
+			return false;
+		}
+	}
+
 	model['enrich'].push(e);
 	write_model(model);
+	return true;
 }
 
 function delete_model_enrich(){
