@@ -434,8 +434,16 @@ def process_csv(csvfile, form):
     #print(dir(dialect))
     #print(dialect.delimiter)
     csvreader = csv.reader(csvfile, dialect)
+
+
+
     for row in csvreader:
         csv_rows.append(row)
+
+    #removal of blanks, especially special blanks \xA0 etc.
+    for i,rowa in enumerate(csv_rows):
+        for j,field in enumerate(rowa):
+            csv_rows[i][j] = field.strip()
 
     return [csv_rows, csv_dialect]
 
