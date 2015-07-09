@@ -61,3 +61,17 @@ Design for Vocabulary selection boxes
 .bb_select_clicked {
     background-color: #dfdfdf !important;
 }
+
+/*looks like dropdown, but with no function*/
+.bb_select_nodropdown {
+    position: relative;
+    width: 20em;
+    background-color: #d0d0d0;
+    padding: .2em;
+    min-height: 2.8em;
+    overflow: hidden;
+    font-size: smaller;
+    border: 2px solid #bbb;
+    color: #111;
+    margin-bottom: 0.5em;
+}

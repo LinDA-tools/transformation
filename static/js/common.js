@@ -1,6 +1,7 @@
 lindaGlobals = {
 	"prefixes": {},
-	"validUrl" : false,
+	"validUrl": false,
+	"used_prefixes": {},
 	/*
 	"ajax": {
 		"predicate": {
@@ -25,6 +26,7 @@ lindaGlobals = {
 		}
 	}*/
 }
+
 
 
 //from http://linda.epu.ntua.gr:8000/api/vocabularies/versions/
@@ -488,6 +490,12 @@ lindaGlobals.prefixes = {
 "http://www.w3.org/2001/XMLSchema#": "xmls",
 "http://dbpedia.org/resource/": "dbpres",
 };
+
+
+
+
+
+
 /*
 //source: http://prefix.cc/context
 prefixes = {
@@ -2089,9 +2097,7 @@ prefixes = {
 "https://w3id.org/navigation_menu#": "navm",
 "https://w3id.org/payswarm#": "ps",
 "https://w3id.org/security#": "sec",};
-*/
 
-/*
 
 
 function retrievePrefixes(){
@@ -2231,142 +2237,7 @@ function create_multidim_array(x, y) {
 }
 
 
-
-function model_to_table(model){
-
-	var tbl = jQuery('<table/>', {
-		class: "rdf_table"
-	});//.appendTo(elem);
-
-	if(model == undefined){
-		console.log("model undefinded");
-		return tbl;
-	}
-
-	var rdf_array = model_to_array(model);
-
-
-	//create table content
-	for(var i = 0; i < rdf_array.length; i++){
-
-			var tr = jQuery('<tr/>', {});
-			for(var j = 0; j < 3; j++){
-				var td = jQuery('<td/>', {});
-				td.text(rdf_array[i][j]);
-				td.appendTo(tr);
-			}
-			var td = jQuery('<td/>', {});
-			td.text(".");
-			td.appendTo(tr);
-			tr.appendTo(tbl);
-
-	}
-
-	return tbl;
-}
-
-
-function model_to_array(model){
-
-
-	if(model == undefined){
-		console.log("model undefinded");
-		return;
-	}
-
-	var num_total_rows_rdf = 0;
-	var num_total_cols = 0;
-
-	//count
-	$.each(model['columns'], function(){
-		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
-			num_total_cols++;
-			$.each($(this)[0]['fields'], function(){
-				num_total_rows_rdf++;
-			
-			});
-		}
-	});
-
-	var rdf_array = create_multidim_array(num_total_rows_rdf, 3);
-
-
-	//insert subjects
-	var subjects = create_subjects_from_model_skeleton(model);
-	for(var i = 0; i < rdf_array.length; i++){
-		var subj_index = Math.floor(i/num_total_cols);
-		rdf_array[i][0] = subjects[subj_index];
-	}
-
-	//insert predicates
-	var used_prefixes_2 = {};
-	var predicates = create_predicates_from_model(model);
-	for(var i = 0; i < rdf_array.length; i++){
-		var pred_index = i % predicates.length;
-		if(predicates[pred_index] && predicates[pred_index]['url']){ // uri exists (earlier sucessful ajax call)
-			if(predicates[pred_index]['suffix'] && predicates[pred_index]['prefix']){ // prefix exists
-				rdf_array[i][1] = predicates[pred_index]['prefix']+":"+predicates[pred_index]['suffix']; // prefixed url
-				// TODO can be problem if keys are not unique 
-				used_prefixes_2[predicates[pred_index]['prefix']] = predicates[pred_index];
-			}else{
-				rdf_array[i][1] = predicates[pred_index]['url']+predicates[pred_index]['suffix']; // = original url	
-			}
-		}else{
-			rdf_array[i][1] = "<?predicate?>" // no ajax call yet
-		}
-	}
-
-	//insert objects
-	var col_count = -1;
-	$.each(model['columns'], function(i, row){
-		if(row['col_num_new'] >- 1){ // column was chosen, same as show==true
-			col_count++;
-			var method = row['object_method'];
-			$.each($(this)[0]['fields'], function(j, elem){
-				var suffix = "";
-				if(method === "data type" && row['data_type'] ){//reconciliation, no action, data type
-					if(row['data_type']['prefix']){
-						suffix = "^^"+row['data_type']['prefix']+":"+row['data_type']['suffix'];
-						rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
-						used_prefixes_2[row['data_type']['prefix']] = row['data_type'];
-					}else{
-						suffix = "^^"+row['data_type']['url'];
-						rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
-					}
-				}
-				if(method == "reconciliation" && elem['reconciliation']){//reconciliation, no action, data type
-					if(elem['reconciliation']['prefix']['prefix']){
-						rdf_array[j*num_total_cols+col_count][2] = elem['reconciliation']['prefix']['prefix']+":"+elem['reconciliation']['prefix']['suffix'];
-						used_prefixes_2[elem['reconciliation']['prefix']] = elem['reconciliation']['prefix'];
-					}else{
-						rdf_array[j*num_total_cols+col_count][2] = elem['reconciliation']['url'];
-					}
-				}else{
-					rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
-				}
-			});
-		}
-	});
-
-
-	//create table content: prefixes
-	var prefix_array = []
-	$.each(used_prefixes_2, function(i, prefix){
-		
-		var p = [];
-		p[0]="@prefix";
-		p[1]=prefix['prefix']+":";
-		p[2]="<"+prefix['url']+">";
-		prefix_array.push(p);
-		
-	});
-
-	return prefix_array.concat(rdf_array);
-}
-
-
-
-//resturns sth like 
+//returns sth like 
 //'http.someurl.org/first_name'  -->  ['http.someurl.org/', 'first_name', 'some']
 function replacePrefix(uri){
 	var result = {'url': uri, 'suffix':"", 'prefix':""};
@@ -2446,78 +2317,122 @@ function transpose_matrix(matrix) {
 };
 
 
-	/* vocab selection widgets
-	can be provided in simple html like
-	<div class="bb_select">
-	 <div>item1</div>
-	 <div>item2</div>
-	</div>
-	This function does a lot of dom manipulation to transform it into a cool widget :)
-	*/
-    function addInnerDiv(elem) {
+/* vocab selection widgets
+can be provided in simple html like
+<div class="bb_select">
+ <div>item1</div>
+ <div>item2</div>
+</div>
+This function does a lot of dom manipulation to transform it into a cool widget :)
+*/
+function addInnerDiv(elem) {
 
-        var kids = elem.children();
+    var kids = elem.children();
 
-        elem.empty();
-		elem.css("height", "5em");
+    elem.empty();
+	elem.css("height", "5em");
 
-        var innerDiv = jQuery('<div/>', {
-            class: "bb_select_inner"
-        }).appendTo(elem);
+    var innerDiv = jQuery('<div/>', {
+        class: "bb_select_inner"
+    }).appendTo(elem);
 
-        var selectionDiv = jQuery('<div/>', {
-            class: "bb_select_selection",
-            text: "please chose"
-        }).appendTo(innerDiv);
+    var selectionDiv = jQuery('<div/>', {
+        class: "bb_select_selection",
+        text: "please chose"
+    }).appendTo(innerDiv);
 
-		selectionDiv.css("position","relative");
+	selectionDiv.css("position","relative");
 
-	//font awesome arrow down
-        var caretDown = jQuery('<i/>', {
-            class: "fa fa-caret-square-o-down fa-2x"
-        }).appendTo(selectionDiv);
+//font awesome arrow down
+    var caretDown = jQuery('<i/>', {
+        class: "fa fa-caret-square-o-down fa-2x"
+    }).appendTo(selectionDiv);
 
-        caretDown.css("position","absolute");
-        caretDown.css("top",".1em");
-        caretDown.css("right",".2em");
-        caretDown.css("color","#888");
+    caretDown.css("position","absolute");
+    caretDown.css("top",".1em");
+    caretDown.css("right",".2em");
+    caretDown.css("color","#888");
 
-        elem.on("mouseover", function() {
-        	$(this).find("i:last-child").css("opacity","1");
-		$(this).find("div div").css("z-index", 999999);
+    elem.on("mouseover", function() {
+    	$(this).find("i:last-child").css("opacity","1");
+	$(this).find("div div").css("z-index", 999999);
+    });
+
+    elem.on("mouseout", function() {
+    	$(this).find("i:last-child").css("opacity",".3");
+	$(this).find("div div").css("z-index", "auto");
+    });
+
+    var elementsDiv = jQuery('<div/>', {
+        class: "bb_select_elements"
+    }).appendTo(innerDiv);
+    
+    elementsDiv.append(kids);
+
+    kids.each(function (i) {
+        $(this).on("click", function () {
+            $(this).parent().siblings().first().html($(this).html());
+            $(this).addClass("bb_select_clicked");
+            $(this).siblings().removeClass("bb_select_clicked");
+            caretDown.appendTo(selectionDiv);
+            adapt_RDF_preview();
         });
+    });
 
-        elem.on("mouseout", function() {
-        	$(this).find("i:last-child").css("opacity",".3");
-		$(this).find("div div").css("z-index", "auto");
-        });
+    innerDiv.on("mouseover", function () {
+        elementsDiv.css("visibility", "visible");
+    });
 
-        var elementsDiv = jQuery('<div/>', {
-            class: "bb_select_elements"
-        }).appendTo(innerDiv);
-        
-        elementsDiv.append(kids);
+    innerDiv.on("mouseout", function () {
+        elementsDiv.css("visibility", "hidden");
+    });
 
-        kids.each(function (i) {
-            $(this).on("click", function () {
-                $(this).parent().siblings().first().html($(this).html());
-                $(this).addClass("bb_select_clicked");
-                $(this).siblings().removeClass("bb_select_clicked");
-                caretDown.appendTo(selectionDiv);
-                adapt_RDF_preview();
-            });
-        });
+    elementsDiv.trigger("mouseout");
+}
 
-        innerDiv.on("mouseover", function () {
-            elementsDiv.css("visibility", "visible");
-        });
+/* vocab selection widgets
+can be provided in simple html like
+<div class="bb_select">
+ <div>item1</div>
+ <div>item2</div>
+</div>
+This function does a lot of dom manipulation to transform it into a cool widget :)
+The second argument is a function that is triggered when doubleclicking
+*/
+function addInnerDiv2(elem, dblClickFunction, param) {
 
-        innerDiv.on("mouseout", function () {
-            elementsDiv.css("visibility", "hidden");
-        });
+	var height = "20em";
+    var kids = elem.children();
 
-        elementsDiv.trigger("mouseout");
-    }
+    elem.empty();
+	elem.css("height", height);
+
+    var elementsDiv = jQuery('<div/>', {
+        class: "bb_select_elements"
+    }).appendTo(elem);
+    elementsDiv.css("max-height", height);
+    //}).appendTo(innerDiv);
+    
+    elementsDiv.append(kids);
+
+    kids.each(function (i) {
+		$(this).on("dblclick", function(){
+			var vocab_name = $(this).find(".oracle_label em").text()
+			var href = $(this).find("a").attr("href")
+			var vocab_description = $(this).find("span.vocab_description").text();
+			var vocab_score = $(this).find("span.vocab_score").text();
+			//var search_term = ""; // TODO
+			elem.attr("value", '{"url":"'+href+'", "prefix": '+JSON.stringify(replacePrefix(href))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'"}');
+			dblClickFunction(param);
+            adapt_RDF_preview();
+
+		});
+		$(this).on("dblclick", function(){
+			$(this).addClass("bb_select_clicked");
+            $(this).siblings().removeClass("bb_select_clicked");
+		});	
+    });
+}
 
 
 
@@ -2554,8 +2469,49 @@ function add_model_field(fieldname, subj){
 function add_model_subject(k, v){
 	var model = get_model();
 	if(!model['subject'])
-		model['subject'] = {}
+		model['subject'] = {};
 	model['subject'][k] = v;
+	write_model(model);
+}
+
+//returns false if already exists
+function add_model_enrich(e){
+	var model = get_model();
+	if(!model['enrich'])
+		model['enrich'] = [];
+	//avoid duplicates
+	for(var i=0; i<model['enrich'].length; i++){
+		if(model['enrich'][i].url==e.url){ 
+			//console.log("enrich already exists");
+			return false;
+		}
+	}
+
+	model['enrich'].push(e);
+	write_model(model);
+	return true;
+}
+
+//removes enrich entry with specific url
+//returns true if could be removed
+function remove_model_enrich(url){
+	var model = get_model();
+	if(!model['enrich'])
+		return false;
+	for(var i=0; i<model['enrich'].length; i++){
+		if(model['enrich'][i].url==url){ 
+			model['enrich'].splice(i, 1);
+			write_model(model);
+			return true;
+		}
+	}
+	return false;
+}
+
+function delete_model_enrich(){
+	var model = get_model();
+	if(model['enrich'])
+		model['enrich'] = [];
 	write_model(model);
 }
 
@@ -2617,8 +2573,12 @@ function add_to_model_predicate(new_value, col){
 	add_to_content_where_col("predicate", new_value, col);
 }
 
+function add_to_model_enrich(new_value, col){
+	add_to_content_where_col("enrich", new_value, col);
+}
 
-// ///////////////// MODEL ///////////////////////////////
+
+// ///////////////// MODEL END ///////////////////////////////
 
 
 
@@ -2657,5 +2617,156 @@ $( document ).ready(function() {
 	});
 });
 
-//<i class="fa fa-caret-square-o-down fa-2x" style="position: absolute; top: 0.1em; right: 0.2em; color: rgb(136, 136, 136); opacity: 0.3;"></i>
+function model_to_table(model){
 
+	var tbl = jQuery('<table/>', {
+		class: "rdf_table"
+	});//.appendTo(elem);
+
+	if(model == undefined){
+		console.log("model undefinded");
+		return tbl;
+	}
+
+	var rdf_array = model_to_array(model);
+
+
+	//create table content
+	for(var i = 0; i < rdf_array.length; i++){
+
+			var tr = jQuery('<tr/>', {});
+			for(var j = 0; j < 3; j++){
+				var td = jQuery('<td/>', {});
+				td.text(rdf_array[i][j]);
+				td.appendTo(tr);
+			}
+			var td = jQuery('<td/>', {});
+			td.text(".");
+			td.appendTo(tr);
+			tr.appendTo(tbl);
+
+	}
+
+	return tbl;
+}
+
+
+function model_to_array(model){
+
+
+	if(model == undefined){
+		console.log("model undefinded");
+		return;
+	}
+
+	var num_total_rows_rdf = 0;
+	var num_total_cols = 0;
+
+	//count
+	$.each(model['columns'], function(){
+		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
+			num_total_cols++;
+			$.each($(this)[0]['fields'], function(){
+				num_total_rows_rdf++;
+			
+			});
+		}
+	});
+
+	var rdf_array = create_multidim_array(num_total_rows_rdf, 3);
+
+
+	//insert subjects
+	var subjects = create_subjects_from_model_skeleton(model);
+	for(var i = 0; i < rdf_array.length; i++){
+		var subj_index = Math.floor(i/num_total_cols);
+		rdf_array[i][0] = subjects[subj_index];
+	}
+
+	//insert predicates
+	lindaGlobals.used_prefixes = {};
+	var predicates = create_predicates_from_model(model);
+	for(var i = 0; i < rdf_array.length; i++){
+		var pred_index = i % predicates.length;
+		if(predicates[pred_index] && predicates[pred_index]['url']){ // uri exists (earlier sucessful ajax call)
+			if(predicates[pred_index]['suffix'] && predicates[pred_index]['prefix']){ // prefix exists
+				rdf_array[i][1] = predicates[pred_index]['prefix']+":"+predicates[pred_index]['suffix']; // prefixed url
+				// TODO can be problem if keys are not unique 
+				lindaGlobals.used_prefixes[predicates[pred_index]['prefix']] = predicates[pred_index];
+			}else{
+				rdf_array[i][1] = predicates[pred_index]['url']+predicates[pred_index]['suffix']; // = original url	
+			}
+		}else{
+			rdf_array[i][1] = "<?predicate?>" // no ajax call yet
+		}
+	}
+
+	//insert objects
+	var col_count = -1;
+	$.each(model['columns'], function(i, row){
+		if(row['col_num_new'] >- 1){ // column was chosen, same as show==true
+			col_count++;
+			var method = row['object_method'];
+			$.each($(this)[0]['fields'], function(j, elem){
+				var suffix = "";
+
+				if(method === "data type" && row['data_type'] ){//reconciliation, no action, data type
+					suffix = "^^"+row['data_type']['prefix']+":"+row['data_type']['suffix'];
+					rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
+					lindaGlobals.used_prefixes[row['data_type']['prefix']] = row['data_type'];
+				}
+				if(method == "reconciliation" && elem['reconciliation']){//reconciliation, no action, data type
+					rdf_array[j*num_total_cols+col_count][2] = elem['reconciliation']['prefix']['prefix']+":"+elem['reconciliation']['prefix']['suffix'];
+					lindaGlobals.used_prefixes[elem['reconciliation']['prefix']] = elem['reconciliation']['prefix'];
+				}else{
+					rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
+				}
+			});
+		}
+	});
+
+
+	/*array.splice(index, 0, item);
+	var num_total_rows_rdf = 0;
+	var num_total_cols = 0;
+*/
+
+
+	//insert from enrichment
+	console.log("l");
+	if(model['enrich']){
+		console.log("enr");
+		var inserted = 0;
+		for(var i=num_total_cols; i<=(rdf_array.length-inserted); i+=num_total_cols){
+			for(var j=0; j<model['enrich'].length; j++){
+				console.log("x");
+				var elem = model['enrich'][j];
+				var object = "";
+				if(elem['prefix']['prefix']){
+					object = elem['prefix']['prefix']+":"+elem['prefix']['suffix'];
+					lindaGlobals.used_prefixes[elem['prefix']['prefix']] = elem['prefix'];
+				}
+				else
+					object = "<"+elem['url']+">";
+
+				rdf_array.splice(i+inserted, 0, [rdf_array[i+inserted-1][0], "a", object]);
+				inserted++;
+				//console.log(rdf_array);
+			}
+		}
+	}
+
+	//create table content: prefixes
+	var prefix_array = []
+	$.each(lindaGlobals.used_prefixes, function(i, prefix){
+		
+		var p = [];
+		p[0]="@prefix";
+		p[1]=prefix['prefix']+":";
+		p[2]="<"+prefix['url']+">";
+		prefix_array.push(p);
+		
+	});
+
+	return prefix_array.concat(rdf_array);
+}
