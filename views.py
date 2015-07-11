@@ -336,16 +336,27 @@ def csv_publish(request):
             #print(rdf_n3)
             return response
 
+        if 'button_r2rml' in request.POST:
+            with open('transformation/Employee_List_05_2015_new.json') as data_file:
+                r2rml_string = transform2r2rml(data_file)
+            r2rml_file = ContentFile(r2rml_string.encode('utf-8'))
+            response = HttpResponse(r2rml_file, 'application/force-download')
+            response['Content-Length'] = r2rml_file.size
+            response['Content-Disposition'] = 'attachment; filename="generatedR2RML.ttl"'
+            return response
+
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'publish_massage': publish_massage,
         'action': form_action,
-        'rdfModel': request.session['model'], 
+        'rdfModel': request.session['model'],
         'csvContent': csv_rows_selected_columns[:11],
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
 	    'rdfPrefix': request.session['rdf_prefix']
     }
+    print("Model:")
+    print(request.session['model'])
     return render(request, 'transformation/csv_publish.html', html_post_data)
 
 
@@ -360,7 +371,7 @@ def lookup(request, queryClass, queryString, callback):
 
 
 # ###############################################
-#  OTHER FUNCTIONS 
+#  OTHER FUNCTIONS
 # ###############################################
 
 # returns only the contents of the columns that were chosen in the html form from the session data
@@ -419,7 +430,7 @@ def process_csv(csvfile, form):
     csv_dialect['quotechar'] = dialect.quotechar
     csv_dialect['line_end'] = dialect.lineterminator.replace('\r', 'cr').replace('\n', 'lf')
 
-    # use csv params / dialect chosen by user if specified 
+    # use csv params / dialect chosen by user if specified
     # to avoid '"delimiter" must be an 1-character string' error, I encoded to utf-8
     # http://stackoverflow.com/questions/11174790/convert-unicode-string-to-byte-string
     if form.cleaned_data['delimiter'] != "":
@@ -447,3 +458,36 @@ def process_csv(csvfile, form):
 
     return [csv_rows, csv_dialect]
 
+def transform2r2rml(jsonmodel):
+    head = json.load(jsonmodel)
+
+    subject = head["subject"]
+    columns = head["columns"]
+    ourprefix = "demo"
+    subjtypes = []
+    output = ""
+
+    if "enrich" in head:
+        for enr in head["enrich"]:
+            subjtypes.append(enr["url"])
+
+    output = "@prefix rr: <http://www.w3.org/ns/r2rml#>.\n" \
+             "@prefix " + ourprefix + ": <" + subject["base_url"] + ">.\n\n" + ourprefix + ":TriplesMap a rr:TriplesMapClass;\n" \
+                "\trr:logicalTable [ rr:tableName \"" + head["file_name"] + "\" ];\n\n\trr:subjectMap [ rr:template \"" + \
+             subject["base_url"] + subject["skeleton"] + "\""
+
+    for sutp in subjtypes:
+        output += ";\n\t\trr:class " + sutp
+
+    output += "\n\t];  # of columns selected: " + str(head["num_cols_selected"])
+
+    for column in columns:
+        if (column["col_num_new"] >= 0) and ("predicate" in column):
+            predicate = column["predicate"]
+            header = column["header"]
+            output += ";\n\trr:predicateObjectMap [\n\t\trr:predicateMap [ rr:predicate " + predicate["url"] + " ];\n\t\t" \
+                        "rr:ObjectMap [ rr:column \"" + header["orig_val"] + "\" ]\n\t]"
+
+    output += "."
+
+    return output
