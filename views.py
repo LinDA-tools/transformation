@@ -12,7 +12,7 @@ import requests
 from django.core.files.base import ContentFile
 from .forms import *
 from django.conf import settings
-
+from .settings import API_HOST
 
 
 # ###############################################
@@ -322,7 +322,7 @@ def csv_publish(request):
             #print(rdf_n3)
             payload = {'title': request.POST.get('name_publish'), 'content': rdf_n3, 'format': 'text/rdf+n3'}
             #Please set the API_HOST in the settings file
-            r = requests.post('http://' + settings.API_HOST + '/api/datasource/create/', data=payload)
+            r = requests.post('http://' + API_HOST + '/api/datasource/create/', data=payload)
             j = json.loads(r.text)
             print(j["message"])
             publish_massage = j["message"]
