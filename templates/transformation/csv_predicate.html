@@ -133,21 +133,20 @@ var recent_text = null;
 
 
 function askOracle(widget_num){
-	recent_result = document.getElementById("search_result_"+widget_num);
-	recent_textinput = document.getElementById("search_textinput_"+widget_num);
+	console.log("askOracle");
+	$("#result_from_model_"+widget_num).remove();
+	recent_textinput = $("#search_textinput_"+widget_num);
 	recent_icon = document.getElementById("icon_"+widget_num);
-
 	recent_icon.className = "fa fa-refresh fa-spin";
 
 	var request = $.ajax({
 		type: 'GET',
 		dataType: 'jsonp',
-		data: { 'property': recent_textinput.value },
+		data: { 'property': recent_textinput.val() },
 		url: "http://linda.epu.ntua.gr:8000/coreapi/recommend/",
 	});
 
 	request.fail(function (jqXHR, textStatus, errorThrown) {
-			recent_icon = document.getElementById("icon_"+widget_num);
 			recent_icon.className = "fa fa-exclamation-triangle";
 			console.log(jqXHR);
 			console.log(textStatus);
@@ -156,7 +155,12 @@ function askOracle(widget_num){
 	);
 
 	request.success(function (data) {
+			var result_container = $("#result_area_"+widget_num);
+			result_container.html('<div class="bb_select" id="search_result_'+widget_num+'"></div>');
 			recent_result = $("#search_result_"+widget_num);
+
+
+
 			recent_icon = $("#icon_"+widget_num);
 			recent_icon.attr("class", "fa fa-check");
 			recent_result.empty();
@@ -185,7 +189,7 @@ function askOracle(widget_num){
 				else
 					star += "fa-star-o";
 
-				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i><span class=\"vocab_score\">"+data[i].ranking+"</span>) <em>"+data[i].label+"</em><br><span class=\"vocab_description\">"+data[i].vocabulary+"</span></span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>");
+				recent_result.append("<div id=\"result_from_model_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i><span class=\"vocab_score\">"+data[i].ranking+"</span>) <em>"+data[i].label+"</em><br><span class=\"vocab_description\">"+data[i].vocabulary+"</span></span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>");
 			}
 
 			addInnerDiv($("#search_result_"+widget_num));
@@ -222,23 +226,23 @@ function displayChosenURI(w, widget_num) {
 
 
 function adapt_RDF_preview() {
-	//used_prefixes = [];
 	var num_columns = get_num_selected_cols_model();
 
 	var found_one_undefined = false; // nothing could be retrieved via oracle api call
 
 	for(var j=0; j<num_columns; j++) {
-		var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
-		var vocab_name = $("#search_result_"+(j+1)+" * .bb_select_selection em").text();
-		var vocab_description = $("#search_result_"+(j+1)+" * .bb_select_selection .oracle_label span.vocab_description").text();
-		var vocab_score = $("#search_result_"+(j+1)+" * .bb_select_selection span.vocab_score").text();
-		var search_term = $("#search_textinput_"+(j+1)).val();
-		//add to model
-		if(typeof href == undefined) {
-			found_one_undefined = true;
+		if($("#search_result_"+(j+1)).length) { //exists?
+			var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
+			var vocab_name = $("#search_result_"+(j+1)+" * .bb_select_selection em").text();
+			var vocab_description = $("#search_result_"+(j+1)+" * .bb_select_selection .oracle_label span.vocab_description").text();
+			var vocab_score = $("#search_result_"+(j+1)+" * .bb_select_selection span.vocab_score").text();
+			var search_term = $("#search_textinput_"+(j+1)).val();
+			//add to model
+			if(typeof href === "undefined") {
+				found_one_undefined = true;
+			}
+			add_to_model_predicate({"url":href, "prefix": replacePrefix(href), "label":vocab_name, "vocab_description":vocab_description, "score": vocab_score, "search_term":search_term}, (j+1));//, "html":$(this).html()
 		}
-		add_to_model_predicate({"url":href, "prefix": replacePrefix(href), "label":vocab_name, "vocab_description":vocab_description, "score": vocab_score, "search_term":search_term}, (j+1));//, "html":$(this).html()
-
 	}
 
 
@@ -258,8 +262,44 @@ function adapt_RDF_preview() {
 }
 
 
+//get enrich data that is stored in json model and display on page
+function populate_from_model(widget_num, predicate){
 
-used_prefixes = [];
+console.log("function populate_from_model ");
+console.log(predicate);
+
+	//build a bb_select dropdown without dropdown functionality
+
+/*
+	var star ="fa ";
+	if(enrich[i].score>80)
+		star += "fa-star";
+	else if(enrich[i].score>50)
+		star += "fa-star-half-o";
+	else
+		star += "fa-star-o";
+*/
+	var short_uri = predicate.url;
+	if(predicate.url)
+			short_uri = shortenURI(predicate.url, 40);
+
+
+	var predicate_div = "<div class=\"bb_select_nodropdown\" id=\"result_from_model_"+widget_num+"\"><span class=\"oracle_label\"><em>"+predicate.label+"</em><br><span class=\"vocab_description\">"+predicate.vocab_description+"</span></span><br><a href=\""+predicate.url+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>";
+
+	//console.log(predicate_div);
+
+	var parent = $("#search_result_"+widget_num).parent();
+	$("#search_result_"+widget_num).remove();
+	$("#result_from_model_"+widget_num).remove();
+	parent.html(parent.html()+predicate_div);
+	/*
+	var text = $("div#enriched p");
+	$("div#enriched").html("");
+	$("div#enriched").append(text);
+	$("div#enriched").append(enrich_list);
+	*/
+}
+
 
 
 $( document ).ready(function() {
@@ -267,7 +307,14 @@ $( document ).ready(function() {
 	// do an oracle lookup on page load
 
 	$("div[id^='search_result_']").each( function(i, obj){
-		askOracle(i+1);
+		var predicate = get_model_predicate_of_col(i+1);
+		//console.log(predicate);
+		if(predicate === 'undefined'){//} || get_model_predicate_of_col(i+1) === 'false'){
+			askOracle(i+1);
+		}else{
+			//console.log("predicate for "+(i+1)+ " exists.");
+			populate_from_model((i+1), predicate);
+		}
 	});
 
 	$("#button_next").attr("disabled", "disabled");
@@ -277,6 +324,8 @@ $( document ).ready(function() {
 		form.attr("action", "3");
 		form.submit();
 	});
+
+	adapt_RDF_preview();
 
 });
 
