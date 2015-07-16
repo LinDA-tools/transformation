@@ -2509,7 +2509,7 @@ $( document ).ready(function() {
 	});
 });
 
-function model_to_table(model){
+function model_to_table(model, numrows){
 
 	var tbl = jQuery('<table/>', {
 		class: "rdf_table"
@@ -2522,9 +2522,10 @@ function model_to_table(model){
 
 	var rdf_array = model_to_array(model);
 
+	numrows = typeof numrows === "undefined" ? rdf_array.length : (numrows*model['columns'].length)
 
 	//create table content
-	for(var i = 0; i < rdf_array.length; i++){
+	for(var i = 0; i < numrows; i++){
 
 			var tr = jQuery('<tr/>', {});
 			for(var j = 0; j < 3; j++){

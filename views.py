@@ -93,7 +93,7 @@ def csv_upload(request):
 
         if 'button_upload' in request.POST:
             print("UPLOAD BUTTON PRESSED")
-            csv_rows = csv_rows[:11] if csv_rows else None
+            csv_rows = csv_rows if csv_rows else None
 
             request.session['csv_dialect'] = csv_dialect
             request.session['csv_rows'] = csv_rows
@@ -218,7 +218,7 @@ def csv_predicate(request):
     html_post_data = {
         'action': form_action,
         'rdfModel': request.session['model'], 
-        'csvContent': csv_rows_selected_columns[:11],
+        'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
 	    'rdfPrefix': request.session['rdf_prefix']
@@ -284,7 +284,7 @@ def csv_enrich(request):
     html_post_data = {
         'action': form_action,
         'rdfModel': request.session['model'], 
-        'csvContent': csv_rows_selected_columns[:11],
+        'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
 	    'rdfPrefix': request.session['rdf_prefix']
@@ -341,7 +341,7 @@ def csv_publish(request):
         'publish_massage': publish_massage,
         'action': form_action,
         'rdfModel': request.session['model'], 
-        'csvContent': csv_rows_selected_columns[:11],
+        'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
 	    'rdfPrefix': request.session['rdf_prefix']

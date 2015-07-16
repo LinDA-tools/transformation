@@ -35,16 +35,13 @@
 	<h3>DATA VIEW</h3>
 	<div>
 		File: <b>{{ filename }}</b> (10 rows example)
-		{{ rdfModel | model_as_table_predicate | safe }}
+		{{ rdfModel | model_as_table_predicate:10 | safe }}
 	</div>
 </div></div>
 
 
 <div class="content" id="rdf_view">
-	<h3>RDF VIEW</h3>
-
-
-
+	<h3 style="display: inline">RDF VIEW</h3><span>(10 rows example)</span>
 </div>
 
 </form>
@@ -268,7 +265,7 @@ function adapt_RDF_preview(column_num) {
 	}
 
 	var rdf_view = $("#rdf_view");
-	var tbl = model_to_table(get_model());
+	var tbl = model_to_table(get_model(), 10);
 	rdf_view.find("table").remove();
 	rdf_view.append(tbl);
 
