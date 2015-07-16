@@ -167,7 +167,6 @@ h2 {
 .right-side-box {
     position: relative;
     padding-left: 2em;
-    top: -3em;
 }
 
 #id_escape, #id_delimiter, #id_quotechar, #id_line_end {
@@ -294,7 +293,7 @@ div.drop-box {
 /* scrollable table */
 .scrollit {
     overflow-x: scroll;
-    width: 100%;
+    overflow-y: hidden;
 }
 
 .data_source_select {

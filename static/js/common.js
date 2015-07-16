@@ -2663,7 +2663,7 @@ function model_to_table(model){
 function model_to_array(model){
 
 
-	if(model == undefined){
+	if(typeof model === "undefined" || !model['columns']){
 		console.log("model undefinded");
 		return;
 	}

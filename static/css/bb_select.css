@@ -20,8 +20,8 @@ Design for Vocabulary selection boxes
 
 /*container that holds the vocab list that is shown on mouseover*/
 .bb_select_elements {
-    position: relative;
-    width: 100%;
+    position: fixed;
+    width: inherit;
     max-height: 12em;
     overflow-y: scroll;
     overflow-x: hidden;
