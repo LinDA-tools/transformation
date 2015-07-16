@@ -244,17 +244,14 @@ function adapt_RDF_preview() {
 	var found_one_undefined = false; // nothing could be retrieved via oracle api call
 
 	for(var j=0; j<num_columns; j++) {
-		var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
-		var vocab_name = $("#search_result_"+(j+1)+" * .bb_select_selection em").text();
-		var vocab_description = $("#search_result_"+(j+1)+" * .bb_select_selection .oracle_label span.vocab_description").text();
-		var vocab_score = $("#search_result_"+(j+1)+" * .bb_select_selection span.vocab_score").text();
-		var search_term = $("#search_textinput_"+(j+1)).val();
-		//add to model
-		if(typeof href == undefined) {
+		var data_string = $("#search_result_"+(j+1)).attr("value");
+		if(typeof data_string !== "undefined"){
+			var data = jQuery.parseJSON(data_string);
+			add_to_model_predicate(data, (j+1));//, "html":$(this).html()
+
+		}else{
 			found_one_undefined = true;
 		}
-		add_to_model_predicate({"url":href, "prefix": replacePrefix(href), "label":vocab_name, "vocab_description":vocab_description, "score": vocab_score, "search_term":search_term}, (j+1));//, "html":$(this).html()
-
 	}
 
 
