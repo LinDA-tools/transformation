@@ -305,7 +305,7 @@ function guessType(column){
 	var select = "<br><select class=\"type_guessing\">";
 	$.each(matching, function(k,v){
 		if(v == num_fields){
-			select += "<option>"+k+"</option>";
+			select += '<option value="'+k+'">'+replacePrefix(k)["suffix"]+'</option>';
 		}
 	});
 	select += "</select>";
@@ -350,6 +350,12 @@ function adapt_RDF_preview(column) {
 		var row = id_as_array[id_as_array.length-1];
 		var col = id_as_array[id_as_array.length-2];
 
+		var method = $("#id_table_settings_"+col+" select option:selected").text();
+		if(method == "add URIs")
+			method = "reconciliation";
+		else if(method == "add data type")
+			method = "data type";
+		add_to_content_where_col("object_method", method, col);
 
 		var recon_result = $(this).find(".bb_select_selection").text();
 
@@ -366,15 +372,12 @@ function adapt_RDF_preview(column) {
 
 		}else if($("#id_table_head_"+col).find("select.type_guessing").length>0) { // has guessed types
 
-			var data_type = $("#id_table_head_"+col).find("select.type_guessing option:selected").text();
+			var data_type = $("#id_table_head_"+col).find("select.type_guessing option:selected").attr("value");
 		
 			add_to_content_where_col("data_type", replacePrefix(data_type), col);
-			add_to_content_where_col("object_method", "data type", col);
+			//add_to_content_where_col("object_method", "data type", col);
 
 
-		}else{ // no action
-
-			add_to_content_where_col("object_method", "no action", col);
 		}
 	});
 
@@ -391,7 +394,7 @@ function calculateCells(column){
 	column = typeof column !== 'undefined' ? column : "";
 
 	var opt = $("#id_table_settings_" + column).find("select option:selected").text();
-	if(opt == "auto inference") {
+	if(opt == "add URIs") {
 		noAction(column); //clear field
 		var topic_field = "id_table_head_" + column;
 		var topic = $("#"+topic_field).text().trim();
@@ -399,7 +402,7 @@ function calculateCells(column){
 			askOracle($(this), topic, $(this).text().trim());
 		});
 	}
-	else if(opt == "auto type guessing") {
+	else if(opt == "add data type") {
 		noAction(column); //clear field
 		guessType(column);
 	}

@@ -134,8 +134,8 @@ def model_header_as_table_object(model):
 		result += '<td id="id_table_settings_'+str(i+1)+'">'
 		result += '<select>'
 		result += '<option>no action</option>'
-		result += '<option>auto inference</option>'
-		result += '<option>auto type guessing</option>'
+		result += '<option>add URIs</option>'
+		result += '<option>add data type</option>'
 		result += '</select>'
 		result += '</td>'
 	result += "</tr>"
