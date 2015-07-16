@@ -16,17 +16,23 @@
 <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ rdfModel }}">
 
 <div class="minimizable">
-<div class="content grid">
+<div class="content">
 	<h3>Specify the RDF Object</h3>
-	<div class="col-5-10 left-side-box">
+
 
 		<p>In this step, you can either choose a datatype (such as "Text", "Floating Point Number", "Integer", ...) for a table row or try and let us reconsiliate your data against the DBPedia triple store. That is, we will automatically look up an URI in the DBPedia-Project that might represent the data within each of your table rows.</p>
 		<p>As always, the results can be seen in the RDF preview at the page bottom.</p>
-	</div>
 
-	<div class="col-5-10 right-side-box">
+		<div class="show-additional-help">show more</div>
+		<div class="additional-help">
+		<p><em>Background:</em><br>
+		The objects of the RDF statements are generated from the entries in the file below the header line. Objects in RDF triples are either literals or URIs. Of these, URIs are to be preferred, because they resolve ambiguities and link to further information. For this reason, LinDA offers to convert literals to URIs, by invoking an appropriate web service. This is called “AutoInference” and is invoked on a per-column basis. Otherwise, see Datatypes.</p>
+		<p><em>AutoInference:</em><br>
+		When this is invoked, LinDA tries to replace the literals in the respective column by URIs. Often, this involves some kind of ambiguities; LinDA tries to resolve them by considering the column header. (Technically, this is done by invoking a dedicated web service.) However, it is up to you to finally check the correctness of the result.</p>
+		<p><em>Datatypes:</em><br>
+		RDF literals may be attributed with a datatype. So if you choose not to convert literals to URIs, you should invoke their automatic attribution with datatypes, in the same menu.</p>
+		</div>
 
-	</div>
 </div>
 </div>
 
