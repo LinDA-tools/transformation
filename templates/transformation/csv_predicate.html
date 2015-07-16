@@ -158,7 +158,7 @@ function askOracle(widget_num){
 	var request = $.ajax({
 		type: 'GET',
 		dataType: 'jsonp',
-		data: { 'class_property': recent_textinput.value },
+		data: { 'property': recent_textinput.value },
 		url: "http://linda.epu.ntua.gr:8000/coreapi/recommend/",
 	});
 
