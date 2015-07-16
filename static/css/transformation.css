@@ -148,9 +148,11 @@ h2 {
     font-size: 26px;
 }
 
+/*
 .navigation_button {
     margin-top: 1em;
 }
+*/
 
 .content {
     position: initial;
@@ -393,6 +395,19 @@ a .fa {
 
 .minimizable {
     position: relative;
+}
+
+#nav_buttons {
+    position: fixed;
+    bottom: -25px;
+    right: -25px;
+    padding: .8em 2em 2em .8em;
+    z-index:10000000;
+    background-color: white;
+    border: solid #fd9366;
+    border-width: 2px 2px 0px 2px;
+    border-radius: 15px;
+    box-shadow: -3px -3px 3px;
 }
 
 /* BEGIN http://www.quirksmode.org/dom/inputfile.html 
