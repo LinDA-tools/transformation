@@ -112,6 +112,12 @@
 				$(this).addClass("bb_select_clicked");
 				$(this).siblings().removeClass("bb_select_clicked");
 				caretDown.appendTo(selectionDiv);
+				var vocab_name = $(this).find(".oracle_label em").text()
+				var href = $(this).find("a").attr("href")
+				var vocab_description = $(this).find("span.vocab_description").text();
+				var vocab_score = $(this).find("span.vocab_score").text();
+				//var search_term = ""; // TODO
+				elem.attr("value", '{"url":"'+href+'", "prefix": '+JSON.stringify(replacePrefix(href))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'"}');
 				adapt_RDF_preview();
 			});
 		});

@@ -2327,52 +2327,6 @@ function transpose_matrix(matrix) {
 
 
 
-/* vocab selection widgets
-can be provided in simple html like
-<div class="bb_select">
- <div>item1</div>
- <div>item2</div>
-</div>
-This function does a lot of dom manipulation to transform it into a cool widget :)
-The second argument is a function that is triggered when doubleclicking
-*/
-function addInnerDiv2(elem, dblClickFunction, param) {
-
-	var height = "20em";
-	var kids = elem.children();
-
-	elem.empty();
-	elem.css("height", height);
-
-	var elementsDiv = jQuery('<div/>', {
-		class: "bb_select_elements"
-	}).appendTo(elem);
-	elementsDiv.css("max-height", height);
-	//}).appendTo(innerDiv);
-	
-	elementsDiv.append(kids);
-
-	kids.each(function (i) {
-		$(this).on("dblclick", function(){
-			var vocab_name = $(this).find(".oracle_label em").text()
-			var href = $(this).find("a").attr("href")
-			var vocab_description = $(this).find("span.vocab_description").text();
-			var vocab_score = $(this).find("span.vocab_score").text();
-			//var search_term = ""; // TODO
-			elem.attr("value", '{"url":"'+href+'", "prefix": '+JSON.stringify(replacePrefix(href))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'"}');
-			dblClickFunction(param);
-			adapt_RDF_preview();
-
-		});
-		$(this).on("dblclick", function(){
-			$(this).addClass("bb_select_clicked");
-			$(this).siblings().removeClass("bb_select_clicked");
-		});	
-	});
-}
-
-
-
 // ///////////////// MODEL ///////////////////////////////
 
 function get_model(){
