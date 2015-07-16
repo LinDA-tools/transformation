@@ -1,4 +1,5 @@
 lindaGlobals = {
+	"server_url": "http://linda.epu.ntua.gr:8000",
 	"prefixes": {},
 	"validUrl": false,
 	"used_prefixes": {},
@@ -2262,21 +2263,32 @@ function replacePrefix(uri){
 };
 
 
+Array.prototype.clean = function(deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+};
+
 function shortenURI(uri, maxlength){
 	if(uri.length <= maxlength)
 		return uri;
 
 	maxlength = maxlength -3; //because we include "..."
-
-	var parts = uri.split("/");
+	var parts = uri.split("/").clean("");
 	var head = parts[0];
+	if(head == "http:")
+		head = "http:/"
 	var tail = "";
 	for(var i = 1; i <= (parts.length/2); i++){
 		if((head.length + tail.length+parts[i].length + 1) >= maxlength)
 			return head + "..." + tail;
 		else 
 			head += parts[i] + "/";
-		if((head.length + tail.length + parts[parts.length-i] + 1)>=maxlength)
+		if((head.length + tail.length + parts[parts.length-i].length + 1) >= maxlength)
 			return head + "..." + tail;
 		else
 			tail = "/" + parts[parts.length-i] + tail;

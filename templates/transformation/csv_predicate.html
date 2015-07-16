@@ -115,12 +115,13 @@
 				$(this).addClass("bb_select_clicked");
 				$(this).siblings().removeClass("bb_select_clicked");
 				caretDown.appendTo(selectionDiv);
-				var vocab_name = $(this).find(".oracle_label em").text()
-				var href = $(this).find("a").attr("href")
+				var vocab_name = $(this).find(".oracle_label em").text();
+				var extern_uri = $(this).find("a.extern_uri").attr("href");
+				var intern_uri = $(this).find("a.intern_uri").attr("href");
 				var vocab_description = $(this).find("span.vocab_description").text();
 				var vocab_score = $(this).find("span.vocab_score").text();
 				//var search_term = ""; // TODO
-				elem.attr("value", '{"url":"'+href+'", "prefix": '+JSON.stringify(replacePrefix(href))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'"}');
+				elem.attr("value", '{"url":"'+extern_uri+'", "url_intern":"'+intern_uri+'", "prefix": '+JSON.stringify(replacePrefix(extern_uri))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'"}');
 				adapt_RDF_preview(column_num);
 			});
 		});
@@ -188,12 +189,21 @@ function askOracle(widget_num){
 			//recent_text.innerHTML = "please choose from list";
 			for(var i = 0; i < data.length; i++){
 
+				var uri = false;
+				var uri_intern = false;
+				if(typeof data[i].read_more !== "undefined" && data[i].read_more !== "undefined" && data[i].read_more){
+					uri_intern = lindaGlobals.server_url+data[i].read_more;
+				}
+				if(typeof data[i].full_uri !== "undefined" && data[i].full_uri !== "undefined" &&data[i].full_uri){
+						uri = data[i].full_uri;
+				}else if(data[i].uri){
+						uri = data[i].uri;
+				}
+
 				//shorten uri
 				var short_uri = "no uri";
-				if(data[i].full_uri)
-					short_uri = shortenURI(data[i].full_uri, 40);
-				else if(data[i].uri)
-					short_uri = shortenURI(data[i].uri, 40);
+				if(uri)
+					short_uri = shortenURI(uri, 40);
 
 				//css class star symbol for ranking
 				var star ="fa ";
@@ -204,7 +214,15 @@ function askOracle(widget_num){
 				else
 					star += "fa-star-o";
 
-				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i><span class=\"vocab_score\">"+data[i].ranking+"</span>) <em>"+data[i].label+"</em><br><span class=\"vocab_description\">"+data[i].vocabulary+"</span></span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>");
+				var url_intern_html = "";
+				if(uri_intern)
+					url_intern_html = "<br><a class=\"intern_uri\" href=\""+uri_intern+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>lookup in LinDA dictionary";
+
+				var url_extern_html = "";
+				if(uri)
+					url_extern_html = "<br><a class=\"extern_uri\" href=\""+uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri;
+
+				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i><span class=\"vocab_score\">"+data[i].ranking+"</span>) <em>"+data[i].label+"</em><br><span class=\"vocab_description\">"+data[i].vocabulary+"</span></span>"+url_intern_html+url_extern_html+"</div>");
 			}
 
 			addInnerDiv($("#search_result_"+widget_num));
