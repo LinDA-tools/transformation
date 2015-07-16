@@ -15,6 +15,7 @@
 <input type="hidden" name="hidden_rdf_prefix_field" id ="id_hidden_rdf_prefix_field" value="{{ rdfPrefix }}">
 <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ rdfModel }}">
 
+<div class="minimizable">
 <div class="content grid">
 	<h3>Specify the RDF Object</h3>
 	<div class="col-5-10 left-side-box">
@@ -27,8 +28,9 @@
 
 	</div>
 </div>
+</div>
 
-
+<div class="minimizable">
     <div class="content scrollit">
         <h3>DATA VIEW</h3>
         <div>
@@ -36,6 +38,7 @@
         {{ rdfModel | model_as_table_object | safe }}
         </div>
     </div>
+</div>
 
 <div class="content" id="rdf_view">
 	<h3>RDF VIEW</h3>
@@ -101,11 +104,20 @@
                 $(this).addClass("bb_select_clicked");
                 $(this).siblings().removeClass("bb_select_clicked");
                 caretDown.appendTo(selectionDiv);
+				var vocab_name = $(this).find(".oracle_label em").text()
+				var href = $(this).find("a").attr("href")
+				var vocab_description = $(this).find("span.vocab_description").text();
+				var vocab_score = $(this).find("span.vocab_score").text();
+				//var search_term = ""; // TODO
+				elem.attr("value", '{"url":"'+href+'", "prefix": '+JSON.stringify(replacePrefix(href))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'"}');
                 adapt_RDF_preview();
             });
         });
 
         innerDiv.on("mouseover", function () {
+            //necessary because the element must overlap its scrolling container
+            elementsDiv.css("top", selectionDiv.offset().top + selectionDiv.outerHeight() - $(window).scrollTop());
+            elementsDiv.css("left", selectionDiv.offset().left);
             elementsDiv.css("visibility", "visible");
         });
 
@@ -114,6 +126,11 @@
         });
 
         elementsDiv.trigger("mouseout");
+
+        //avoid the dropdown staying open when scrolling
+        $(window).on("scroll", function(){
+        	elementsDiv.css("visibility", "hidden");
+        });
     }
 
 

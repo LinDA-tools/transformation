@@ -153,6 +153,7 @@ h2 {
 }
 
 .content {
+    position: initial;
     background-color: white;
     margin-bottom: 1em;
     border-top: 4px #00B16A solid;
@@ -167,7 +168,6 @@ h2 {
 .right-side-box {
     position: relative;
     padding-left: 2em;
-    top: -3em;
 }
 
 #id_escape, #id_delimiter, #id_quotechar, #id_line_end {
@@ -293,8 +293,9 @@ div.drop-box {
 
 /* scrollable table */
 .scrollit {
+    position: initial;
     overflow-x: scroll;
-    width: 100%;
+    overflow-y: hidden;
 }
 
 .data_source_select {
@@ -390,6 +391,9 @@ a .fa {
     font-weight: bold;
 }
 
+.minimizable {
+    position: relative;
+}
 
 /* BEGIN http://www.quirksmode.org/dom/inputfile.html 
 div.fileinputs {

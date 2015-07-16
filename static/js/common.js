@@ -2326,124 +2326,6 @@ function transpose_matrix(matrix) {
 };
 
 
-/* vocab selection widgets
-can be provided in simple html like
-<div class="bb_select">
- <div>item1</div>
- <div>item2</div>
-</div>
-This function does a lot of dom manipulation to transform it into a cool widget :)
-*/
-function addInnerDiv(elem) {
-
-	var kids = elem.children();
-
-	elem.empty();
-	elem.css("height", "5em");
-
-	var innerDiv = jQuery('<div/>', {
-		class: "bb_select_inner"
-	}).appendTo(elem);
-
-	var selectionDiv = jQuery('<div/>', {
-		class: "bb_select_selection",
-		text: "please chose"
-	}).appendTo(innerDiv);
-
-	selectionDiv.css("position","relative");
-
-//font awesome arrow down
-	var caretDown = jQuery('<i/>', {
-		class: "fa fa-caret-square-o-down fa-2x"
-	}).appendTo(selectionDiv);
-
-	caretDown.css("position","absolute");
-	caretDown.css("top",".1em");
-	caretDown.css("right",".2em");
-	caretDown.css("color","#888");
-
-	elem.on("mouseover", function() {
-		$(this).find("i:last-child").css("opacity","1");
-	$(this).find("div div").css("z-index", 999999);
-	});
-
-	elem.on("mouseout", function() {
-		$(this).find("i:last-child").css("opacity",".3");
-	$(this).find("div div").css("z-index", "auto");
-	});
-
-	var elementsDiv = jQuery('<div/>', {
-		class: "bb_select_elements"
-	}).appendTo(innerDiv);
-	
-	elementsDiv.append(kids);
-
-	kids.each(function (i) {
-		$(this).on("click", function () {
-			$(this).parent().siblings().first().html($(this).html());
-			$(this).addClass("bb_select_clicked");
-			$(this).siblings().removeClass("bb_select_clicked");
-			caretDown.appendTo(selectionDiv);
-			adapt_RDF_preview();
-		});
-	});
-
-	innerDiv.on("mouseover", function () {
-		elementsDiv.css("visibility", "visible");
-	});
-
-	innerDiv.on("mouseout", function () {
-		elementsDiv.css("visibility", "hidden");
-	});
-
-	elementsDiv.trigger("mouseout");
-}
-
-/* vocab selection widgets
-can be provided in simple html like
-<div class="bb_select">
- <div>item1</div>
- <div>item2</div>
-</div>
-This function does a lot of dom manipulation to transform it into a cool widget :)
-The second argument is a function that is triggered when doubleclicking
-*/
-function addInnerDiv2(elem, dblClickFunction, param) {
-
-	var height = "20em";
-	var kids = elem.children();
-
-	elem.empty();
-	elem.css("height", height);
-
-	var elementsDiv = jQuery('<div/>', {
-		class: "bb_select_elements"
-	}).appendTo(elem);
-	elementsDiv.css("max-height", height);
-	//}).appendTo(innerDiv);
-	
-	elementsDiv.append(kids);
-
-	kids.each(function (i) {
-		$(this).on("dblclick", function(){
-			var vocab_name = $(this).find(".oracle_label em").text()
-			var href = $(this).find("a").attr("href")
-			var vocab_description = $(this).find("span.vocab_description").text();
-			var vocab_score = $(this).find("span.vocab_score").text();
-			//var search_term = ""; // TODO
-			elem.attr("value", '{"url":"'+href+'", "prefix": '+JSON.stringify(replacePrefix(href))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'"}');
-			dblClickFunction(param);
-			adapt_RDF_preview();
-
-		});
-		$(this).on("dblclick", function(){
-			$(this).addClass("bb_select_clicked");
-			$(this).siblings().removeClass("bb_select_clicked");
-		});	
-	});
-}
-
-
 
 // ///////////////// MODEL ///////////////////////////////
 
@@ -2593,15 +2475,16 @@ function add_to_model_enrich(new_value, col){
 
 $( document ).ready(function() {
 
-	$("div.content:not(#rdf_view):not(.no-minimize)").each(function(){
-		$(this).css("position","relative");
-		$(this).html($(this).html()+'<i class="fa fa-caret-square-o-down fa-2x content-resizer" style="position: absolute; top: 0.1em; right: 0.2em; color: rgb(136, 136, 136); opacity: 0.4;"></i>');
+	//$("div.content:not(#rdf_view):not(.no-minimize)").each(function(){
+	$(".minimizable").each(function(){
+		//$(this).css("position","relative");
+		$(this).html($(this).html()+'<i class="fa fa-caret-square-o-down fa-2x content-resizer" style="position: absolute; top: 0.3em; right: 0.2em; color: rgb(136, 136, 136); opacity: 0.4;"></i>');
 	});
 
 	$("i.content-resizer").css("cursor", "pointer");
 	$("i.content-resizer").each(function(){
 		$(this).on("click", function(){
-			$(this).parent().find("div").slideToggle( "fast", "swing" );
+			$(this).parent().find("div div").slideToggle( "fast", "swing" );
 			if($(this).hasClass("fa-caret-square-o-down")){
 				
 				/*
@@ -2663,7 +2546,7 @@ function model_to_table(model){
 function model_to_array(model){
 
 
-	if(model == undefined){
+	if(typeof model === "undefined" || !model['columns']){
 		console.log("model undefinded");
 		return;
 	}

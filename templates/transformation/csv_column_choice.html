@@ -6,12 +6,13 @@
 
 <!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
 {% for hidden in form.hidden_fields %}
-    {{ hidden }}
+	{{ hidden }}
 {% endfor %}
 
 <input type="hidden" name="hidden_csv_raw_field" id ="id_hidden_csv_raw_field" value="{{ csvRaw }}">
 <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ rdfModel }}">
 
+<div class="minimizable">
 <div class="content grid">
 	<h3>CSV Column Selection</h3>
 	<div class="col-10-10">
@@ -21,8 +22,9 @@
 	</div>
 
 </div>
+</div>
 
-<div class="content scrollit no-minimize">
+<div class="content scrollit">
 	<h3>DATA VIEW</h3>
 	<div>
 	File: <b>{{ filename }}</b> (10 rows example)
