@@ -17,16 +17,19 @@
 <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ rdfModel }}">
 
 <div class="minimizable">
-<div class="content grid">
+<div class="content">
 	<h3>Specify the RDF Predicate</h3>
-	<div class="col-6-10 left-side-box">
-		<p>In the last step, you constructed a RDF subject URI for each row of your data. As every row represents data for one single real world entity (e.g. a customer, an accounting information, ...), the single fields in that row represent are this entities characteristics (e.g. customer name, date of money transferal, ...). The table's top row though contains information that should describe these characteristics.</p>
-	<p>In this step, we try and find a suitable RDF class that can represent data in one column. We use the column header to find information first, but you also can type in your own search terms if the listed proposals are of no use. Click on a proposal to see the results in the RDF view at the page bottom.</p>
-	</div>
 
-	<div class="col-4-10 right-side-box">
-		
-	</div>
+		<p>In the last step, you constructed a RDF subject URI for each line of your data. As every line represents data for one single real world entity (e.g. a customer, accounting information ...), the single fields in that line represent characteristics of these entities (e.g. customer name, date of money transfer ...). </p>
+		<p>In this step, we try and find a suitable RDF property that can represent data in one column. We use the column names to find suitable candidates. If the results are unsatisfactory, do type in your own search term to receive more adequate results. The RDF view below is automatically updated with the selected property.</p>
+
+		<div class="show-additional-help">show more</div>
+		<div class="additional-help">
+		<p><em>What is it about?</em><br>
+		In this step, the RDF properties are specified that link the subject URI of each line to the values in the individual columns. Hence, for every selected column, a property needs to be specified. These properties should express the meaning the column values have for the subject. These meanings may be hinted at by the columns headers, but be aware that they often just express the type of the data instead of their meaning for the subject. – In contrast to the lines´ subject URIs, these properties should be selected from public sources whenever possible, so as to promote world-wide uniform semantic formalizations.</p>
+		</div>
+	
+
 </div>
 </div>
 
