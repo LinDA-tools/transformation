@@ -8,26 +8,26 @@ def n3(filename):
 	return filename.split(".", 1)[0]+".n3"
 
 @register.filter(name='model_as_table')
-def model_as_table(model):
+def model_as_table(model, numrows=-1):
 	result =  '<table class="table_view">'
 	result += model_header_as_table(model)
-	result += model_content_as_table(model)
+	result += model_content_as_table(model, numrows)
 	result += '</table>'
 	return result
 
 @register.filter(name='model_as_table_predicate')
-def model_as_table_predicate(model):
+def model_as_table_predicate(model, numrows=-1):
 	result =  '<table class="table_view">'
 	result += model_header_as_table_predicate(model)
-	result += model_content_as_table(model)
+	result += model_content_as_table(model, numrows)
 	result += '</table>'
 	return result
 
 @register.filter(name='model_as_table_object')
-def model_as_table_object(model):
+def model_as_table_object(model, numrows=-1):
 	result =  '<table class="table_view">'
 	result += model_header_as_table_object(model)
-	result += model_content_as_table(model)
+	result += model_content_as_table(model, numrows)
 	result += '</table>'
 	return result
 
@@ -53,13 +53,18 @@ def model_header_as_table(model):
 	return result
 
 @register.filter(name='model_as_tbody')
-def model_content_as_table(model):
+def model_content_as_table(model, numrows=-1):
 	num_rows = model['num_cols_selected']
 	content = []
 	for col in model['columns']:
 		if col['col_num_new'] > -1: #show column
 			row = []
-			for elem in col['fields']:
+			if numrows != -1:
+				fields = col['fields'][:numrows]
+			else:
+				fields = col['fields']
+
+			for elem in fields:
 				row.append(elem['orig_val'])
 			content.append(row)
 
@@ -129,8 +134,8 @@ def model_header_as_table_object(model):
 		result += '<td id="id_table_settings_'+str(i+1)+'">'
 		result += '<select>'
 		result += '<option>no action</option>'
-		result += '<option>auto inference</option>'
-		result += '<option>auto type guessing</option>'
+		result += '<option>add URIs</option>'
+		result += '<option>add data type</option>'
 		result += '</select>'
 		result += '</td>'
 	result += "</tr>"
