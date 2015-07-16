@@ -7,6 +7,7 @@
     <input type="hidden" name="hidden_csv_raw_field" id="id_hidden_csv_raw_field" value="{{ csvRaw }}">
     <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ rdfModel }}">
 
+<div class="minimizable">
     <div class="grid content">
         <h3>CSV Upload</h3>
         <div class="col-5-10 left-side-box">
@@ -110,9 +111,10 @@
 
 
     </div>
+</div>
 
 
-    <div class="content scrollit no-minimize">
+    <div class="content scrollit">
         <h3>DATA VIEW</h3>
         <div>
         File: <b>{{ filename }}</b> (10 rows example)

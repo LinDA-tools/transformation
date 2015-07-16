@@ -16,6 +16,7 @@
 <input type="hidden" name="hidden_rdf_prefix_field" id ="id_hidden_rdf_prefix_field" value="{{ rdfPrefix }}">
 <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ rdfModel }}">
 
+<div class="minimizable">
 <div class="content grid">
 	<h3>Specify the RDF Predicate</h3>
 	<div class="col-6-10 left-side-box">
@@ -27,14 +28,16 @@
 		
 	</div>
 </div>
+</div>
 
+<div class="minimizable">
 <div class="content scrollit">
 	<h3>DATA VIEW</h3>
 	<div>
 		File: <b>{{ filename }}</b> (10 rows example)
 		{{ rdfModel | model_as_table_predicate | safe }}
 	</div>
-</div>
+</div></div>
 
 
 <div class="content" id="rdf_view">

@@ -153,6 +153,7 @@ h2 {
 }
 
 .content {
+    position: initial;
     background-color: white;
     margin-bottom: 1em;
     border-top: 4px #00B16A solid;
@@ -292,6 +293,7 @@ div.drop-box {
 
 /* scrollable table */
 .scrollit {
+    position: initial;
     overflow-x: scroll;
     overflow-y: hidden;
 }
@@ -389,6 +391,9 @@ a .fa {
     font-weight: bold;
 }
 
+.minimizable {
+    position: relative;
+}
 
 /* BEGIN http://www.quirksmode.org/dom/inputfile.html 
 div.fileinputs {

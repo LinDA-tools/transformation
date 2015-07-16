@@ -2475,15 +2475,16 @@ function add_to_model_enrich(new_value, col){
 
 $( document ).ready(function() {
 
-	$("div.content:not(#rdf_view):not(.no-minimize)").each(function(){
-		$(this).css("position","relative");
-		$(this).html($(this).html()+'<i class="fa fa-caret-square-o-down fa-2x content-resizer" style="position: absolute; top: 0.1em; right: 0.2em; color: rgb(136, 136, 136); opacity: 0.4;"></i>');
+	//$("div.content:not(#rdf_view):not(.no-minimize)").each(function(){
+	$(".minimizable").each(function(){
+		//$(this).css("position","relative");
+		$(this).html($(this).html()+'<i class="fa fa-caret-square-o-down fa-2x content-resizer" style="position: absolute; top: 0.3em; right: 0.2em; color: rgb(136, 136, 136); opacity: 0.4;"></i>');
 	});
 
 	$("i.content-resizer").css("cursor", "pointer");
 	$("i.content-resizer").each(function(){
 		$(this).on("click", function(){
-			$(this).parent().find("div").slideToggle( "fast", "swing" );
+			$(this).parent().find("div div").slideToggle( "fast", "swing" );
 			if($(this).hasClass("fa-caret-square-o-down")){
 				
 				/*
