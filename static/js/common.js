@@ -2480,6 +2480,18 @@ function add_to_model_enrich(new_value, col){
 	add_to_content_where_col("enrich", new_value, col);
 }
 
+function get_model_predicate_of_col(col){
+	var model = get_model();
+	for(var i=0; i<model['columns'].length; i++){
+		//console.log(model['columns'][i]["col_num_new"] + " "+i+" "+col);
+		if(model['columns'][i]["col_num_new"] === col){
+			//console.log(model['columns'][i]['predicate']);
+			return model['columns'][i]['predicate'];
+		}
+	}
+	return false;
+}
+
 
 // ///////////////// MODEL END ///////////////////////////////
 

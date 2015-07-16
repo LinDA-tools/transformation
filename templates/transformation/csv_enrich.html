@@ -204,6 +204,7 @@ function populate_from_model(){
 	var enrich_list = "";
 	for(var i=0; i<enrich.length; i++){
 
+/*
 		//build a bb_select dropdown wothout dropdown funtionality
 		var star ="fa ";
 		if(enrich[i].score>80)
@@ -212,7 +213,7 @@ function populate_from_model(){
 			star += "fa-star-half-o";
 		else
 			star += "fa-star-o";
-
+*/
 		var short_uri = enrich[i].url;
 		if(enrich[i].url)
 				short_uri = shortenURI(enrich[i].url, 40);
