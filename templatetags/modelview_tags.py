@@ -59,7 +59,7 @@ def model_content_as_table(model, numrows=-1):
 	for col in model['columns']:
 		if col['col_num_new'] > -1: #show column
 			row = []
-			if(numrows != -1):
+			if numrows != -1:
 				fields = col['fields'][:numrows]
 			else:
 				fields = col['fields']

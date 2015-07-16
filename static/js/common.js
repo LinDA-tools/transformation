@@ -2522,7 +2522,7 @@ function model_to_table(model, numrows){
 
 	var rdf_array = model_to_array(model);
 
-	numrows = typeof numrows === "undefined" ? rdf_array.length : (numrows*model['columns'].length)
+	numrows = typeof numrows !== "undefined" ? Math.min(rdf_array.length, numrows*model['columns'].length) : numrows*model['columns'].length
 
 	//create table content
 	for(var i = 0; i < numrows; i++){

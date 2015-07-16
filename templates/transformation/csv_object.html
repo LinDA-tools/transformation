@@ -341,13 +341,13 @@ function noAction(column){
 function adapt_RDF_preview(column) {
 	column = typeof column !== 'undefined' ? column : "";
 
-
 //TODO this is done each time anything is clicked, bad performance
 	$("td[id^='id_table_field_"+column+"']").each(function(i){
 
 		var id_as_array = $(this).attr("id").split("_");
 		var row = id_as_array[id_as_array.length-1];
 		var col = id_as_array[id_as_array.length-2];
+
 
 		var recon_result = $(this).find(".bb_select_selection").text();
 
