@@ -63,6 +63,7 @@ def csv_upload(request):
 
             form = UploadFileForm(request.POST, request.FILES)
             uploadFileName = request.FILES['upload_file'].name
+            originalUploadFileName = uploadFileName
             uploadFile = request.FILES['upload_file'].file
             #print(uploadFileName[-4:]);
             if (uploadFileName[-4:] == "xlsx" or uploadFileName[-4:] == ".xls"):
@@ -98,7 +99,7 @@ def csv_upload(request):
             request.session['csv_dialect'] = csv_dialect
             request.session['csv_rows'] = csv_rows
             request.session['csv_raw'] = csv_raw
-            request.session['file_name'] = uploadFileName
+            request.session['file_name'] = originalUploadFileName
             #return redirect(reverse('csv-column-choice-view'))
             html_post_data = {
                 'action': form_action,
