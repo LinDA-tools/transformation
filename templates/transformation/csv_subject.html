@@ -40,7 +40,7 @@
 
             <div id="id_uri_container">
                 <p>
-                    Base URL: <input type="url" id="id_base_url" placeholder="e.g. http://example.net/">
+                    Base URL: <input type="url" id="id_base_url" placeholder="e.g. http://example.net/" autocomplete="off">
                 </p>
 
                 <p>
@@ -65,7 +65,7 @@
                     Subject URI: <span id="id_base_url_insert"></span><input type="text" class="drop-box"
                                                                              name="subject_uri" id="id_subject_uri"
                                                                              ondrop="drop(event)"
-                                                                             ondragover="allowDrop(event)">
+                                                                             ondragover="allowDrop(event)"  autocomplete="off">
                     <br>
                     <span class="warning-text red" id="base_url_insert_warning" style="visibility:hidden;">Wrong formatting. Build the URI template using terms like '{columnName}' surrounded by single brackets.</span>
                     <br><span class="warning-text red" id="subject_url_insert_warning" style="visibility:hidden;">Please make sure the URIs are valid in the file.</span>
