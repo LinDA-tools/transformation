@@ -62,6 +62,9 @@
 	*/
 	function addInnerDiv(elem) {
 
+		var id_array = elem.attr("id").split("_");
+		var column_num = id_array[id_array.length-1];
+
 		var kids = elem.children();
 
 		elem.empty();
@@ -118,7 +121,7 @@
 				var vocab_score = $(this).find("span.vocab_score").text();
 				//var search_term = ""; // TODO
 				elem.attr("value", '{"url":"'+href+'", "prefix": '+JSON.stringify(replacePrefix(href))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'"}');
-				adapt_RDF_preview();
+				adapt_RDF_preview(column_num);
 			});
 		});
 
@@ -179,7 +182,7 @@ function askOracle(widget_num){
 			if(data.length===0){
 				recent_icon.attr("class", "fa fa-meh-o");
 				recent_result.append("No results found.<br>Please modify the search term.");
-				adapt_RDF_preview();
+				adapt_RDF_preview(widget_num);
 				return;
 			}
 			//recent_text.innerHTML = "please choose from list";
@@ -208,7 +211,6 @@ function askOracle(widget_num){
 
 			//auto-select first element after oracle call
 			$("#search_result_"+widget_num+" * .bb_select_elements").children().first().trigger("click");
-			//adapt_RDF_preview();
 		}
 
 	);
@@ -226,24 +228,23 @@ function delayedOracleCall(widget_num) {
 	typingTimer = setTimeout(function(){askOracle(widget_num);}, doneTypingInterval);
 }
 
-/*
-function displayChosenURI(w, widget_num) {
-	var href = $("#search_result_"+(j+1)+" * .bb_select_selection a").attr("href");
-	adapt_RDF_preview();
-	//jump to element
-	//location.hash = w.id;
-	var topPos = w.offsetTop;
-	document.getElementById('search_result_'+widget_num).scrollTop = topPos;
-}*/
 
 
-function adapt_RDF_preview() {
+function adapt_RDF_preview(column_num) {
+	var begin = 0;
+	var until = get_num_selected_cols_model();
+	if(typeof column_num !== "undefined"){
+
+		var begin = column_num-1;
+		var until = column_num;
+
+	}
 	//used_prefixes = [];
-	var num_columns = get_num_selected_cols_model();
+	
 
 	var found_one_undefined = false; // nothing could be retrieved via oracle api call
 
-	for(var j=0; j<num_columns; j++) {
+	for(var j=begin; j<until; j++) {
 		var data_string = $("#search_result_"+(j+1)).attr("value");
 		if(typeof data_string !== "undefined"){
 			var data = jQuery.parseJSON(data_string);
