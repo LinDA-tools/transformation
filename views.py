@@ -12,7 +12,7 @@ import requests
 from django.core.files.base import ContentFile
 from .forms import *
 from django.conf import settings
-
+from .settings import API_HOST
 
 
 # ###############################################
@@ -93,12 +93,12 @@ def csv_upload(request):
 
         if 'button_upload' in request.POST:
             print("UPLOAD BUTTON PRESSED")
-            csv_rows = csv_rows[:11] if csv_rows else None
+            csv_rows = csv_rows if csv_rows else None
 
             request.session['csv_dialect'] = csv_dialect
             request.session['csv_rows'] = csv_rows
             request.session['csv_raw'] = csv_raw
-            request.session['file_name'] = uploadFileName
+            request.session['file_name'] = request.FILES['upload_file'].name
             #return redirect(reverse('csv-column-choice-view'))
             html_post_data = {
                 'action': form_action,
@@ -218,7 +218,7 @@ def csv_predicate(request):
     html_post_data = {
         'action': form_action,
         'rdfModel': request.session['model'], 
-        'csvContent': csv_rows_selected_columns[:11],
+        'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
 	    'rdfPrefix': request.session['rdf_prefix']
@@ -284,7 +284,7 @@ def csv_enrich(request):
     html_post_data = {
         'action': form_action,
         'rdfModel': request.session['model'], 
-        'csvContent': csv_rows_selected_columns[:11],
+        'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
 	    'rdfPrefix': request.session['rdf_prefix']
@@ -322,7 +322,7 @@ def csv_publish(request):
             #print(rdf_n3)
             payload = {'title': request.POST.get('name_publish'), 'content': rdf_n3, 'format': 'text/rdf+n3'}
             #Please set the API_HOST in the settings file
-            r = requests.post('http://' + settings.API_HOST + '/api/datasource/create/', data=payload)
+            r = requests.post('http://' + API_HOST + '/api/datasource/create/', data=payload)
             j = json.loads(r.text)
             print(j["message"])
             publish_massage = j["message"]
@@ -349,8 +349,8 @@ def csv_publish(request):
     html_post_data = {
         'publish_massage': publish_massage,
         'action': form_action,
-        'rdfModel': request.session['model'],
-        'csvContent': csv_rows_selected_columns[:11],
+        'rdfModel': request.session['model'], 
+        'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
 	    'rdfPrefix': request.session['rdf_prefix']

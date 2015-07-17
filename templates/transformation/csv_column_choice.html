@@ -6,23 +6,24 @@
 
 <!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
 {% for hidden in form.hidden_fields %}
-    {{ hidden }}
+	{{ hidden }}
 {% endfor %}
 
 <input type="hidden" name="hidden_csv_raw_field" id ="id_hidden_csv_raw_field" value="{{ csvRaw }}">
 <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ rdfModel }}">
 
+<div class="minimizable">
 <div class="content grid">
-	<h3>CSV Column Selection</h3>
+	<h3>Column Selection</h3>
 	<div class="col-10-10">
-		<p>
-		Please select the colums you want to transfer from the table view below.
-		</p>
+		<p>Please select the columns you would like to transform from the <em>Data View</em> shown below.</p>
+		<p><em>What is this good for?</em><br>The default choice is to include all data columns in the conversion. However, as the case may be, it may be desirable to limit the data to be converted. This can be achieved by selecting and deselecting columns in this step.</p>
 	</div>
 
 </div>
+</div>
 
-<div class="content scrollit no-minimize">
+<div class="content scrollit">
 	<h3>DATA VIEW</h3>
 	<div>
 	File: <b>{{ filename }}</b> (10 rows example)
