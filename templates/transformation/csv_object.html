@@ -89,12 +89,12 @@
         caretDown.css("color","#888");
 
         elem.on("mouseover", function() {
-        	$(this).find("i:last-child").css("opacity","1");
+        	$(this).find("i.fa-caret-square-o-down").css("opacity","1");
 		$(this).find("div div").css("z-index", 999999);
         });
 
         elem.on("mouseout", function() {
-        	$(this).find("i:last-child").css("opacity",".3");
+        	$(this).find("i.fa-caret-square-o-down").css("opacity",".3");
 		$(this).find("div div").css("z-index", "auto");
         });
 
