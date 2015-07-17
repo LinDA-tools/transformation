@@ -13,6 +13,7 @@ from django.core.files.base import ContentFile
 from .forms import *
 from django.conf import settings
 from .settings import API_HOST
+import ast
 
 
 # ###############################################
@@ -43,7 +44,6 @@ def csv_upload(request):
             form = UploadFileForm(request.POST)
             if request.POST and form.is_valid() and form != None:
                 print("PATH 1.1 - no file uploaded")
-                # print(str(form.cleaned_data))
                 # content  is passed on via hidden html input fields
                 if form.cleaned_data['hidden_csv_raw_field']:
                     csv_raw = form.cleaned_data['hidden_csv_raw_field']
@@ -147,7 +147,7 @@ def csv_subject(request):
         if form.cleaned_data['hidden_model']:
         #if 'hidden_model' in form.cleaned_data:
             print('model existing')
-            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'",'"').replace("\\",""))
+            request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
 
         else:
             print('creating model')
@@ -210,7 +210,7 @@ def csv_predicate(request):
             request.session['rdf_prefix'] = ""
 
         if 'hidden_model' in form.cleaned_data:
-            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'",'"').replace("\\",""))
+            request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
         else:
             request.session['model'] = ""
 
@@ -243,7 +243,7 @@ def csv_object(request):
             request.session['rdf_prefix'] = ""
 
         if 'hidden_model' in form.cleaned_data:
-            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'",'"').replace("\\",""))
+            request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
         else:
             request.session['model'] = ""
 
@@ -276,7 +276,7 @@ def csv_enrich(request):
             request.session['rdf_prefix'] = ""
 
         if 'hidden_model' in form.cleaned_data:
-            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'",'"').replace("\\",""))
+            request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
         else:
             request.session['model'] = ""
 
@@ -302,7 +302,7 @@ def csv_publish(request):
 
         if form.cleaned_data['hidden_rdf_array_field']:
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
-            for row in eval(request.session['rdf_array']):
+            for row in ast.literal_eval(request.session['rdf_array']):
                 for elem in row:
                     elem = elem.replace(",","\\,"); # escape commas
                     if elem[-1:] == ".": # cut off as we had problems when uploading some uri like xyz_inc. with trailing dot
@@ -313,9 +313,11 @@ def csv_publish(request):
             request.session['rdf_array'] = ""
 
         if 'hidden_model' in form.cleaned_data:
-            request.session['model'] = json.loads(form.cleaned_data['hidden_model'].replace("'",'"').replace("\\",""))
+            request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
 
-        print("rdfn3 "+str(rdf_n3))
+        #Alan, such dir was aus :P (JSON mit doube quotes)
+        model_as_JSON_str = json.dumps(request.session['model']);
+        model_as_dict = request.session['model'] 
 
         if 'button_publish' in request.POST:
             print("PUBLISH BUTTON PRESSED")
@@ -371,7 +373,6 @@ def get_selected_rows_content(session):
     col_nums = []
     for col_num in session['selected_columns']:
         col_nums.append(col_num.get("col_num_orig"))
-    #print("colnums ", col_nums)
 
     for row in session['csv_rows']:
         tmp_row = []
@@ -388,7 +389,6 @@ def mark_selected_rows_in_model(session):
         col_nums.append(col_num.get("col_num_orig"))
     session['model']['num_cols_selected'] = len(col_nums)
     counter = 1;
-    print(col_nums)
     for i, col in enumerate(session['model']['columns']):
         if col["col_num_orig"] in col_nums:
             col["col_num_new"] = counter
@@ -431,8 +431,6 @@ def process_csv(csvfile, form):
     if form.cleaned_data['line_end'] != "":
         dialect.lineterminator = form.cleaned_data['line_end']  #.encode('utf-8')
 
-    #print(dir(dialect))
-    #print(dialect.delimiter)
     csvreader = csv.reader(csvfile, dialect)
 
 
