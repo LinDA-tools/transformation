@@ -5,7 +5,7 @@ register = template.Library()
 #swaps file ending in filename for .n3
 @register.filter(name='n3')
 def n3(filename):
-	return filename.split(".", 1)[0]+".n3"
+	return filename.rsplit(".", 1)[0]+".n3"
 
 @register.filter(name='model_as_table')
 def model_as_table(model, numrows=-1):

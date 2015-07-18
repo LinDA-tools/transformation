@@ -315,10 +315,6 @@ def csv_publish(request):
         if 'hidden_model' in form.cleaned_data:
             request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
 
-        #Alan, such dir was aus :P (JSON mit doube quotes)
-        model_as_JSON_str = json.dumps(request.session['model']);
-        model_as_dict = request.session['model'] 
-
         if 'button_publish' in request.POST:
             print("PUBLISH BUTTON PRESSED")
             #print(rdf_n3)
@@ -330,21 +326,22 @@ def csv_publish(request):
             publish_massage = j["message"]
 
         if 'button_download' in request.POST:
+            new_fname = request.session['model']['file_name'].rsplit(".", 1)[0]+".n3"
             rdf_string = rdf_n3
             rdf_file = ContentFile(rdf_string.encode('utf-8'))
             response = HttpResponse(rdf_file, 'application/force-download')
             response['Content-Length'] = rdf_file.size
-            response['Content-Disposition'] = 'attachment; filename="generatedRDF.n3"'
+            response['Content-Disposition'] = 'attachment; filename="'+new_fname+'"'
             #print(rdf_n3)
             return response
 
         if 'button_r2rml' in request.POST:
-            with open('transformation/Employee_List_05_2015_new.json') as data_file:
-                r2rml_string = transform2r2rml(data_file)
+            new_fname = request.session['model']['file_name'].rsplit(".", 1)[0]+"_R2RML.ttl"
+            r2rml_string = transform2r2rml(request.session['model'])
             r2rml_file = ContentFile(r2rml_string.encode('utf-8'))
             response = HttpResponse(r2rml_file, 'application/force-download')
             response['Content-Length'] = r2rml_file.size
-            response['Content-Disposition'] = 'attachment; filename="generatedR2RML.ttl"'
+            response['Content-Disposition'] = 'attachment; filename="'+new_fname+'"'
             return response
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)
@@ -457,27 +454,27 @@ def process_csv(csvfile, form):
     return [csv_rows, csv_dialect]
 
 def transform2r2rml(jsonmodel):
-    head = json.load(jsonmodel)
+    #head = json.load(jsonmodel)
 
-    subject = head["subject"]
-    columns = head["columns"]
+    subject = jsonmodel["subject"]
+    columns = jsonmodel["columns"]
     ourprefix = "demo"
     subjtypes = []
     output = ""
 
-    if "enrich" in head:
-        for enr in head["enrich"]:
+    if "enrich" in jsonmodel:
+        for enr in jsonmodel["enrich"]:
             subjtypes.append(enr["url"])
 
     output = "@prefix rr: <http://www.w3.org/ns/r2rml#>.\n" \
              "@prefix " + ourprefix + ": <" + subject["base_url"] + ">.\n\n" + ourprefix + ":TriplesMap a rr:TriplesMapClass;\n" \
-                "\trr:logicalTable [ rr:tableName \"" + head["file_name"] + "\" ];\n\n\trr:subjectMap [ rr:template \"" + \
+                "\trr:logicalTable [ rr:tableName \"" + jsonmodel["file_name"] + "\" ];\n\n\trr:subjectMap [ rr:template \"" + \
              subject["base_url"] + subject["skeleton"] + "\""
 
     for sutp in subjtypes:
         output += ";\n\t\trr:class " + sutp
 
-    output += "\n\t];  # of columns selected: " + str(head["num_cols_selected"])
+    output += "\n\t];  # of columns selected: " + str(jsonmodel["num_cols_selected"])
 
     for column in columns:
         if (column["col_num_new"] >= 0) and ("predicate" in column):
