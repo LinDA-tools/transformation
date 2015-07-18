@@ -19,7 +19,7 @@
 <div class="content">
 	<h3>Specify the RDF Object</h3>
 
-
+		<div>
 		<p>In this step, you can either choose a datatype (such as "Text", "Floating Point Number", "Integer", ...) for a table row or try and let us reconsiliate your data against the DBPedia triple store. That is, we will automatically look up an URI in the DBPedia-Project that might represent the data within each of your table rows.</p>
 		<p>As always, the results can be seen in the RDF preview at the page bottom.</p>
 
@@ -31,6 +31,7 @@
 		When this is invoked, LinDA tries to replace the literals in the respective column by URIs. Often, this involves some kind of ambiguities; LinDA tries to resolve them by considering the column header. (Technically, this is done by invoking a dedicated web service.) However, it is up to you to finally check the correctness of the result.</p>
 		<p><em>Datatypes:</em><br>
 		RDF literals may be attributed with a datatype. So if you choose not to convert literals to URIs, you should invoke their automatic attribution with datatypes, in the same menu.</p>
+		</div>
 		</div>
 
 </div>
@@ -88,12 +89,12 @@
         caretDown.css("color","#888");
 
         elem.on("mouseover", function() {
-        	$(this).find("i:last-child").css("opacity","1");
+        	$(this).find("i.fa-caret-square-o-down").css("opacity","1");
 		$(this).find("div div").css("z-index", 999999);
         });
 
         elem.on("mouseout", function() {
-        	$(this).find("i:last-child").css("opacity",".3");
+        	$(this).find("i.fa-caret-square-o-down").css("opacity",".3");
 		$(this).find("div div").css("z-index", "auto");
         });
 

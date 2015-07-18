@@ -404,6 +404,7 @@ a .fa {
     text-decoration: underline;
     width: 100%;
     text-align: right;
+    cursor: pointer;
 }
 
 
