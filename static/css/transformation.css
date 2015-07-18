@@ -397,6 +397,7 @@ a .fa {
     position: relative;
 }
 
+
 #nav_buttons {
     position: fixed;
     bottom: -25px;
@@ -409,6 +410,23 @@ a .fa {
     border-radius: 15px;
     box-shadow: -3px -3px 3px;
 }
+
+
+.additional-help, .show-additional-help {
+    padding-left: 2em;
+    font-size : 80%;
+}
+
+.show-additional-help {
+    text-decoration: underline;
+    width: 100%;
+    text-align: right;
+    cursor: pointer;
+}
+
+
+
+
 
 /* BEGIN http://www.quirksmode.org/dom/inputfile.html 
 div.fileinputs {

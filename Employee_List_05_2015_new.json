@@ -1,0 +1,576 @@
+{
+   "num_total_fields":9,
+   "file_name":"Employee_List_05_2015_new.csv",
+   "num_cols_selected":9,
+   "columns":[
+      {
+         "col_num_orig":1,
+         "predicate":{
+            "label":"employee iD",
+            "url":"http://vocab.data.gov/def/drm#employeeID",
+            "search_term":"Employee ID",
+            "score":"0",
+            "vocab_description":"Data Reference Model",
+            "prefix":{
+               "url":"http://vocab.data.gov/def/drm#",
+               "suffix":"employeeID",
+               "prefix":"drm"
+            }
+         },
+         "fields":[
+            {
+               "orig_val":"ZWTCI3DY",
+               "field_num":1,
+               "data_type":"float"
+            },
+            {
+               "orig_val":"ZQH1RT25",
+               "field_num":2,
+               "data_type":"float"
+            },
+            {
+               "orig_val":"ZB8PKPW1",
+               "field_num":3,
+               "data_type":"float"
+            },
+            {
+               "orig_val":"YCKS6YHR",
+               "field_num":4,
+               "data_type":"float"
+            },
+            {
+               "orig_val":"WER36HAJ",
+               "field_num":5,
+               "data_type":"float"
+            },
+            {
+               "orig_val":"W5HICMBN",
+               "field_num":6,
+               "data_type":"float"
+            },
+            {
+               "orig_val":"VN3E9EFJ",
+               "field_num":7,
+               "data_type":"float"
+            },
+            {
+               "orig_val":"UZUDV36T",
+               "field_num":8,
+               "data_type":"float"
+            },
+            {
+               "orig_val":"UAZRRZ4M",
+               "field_num":9,
+               "data_type":"float"
+            },
+            {
+               "orig_val":"NIIO5TLK",
+               "field_num":10,
+               "data_type":"float"
+            }
+         ],
+         "object_method":"data type",
+         "col_num_new":1,
+         "header":{
+            "orig_val":"Employee ID"
+         }
+      },
+      {
+         "col_num_orig":2,
+         "predicate":{
+            "label":"firstName",
+            "url":"http://xmlns.com/foaf/0.1/firstName",
+            "search_term":"Firstname",
+            "score":"116",
+            "vocab_description":"Friend of a friend",
+            "prefix":{
+               "url":"http://xmlns.com/foaf/0.1/",
+               "suffix":"firstName",
+               "prefix":"foaf"
+            }
+         },
+         "fields":[
+            {
+               "orig_val":"Sean ",
+               "field_num":1,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Doretta",
+               "field_num":2,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Bryant ",
+               "field_num":3,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Karisa ",
+               "field_num":4,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Carlo ",
+               "field_num":5,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Hedy ",
+               "field_num":6,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Lanny",
+               "field_num":7,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Divina",
+               "field_num":8,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Rhonda",
+               "field_num":9,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Carmela",
+               "field_num":10,
+               "data_type":"string"
+            }
+         ],
+         "object_method":"data type",
+         "col_num_new":2,
+         "header":{
+            "orig_val":"Firstname"
+         }
+      },
+      {
+         "col_num_orig":3,
+         "predicate":{
+            "label":"person_lastname",
+            "url":"http://lod.taxonconcept.org/ontology/sci_people.owl#personLastname",
+            "search_term":"Lastname",
+            "score":"-350",
+            "vocab_description":"Scientific People Ontology",
+            "prefix":{
+               "url":"http://lod.taxonconcept.org/ontology/sci_people.owl#",
+               "suffix":"personLastname",
+               "prefix":"scip"
+            }
+         },
+         "fields":[
+            {
+               "orig_val":"Turmelle",
+               "field_num":1,
+               "data_type":"string"
+            },
+            {
+               "orig_val":" Angeles ",
+               "field_num":2,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Cosenza ",
+               "field_num":3,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Saeed ",
+               "field_num":4,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Lindquist",
+               "field_num":5,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Joslyn",
+               "field_num":6,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Giguere ",
+               "field_num":7,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Maier ",
+               "field_num":8,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Fogel",
+               "field_num":9,
+               "data_type":"string"
+            },
+            {
+               "orig_val":"Rench ",
+               "field_num":10,
+               "data_type":"string"
+            }
+         ],
+         "object_method":"data type",
+         "col_num_new":3,
+         "header":{
+            "orig_val":"Lastname"
+         }
+      },
+      {
+         "col_num_orig":4,
+         "predicate":{
+            "label":"address",
+            "url":"http://schema.org/address",
+            "search_term":"Address",
+            "score":"80",
+            "vocab_description":"Schema.org vocabulary",
+            "prefix":{
+               "url":"http://schema.org/",
+               "suffix":"address",
+               "prefix":"sdo"
+            }
+         },
+         "fields":[
+            {
+               "orig_val":"482 Essex Court",
+               "field_num":1
+            },
+            {
+               "orig_val":"Kaiserin-Augusta-Allee 31",
+               "field_num":2
+            },
+            {
+               "orig_val":"Calle Colon, 14",
+               "field_num":3
+            },
+            {
+               "orig_val":"200 Colonial Drive",
+               "field_num":4
+            },
+            {
+               "orig_val":"140 D 65 ",
+               "field_num":5
+            },
+            {
+               "orig_val":"54 Rue de Londre",
+               "field_num":6
+            },
+            {
+               "orig_val":"999 Holly Drive",
+               "field_num":7
+            },
+            {
+               "orig_val":"273 Clay Street",
+               "field_num":8
+            },
+            {
+               "orig_val":"19 17 B St",
+               "field_num":9
+            },
+            {
+               "orig_val":"Rakowiecka 21",
+               "field_num":10
+            }
+         ],
+         "object_method":"no action",
+         "col_num_new":4,
+         "header":{
+            "orig_val":"Home Address"
+         }
+      },
+      {
+         "col_num_orig":5,
+         "predicate":{
+            "label":"City",
+            "url":"http://schema.org/City",
+            "search_term":"City",
+            "score":"80",
+            "vocab_description":"Schema.org vocabulary",
+            "prefix":{
+               "url":"http://schema.org/",
+               "suffix":"City",
+               "prefix":"sdo"
+            }
+         },
+         "fields":[
+            {
+               "orig_val":"Los Angeles",
+               "field_num":1
+            },
+            {
+               "orig_val":"Berlin ",
+               "field_num":2
+            },
+            {
+               "orig_val":"Madrid",
+               "field_num":3
+            },
+            {
+               "orig_val":"Los Angeles",
+               "field_num":4
+            },
+            {
+               "orig_val":"Dubai",
+               "field_num":5
+            },
+            {
+               "orig_val":"Paris",
+               "field_num":6
+            },
+            {
+               "orig_val":"Los Angeles",
+               "field_num":7
+            },
+            {
+               "orig_val":"Los Angeles",
+               "field_num":8
+            },
+            {
+               "orig_val":"Dubai",
+               "field_num":9
+            },
+            {
+               "orig_val":"Warsaw",
+               "field_num":10
+            }
+         ],
+         "object_method":"no action",
+         "col_num_new":5,
+         "header":{
+            "orig_val":"City"
+         }
+      },
+      {
+         "col_num_orig":6,
+         "predicate":{
+            "label":"Country",
+            "url":"http://schema.org/Country",
+            "search_term":"Country",
+            "score":"80",
+            "vocab_description":"Schema.org vocabulary",
+            "prefix":{
+               "url":"http://schema.org/",
+               "suffix":"Country",
+               "prefix":"sdo"
+            }
+         },
+         "fields":[
+            {
+               "orig_val":"USA",
+               "field_num":1
+            },
+            {
+               "orig_val":"Germany",
+               "field_num":2
+            },
+            {
+               "orig_val":"Spain",
+               "field_num":3
+            },
+            {
+               "orig_val":"USA",
+               "field_num":4
+            },
+            {
+               "orig_val":"UAE",
+               "field_num":5
+            },
+            {
+               "orig_val":"France",
+               "field_num":6
+            },
+            {
+               "orig_val":"USA",
+               "field_num":7
+            },
+            {
+               "orig_val":"USA",
+               "field_num":8
+            },
+            {
+               "orig_val":"UAE",
+               "field_num":9
+            },
+            {
+               "orig_val":"Poland",
+               "field_num":10
+            }
+         ],
+         "object_method":"no action",
+         "col_num_new":6,
+         "header":{
+            "orig_val":"Country"
+         }
+      },
+      {
+         "col_num_orig":7,
+         "fields":[
+            {
+               "orig_val":"2007",
+               "field_num":1
+            },
+            {
+               "orig_val":"2010",
+               "field_num":2
+            },
+            {
+               "orig_val":"2005",
+               "field_num":3
+            },
+            {
+               "orig_val":"2005",
+               "field_num":4
+            },
+            {
+               "orig_val":"2000",
+               "field_num":5
+            },
+            {
+               "orig_val":"2009",
+               "field_num":6
+            },
+            {
+               "orig_val":"2000",
+               "field_num":7
+            },
+            {
+               "orig_val":"2007",
+               "field_num":8
+            },
+            {
+               "orig_val":"2005",
+               "field_num":9
+            },
+            {
+               "orig_val":"2007",
+               "field_num":10
+            }
+         ],
+         "col_num_new":7,
+         "header":{
+            "orig_val":"Year"
+         },
+         "object_method":"no action"
+      },
+      {
+         "col_num_orig":8,
+         "fields":[
+            {
+               "orig_val":"5.750",
+               "field_num":1
+            },
+            {
+               "orig_val":"8.000",
+               "field_num":2
+            },
+            {
+               "orig_val":"5.750",
+               "field_num":3
+            },
+            {
+               "orig_val":"8.000",
+               "field_num":4
+            },
+            {
+               "orig_val":"3.000",
+               "field_num":5
+            },
+            {
+               "orig_val":"4.000",
+               "field_num":6
+            },
+            {
+               "orig_val":"3.000",
+               "field_num":7
+            },
+            {
+               "orig_val":"5.750",
+               "field_num":8
+            },
+            {
+               "orig_val":"10.000",
+               "field_num":9
+            },
+            {
+               "orig_val":"10.000",
+               "field_num":10
+            }
+         ],
+         "col_num_new":8,
+         "header":{
+            "orig_val":"Salary"
+         },
+         "object_method":"no action"
+      },
+      {
+         "col_num_orig":9,
+         "fields":[
+            {
+               "orig_val":"male",
+               "field_num":1
+            },
+            {
+               "orig_val":"female",
+               "field_num":2
+            },
+            {
+               "orig_val":"male",
+               "field_num":3
+            },
+            {
+               "orig_val":"female",
+               "field_num":4
+            },
+            {
+               "orig_val":"male",
+               "field_num":5
+            },
+            {
+               "orig_val":"male",
+               "field_num":6
+            },
+            {
+               "orig_val":"male",
+               "field_num":7
+            },
+            {
+               "orig_val":"female",
+               "field_num":8
+            },
+            {
+               "orig_val":"female",
+               "field_num":9
+            },
+            {
+               "orig_val":"female",
+               "field_num":10
+            }
+         ],
+         "col_num_new":9,
+         "header":{
+            "orig_val":"Gender"
+         },
+         "object_method":"no action"
+      }
+   ],
+   "subject":{
+      "base_url":"http://www.dbpedia.org/",
+      "skeleton":"{Country}{Employee ID}"
+   },
+
+   "enrich": [{
+        "url": "http://xmlns.com/foaf/0.1/Person",
+        "prefix": {
+            "url": "http://xmlns.com/foaf/0.1/",
+            "suffix": "Person",
+            "prefix": "foaf"
+        },
+        "label": "Person",
+        "vocab_description": "",
+        "score": "",
+        "search_term": ""
+    }]
+}
