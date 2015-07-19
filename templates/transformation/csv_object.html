@@ -475,10 +475,8 @@ $( document ).ready(function() {
 		var data_type = get_model_data_type(col);
 
 		if(data_type){
-			console.log(data_type.suffix);
 			$("#id_table_settings_"+col+" select").val("add data type");
 			calculateCells(column=col);
-			console.log($("#id_table_head_"+col+" select.type_guessing").html());
 			$("#id_table_head_"+col+" select.type_guessing").val(data_type.url+data_type.suffix);
 		}
 
