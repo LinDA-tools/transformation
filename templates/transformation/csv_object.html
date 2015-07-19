@@ -419,10 +419,60 @@ function calculateCells(column){
 }
 
 
+//get object reconcilation data that is stored in json model and display on page
+function populate_from_model_reconciliation(widget, recon){
+
+	//build a bb_select dropdown without dropdown functionality
+
+/*
+	var star ="fa ";
+	if(enrich[i].score>80)
+		star += "fa-star";
+	else if(enrich[i].score>50)
+		star += "fa-star-half-o";
+	else
+		star += "fa-star-o";
+*/
+
+	var short_uri = recon.url;
+	if(recon.url)
+			short_uri = shortenURI(recon.url, 35);
+
+
+	var obj_div = "<div class=\"bb_select_nodropdown\"><a href=\""+recon.url+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window: "+recon.url+"')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>";
+
+	widget.html(obj_div);
+
+}
+
+
 var rdf_content = $("#id_hidden_rdf_array_field");
 
 
 $( document ).ready(function() {
+
+	//get information about reconciliation, type guessing etc from model and show in page
+	$("[id^='id_table_field_']").each( function(i){
+		var id_as_array = $(this).attr("id").split("_");
+		var col = id_as_array[id_as_array.length-2];
+		var row = id_as_array[id_as_array.length-1];
+
+		//RECONCILIATION
+		var recon = get_model_reconciliation(col, row);
+
+		if(recon){
+			populate_from_model_reconciliation($(this), recon);
+			$("#id_table_settings_"+col+" select").val("add URIs");
+
+		}
+
+		//restore select widgets state from model
+		//id_table_settings_4
+
+		console.log(recon);
+	});
+
+
 
 	$("#button_back").on("click", function () {
 		var form = $("#main_form");

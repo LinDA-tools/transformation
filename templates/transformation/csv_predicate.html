@@ -312,11 +312,8 @@ function adapt_RDF_preview(column_num) {
 }
 
 
-//get enrich data that is stored in json model and display on page
+//get predicate data that is stored in json model and display on page
 function populate_from_model(widget_num, predicate){
-
-console.log("function populate_from_model ");
-console.log(predicate);
 
 	//build a bb_select dropdown without dropdown functionality
 
@@ -336,18 +333,10 @@ console.log(predicate);
 
 	var predicate_div = "<div class=\"bb_select_nodropdown\" id=\"result_from_model_"+widget_num+"\"><span class=\"oracle_label\"><em>"+predicate.label+"</em><br><span class=\"vocab_description\">"+predicate.vocab_description+"</span></span><br><a href=\""+predicate.url_intern+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>lookup in LinDA dictionary<br><a href=\""+predicate.url+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>";
 
-	//console.log(predicate_div);
-
 	var parent = $("#search_result_"+widget_num).parent();
 	$("#search_result_"+widget_num).remove();
 	$("#result_from_model_"+widget_num).remove();
 	parent.html(parent.html()+predicate_div);
-	/*
-	var text = $("div#enriched p");
-	$("div#enriched").html("");
-	$("div#enriched").append(text);
-	$("div#enriched").append(enrich_list);
-	*/
 }
 
 
