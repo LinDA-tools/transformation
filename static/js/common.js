@@ -2504,6 +2504,20 @@ function get_model_reconciliation(col, row){
 	return false;
 }
 
+function get_model_data_type(col){
+	var model = get_model();
+	for(var i=0; i<model['columns'].length; i++){
+		if(model['columns'][i]["col_num_new"] == col){
+			if(model['columns'][i]['object_method'] == "data type" && model['columns'][i]['data_type']){
+				return model['columns'][i]['data_type'];
+			}
+			else
+				return false;
+		}
+	}
+	return false;
+}
+
 
 // ///////////////// MODEL END ///////////////////////////////
 

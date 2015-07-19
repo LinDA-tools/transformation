@@ -452,24 +452,36 @@ var rdf_content = $("#id_hidden_rdf_array_field");
 $( document ).ready(function() {
 
 	//get information about reconciliation, type guessing etc from model and show in page
+	//RECONCILIATION
 	$("[id^='id_table_field_']").each( function(i){
 		var id_as_array = $(this).attr("id").split("_");
 		var col = id_as_array[id_as_array.length-2];
 		var row = id_as_array[id_as_array.length-1];
 
-		//RECONCILIATION
 		var recon = get_model_reconciliation(col, row);
 
 		if(recon){
 			populate_from_model_reconciliation($(this), recon);
 			$("#id_table_settings_"+col+" select").val("add URIs");
+		}
+	});
 
+	//DATA TYPE
+	$("[id^='id_table_settings_']").each( function(i){
+
+		var id_as_array = $(this).attr("id").split("_");
+		var col = id_as_array[id_as_array.length-1];
+
+		var data_type = get_model_data_type(col);
+
+		if(data_type){
+			console.log(data_type.suffix);
+			$("#id_table_settings_"+col+" select").val("add data type");
+			calculateCells(column=col);
+			console.log($("#id_table_head_"+col+" select.type_guessing").html());
+			$("#id_table_head_"+col+" select.type_guessing").val(data_type.url+data_type.suffix);
 		}
 
-		//restore select widgets state from model
-		//id_table_settings_4
-
-		console.log(recon);
 	});
 
 
