@@ -98,7 +98,8 @@ def csv_upload(request):
             request.session['csv_dialect'] = csv_dialect
             request.session['csv_rows'] = csv_rows
             request.session['csv_raw'] = csv_raw
-            request.session['file_name'] = request.FILES['upload_file'].name
+            if 'upload_file' in request.FILES:
+                request.session['file_name'] = request.FILES['upload_file'].name
             #return redirect(reverse('csv-column-choice-view'))
             html_post_data = {
                 'action': form_action,
