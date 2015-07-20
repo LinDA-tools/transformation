@@ -448,7 +448,8 @@ function populate_from_model_reconciliation(widget, recon){
 
 	var obj_div = "<div class=\"bb_select_nodropdown\"><a href=\""+recon.url+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window: "+recon.url+"')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>";
 
-	widget.html(obj_div);
+	widget.find(":not(span)").remove();
+	widget.html(widget.html()+obj_div);
 
 }
 
