@@ -125,8 +125,9 @@
 				var intern_uri = $(this).find("a.intern_uri").attr("href");
 				var vocab_description = $(this).find("span.vocab_description").text();
 				var vocab_score = $(this).find("span.vocab_score").text();
-				//var search_term = ""; // TODO
-				elem.attr("value", '{"url":"'+extern_uri+'", "url_intern":"'+intern_uri+'", "prefix": '+JSON.stringify(replacePrefix(extern_uri))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'"}');
+				var search_term = $("#search_textinput_"+column_num).val();
+				console.log(search_term);
+				elem.attr("value", '{"url":"'+extern_uri+'", "url_intern":"'+intern_uri+'", "prefix": '+JSON.stringify(replacePrefix(extern_uri))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'", "search_term": "'+search_term+'"}');
 				adapt_RDF_preview(column_num);
 			});
 		});
@@ -158,7 +159,6 @@ var recent_text = null;
 
 
 function askOracle(widget_num){
-	console.log("askOracle");
 	$("#result_from_model_"+widget_num).remove();
 	recent_textinput = $("#search_textinput_"+widget_num);
 	recent_icon = document.getElementById("icon_"+widget_num);
@@ -288,8 +288,6 @@ function adapt_RDF_preview(column_num) {
 		var until = column_num;
 
 	}
-	//used_prefixes = [];
-	
 
 	for(var j=begin; j<=until; j++) {
 		if($("#search_result_"+(j)).length > 0){ // if from oracle
@@ -336,6 +334,7 @@ function populate_from_model(widget_num, predicate){
 	var parent = $("#search_result_"+widget_num).parent();
 	$("#search_result_"+widget_num).remove();
 	$("#result_from_model_"+widget_num).remove();
+	$("#search_textinput_"+widget_num).val(predicate.search_term);
 	parent.html(parent.html()+predicate_div);
 }
 
@@ -347,11 +346,9 @@ $( document ).ready(function() {
 
 	$("div[id^='search_result_']").each( function(i, obj){
 		var predicate = get_model_predicate_of_col(i+1);
-		//console.log(predicate);
 		if(typeof predicate === 'undefined'){//} || get_model_predicate_of_col(i+1) === 'false'){
 			askOracle(i+1);
 		}else{
-			//console.log("predicate for "+(i+1)+ " exists.");
 			populate_from_model((i+1), predicate);
 		}
 	});
