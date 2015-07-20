@@ -118,6 +118,7 @@
 				elem.attr("value", '{"url":"'+href+'", "prefix": '+JSON.stringify(replacePrefix(href))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'"}');
 				var id_as_array = $(this).closest("[id^='search_result_id_table_field']").attr("id").split("_");
 				var col = id_as_array[id_as_array.length-2];
+
                 adapt_RDF_preview(col);
             });
         });
@@ -319,6 +320,7 @@ function guessType(column){
 	var table_header = $("td[id^='id_table_head_"+column+"']");
 	table_header.html(table_header.html()+select);
 	table_header.find(".type_guessing").on("change", function(){
+
 		adapt_RDF_preview(column);
 	});
 
@@ -326,9 +328,11 @@ function guessType(column){
 
 }
 
-function noAction(column){
+//adaptRDF (boolean) tells wether or not to update RDF view, (update if undefined
+function noAction(column, adaptRDF){
 
 	column = typeof column !== 'undefined' ? column : "";
+	adaptRDF = typeof adaptRDF !== 'undefined' ? adaptRDF : true;
 
 	//remove data type select field from table header
 	$("td[id^='id_table_head_"+column+"']").find("select").remove();
@@ -343,11 +347,14 @@ function noAction(column){
 		var col = id_as_array[id_as_array.length-2];
 		$(this).text(csv_content[row][col-1]);
 	});
-	adapt_RDF_preview(column);
+
+	if(adaptRDF)
+		adapt_RDF_preview(column);
 }
 
 
 function adapt_RDF_preview(column) {
+
 	column = typeof column !== 'undefined' ? column : "";
 
 //TODO this is done each time anything is clicked, bad performance
@@ -402,7 +409,7 @@ function calculateCells(column){
 
 	var opt = $("#id_table_settings_" + column).find("select option:selected").text();
 	if(opt == "add URIs") {
-		noAction(column); //clear field
+		noAction(column, false); //clear field
 		var topic_field = "id_table_head_" + column;
 		var topic = $("#"+topic_field).text().trim();
 		$("td[id^='id_table_field_"+column+"']").each( function(i){
@@ -410,7 +417,7 @@ function calculateCells(column){
 		});
 	}
 	else if(opt == "add data type") {
-		noAction(column); //clear field
+		noAction(column, false); //clear field
 		guessType(column);
 	}
 	else if(opt == "no action") {
