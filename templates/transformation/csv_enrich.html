@@ -139,7 +139,7 @@ function askOracle(widget_num){
 		type: 'GET',
 		dataType: 'jsonp',
 		data: { 'class': recent_textinput.value },
-		url: "http://linda.epu.ntua.gr:8000/coreapi/recommend/",
+		url: lindaGlobals.server_url+"/coreapi/recommend/",
 	});
 
 	request.fail(function (jqXHR, textStatus, errorThrown) {
