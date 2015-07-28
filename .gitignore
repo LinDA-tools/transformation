@@ -108,3 +108,5 @@ crashlytics-build.properties
 *.sqlite3
 
 tmp/
+
+mappings/
