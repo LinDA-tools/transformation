@@ -28,7 +28,8 @@ def user_test(request):
 def data_choice(request):
     print("VIEW data_choice")
     form = DataChoiceForm()
-    return render_to_response('transformation/data_choice.html', {'form': form},
+    mappings = Mapping.objects.filter(user=request.user)
+    return render_to_response('transformation/data_choice.html', {'form': form, 'mappings': mappings},
                               context_instance=RequestContext(request))
 
 
@@ -350,11 +351,10 @@ def csv_publish(request):
             return response
 
         if 'save_mapping' in request.POST:
-            new_fname = request.session['model']['file_name'].rsplit(".", 1)[0]+"_R2RML.ttl"
-            r2rml_string = transform2r2rml(request.session['model'])
-            r2rml_file = ContentFile(r2rml_string.encode('utf-8'))
-            #mapping = Mapping(user = request.user, mappingFile = Mapping.mappingFile.save(new_fname, r2rml_file))
-            #mapping.save()
+            transformation_file = ContentFile(json.dumps(request.session['model']).encode('utf-8'))
+            mapping = Mapping(user = request.user, fileName = request.POST.get('name_mapping'), csvName = request.session['model']['file_name'])
+            mapping.mappingFile.save(request.POST.get('name_mapping'), transformation_file)
+            mapping.save()
 
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)

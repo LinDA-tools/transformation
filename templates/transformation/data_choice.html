@@ -29,12 +29,16 @@
 
 		</div>
 		<div class="col-5-10 right-side-box">
+            {% if user and not user.is_anonymous %}
 			<h3>CHOOSE EXISTING</h3>
 			<p>Alternatively, choose an existing transformation.</p>
-			<p>{{ form.fileList }}</p>
-
+            <select size="5">
+            {% for mapping in mappings %}
+            <option value="{{ mapping.id }}">{{ mapping.fileName }} | {{ mapping.date }} | {{ mapping.csvName }}</option>
+            {% endfor %}
+            </select><br>
 			<input type="submit" value="Choose">
-
+            {% endif %}
 		</div>
 	</div>
 </form>

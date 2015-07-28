@@ -28,7 +28,8 @@
             <p><input type="submit" name="button_download" id="button_download" value="Download RDF"></p>
             <p><input type="submit" name="button_r2rml" id="button_r2rml" value="Download R2RML"></p>
             {% if user and not user.is_anonymous %}
-                <p><input type="submit" name="save_mapping" id="save_mapping" value="Save Mapping"></p>
+                <p>Please enter a name for your transformation:<br><input type="text" name="name_mapping" id="name_mapping" size="35"></p>
+                <p><input type="submit" name="save_mapping" id="save_mapping" value="Save Transformation"></p>
             {% endif %}
         </div>
 

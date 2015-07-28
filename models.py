@@ -94,4 +94,7 @@ class CSVFile(models.Model):
 
 class Mapping(models.Model):
     user = models.ForeignKey(User)
-    mappingFile = models.FileField(upload_to='mappings')
+    date = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    fileName = models.CharField(max_length='512', null=True)
+    csvName = models.CharField(max_length='512', null=True)
+    mappingFile = models.FileField(upload_to='transformation/mappings')
