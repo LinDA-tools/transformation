@@ -20,6 +20,9 @@ import ast
 # MODELS
 # ###############################################
 
+def user_test(request):
+    return render_to_response('transformation/user_test.html',
+                             context_instance=RequestContext(request))
 
 def data_choice(request):
     print("VIEW data_choice")
