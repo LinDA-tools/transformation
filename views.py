@@ -14,6 +14,7 @@ from .forms import *
 from django.conf import settings
 from .settings import API_HOST
 import ast
+from transformation.models import Mapping
 
 
 # ###############################################
@@ -347,6 +348,14 @@ def csv_publish(request):
             response['Content-Length'] = r2rml_file.size
             response['Content-Disposition'] = 'attachment; filename="'+new_fname+'"'
             return response
+
+        if 'save_mapping' in request.POST:
+            new_fname = request.session['model']['file_name'].rsplit(".", 1)[0]+"_R2RML.ttl"
+            r2rml_string = transform2r2rml(request.session['model'])
+            r2rml_file = ContentFile(r2rml_string.encode('utf-8'))
+            #mapping = Mapping(user = request.user, mappingFile = Mapping.mappingFile.save(new_fname, r2rml_file))
+            #mapping.save()
+
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {

@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # ## first draft!
 
@@ -91,7 +92,6 @@ class CSVFile(models.Model):
     def __str__(self):
         return "CSV CSV File #" + str(self.id) + " (CSV #" + str(self.csv.id) + ")"
 
-
-
-
-
+class Mapping(models.Model):
+    user = models.ForeignKey(User)
+    mappingFile = models.FileField(upload_to='mappings')
