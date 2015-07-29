@@ -116,6 +116,11 @@ def csv_upload(request):
             }
             return render(request, 'transformation/csv_upload.html', html_post_data)
 
+        if 'button_choose' in request.POST:
+            print(request.POST['mapping_id'])
+            model = json.loads(Mapping.objects.filter(id=request.POST['mapping_id'])[0].mappingFile.read().decode("utf-8"))
+            return render(request, 'transformation/csv_upload.html')
+
     # html GET, we get here when loading the page 'for the first time'
     else:  # if request.method == 'POST':
         print("PATH 4 - initial page call (HTML GET)")
