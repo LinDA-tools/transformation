@@ -206,7 +206,7 @@ input[type="submit"]:hover:disabled {
     color: #bbb;
 }
 
-input[type="button"], .uribuilder {
+input[type="button"], .uribuilder, button {
     background: rgb(82, 179, 217);
     padding: 2px 8px;
     text-decoration: none;
@@ -216,7 +216,7 @@ input[type="button"], .uribuilder {
     cursor: pointer;
 }
 
-input[type="button"]:hover {
+input[type="button"]:hover, button {
     background-color: cadetblue;
 }
 
