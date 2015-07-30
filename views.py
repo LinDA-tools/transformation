@@ -28,7 +28,7 @@ def user_test(request):
 def data_choice(request):
     print("VIEW data_choice")
     form = DataChoiceForm()
-    mappings = Mapping.objects.filter(user=request.user)
+    mappings = Mapping.objects.filter(user=request.user.id)
     return render_to_response('transformation/data_choice.html', {'form': form, 'mappings': mappings},
                               context_instance=RequestContext(request))
 
@@ -357,7 +357,7 @@ def csv_publish(request):
 
         if 'save_mapping' in request.POST:
             transformation_file = ContentFile(json.dumps(request.session['model']).encode('utf-8'))
-            mapping = Mapping(user = request.user, fileName = request.POST.get('name_mapping'), csvName = request.session['model']['file_name'])
+            mapping = Mapping(user = request.user.id, fileName = request.POST.get('name_mapping'), csvName = request.session['model']['file_name'])
             mapping.mappingFile.save(request.POST.get('name_mapping'), transformation_file)
             mapping.save()
 
