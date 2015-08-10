@@ -231,7 +231,7 @@ function askOracle(widget_num){
 				if(uri)
 					url_extern_html = "<br><a class=\"extern_uri\" href=\""+uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri;
 
-				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i><span class=\"vocab_score\">"+data[i].ranking+"</span>) <em>"+data[i].label+"</em><br><span class=\"vocab_description\">"+data[i].vocabulary+"</span></span>"+url_intern_html+url_extern_html+"</div>");
+				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i><span class=\"vocab_score\">"+Math.floor(data[i].ranking)+"</span>) <em>"+data[i].label+"</em><br><span class=\"vocab_description\">"+data[i].vocabulary+"</span></span>"+url_intern_html+url_extern_html+"</div>");
 			}
 
 			addInnerDiv($("#search_result_"+widget_num));

@@ -180,7 +180,7 @@ function askOracle(widget_num){
 				else
 					star += "fa-star-o";
 
-				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i><span class=\"vocab_score\">"+data[i].ranking+"</span>) <em>"+data[i].label+"</em><br><span class=\"vocab_description\">"+data[i].vocabulary+"</span></span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>");
+				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i><span class=\"vocab_score\">"+Math.floor(data[i].ranking)+"</span>) <em>"+data[i].label+"</em><br><span class=\"vocab_description\">"+data[i].vocabulary+"</span></span><br><a href=\""+data[i].full_uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>");
 			}
 
 			addInnerDiv2($("#search_result_"+widget_num), to_enrich, "search_result_"+widget_num);
