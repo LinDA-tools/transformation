@@ -14,17 +14,22 @@ from .forms import *
 from django.conf import settings
 from .settings import API_HOST
 import ast
+from transformation.models import Mapping
 
 
 # ###############################################
 # MODELS
 # ###############################################
 
+def user_test(request):
+    return render_to_response('transformation/user_test.html',
+                             context_instance=RequestContext(request))
 
 def data_choice(request):
     print("VIEW data_choice")
     form = DataChoiceForm()
-    return render_to_response('transformation/data_choice.html', {'form': form},
+    mappings = Mapping.objects.filter(user=request.user.id)
+    return render_to_response('transformation/data_choice.html', {'form': form, 'mappings': mappings},
                               context_instance=RequestContext(request))
 
 
@@ -110,6 +115,12 @@ def csv_upload(request):
                 'filename': request.session['file_name']
             }
             return render(request, 'transformation/csv_upload.html', html_post_data)
+
+        if 'button_choose' in request.POST:
+            print(request.POST['mapping_id'])
+            model = json.loads(Mapping.objects.filter(id=request.POST['mapping_id'])[0].mappingFile.read().decode("utf-8"))
+            form = UploadFileForm()
+            return render(request, 'transformation/csv_upload.html', {'action': 1, 'form': form})
 
     # html GET, we get here when loading the page 'for the first time'
     else:  # if request.method == 'POST':
@@ -344,6 +355,13 @@ def csv_publish(request):
             response['Content-Length'] = r2rml_file.size
             response['Content-Disposition'] = 'attachment; filename="'+new_fname+'"'
             return response
+
+        if 'save_mapping' in request.POST:
+            transformation_file = ContentFile(json.dumps(request.session['model']).encode('utf-8'))
+            mapping = Mapping(user = request.user.id, fileName = request.POST.get('name_mapping'), csvName = request.session['model']['file_name'])
+            mapping.mappingFile.save(request.POST.get('name_mapping'), transformation_file)
+            mapping.save()
+
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
