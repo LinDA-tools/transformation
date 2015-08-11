@@ -353,7 +353,17 @@ function noAction(column, adaptRDF){
 }
 
 
+// only refresh once every .6 seconds
+var rdfadapt_typingTimer;
+var rdfadapt_doneTypingInterval = 600;
 function adapt_RDF_preview(column) {
+	clearTimeout(rdfadapt_typingTimer);
+	rdfadapt_typingTimer = setTimeout(function(){adapt_RDF_preview_2(column);}, rdfadapt_doneTypingInterval);
+}
+ 
+	column = typeof column !== 'undefined' ? column : "";
+ 
+function adapt_RDF_preview_2(column) {
 
 	column = typeof column !== 'undefined' ? column : "";
 
