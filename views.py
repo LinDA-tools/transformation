@@ -259,8 +259,45 @@ def csv_object(request):
         else:
             request.session['model'] = ""
 
+    num_rows_model = len(request.session['model']['columns'][0]['fields'])
+
+    #pagination
+    if "page" in request.GET and is_int(request.GET.get('page')):
+        page = int(request.GET.get('page'))
+    else:
+        page = 1
+
+    if "num" in request.GET and is_int(request.GET.get('num')):
+        perPage = int(request.GET.get('num'))
+    else:
+        perPage = 10    
+
+    max_pages = num_rows_model // perPage
+    if num_rows_model % perPage > 0: #'rest'
+        max_pages += 1
+
+    if page > num_rows_model / perPage:
+        page = max_pages
+
+    paging_html = ""
+    for x in range(max_pages):
+        f = (x * perPage) + 1
+        t = f + perPage - 1
+        if t > num_rows_model:
+            t = num_rows_model
+        paging_html += '<a href="?page='+str(x+1)+'&num='+str(perPage)+'">'+str(f)+'-'+str(t)+'</a> |'
+
+    paging_html = paging_html[:-2]
+
+
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
+        'pagination': {
+            'html': paging_html,
+            'perPage': perPage,
+            'page': page,
+            'max_pages': max_pages,
+            'num_rows': num_rows_model},
         'action': form_action,
         'rdfModel': request.session['model'], 
         'csvContent': csv_rows_selected_columns,
@@ -269,6 +306,14 @@ def csv_object(request):
 	    'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_object.html', html_post_data)
+
+
+def is_int(s):
+    try: 
+        int(s)
+        return True
+    except ValueError:
+        return False
 
 
 def csv_enrich(request):

@@ -24,10 +24,10 @@ def model_as_table_predicate(model, numrows=-1):
 	return result
 
 @register.filter(name='model_as_table_object')
-def model_as_table_object(model, numrows=-1):
+def model_as_table_object(model, pagination):
 	result =  '<table class="table_view">'
 	result += model_header_as_table_object(model)
-	result += model_content_as_table(model, numrows)
+	result += model_content_as_table(model, pagination)
 	result += '</table>'
 	return result
 
@@ -52,15 +52,26 @@ def model_header_as_table(model):
 
 	return result
 
+
 @register.filter(name='model_as_tbody')
-def model_content_as_table(model, numrows=-1):
+def model_content_as_table(model, pagination):
+	'''
+	pagination can be 
+	int number: first x elements will be selected
+	dict of 'pagination', with page and perPage attributes as in views.py -> csv_object function
+	'''
 	num_rows = model['num_cols_selected']
 	content = []
 	for col in model['columns']:
 		if col['col_num_new'] > -1: #show column
 			row = []
-			if numrows != -1:
-				fields = col['fields'][:numrows]
+			if isinstance(pagination, dict) and 'page' in pagination and 'perPage' in pagination:
+				f = (pagination['page']-1) * pagination['perPage']
+				t = f + pagination['perPage']
+				print('showing '+str(f)+" "+str(t) )
+				fields = col['fields'][f:t]
+			elif isinstance(pagination, int):
+				fields = col['fields'][:pagination]
 			else:
 				fields = col['fields']
 
@@ -68,9 +79,7 @@ def model_content_as_table(model, numrows=-1):
 				row.append(elem['orig_val'])
 			content.append(row)
 
-	print(content)
 	content = list(zip(*content))
-	print(content)
 
 	result = "<tbody>"
 	

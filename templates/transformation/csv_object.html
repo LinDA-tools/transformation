@@ -41,8 +41,10 @@
     <div class="content scrollit">
         <h3>DATA VIEW</h3>
         <div>
-        File: <b>{{ filename }}</b> (complete data)
-        {{ rdfModel | model_as_table_object | safe }}
+        File: <b>{{ filename }}</b> (complete data)<br>
+        {{pagination}}
+        <br>{{ pagination.html | safe }}
+        {{ rdfModel | model_as_table_object:pagination | safe }}
         </div>
     </div>
 </div>
