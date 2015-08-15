@@ -332,6 +332,8 @@ function guessType(column){
 //adaptRDF (boolean) tells wether or not to update RDF view, (update if undefined
 function noAction(column, adaptRDF){
 
+	model = get_model();
+
 	column = typeof column !== 'undefined' ? column : "";
 	adaptRDF = typeof adaptRDF !== 'undefined' ? adaptRDF : true;
 
@@ -339,17 +341,16 @@ function noAction(column, adaptRDF){
 	$("td[id^='id_table_head_"+column+"']").find("select").remove();
 	$("td[id^='id_table_head_"+column+"']").find("br").remove();
 
-	//var csv_content = eval($("#id_hidden_csv_content_field").val());
 	$("td[id^='id_table_field_"+column+"']").each( function(i){
 		var id = $(this).attr("id");
 		//get row and column field as included in table td id field
 		id_as_array = id.split("_");
 		var row = id_as_array[id_as_array.length-1];
 		var col = id_as_array[id_as_array.length-2];
-		//$(this).text(csv_content[row][col-1]);
-		add_to_model_field_where_col_and_row(new_key, new_value, col, row)
+		$(this).text(model['columns'][col]['fields'][row-1]['orig_val']);
 	});
 
+	//write_model(model);
 
 	if(adaptRDF)
 		adapt_RDF_preview(column);
