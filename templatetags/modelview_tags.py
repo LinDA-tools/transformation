@@ -62,13 +62,16 @@ def model_content_as_table(model, pagination):
 	'''
 	num_rows = model['num_cols_selected']
 	content = []
+	p = False
+	f = 0
+	if isinstance(pagination, dict) and 'page' in pagination and 'perPage' in pagination:
+		p = True
+		f = (pagination['page']-1) * pagination['perPage']
+		t = f + pagination['perPage']
 	for col in model['columns']:
 		if col['col_num_new'] > -1: #show column
 			row = []
-			if isinstance(pagination, dict) and 'page' in pagination and 'perPage' in pagination:
-				f = (pagination['page']-1) * pagination['perPage']
-				t = f + pagination['perPage']
-				print('showing '+str(f)+" "+str(t) )
+			if p:
 				fields = col['fields'][f:t]
 			elif isinstance(pagination, int):
 				fields = col['fields'][:pagination]
@@ -86,7 +89,7 @@ def model_content_as_table(model, pagination):
 	for i, row in enumerate(content):
 		result += "<tr>"
 		for j, field in enumerate(row):
-			result += '<td id="id_table_field_' +str(j+1)+ '_' +str(i+1)+ '">'
+			result += '<td id="id_table_field_' +str(j+1)+ '_' +str(i+1+f)+ '">'
 			result += '<span>'+field+'</span>'
 			result += "</td>"
 		result += "</tr>"

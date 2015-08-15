@@ -41,9 +41,8 @@
     <div class="content scrollit">
         <h3>DATA VIEW</h3>
         <div>
-        File: <b>{{ filename }}</b> (complete data)<br>
-        {{pagination}}
-        <br>{{ pagination.html | safe }}
+        File: <b>{{ filename }}</b> (complete data)<br>{{pagination}}<br>
+        {{ pagination.html | safe }}
         {{ rdfModel | model_as_table_object:pagination | safe }}
         </div>
     </div>
@@ -340,15 +339,17 @@ function noAction(column, adaptRDF){
 	$("td[id^='id_table_head_"+column+"']").find("select").remove();
 	$("td[id^='id_table_head_"+column+"']").find("br").remove();
 
-	var csv_content = eval($("#id_hidden_csv_content_field").val());
+	//var csv_content = eval($("#id_hidden_csv_content_field").val());
 	$("td[id^='id_table_field_"+column+"']").each( function(i){
 		var id = $(this).attr("id");
 		//get row and column field as included in table td id field
 		id_as_array = id.split("_");
 		var row = id_as_array[id_as_array.length-1];
 		var col = id_as_array[id_as_array.length-2];
-		$(this).text(csv_content[row][col-1]);
+		//$(this).text(csv_content[row][col-1]);
+		add_to_model_field_where_col_and_row(new_key, new_value, col, row)
 	});
+
 
 	if(adaptRDF)
 		adapt_RDF_preview(column);
