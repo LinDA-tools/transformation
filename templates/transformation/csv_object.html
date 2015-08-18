@@ -179,6 +179,14 @@ function askOracle(widget, domain, term){
 			addInnerDiv($("#"+new_id));
 			//auto-select first element after oracle call
 			$(widget).find("* .bb_select_elements").children().first().trigger("click");
+
+			var id = $(widget).attr("id");
+			//get row and column field as included in table td id field
+			id_as_array = id.split("_");
+			//var row = id_as_array[id_as_array.length-1];
+			var col = id_as_array[id_as_array.length-2];
+
+			add_to_content_where_col("object_method", "reconciliation", col);
 		}
 
 	});
@@ -325,6 +333,8 @@ function guessType(column){
 		adapt_RDF_preview(column);
 	});
 
+	add_to_content_where_col("object_method", "data type", column);
+
 	adapt_RDF_preview(column);
 
 }
@@ -347,10 +357,11 @@ function noAction(column, adaptRDF){
 		id_as_array = id.split("_");
 		var row = id_as_array[id_as_array.length-1];
 		var col = id_as_array[id_as_array.length-2];
+		//write original field content from model
 		$(this).text(model['columns'][col]['fields'][row-1]['orig_val']);
 	});
 
-	//write_model(model);
+	add_to_content_where_col("object_method", "no action", column);
 
 	if(adaptRDF)
 		adapt_RDF_preview(column);
@@ -369,20 +380,29 @@ function adapt_RDF_preview(column) {
  
 function adapt_RDF_preview_2(column) {
 
+
+/*
 	column = typeof column !== 'undefined' ? column : "";
 
 //TODO this is done each time anything is clicked, bad performance
+	var model = get_model();
 	$("td[id^='id_table_field_"+column+"']").each(function(i){
 
 		var id_as_array = $(this).attr("id").split("_");
 		var row = id_as_array[id_as_array.length-1];
 		var col = id_as_array[id_as_array.length-2];
 
-		var method = $("#id_table_settings_"+col+" select option:selected").text();
+		//var method = $("#id_table_settings_"+col+" select option:selected").text();
+		var method = model['columns'][col-1]['object_method'];
+		if (typeof method == 'undefined')
+			method = "no action";
+		/*
+		console.log("method ("+col+"): "+method);
 		if(method == "add URIs")
 			method = "reconciliation";
 		else if(method == "add data type")
 			method = "data type";
+		
 		add_to_content_where_col("object_method", method, col);
 
 		var recon_result = $(this).find(".bb_select_selection").text();
@@ -395,8 +415,8 @@ function adapt_RDF_preview_2(column) {
 				recon_result_prefixed['url'] = recon_result_prefixed['url'].substring(0, recon_result_prefixed['url'].length-1);
 			}
 
-		add_to_model_field_where_col_and_row("reconciliation", {"url":recon_result,"prefix": recon_result_prefixed}, col, row);
-		add_to_content_where_col("object_method", "reconciliation", col);
+			add_to_model_field_where_col_and_row("reconciliation", {"url":recon_result,"prefix": recon_result_prefixed}, col, row);
+			//add_to_content_where_col("object_method", "reconciliation", col);
 
 		}else if($("#id_table_head_"+col).find("select.type_guessing").length>0) { // has guessed types
 
@@ -405,9 +425,11 @@ function adapt_RDF_preview_2(column) {
 			add_to_content_where_col("data_type", replacePrefix(data_type), col);
 			//add_to_content_where_col("object_method", "data type", col);
 
-
 		}
+		
 	});
+*/
+	console.log(get_model());
 
 	var rdf_view = $("#rdf_view");
 	var tbl = model_to_table(get_model(), 10);
@@ -416,27 +438,35 @@ function adapt_RDF_preview_2(column) {
 
 }
 
-//check whether to to auto type guessing, econciliation or nothing (select dropbox)
+//check whether to do auto type guessing, reconciliation or nothing (select dropbox)
 //when providing no param, all fields are checked
 function calculateCells(column){
 	column = typeof column !== 'undefined' ? column : "";
 
-	var opt = $("#id_table_settings_" + column).find("select option:selected").text();
-	if(opt == "add URIs") {
-		noAction(column, false); //clear field
-		var topic_field = "id_table_head_" + column;
-		var topic = $("#"+topic_field).text().trim();
-		$("td[id^='id_table_field_"+column+"']").each( function(i){
-			askOracle($(this), topic, $(this).text().trim());
-		});
-	}
-	else if(opt == "add data type") {
-		noAction(column, false); //clear field
-		guessType(column);
-	}
-	else if(opt == "no action") {
-		noAction(column);
-	}
+	$("#id_table_settings_" + column).each(function(i){
+		console.log("xxx+  "+$(this));
+		var opt = $(this).find("select option:selected").text();
+		console.log("in col "+column+" : "+opt);
+
+		if(opt == "add URIs") {
+			noAction(column, false); //clear field
+			var topic_field = "id_table_head_" + column;
+			var topic = $("#"+topic_field).text().trim();
+			$("td[id^='id_table_field_"+column+"']").each( function(i){
+				askOracle($(this), topic, $(this).text().trim());
+			});
+		}
+		else if(opt == "add data type") {
+			noAction(column, false); //clear field
+			guessType(column);
+		}
+		else if(opt == "no action") {
+			noAction(column);
+		}
+
+
+	});
+
 }
 
 
@@ -473,6 +503,8 @@ var rdf_content = $("#id_hidden_rdf_array_field");
 
 $( document ).ready(function() {
 
+	/*
+
 	//get information about reconciliation, type guessing etc from model and show in page
 	//RECONCILIATION
 	$("[id^='id_table_field_']").each( function(i){
@@ -504,6 +536,45 @@ $( document ).ready(function() {
 
 	});
 
+	*/
+
+	var model = get_model();
+	var cols = model['columns'];
+	$.each(cols, function(i,column){
+		if(column['col_num_new'] > -1){
+			var method = column['object_method'];
+			if(method == "reconciliation"){
+				console.log("recon");
+				console.log("#id_table_settings_"+column['col_num_new']+" select");
+				$("#id_table_settings_"+column['col_num_new']+" select").val("add URIs");
+
+				$("[id^='id_table_field_"+column['col_num_new']+"']").each(function(i){
+					var id_as_array = $(this).attr("id").split("_");
+					var col = id_as_array[id_as_array.length-2];
+					var row = id_as_array[id_as_array.length-1];
+
+					var recon = get_model_reconciliation(col, row);
+
+					if(recon){
+						populate_from_model_reconciliation($(this), recon);
+						$("#id_table_settings_"+col+" select").val("add URIs");
+					}
+				});
+
+			}else if(method == "data type"){
+				console.log("dt");
+				var data_type = get_model_data_type(col);
+				if(data_type){
+					$("#id_table_settings_"+column['col_num_new']+" select").val("add data type");
+					calculateCells(column=column['col_num_new']);
+					$("#id_table_head_"+column['col_num_new']+" select.type_guessing").val(data_type.url+data_type.suffix);
+				}
+			}else{
+				console.log(column['col_num_new']+" "+method);
+			}
+
+		}
+	});
 
 
 	$("#button_back").on("click", function () {
@@ -516,9 +587,19 @@ $( document ).ready(function() {
 
 	$("td[id^='id_table_settings_'] select").each(function(){
 		$(this).on("change", function(){
+			console.log("KLICK");
 			var id = $(this).parent().attr("id");
 			calculateCells(column=id.substring(id.lastIndexOf("_")+1));
 		});
+	});
+
+	$(".pagination-link").click(function(){
+		var f = $(this).parents("form");
+		f.get(0).setAttribute('method', "POST");
+		f.get(0).setAttribute('action', $(this).attr("href"));
+		alert(f.html());
+		f.submit();
+		return false;
 	});
 
 	calculateCells();
