@@ -357,6 +357,9 @@ function guessType(column){
 
 	add_to_content_where_col("object_method", "data type", column);
 
+	var data_type = table_header.find("select.type_guessing option:selected").attr("value");		
+	add_to_content_where_col("data_type", replacePrefix(data_type), column);
+
 	adapt_RDF_preview(column);
 
 }
@@ -565,6 +568,7 @@ $( document ).ready(function() {
 	$.each(cols, function(i,column){
 		if(column['col_num_new'] > -1){
 			var method = column['object_method'];
+							console.log(column['col_num_new']+" "+method +" #id_table_settings_"+column['col_num_new']);
 			if(method == "reconciliation"){
 				console.log("recon");
 				console.log("#id_table_settings_"+column['col_num_new']+" select");
@@ -584,15 +588,16 @@ $( document ).ready(function() {
 				});
 
 			}else if(method == "data type"){
+				//model['columns'][i]['object_method']
 				console.log("dt");
-				var data_type = get_model_data_type(col);
+				var data_type = get_model_data_type(column['col_num_new']);
 				if(data_type){
 					$("#id_table_settings_"+column['col_num_new']+" select").val("add data type");
 					calculateCells(column=column['col_num_new']);
 					$("#id_table_head_"+column['col_num_new']+" select.type_guessing").val(data_type.url+data_type.suffix);
-				}
+				}else{console.log("NO DT");}
 			}else{
-				console.log(column['col_num_new']+" "+method);
+
 			}
 
 		}
@@ -608,9 +613,25 @@ $( document ).ready(function() {
 	adapt_RDF_preview();
 
 	$("td[id^='id_table_settings_'] select").each(function(){
+		//append little refresh button/sign
+		$( "<i></i>").addClass("fa fa-refresh").css("margin","0em .5em").appendTo( $(this).parent() );
+		if($(this).val() == "add URIs"){
+			$(this).siblings("i").css("visibility","visible");
+		}else{
+			$(this).siblings("i").css("visibility","hidden");
+		}
 		$(this).on("change", function(){
 			console.log("KLICK");
 			var id = $(this).parent().attr("id");
+
+			if($(this).val() == "add URIs"){
+				//$(this).siblings("i").addClass("fa-spin");
+				$(this).siblings("i").css("visibility","visible");
+				//<i class="fa fa-refresh">//fa-spin
+			}else{
+				//$(this).siblings("i").removeClass("fa-spin");
+				$(this).siblings("i").css("visibility","hidden");
+			}
 			calculateCells(column=id.substring(id.lastIndexOf("_")+1));
 		});
 	});
@@ -619,7 +640,6 @@ $( document ).ready(function() {
 		var f = $(this).parents("form");
 		f.get(0).setAttribute('method', "POST");
 		f.get(0).setAttribute('action', $(this).attr("href"));
-		alert(f.html());
 		f.submit();
 		return false;
 	});
