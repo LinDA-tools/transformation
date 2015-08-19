@@ -584,6 +584,11 @@ $( document ).ready(function() {
 					if(recon){
 						populate_from_model_reconciliation($(this), recon);
 						$("#id_table_settings_"+col+" select").val("add URIs");
+					}else{
+						//get reconciliation for fields that havent been reconciled before
+						var topic_field = "id_table_head_" + col;
+						var topic = $("#"+topic_field).text().trim();
+						askOracle($(this), topic, $(this).text().trim());
 					}
 				});
 
