@@ -285,7 +285,10 @@ def csv_object(request):
         t = f + perPage - 1
         if t > num_rows_model:
             t = num_rows_model
-        paging_html += '<a class="pagination-link" href="?page='+str(x+1)+'&num='+str(perPage)+'">'+str(f)+'-'+str(t)+'</a> |'
+        recentPage = ""
+        if x+1 == page:
+            recentPage = " recent-page"
+        paging_html += '<a class="pagination-link'+recentPage+'" href="?page='+str(x+1)+'&num='+str(perPage)+'">'+str(f)+'-'+str(t)+'</a> |'
 
     paging_html = paging_html[:-2]
 

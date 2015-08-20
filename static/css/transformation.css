@@ -407,6 +407,15 @@ a .fa {
     cursor: pointer;
 }
 
+/* pagination in object page */
+.pagination-link{
+
+}
+
+.recent-page{
+    font-weight: bold;
+}
+
 
 
 
