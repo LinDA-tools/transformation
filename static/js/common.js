@@ -2273,6 +2273,40 @@ Array.prototype.clean = function(deleteValue) {
   return this;
 };
 
+
+function shortenURI(uri, maxlength){
+console.log(" -- - - ");
+	if(uri.indexOf("http://") == 0)
+		uri = uri.substring(7);
+
+	if(uri.length <= maxlength)
+		return uri;
+	console.log(uri);
+
+	maxlength = maxlength -3; //because we include "..."
+	var parts = uri.split("/").clean("");
+	var head = "";
+	var tail = "";
+	counter = 0;
+	for(var i = 0; i <= (parts.length/2); i++){
+		counter++
+		if((counter > parts.length || head.length + tail.length + parts[parts.length-i-1].length + 4) >= maxlength)
+			return head + "..." + tail;
+		else
+			tail = "/" + parts[parts.length-i-1] + tail;
+		console.log(head + "..." + tail);
+
+		counter++
+		if(counter > parts.length || (head.length + tail.length + parts[i].length + 4) >= maxlength)
+			return head + "..." + tail;
+		else 
+			head += parts[i] + "/";
+		console.log(head + "..." + tail);
+
+	}	
+}
+
+/*
 function shortenURI(uri, maxlength){
 	if(uri.length <= maxlength)
 		return uri;
@@ -2294,7 +2328,7 @@ function shortenURI(uri, maxlength){
 			tail = "/" + parts[parts.length-i] + tail;
 	}	
 }
-
+*/
 jQuery.fn.extend({
 insertAtCaret: function(myValue){
   return this.each(function(i) {
