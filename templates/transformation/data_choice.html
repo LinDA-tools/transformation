@@ -29,7 +29,7 @@
 
 		</div>
 		<div class="col-5-10 right-side-box">
-            {% if user and not user.is_anonymous %}
+            {# if user and not user.is_anonymous #}
 			<h3>CHOOSE EXISTING</h3>
 			<p>Alternatively, choose an existing transformation.</p>
             <form method="post" action="csv/step/1">
@@ -41,7 +41,7 @@
             </select><br>
 			<input type="submit" name="button_choose" id="id_button_choose" value="Choose">
             </form>
-            {% endif %}
+            {# endif #}
 		</div>
 	</div>
 

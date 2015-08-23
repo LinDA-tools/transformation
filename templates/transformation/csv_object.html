@@ -42,7 +42,9 @@
         <h3>DATA VIEW</h3>
         <div>
         File: <b>{{ filename }}</b> ({{pagination.perPage}} rows per page)<br>
+        {% if pagination.max_pages > 1 %}
         show rows: {{ pagination.html | safe }}
+        {% endif %}
         {{ rdfModel | model_as_table_object:pagination | safe }}
         </div>
     </div>
@@ -394,7 +396,10 @@ function noAction(column, adaptRDF){
 		var row = id_as_array[id_as_array.length-1];
 		var col = id_as_array[id_as_array.length-2];
 		//write original field content from model
-		$(this).text(model['columns'][col]['fields'][row-1]['orig_val']);
+		for(var i = 0; i < model['columns'].length; i++){
+			if(model['columns'][i]['col_num_new'] == col)
+				$(this).text(model['columns'][i]['fields'][row-1]['orig_val']);
+		}
 	});
 
 	add_to_content_where_col("object_method", "no action", column);
