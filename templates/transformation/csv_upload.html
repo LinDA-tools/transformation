@@ -115,10 +115,12 @@
     </div>
 </div>
 
-
+{% if csvContent %}
     <div class="content scrollit">
+    
         <h3>DATA VIEW</h3>
         <div>
+        
         File: <b>{{ filename }}</b> (10 rows example)
         <table class="table_view">
             <thead>
@@ -132,7 +134,6 @@
                 </tr>
             {% endfor %}
 
-
             </thead>
             <tbody>
             {% for line in csvContent|slice:"1:" %}
@@ -145,11 +146,13 @@
             {% endfor %}
             </tbody>
         </table>
+        
         </div>
 
     </div>
+{% endif %}
 
-    </form>
+</form>
 
     <!--div id="processing">
     processing...
