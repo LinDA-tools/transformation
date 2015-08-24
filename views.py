@@ -36,6 +36,8 @@ def data_choice(request):
 def csv_upload(request):
     print("VIEW csv_upload")
     form_action = 2
+    if 'model' not in request.session:
+        request.session['model'] = None
     if request.method == 'POST':
         print("PATH 1 - POST")
         # a raw representation of the CSV file is also kept as we want to be able to change the CSV dialect and then reload the page
@@ -131,6 +133,8 @@ def csv_upload(request):
 
 def csv_column_choice(request):
     print("VIEW csv_column_choice")
+    if 'model' not in request.session:
+        request.session['model'] = None
     form_action = 3
     html_post_data = {
         'action': form_action,
@@ -143,6 +147,7 @@ def csv_column_choice(request):
 
 def csv_subject(request):
     print("VIEW csv_subject")
+    print(request.session['model'])
     form_action = 4
     form = SubjectForm(request.POST)
     if request.POST and form.is_valid() and form != None:
@@ -157,10 +162,11 @@ def csv_subject(request):
         else:
             request.session['rdf_prefix'] = ""
         #print(form.cleaned_data)
-        if form.cleaned_data['hidden_model']:
+        if request.session['model']:
         #if 'hidden_model' in form.cleaned_data:
             print('model existing')
             request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
+            print(request.session['model'])
 
         else:
             print('creating model')
