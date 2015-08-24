@@ -118,7 +118,7 @@ def csv_upload(request):
 
         if 'button_choose' in request.POST:
             print(request.POST['mapping_id'])
-            model = json.loads(Mapping.objects.filter(id=request.POST['mapping_id'])[0].mappingFile.read().decode("utf-8"))
+            request.session['model'] = json.loads(Mapping.objects.filter(id=request.POST['mapping_id'])[0].mappingFile.read().decode("utf-8"))
             form = UploadFileForm()
             return render(request, 'transformation/csv_upload.html', {'action': 1, 'form': form})
 
@@ -135,7 +135,8 @@ def csv_column_choice(request):
     html_post_data = {
         'action': form_action,
         'csvContent': request.session['csv_rows'],
-        'filename': request.session['file_name']
+        'filename': request.session['file_name'],
+        'rdfModel': request.session['model']
     }
     return render(request, 'transformation/csv_column_choice.html', html_post_data)
 
@@ -424,7 +425,7 @@ def csv_publish(request):
 
         if 'save_mapping' in request.POST:
             transformation_file = ContentFile(json.dumps(request.session['model']).encode('utf-8'))
-            mapping = Mapping(user = request.user.id, fileName = request.POST.get('name_mapping'), csvName = request.session['model']['file_name'])
+            mapping = Mapping(user = request.user, fileName = request.POST.get('name_mapping'), csvName = request.session['model']['file_name'])
             mapping.mappingFile.save(request.POST.get('name_mapping'), transformation_file)
             mapping.save()
 
