@@ -126,7 +126,6 @@
 				var vocab_description = $(this).find("span.vocab_description").text();
 				var vocab_score = $(this).find("span.vocab_score").text();
 				var search_term = $("#search_textinput_"+column_num).val();
-				console.log(search_term);
 				elem.attr("value", '{"url":"'+extern_uri+'", "url_intern":"'+intern_uri+'", "prefix": '+JSON.stringify(replacePrefix(extern_uri))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'", "search_term": "'+search_term+'"}');
 				adapt_RDF_preview(column_num);
 			});

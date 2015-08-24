@@ -2275,13 +2275,11 @@ Array.prototype.clean = function(deleteValue) {
 
 
 function shortenURI(uri, maxlength){
-console.log(" -- - - ");
 	if(uri.indexOf("http://") == 0)
 		uri = uri.substring(7);
 
 	if(uri.length <= maxlength)
 		return uri;
-	console.log(uri);
 
 	maxlength = maxlength -3; //because we include "..."
 	var parts = uri.split("/").clean("");
@@ -2294,15 +2292,12 @@ console.log(" -- - - ");
 			return head + "..." + tail;
 		else
 			tail = "/" + parts[parts.length-i-1] + tail;
-		console.log(head + "..." + tail);
 
 		counter++
 		if(counter > parts.length || (head.length + tail.length + parts[i].length + 4) >= maxlength)
 			return head + "..." + tail;
 		else 
 			head += parts[i] + "/";
-		console.log(head + "..." + tail);
-
 	}	
 }
 
@@ -2566,7 +2561,6 @@ function model_to_table(model, numrows){
 	});//.appendTo(elem);
 
 	if(model == undefined){
-		console.log("model undefinded");
 		return tbl;
 	}
 
@@ -2578,10 +2572,6 @@ function model_to_table(model, numrows){
 			num_selected_cols++;
 		}
 	});
-
-	console.log(numrows*num_selected_cols);
-	console.log(numrows);
-	console.log(num_selected_cols);
 
 	//numrows = typeof numrows !== "undefined" ? Math.min(rdf_array['rdf_array'].length, numrows*model['columns'].length) : rdf_array['rdf_array'].length;
 	numrows = typeof numrows !== "undefined" ? Math.min(rdf_array['rdf_array'].length, numrows*num_selected_cols+rdf_array['num_prefixes']) : rdf_array['rdf_array'].length;
@@ -2611,7 +2601,6 @@ function model_to_array(model){
 
 
 	if(typeof model === "undefined" || !model['columns']){
-		console.log("model undefinded");
 		return;
 	}
 

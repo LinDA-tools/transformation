@@ -147,7 +147,6 @@ def csv_column_choice(request):
 
 def csv_subject(request):
     print("VIEW csv_subject")
-    print(request.session['model'])
     form_action = 4
     form = SubjectForm(request.POST)
     if request.POST and form.is_valid() and form != None:
@@ -161,12 +160,10 @@ def csv_subject(request):
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
         else:
             request.session['rdf_prefix'] = ""
-        #print(form.cleaned_data)
         if request.session['model']:
         #if 'hidden_model' in form.cleaned_data:
             print('model existing')
             request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
-            print(request.session['model'])
 
         else:
             print('creating model')
@@ -307,7 +304,6 @@ def csv_object(request):
     if num_rows_model not in pages_arr:
         pages_arr.append(num_rows_model)
     pages_arr = sorted(pages_arr)
-    print(pages_arr)
     for p in pages_arr:
         if p <= num_rows_model:
             selected = ""
@@ -401,8 +397,6 @@ def csv_publish(request):
             request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
 
         if 'button_publish' in request.POST:
-            print("PUBLISH BUTTON PRESSED")
-            #print(rdf_n3)
             payload = {'title': request.POST.get('name_publish'), 'content': rdf_n3, 'format': 'text/rdf+n3'}
             #Please set the API_HOST in the settings file
             r = requests.post('http://' + API_HOST + '/api/datasource/create/', data=payload)
@@ -446,8 +440,6 @@ def csv_publish(request):
         'rdfArray': request.session['rdf_array'],
 	    'rdfPrefix': request.session['rdf_prefix']
     }
-    print("Model:")
-    print(request.session['model'])
     return render(request, 'transformation/csv_publish.html', html_post_data)
 
 
