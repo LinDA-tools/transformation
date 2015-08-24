@@ -41,7 +41,7 @@
     <div class="content scrollit">
         <h3>DATA VIEW</h3>
         <div>
-        File: <b>{{ filename }}</b> ({{pagination.perPage}} rows per page)<br>
+        File: <b>{{ filename }}</b> ( {{ pagination.row_num_select_html | safe }} of {{ pagination.num_rows }} rows per page)<br>
         {% if pagination.max_pages > 1 %}
         show rows: {{ pagination.html | safe }}
         {% endif %}
@@ -584,6 +584,14 @@ $( document ).ready(function() {
 		var f = $(this).parents("form");
 		f.get(0).setAttribute('method', "POST");
 		f.get(0).setAttribute('action', $(this).attr("href"));
+		f.submit();
+		return false;
+	});
+
+	$("select#select-rows-per-page").on("change", function(){
+		var f = $(this).parents("form");
+		f.get(0).setAttribute('method', "POST");
+		f.get(0).setAttribute('action', $(this).find("option:selected").attr("href"));
 		f.submit();
 		return false;
 	});

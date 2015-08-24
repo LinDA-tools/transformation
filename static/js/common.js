@@ -2558,7 +2558,7 @@ function get_model_data_type(col){
 
 
 
-
+// creates rdf triple view
 function model_to_table(model, numrows){
 
 	var tbl = jQuery('<table/>', {
@@ -2572,7 +2572,20 @@ function model_to_table(model, numrows){
 
 	var rdf_array = model_to_array(model);
 
-	numrows = typeof numrows !== "undefined" ? Math.min(rdf_array.length, numrows*model['columns'].length) : rdf_array.length;
+	num_selected_cols = 0;
+	$.each(model['columns'], function(){
+		if($(this)[0]['col_num_new'] >- 1){ // column was chosen
+			num_selected_cols++;
+		}
+	});
+
+	console.log(numrows*num_selected_cols);
+	console.log(numrows);
+	console.log(num_selected_cols);
+
+	//numrows = typeof numrows !== "undefined" ? Math.min(rdf_array['rdf_array'].length, numrows*model['columns'].length) : rdf_array['rdf_array'].length;
+	numrows = typeof numrows !== "undefined" ? Math.min(rdf_array['rdf_array'].length, numrows*num_selected_cols+rdf_array['num_prefixes']) : rdf_array['rdf_array'].length;
+
 
 	//create table content
 	for(var i = 0; i < numrows; i++){
@@ -2580,7 +2593,7 @@ function model_to_table(model, numrows){
 			var tr = jQuery('<tr/>', {});
 			for(var j = 0; j < 3; j++){
 				var td = jQuery('<td/>', {});
-				td.text(rdf_array[i][j]);
+				td.text(rdf_array['rdf_array'][i][j]);
 				td.appendTo(tr);
 			}
 			var td = jQuery('<td/>', {});
@@ -2607,7 +2620,7 @@ function model_to_array(model){
 
 	//count
 	$.each(model['columns'], function(){
-		if($(this)[0]['col_num_new'] >- 1){ // column was chosen, same as show==true
+		if($(this)[0]['col_num_new'] >- 1){ // column was chosen
 			num_total_cols++;
 			$.each($(this)[0]['fields'], function(){
 				num_total_rows_rdf++;
@@ -2676,7 +2689,9 @@ function model_to_array(model){
 
 
 	//insert from enrichment
+	var num_enrichments = 0;
 	if(model['enrich']){
+		num_enrichments++;
 		var inserted = 0;
 		for(var i=num_total_cols; i<=(rdf_array.length-inserted); i+=num_total_cols){
 			for(var j=0; j<model['enrich'].length; j++){
@@ -2707,7 +2722,9 @@ function model_to_array(model){
 		
 	});
 
-	return prefix_array.concat(rdf_array);
+	return {"rdf_array": prefix_array.concat(rdf_array),
+		"num_prefixes": prefix_array.length,
+		"num_enrichments": num_enrichments};
 }
 
 

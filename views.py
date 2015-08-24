@@ -118,7 +118,7 @@ def csv_upload(request):
 
         if 'button_choose' in request.POST:
             print(request.POST['mapping_id'])
-            model = json.loads(Mapping.objects.filter(id=request.POST['mapping_id'])[0].mappingFile.read().decode("utf-8"))
+            request.session['model'] = json.loads(Mapping.objects.filter(id=request.POST['mapping_id'])[0].mappingFile.read().decode("utf-8"))
             form = UploadFileForm()
             return render(request, 'transformation/csv_upload.html', {'action': 1, 'form': form})
 
@@ -135,7 +135,8 @@ def csv_column_choice(request):
     html_post_data = {
         'action': form_action,
         'csvContent': request.session['csv_rows'],
-        'filename': request.session['file_name']
+        'filename': request.session['file_name'],
+        'rdfModel': request.session['model']
     }
     return render(request, 'transformation/csv_column_choice.html', html_post_data)
 
@@ -289,8 +290,25 @@ def csv_object(request):
         if x+1 == page:
             recentPage = " recent-page"
         paging_html += '<a class="pagination-link'+recentPage+'" href="?page='+str(x+1)+'&num='+str(perPage)+'">'+str(f)+'-'+str(t)+'</a> |'
-
     paging_html = paging_html[:-2]
+
+
+    row_num_select = '<select id="select-rows-per-page">'
+    pages_arr = [10,25,50,100]
+    #insert a page amount in the the if it was modified in the url get params
+    if perPage not in pages_arr:
+        pages_arr.append(perPage)
+    if num_rows_model not in pages_arr:
+        pages_arr.append(num_rows_model)
+    pages_arr = sorted(pages_arr)
+    print(pages_arr)
+    for p in pages_arr:
+        if p <= num_rows_model:
+            selected = ""
+            if p == perPage:
+                selected = " selected"
+            row_num_select += "<option"+selected+' href="?page='+str(page)+'&num='+str(p)+'">'+str(p)+"</option>"
+    row_num_select += "</select>"
 
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)
@@ -300,7 +318,8 @@ def csv_object(request):
             'perPage': perPage,
             'page': page,
             'max_pages': max_pages,
-            'num_rows': num_rows_model},
+            'num_rows': num_rows_model,
+            'row_num_select_html': row_num_select},
         'action': form_action,
         'rdfModel': request.session['model'], 
         'csvContent': csv_rows_selected_columns,
@@ -406,7 +425,7 @@ def csv_publish(request):
 
         if 'save_mapping' in request.POST:
             transformation_file = ContentFile(json.dumps(request.session['model']).encode('utf-8'))
-            mapping = Mapping(user = request.user.id, fileName = request.POST.get('name_mapping'), csvName = request.session['model']['file_name'])
+            mapping = Mapping(user = request.user, fileName = request.POST.get('name_mapping'), csvName = request.session['model']['file_name'])
             mapping.mappingFile.save(request.POST.get('name_mapping'), transformation_file)
             mapping.save()
 
