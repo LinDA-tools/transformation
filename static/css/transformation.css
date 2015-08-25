@@ -183,7 +183,7 @@ h2 {
     margin: 0em 1.5em;
 }
 
-input[type="submit"] {
+input[type="submit"], button, button:active {
     background-color: #00B16A;
     padding: 8px 20px 8px 20px;
     text-decoration: none;
@@ -192,21 +192,17 @@ input[type="submit"] {
     cursor: pointer;
 }
 
-input[type="submit"]:hover {
-    background-color: #26c281;
+input[type="submit"]:hover:enabled, button:hover:enabled {
+    //background-color: #26c281;
+    box-shadow: 1px 1px 1px #888888;
 }
 
-input[type="submit"]:disabled {
+input[type="submit"]:disabled, button:disabled {
     background-color: #ddd;
     color: #bbb;
 }
 
-input[type="submit"]:hover:disabled {
-    background-color: #ddd;
-    color: #bbb;
-}
-
-input[type="button"], .uribuilder, button {
+input[type="button"], .uribuilder {
     background: rgb(82, 179, 217);
     padding: 2px 8px;
     text-decoration: none;
@@ -216,7 +212,7 @@ input[type="button"], .uribuilder, button {
     cursor: pointer;
 }
 
-input[type="button"]:hover, button {
+input[type="button"]:hover {
     background-color: cadetblue;
 }
 

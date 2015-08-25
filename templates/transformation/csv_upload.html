@@ -182,18 +182,22 @@ $(document).ready(function () {
             if (filename == null) { // nothing happened so far, no uploads
                 upload_button.disabled = true;
                 upload_button.value = "Upload file";
+                upload_button.innerHTML = "Upload file";
                 next_button.disabled = true;
+                console.log(1);
             }
             else { // file was uploaded and submitted via form / html post in the previous step
                 upload_button.disabled = false;
                 upload_button.value = "Apply";
-                next_button.disabled = false;
+                upload_button.innerHTML = "Apply";
+                next_button.disabled = false;console.log(2);
             }
         }
         else { // file selected for upload
             upload_button.disabled = false;
             upload_button.value = "Upload file";
-            next_button.disabled = true;
+            upload_button.innerHTML = "Upload file";
+            next_button.disabled = true;console.log(3);
         }
 
     }
