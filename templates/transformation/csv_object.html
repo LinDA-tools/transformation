@@ -326,7 +326,7 @@ function guessType(column){
 	var matching = {};
 
 	var model = get_model();
-	var all_fields = model['columns'][column]['fields'];
+	var all_fields = model['columns'][column-1]['fields'];
 	var num_fields = all_fields.length;
 	for(var i=0; i< all_fields.length; i++){
 		var recent_field = all_fields[i]['orig_val'];
