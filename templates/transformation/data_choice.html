@@ -9,15 +9,14 @@
 <div class="content no-minimize">	
 	<h3>Choose your data</h3>
 	<p>This ist the LinDA transformation tool.</p>
-	<p>It will help you to morph your structures or relational data into RDF triples.</p>
+	<p>It will help you transform your data into RDF triples.</p>
 </div>
 
 
 
 	<div class="grid content">
 		<div class="col-5-10 left-side-box">
-			<h3>CREATE NEW</h3>
-			<p>This is the LinDA Transformation Tool. It will help you transform your data into RDF triples.</p>
+			<h3>LOAD A FILE AND CREATE A NEW TRANSFORMATION PROJECT</h3>
 			<p>Please choose a data type which you want to transform to RDF.</p>
 			<p>
 				<input type="button" value="CSV / Excel" class="datachoice" OnClick="window.location.href = 'csv/step/1';">
@@ -29,8 +28,8 @@
 
 		</div>
 		<div class="col-5-10 right-side-box">
-            {# if user and not user.is_anonymous #}
-			<h3>CHOOSE EXISTING</h3>
+			<h3>CHOOSE EXISTING TRANSFORMATION PROJECTS</h3>
+            {% if user and not user.is_anonymous %}
 			<p>Alternatively, choose an existing transformation.</p>
             <form method="post" action="csv/step/1">
             {% csrf_token %}
@@ -41,7 +40,9 @@
             </select><br>
 			<input type="submit" name="button_choose" id="id_button_choose" value="Choose">
             </form>
-            {# endif #}
+            {% else %}
+            Please log in first.
+            {% endif %}
 		</div>
 	</div>
 
