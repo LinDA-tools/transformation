@@ -27,6 +27,7 @@ def user_test(request):
 
 def data_choice(request):
     print("VIEW data_choice")
+    request.session.clear()
     form = DataChoiceForm()
     mappings = Mapping.objects.filter(user=request.user.id)
     return render_to_response('transformation/data_choice.html', {'form': form, 'mappings': mappings},
@@ -36,8 +37,6 @@ def data_choice(request):
 def csv_upload(request):
     print("VIEW csv_upload")
     form_action = 2
-    if 'model' not in request.session:
-        request.session['model'] = None
     if request.method == 'POST':
         print("PATH 1 - POST")
         # a raw representation of the CSV file is also kept as we want to be able to change the CSV dialect and then reload the page
@@ -133,14 +132,11 @@ def csv_upload(request):
 
 def csv_column_choice(request):
     print("VIEW csv_column_choice")
-    if 'model' not in request.session:
-        request.session['model'] = None
     form_action = 3
     html_post_data = {
         'action': form_action,
         'csvContent': request.session['csv_rows'],
-        'filename': request.session['file_name'],
-        'rdfModel': request.session['model']
+        'filename': request.session['file_name']
     }
     return render(request, 'transformation/csv_column_choice.html', html_post_data)
 
@@ -160,7 +156,7 @@ def csv_subject(request):
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
         else:
             request.session['rdf_prefix'] = ""
-        if request.session['model']:
+        if 'model' in request.session:
         #if 'hidden_model' in form.cleaned_data:
             print('model existing')
             request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])

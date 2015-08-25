@@ -121,6 +121,9 @@
 				elem.attr("value", '{"url":"'+href+'", "prefix": '+JSON.stringify(replacePrefix(href))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'"}');
 				var id_as_array = $(this).closest("[id^='search_result_id_table_field']").attr("id").split("_");
 				var col = id_as_array[id_as_array.length-2];
+				var row = id_as_array[id_as_array.length-1];
+
+				add_to_model_field_where_col_and_row("reconciliation", {"url":href,"prefix": replacePrefix(href)}, col, row);
 
                 adapt_RDF_preview(col);
             });
@@ -170,7 +173,7 @@ function askOracle(widget, domain, term, keepReconciliationIfExists){
 	var new_id = "search_result_"+widget.attr("id");
 	request.success(function (data) {
 
-		if(data.results.length===0){
+		if(data.results.length===0){ // when ajax call was successful but empty result list
 			widget.html(widget.html()+"<br><span class=\"red\" onmouseover=\"Tip('We were unable to find results in DBPedia which match this table cell.')\" onmouseout=\"UnTip()\">No reconciliation results.</span>");
 		}else{
 			var list = "<div class=\"bb_select\" id=\""+new_id+"\">";
@@ -186,18 +189,11 @@ function askOracle(widget, domain, term, keepReconciliationIfExists){
 			$(widget).find("* .bb_select_elements").children().first().trigger("click");
 
 			//SAVE IN MODEL
-			var id = widget.attr("id");
-			//get row and column field as included in table td id field
-			id_as_array = id.split("_");
-			//var row = id_as_array[id_as_array.length-1];
-			var col = id_as_array[id_as_array.length-2];
-
-			add_to_content_where_col("object_method", "reconciliation", col);
-
 			var id_as_array = widget.attr("id").split("_");
 			var row = id_as_array[id_as_array.length-1];
 			var col = id_as_array[id_as_array.length-2];
 
+			add_to_content_where_col("object_method", "reconciliation", col);
 
 			var recon_result = widget.find(".bb_select_selection").text();
 
@@ -475,10 +471,10 @@ function populate_from_model_reconciliation(widget, recon){
 
 	var short_uri = recon.url;
 	if(recon.url)
-			short_uri = shortenURI(recon.url, 35);
+			short_uri = shortenURI(recon.url, 40);
 
 
-	var obj_div = "<div class=\"bb_select_nodropdown\"><a href=\""+recon.url+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window: "+recon.url+"')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>";
+	var obj_div = " <i class=\"refetch-field fa fa-search\" onmouseover=\"Tip('Click here to refetch proposals for this field.')\" onmouseout=\"UnTip()\"></i><div class=\"bb_select_nodropdown\"><a href=\""+recon.url+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window: "+recon.url+"')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>";
 
 	widget.find(":not(span)").remove();
 	widget.html(widget.html()+obj_div);
@@ -594,6 +590,16 @@ $( document ).ready(function() {
 		f.get(0).setAttribute('action', $(this).find("option:selected").attr("href"));
 		f.submit();
 		return false;
+	});
+
+	$(".refetch-field").on("click", function(){
+		var field = $(this).closest("td");
+		var field_as_array = field.attr("id").split("_");
+		var col = field_as_array[field_as_array.length-2];
+		var row = field_as_array[field_as_array.length-1];
+		var topic = $("#id_table_head_"+col);//text().trim();
+		field.find(":not(span)").remove();
+		askOracle(field, topic.text().trim(), field.find("span").text().trim());
 	});
 
 	calculateCells();
