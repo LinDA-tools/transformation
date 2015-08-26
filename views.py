@@ -15,6 +15,7 @@ from django.conf import settings
 from .settings import API_HOST
 import ast
 from transformation.models import Mapping
+import copy
 
 
 # ###############################################
@@ -147,16 +148,60 @@ def csv_upload(request):
 def csv_column_choice(request):
     print("VIEW csv_column_choice")
     form_action = 3
-    html_post_data = {
+
+    publish_message = None
+
+    inverted_csv = list(zip(*request.session['csv_rows']))
+
+    if not 'model' in request.session:
+        print('creating model')
+
+        num_csv_rows = len(request.session['csv_rows'][0])
+
+        request.session['model'] = {"num_cols_total": num_csv_rows, "num_cols_selected": num_csv_rows, "columns": []} # get csv column-wise
+        for i, col in enumerate(inverted_csv):
+            column_obj = {"col_num_orig": i+1, "fields": []}
+            for j, field in enumerate(col):
+                if j == 0: # table header / first row
+                    column_obj['header'] = {"orig_val": field}
+                else:
+                    column_obj['fields'].append({"orig_val": field, "field_num": j})
+            request.session['model']['columns'].append(column_obj)
+    elif 'model' in request.session and not 'fields' in request.session['model']['columns'][0]: #has fields? if not, only scaffolding from model 'loaded' in data choice page of wizard
+        # when only a loaded model 'scaffolding'
+        print("model 'scaffolding' was loaded")
+
+        if len(request.session['model']['columns']) != len(inverted_csv):
+            publish_message = "The file you tried to load does not fit the chosen transformation project. The number of columns is different."
+        else:
+            for i, col in enumerate(inverted_csv):
+                request.session['model']['columns'][i]['fields'] = []
+                for j, field in enumerate(col):
+                    if j == 0: # table header / first row
+                        #column_obj['header'] = {"orig_val": field}
+                        pass
+                    else:
+                        request.session['model']['columns'][i]['fields'].append({"orig_val": field, "field_num": j})
+
+
+        #csv_rows_selected_columns = get_selected_rows_content(request.session)
+        #mark_selected_rows_in_model(request.session)
+
+
+    html_post_data = {         
         'action': form_action,
         'csvContent': request.session['csv_rows'],
-        'filename': request.session['file_name']
+        'filename': request.session['file_name'],
+        'publish_message': publish_message
     }
+    if 'model' in request.session:
+        html_post_data['rdfModel'] = request.session['model']
     return render(request, 'transformation/csv_column_choice.html', html_post_data)
 
 
 def csv_subject(request):
     print("VIEW csv_subject")
+    #print(request.session['model'])
     form_action = 4
     form = SubjectForm(request.POST)
     if request.POST and form.is_valid() and form != None:
@@ -170,26 +215,29 @@ def csv_subject(request):
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
         else:
             request.session['rdf_prefix'] = ""
+
+        if 'hidden_model' in form.cleaned_data:
+            request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
+
+        '''
         if not 'model' in request.session:
             print('creating model')
             # identify which columns to keep from html form checkboxes
-            # like <input name="rowselect2" ... >
+            # like <input name="rowselect_2" ... >
             request.session['selected_columns'] = []
             #print("POST ", request.POST)
             num_csv_rows = len(request.session['csv_rows'][0])
             for i in range(len(request.session['csv_rows'][0])):
                 colnum = i + 1
-                colname = 'rowselect' + str(colnum)
+                colname = 'rowselect_' + str(colnum)
                 if colname in request.POST:
                     #print(colnum, " selected ", request.POST.get(colname))
                     request.session['selected_columns'].append(
                         {"col_num_orig": colnum, "checkbox_name": colname, "column_name": request.POST.get(colname)})
 
             # csv without rows that were not selected in html form
-            csv_rows_selected_columns = get_selected_rows_content(request.session)
+            #csv_rows_selected_columns = get_selected_rows_content(request.session)
 
-            # create model that contains all data in json object / python dictionary
-            #if not hasattr(request.session, 'model') or true:
             request.session['model'] = {"num_total_fields": num_csv_rows, "columns": []} # get csv column-wise
             inverted_csv = list(zip(*request.session['csv_rows']))
             for i, col in enumerate(inverted_csv):
@@ -200,11 +248,10 @@ def csv_subject(request):
                     else:
                         column_obj['fields'].append({"orig_val": field, "field_num": j})
                 request.session['model']['columns'].append(column_obj)
-
             mark_selected_rows_in_model(request.session)
-        else:
+        elif 'model' in request.session and not 'fields' in request.session['model']['columns'][0]: #has fields? if not, only scaffolding from model 'loaded' in data choice page of wizard
             # when only a loaded model 'scaffolding'
-            print(request.session['model'])
+            print("model 'scaffolding' was loaded")
             inverted_csv = list(zip(*request.session['csv_rows']))
             for i, col in enumerate(inverted_csv):
                 request.session['model']['columns'][i]['fields'] = []
@@ -215,9 +262,22 @@ def csv_subject(request):
                     else:
                         request.session['model']['columns'][i]['fields'].append({"orig_val": field, "field_num": j})
 
-            csv_rows_selected_columns = get_selected_rows_content(request.session)
+            #csv_rows_selected_columns = get_selected_rows_content(request.session)
             mark_selected_rows_in_model(request.session)
+        else:
+        
+        print("model existing")
+        print(request.session['model'])
+        for i in range(len(request.session['csv_rows'][0])):
+            colnum = i + 1
+            colname = 'rowselect_' + str(colnum)
+            if colname in request.POST:
+                #print(colnum, " selected ", request.POST.get(colname))
+                request.session['selected_columns'].append(
+                    {"col_num_orig": colnum, "checkbox_name": colname, "column_name": request.POST.get(colname)})
 
+        mark_selected_rows_in_model(request.session)
+        '''
     html_post_data = {
         'rdfModel': request.session['model'],         
         'action': form_action,
@@ -398,7 +458,7 @@ def csv_publish(request):
     form_action = 7  #refers to itself
     form = PublishForm(request.POST)
     rdf_n3 = "@prefix dbpedia: <http://dbpedia.org/resource> .\n"
-    publish_massage = ""
+    publish_message = ""
     if request.POST and form.is_valid() and form != None:
         if form.cleaned_data['hidden_rdf_array_field']:            
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
@@ -422,7 +482,7 @@ def csv_publish(request):
             r = requests.post('http://' + API_HOST + '/api/datasource/create/', data=payload)
             j = json.loads(r.text)
             print(j["message"])
-            publish_massage = j["message"]
+            publish_message = j["message"]
 
         if 'button_download' in request.POST:
             new_fname = request.session['model']['file_name'].rsplit(".", 1)[0]+".n3"
@@ -445,7 +505,10 @@ def csv_publish(request):
 
         if 'save_mapping' in request.POST:
             #remove unwanted info from model
+            print(request.session['model'])
+            print()
             m_light = model_light(request.session['model'])
+            print(request.session['model'])
             transformation_file = ContentFile(json.dumps(m_light).encode('utf-8'))
             mapping = Mapping(user = request.user, fileName = request.POST.get('name_mapping'), csvName = request.session['model']['file_name'])
             mapping.mappingFile.save(request.POST.get('name_mapping'), transformation_file)
@@ -454,7 +517,7 @@ def csv_publish(request):
 
     csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
-        'publish_massage': publish_massage,
+        'publish_message': publish_message,
         'action': form_action,
         'rdfModel': request.session['model'], 
         'csvContent': csv_rows_selected_columns,
@@ -476,7 +539,7 @@ def model_light(model):
     '''
     Delete all field and file specific data, that is keep only data that will be needed when loading csvs of the same structure but containing different content
     '''
-    result = dict(model)
+    result = copy.deepcopy(model)
     if 'file_name' in result:
         del result['file_name']
     for col in result['columns']:
@@ -512,11 +575,12 @@ def get_selected_rows_content(session):
             tmp_row.append(row[cn - 1])
         result.append(tmp_row)
     return result
-
+'''
 # marks selected columns directly in model
 def mark_selected_rows_in_model(session):
     # write column numbers in array
     col_nums = []
+    print(session['selected_columns'])
     for col_num in session['selected_columns']:
         col_nums.append(col_num.get("col_num_orig"))
     session['model']['num_cols_selected'] = len(col_nums)
@@ -527,7 +591,7 @@ def mark_selected_rows_in_model(session):
             counter = counter + 1
         else:
             col["col_num_new"] = -1
-
+'''
 
 
 

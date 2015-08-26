@@ -35,7 +35,7 @@
 		<tr>
 			{% for field in line %}
 			<td id="id_table_head_{{ forloop.counter }}">
-				<input type="checkbox" name="rowselect{{ forloop.counter }}" value="{{ field }}" id="id_rowselect{{ forloop.counter}}" checked=false> {{ field }}
+				<input type="checkbox" name="rowselect_{{ forloop.counter }}" value="{{ field }}" id="id_rowselect_{{ forloop.counter}}" checked=false> {{ field }}
 			</td>
 			{% endfor %}
 		</tr>
@@ -66,7 +66,16 @@
 
 {% block extra_scripts %}
 	<script>
+
+{% if publish_message %}
+	alert("{{ publish_message }}");
+	window.location = "1";
+{% endif %}
+
 $( document ).ready(function() {
+
+	var checkboxes = $("[id^='id_rowselect_'");
+
 	var select_status = false;
 	var rowselect_button = document.getElementById('id_select_all_rows');
 	rowselect_button.addEventListener('click', toggle_select_all);
@@ -76,7 +85,7 @@ $( document ).ready(function() {
 		else
 			rowselect_button.value="select all";
 
-		$('[id^=id_rowselect]').prop("checked", select_status);
+		checkboxes.prop("checked", select_status);
 		select_status = !select_status;
 
 		toggle_next_button();
@@ -86,7 +95,7 @@ $( document ).ready(function() {
 
 		// toggle next button in case no column is selected
 		var one_selected = false;
-		$('[id^=id_rowselect]').each(function(){
+		checkboxes.each(function(){
 			if($(this).prop("checked")) {
 				one_selected = true;
 				return;
@@ -101,11 +110,46 @@ $( document ).ready(function() {
 		}
 	}
 
-	$('[id^=id_rowselect]').on("change", toggle_next_button);
+	checkboxes.on("change", toggle_next_button);
 
 	toggle_next_button();
 
 	$("#button_back").prop('disabled', true);
+
+	var model = get_model();
+	if(model){
+		for(var i=0; i<model['columns'].length; i++){
+			var tick = $("#id_rowselect_"+model['columns'][i]['col_num_orig']);
+			if(model['columns'][i]['col_num_new'] > -1 || typeof model['columns'][i]['col_num_new'] == 'undefined'){
+				tick.prop('checked', true);
+			}else{
+				tick.prop('checked', false);
+			}
+		}
+	}	
+
+	function calc_selected_rows(){
+		console.log("CALCS");
+		var counter = 0;
+		var checked_counter = 0;
+		checkboxes.each(function(){
+			if($(this).prop("checked")){
+				checked_counter++
+				model['columns'][counter]["col_num_new"] = checked_counter;
+			}
+			else{
+				model['columns'][counter]["col_num_new"] = -1;
+			}
+			counter++;
+		});
+		model['num_cols_selected'] = checked_counter;
+		write_model(model);
+	}
+
+	calc_selected_rows();
+
+	checkboxes.on("change", calc_selected_rows);
+
 
 
 

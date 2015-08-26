@@ -2371,7 +2371,10 @@ function transpose_matrix(matrix) {
 // ///////////////// MODEL ///////////////////////////////
 
 function get_model(){
-	return JSON.parse($("#id_hidden_model").val().replace(/'/g,"\""));
+	var model = $("#id_hidden_model");
+	if(model.length > 0)
+		return JSON.parse(model.val().replace(/'/g,"\""));
+	else return false;
 }
 
 function get_num_selected_cols_model(){
