@@ -170,13 +170,13 @@ def csv_subject(request):
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
         else:
             request.session['rdf_prefix'] = ""
-        if 'model' in request.session:
+        if not 'model' in request.session:
         #if 'hidden_model' in form.cleaned_data:
-            print('model existing')
-            print(form.cleaned_data['hidden_model'])
-            request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
-
-        else:
+        #    print('model existing')
+        #    print(form.cleaned_data['hidden_model'])
+        #    request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
+        #
+        #else:
             print('creating model')
             # identify which columns to keep from html form checkboxes
             # like <input name="rowselect2" ... >
