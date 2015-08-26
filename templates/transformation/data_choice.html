@@ -30,10 +30,10 @@
 		<div class="col-5-10 right-side-box">
 			<h3>CHOOSE EXISTING TRANSFORMATION PROJECTS</h3>
             {% if user and not user.is_anonymous %}
-            {% if mappings.length > 0 %}
-				<p>Alternatively, choose an existing transformation.</p>
-	            <form method="post" action="csv/step/1">
-	            {% csrf_token %}
+            	{% if mappings.count > 0 %}
+					<p>Alternatively, choose an existing transformation.</p>
+	            	<form method="post" action="csv/step/1">
+	            	{% csrf_token %}
 		            <select size="5" name="mapping_id">
 		            {% for mapping in mappings %}
 		            <option value="{{ mapping.id }}">{{ mapping.fileName }} | {{ mapping.date }} | {{ mapping.csvName }}</option>

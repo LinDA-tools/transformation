@@ -27,7 +27,21 @@ def user_test(request):
 
 def data_choice(request):
     print("VIEW data_choice")
-    request.session.clear()
+    print(request.session) 
+    if 'csv_rows' in request.session:
+        del request.session['csv_rows']
+    if 'csv_raw' in request.session:
+        del request.session['csv_raw']
+    if 'csv_dialect' in request.session:
+        del request.session['csv_dialect']
+    if 'file_name' in request.session:
+        del request.session['file_name']
+    if 'model' in request.session:
+        del request.session['model']
+    if 'rdf_array' in request.session:
+        del request.session['rdf_array']
+    if 'rdf_prefix' in request.session:
+        del request.session['rdf_prefix']
     form = DataChoiceForm()
     mappings = Mapping.objects.filter(user=request.user.id)
     return render_to_response('transformation/data_choice.html', {'form': form, 'mappings': mappings},
@@ -159,6 +173,7 @@ def csv_subject(request):
         if 'model' in request.session:
         #if 'hidden_model' in form.cleaned_data:
             print('model existing')
+            print(form.cleaned_data['hidden_model'])
             request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
 
         else:
