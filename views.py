@@ -376,10 +376,9 @@ def csv_publish(request):
     rdf_n3 = "@prefix dbpedia: <http://dbpedia.org/resource> .\n"
     publish_massage = ""
     if request.POST and form.is_valid() and form != None:
-
-        if form.cleaned_data['hidden_rdf_array_field']:
+        if form.cleaned_data['hidden_rdf_array_field']:            
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
-            for row in ast.literal_eval(request.session['rdf_array']):
+            for row in ast.literal_eval(request.session['rdf_array'])['rdf_array']:
                 for elem in row:
                     elem = elem.replace(",","\\,"); # escape commas
                     if elem[-1:] == ".": # cut off as we had problems when uploading some uri like xyz_inc. with trailing dot
@@ -388,6 +387,7 @@ def csv_publish(request):
                 rdf_n3 += ".\n"
         else:
             request.session['rdf_array'] = ""
+            print("no rdf array")
 
         if 'hidden_model' in form.cleaned_data:
             request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
@@ -420,7 +420,9 @@ def csv_publish(request):
             return response
 
         if 'save_mapping' in request.POST:
-            transformation_file = ContentFile(json.dumps(request.session['model']).encode('utf-8'))
+            #remove unwanted info from model
+            m_light = model_light(request.session['model'])
+            transformation_file = ContentFile(json.dumps(m_light).encode('utf-8'))
             mapping = Mapping(user = request.user, fileName = request.POST.get('name_mapping'), csvName = request.session['model']['file_name'])
             mapping.mappingFile.save(request.POST.get('name_mapping'), transformation_file)
             mapping.save()
@@ -437,6 +439,11 @@ def csv_publish(request):
 	    'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_publish.html', html_post_data)
+
+def model_light(model):
+    for col in model['columns']:
+        pass
+    return model
 
 
 def lookup(request, queryClass, queryString, callback):
