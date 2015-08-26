@@ -171,12 +171,6 @@ def csv_subject(request):
         else:
             request.session['rdf_prefix'] = ""
         if not 'model' in request.session:
-        #if 'hidden_model' in form.cleaned_data:
-        #    print('model existing')
-        #    print(form.cleaned_data['hidden_model'])
-        #    request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
-        #
-        #else:
             print('creating model')
             # identify which columns to keep from html form checkboxes
             # like <input name="rowselect2" ... >
@@ -207,6 +201,21 @@ def csv_subject(request):
                         column_obj['fields'].append({"orig_val": field, "field_num": j})
                 request.session['model']['columns'].append(column_obj)
 
+            mark_selected_rows_in_model(request.session)
+        else:
+            # when only a loaded model 'scaffolding'
+            print(request.session['model'])
+            inverted_csv = list(zip(*request.session['csv_rows']))
+            for i, col in enumerate(inverted_csv):
+                request.session['model']['columns'][i]['fields'] = []
+                for j, field in enumerate(col):
+                    if j == 0: # table header / first row
+                        #column_obj['header'] = {"orig_val": field}
+                        pass
+                    else:
+                        request.session['model']['columns'][i]['fields'].append({"orig_val": field, "field_num": j})
+
+            csv_rows_selected_columns = get_selected_rows_content(request.session)
             mark_selected_rows_in_model(request.session)
 
     html_post_data = {
@@ -455,10 +464,27 @@ def csv_publish(request):
     }
     return render(request, 'transformation/csv_publish.html', html_post_data)
 
+
+
+
+# ###############################################
+#  OTHER FUNCTIONS
+# ###############################################
+
+
 def model_light(model):
-    for col in model['columns']:
-        pass
-    return model
+    '''
+    Delete all field and file specific data, that is keep only data that will be needed when loading csvs of the same structure but containing different content
+    '''
+    result = dict(model)
+    if 'file_name' in result:
+        del result['file_name']
+    for col in result['columns']:
+        if 'fields' in col:
+            del col['fields']
+        #if 'header' in col:
+        #    del col['header']
+    return result
 
 
 def lookup(request, queryClass, queryString, callback):
@@ -470,10 +496,6 @@ def lookup(request, queryClass, queryString, callback):
     results = json.loads(text)
     return callback + "(" + JsonResponse(results) + ");"
 
-
-# ###############################################
-#  OTHER FUNCTIONS
-# ###############################################
 
 # returns only the contents of the columns that were chosen in the html form from the session data
 # for step 2 (column selection)
