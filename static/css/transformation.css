@@ -183,7 +183,7 @@ h2 {
     margin: 0em 1.5em;
 }
 
-input[type="submit"], button, button:active {
+.like-a-sumit-btn, input[type="submit"], button, button:active {
     background-color: #00B16A;
     padding: 8px 20px 8px 20px;
     text-decoration: none;
@@ -192,12 +192,12 @@ input[type="submit"], button, button:active {
     cursor: pointer;
 }
 
-input[type="submit"]:hover:enabled, button:hover:enabled {
+.like-a-sumit-btn:hover:enabled, input[type="submit"]:hover:enabled, button:hover:enabled {
     //background-color: #26c281;
     box-shadow: 1px 1px 1px #888888;
 }
 
-input[type="submit"]:disabled, button:disabled {
+.like-a-sumit-btn:disabled, input[type="submit"]:disabled, button:disabled {
     background-color: #ddd;
     color: #bbb;
 }

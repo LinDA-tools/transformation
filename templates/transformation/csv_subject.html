@@ -43,8 +43,8 @@
         <div class="col-5-10 right-side-box">
 
             <p>
-                <input type="checkbox" name="blanknodes_only" id="id_blanknodes_only"> I don't want to provide a
-                subject! Use Blank Nodes only!
+                <input type="radio" name="blanknodes_only" id="id_blanks_blanks" value="blanks"> Use Blank Nodes only<br>
+                <input type="radio" name="blanknodes_only" id="id_blanks_subject" value="subject"> Provide a subject
             </p>
 
             <div id="id_uri_container">
@@ -262,9 +262,9 @@ var base_url = $("#id_base_url");
 base_url.on('keyup', base_url_change);
 base_url.on('select', base_url_change);
 
-$("#id_blanknodes_only").on('change', function () {
+$("input[name=blanknodes_only]:radio").on('change', function () {
     var uri_container = $("#id_uri_container");
-    if ($(this).is(':checked')){
+    if ($(this).val() == "blanks"){
         uri_container.css("visibility", "hidden");
         add_model_subject("blank_nodes","true");
     }
@@ -283,8 +283,18 @@ if(model['subject'] && model['subject']['base_url'])
 if(model['subject'] && model['subject']['skeleton'])
     $("#id_subject_uri").val(model['subject']['skeleton']);
 
-if(model['subject'] && model['subject']['blank_nodes'] && model['subject']['blank_nodes'] == "true")
-    $("#id_blanknodes_only").click();//prop('checked', true);
+if(model['subject'] && model['subject']['blank_nodes'] && model['subject']['blank_nodes'] == "true"){
+
+    console.log("blanks");
+    $("#id_uri_container").css("visibility", "hidden");
+    $("#id_blanks_blanks").prop("checked", true);
+    $("#id_blanks_subject").prop("checked", false);
+}
+else{
+    console.log("subject");
+    $("#id_blanks_blanks").prop("checked", false);
+    $("#id_blanks_subject").prop("checked", true);
+}
 
 //$("#button_back").prop('disabled', true);
 $("#button_back").on("click", function () {

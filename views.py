@@ -310,11 +310,11 @@ def csv_predicate(request):
         else:
             request.session['model'] = ""
 
-    csv_rows_selected_columns = get_selected_rows_content(request.session)
+    #csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'action': form_action,
         'rdfModel': request.session['model'], 
-        'csvContent': csv_rows_selected_columns,
+        #'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
 	    'rdfPrefix': request.session['rdf_prefix']
@@ -393,7 +393,7 @@ def csv_object(request):
     row_num_select += "</select>"
 
 
-    csv_rows_selected_columns = get_selected_rows_content(request.session)
+    #csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'pagination': {
             'html': paging_html,
@@ -404,7 +404,7 @@ def csv_object(request):
             'row_num_select_html': row_num_select},
         'action': form_action,
         'rdfModel': request.session['model'], 
-        'csvContent': csv_rows_selected_columns,
+        #'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
 	    'rdfPrefix': request.session['rdf_prefix']
@@ -441,11 +441,11 @@ def csv_enrich(request):
         else:
             request.session['model'] = ""
 
-    csv_rows_selected_columns = get_selected_rows_content(request.session)
+    #csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'action': form_action,
         'rdfModel': request.session['model'], 
-        'csvContent': csv_rows_selected_columns,
+        #'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
 	    'rdfPrefix': request.session['rdf_prefix']
@@ -515,12 +515,12 @@ def csv_publish(request):
             mapping.save()
 
 
-    csv_rows_selected_columns = get_selected_rows_content(request.session)
+    #csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'publish_message': publish_message,
         'action': form_action,
         'rdfModel': request.session['model'], 
-        'csvContent': csv_rows_selected_columns,
+        #'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
 	    'rdfPrefix': request.session['rdf_prefix']
