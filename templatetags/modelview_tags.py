@@ -163,6 +163,3 @@ def model_header_as_table_object(model):
 	result += "</thead>"
 
 	return result
-
-
-	

@@ -323,10 +323,27 @@ def csv_predicate(request):
 
 
 def csv_object(request):
+
+    '''
+    #TEST
+    m1 = {'columns':[{'fields':[{'field_num':1,'c':'cccold'},{'field_num':4,'c':'ccc2'}]}]}
+    print(">>>>>>>>>>")
+    print(m1)
+    m2red = {'columns':[{'fields':[{'field_num':1,'c':'cccnew'},{'field_num':3,'c':'cccverynew'}]}]}
+    m1 = update_model(m1,m2red)
+    print("<<<<<<<<<<")
+    print(m1)
+    print("<<<<<<<<<<")
+    m2red = {'columns':[{'fields':[{'field_num':1,'c':'cccnew'},{'field_num':3,'c':'kkkkkkkkkkkkkkkkkk'}]}]}    
+    print(m1)
+    '''
+    
+
     print("VIEW csv_object")
     form_action = 6
     form = ObjectForm(request.POST)
-    if request.POST and form.is_valid() and form != None:
+    #print(request.POST)
+    if request.POST and form.is_valid():# and form != None:
         # content  is passed on via hidden html input fields
         if 'hidden_rdf_array_field' in form.cleaned_data:
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
@@ -339,11 +356,18 @@ def csv_object(request):
             request.session['rdf_prefix'] = ""
 
         if 'hidden_model' in form.cleaned_data:
-            request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
+            pass
+
         else:
             request.session['model'] = ""
+            print("N O     M O D E L")
+    else:
+        print("form not valid verdammt!!!!!!!!!!")
+
 
     num_rows_model = len(request.session['model']['columns'][0]['fields'])
+    print(num_rows_model, " ROWS WOLL?")
+    #print(request.session['model'])
 
     #pagination
     if "page" in request.GET and is_int(request.GET.get('page')):
@@ -392,18 +416,35 @@ def csv_object(request):
             row_num_select += "<option"+selected+' href="?page='+str(page)+'&num='+str(p)+'">'+str(p)+"</option>"
     row_num_select += "</select>"
 
-
-    #csv_rows_selected_columns = get_selected_rows_content(request.session)
-    html_post_data = {
-        'pagination': {
+    pagination = {
             'html': paging_html,
             'perPage': perPage,
             'page': page,
             'max_pages': max_pages,
             'num_rows': num_rows_model,
-            'row_num_select_html': row_num_select},
+            'row_num_select_html': row_num_select}
+
+    # pagination end
+
+    reduced_model = ast.literal_eval(form.cleaned_data['hidden_model'])
+    #request.session['model'] = ast.literal_eval(form.cleaned_data['hidden_model'])
+    #request.session['model'] = 
+    print("v ",len(request.session['model']['columns'][0]['fields']))
+    print("v ",request.session['model']['columns'][0]['fields'])
+    #print("r ",len(reduced_model['columns'][0]['fields']))
+    #print("r ",reduced_model['columns'][0]['fields'])
+    request.session['model'] = update_model(request.session['model'], reduced_model)
+    #print("r ",len(reduced_model['columns'][0]['fields']))
+    #print("r ",reduced_model['columns'][0]['fields'])
+    print("n ",len(request.session['model']['columns'][0]['fields']))
+    print("n ",request.session['model']['columns'][0]['fields'])
+
+
+    #csv_rows_selected_columns = get_selected_rows_content(request.session)
+    html_post_data = {
+        'pagination': pagination,
         'action': form_action,
-        'rdfModel': request.session['model'], 
+        'rdfModel': reduce_model(request.session['model'], pagination), 
         #'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         'rdfArray': request.session['rdf_array'],
@@ -505,10 +546,7 @@ def csv_publish(request):
 
         if 'save_mapping' in request.POST:
             #remove unwanted info from model
-            print(request.session['model'])
-            print()
             m_light = model_light(request.session['model'])
-            print(request.session['model'])
             transformation_file = ContentFile(json.dumps(m_light).encode('utf-8'))
             mapping = Mapping(user = request.user, fileName = request.POST.get('name_mapping'), csvName = request.session['model']['file_name'])
             mapping.mappingFile.save(request.POST.get('name_mapping'), transformation_file)
@@ -674,3 +712,66 @@ def transform2r2rml(jsonmodel):
     output += "."
 
     return output
+
+
+
+
+def update_model(model, reduced_model):
+    '''
+    Takes a model and updates it with reduced model
+    '''
+    # fields
+    m = copy.deepcopy(model)
+    print(m['columns'][0]['fields'])
+    for i, col in enumerate(m['columns']):
+        for j, field in enumerate(model['columns'][i]['fields']):
+            exists = False
+            for k, col_red in enumerate(reduced_model['columns'][i]['fields']):
+                if reduced_model['columns'][i]['fields'][k]['field_num'] == m['columns'][i]['fields'][j]['field_num']:
+                    m['columns'][i]['fields'][j] = reduced_model['columns'][i]['fields'][k].copy()
+                    #print("OVERWRiTING ", m['columns'][i]['fields'][j], "  ",reduced_model['columns'][i]['fields'][k])
+                    exists = True
+                    #break
+            if not exists:
+                m['columns'][i]['fields'].append(reduced_model['columns'][i]['fields'][k].copy())
+                #print("ADDING")
+            # sort
+            newlist = sorted(m['columns'][i]['fields'].copy(), key=lambda k: k['field_num'])
+            m['columns'][i]['fields'] = newlist
+    print(" - - - - -")
+    print(m['columns'][0]['fields'])
+    return m
+
+
+def reduce_model(model, pagination):
+    '''
+    pagination can be 
+    int number: first x elements will be selected
+    dict of 'pagination', with page and perPage attributes as in views.py -> csv_object function
+    '''
+    print("##################")
+    print(model)
+    reduced_model = copy.deepcopy(model)
+    num_rows = reduced_model['num_cols_selected']
+    p = False
+    f = 0
+    if isinstance(pagination, dict) and 'page' in pagination and 'perPage' in pagination:
+        p = True
+        f = (pagination['page']-1) * pagination['perPage']
+        t = f + pagination['perPage']
+    for i, col in enumerate(reduced_model['columns']):
+        if col['col_num_new'] > -1: #show column
+            if p:
+                fields = reduced_model['columns'][i]['fields'][f:t].copy()
+            elif isinstance(pagination, int):
+                fields = reduced_model['columns'][i]['fields'][:pagination].copy()
+            else:
+                fields = reduced_model['columns'][i]['fields'].copy()
+
+            reduced_model['columns'][i]['fields'] = fields
+        #else: # remove columns that are not selected
+        #    del reduced_model['columns'][i]
+    print("##################")
+    print(model)
+    print("##################")
+    return reduced_model

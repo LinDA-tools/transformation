@@ -418,7 +418,7 @@ function adapt_RDF_preview(column) {
 function adapt_RDF_preview_2(column) {
 
 	var rdf_view = $("#rdf_view");
-	var tbl = model_to_table(get_model(), 10);
+	var tbl = model_to_table(get_model());
 	rdf_view.find("table").remove();
 	rdf_view.append(tbl);
 
