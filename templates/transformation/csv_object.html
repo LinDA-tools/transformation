@@ -219,7 +219,6 @@ function askOracle(widget, domain, term, keepReconciliationIfExists){
 
 function guessType(column){
 	column = typeof column !== 'undefined' ? column : "";
-console.log(column)
 	//http://www.sitepoint.com/jquery-basic-regex-selector-examples/
 //baseUris = ['Prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>', 'Prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>', 'Prefix xsd: <http://www.w3.org/2001/XMLSchema#>', 'Prefix fn: <http://aksw.org/sparqlify/>'];
 
@@ -326,7 +325,14 @@ console.log(column)
 	var matching = {};
 
 	var model = get_model();
-	var all_fields = model['columns'][column-1]['fields'];
+	var all_fields = undefined;
+	for(var i=0; i<model['columns'].length; i++){
+		if(model['columns'][i]['col_num_new'] == column){
+			all_fields = model['columns'][i]['fields']
+			break;
+		}
+	}
+	//var all_fields = model['columns'][column-1]['fields'];
 	var num_fields = all_fields.length;
 	for(var i=0; i< all_fields.length; i++){
 		var recent_field = all_fields[i]['orig_val'];
@@ -334,7 +340,6 @@ console.log(column)
 
 			//var repl = replacePrefix(value.url);
 			var repl = value.url;
-			console.log(recent_field)
 			if(recent_field.trim().match(value.regex)){
 				if(typeof matching[repl] == 'undefined'){
 					matching[repl] = 1;

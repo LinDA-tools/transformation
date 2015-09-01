@@ -2469,12 +2469,17 @@ function add_to_model_where_fieldname(new_key, new_value, field_name, field_prop
 //GENERIC
 function add_to_model_field_where_col_and_row(new_key, new_value, col, row){
 	var model = get_model();
+	console.log(+col+" "+row)
 	$.each(model['columns'], function(i, v1){
 		if(v1["col_num_new"]==col)
 			$.each(v1['fields'], function(j, v2){
-				if(v2['field_num']==row)
+				if(v2['field_num']==row){
 					v2[new_key] = new_value;
+					console.log(v2);
+					return;
+				}
 			});
+		return;
 	});
 	write_model(model);
 }
