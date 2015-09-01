@@ -447,7 +447,12 @@ def csv_object(request):
             row_num_select += "<option"+selected+' href="?page='+str(page)+'&num='+str(p)+'">'+str(p)+"</option>"
     row_num_select += "</select>"
 
+    startRow = page*perPage
+    endRow = page*perPage + perPage
+
     pagination = {
+            'startRow': startRow,
+            'endRow': endRow,
             'html': paging_html,
             'perPage': perPage,
             'page': page,
