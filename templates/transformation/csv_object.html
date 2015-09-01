@@ -403,9 +403,9 @@ function noAction(column, adaptRDF){
 }
 
 
-// only refresh once every .6 seconds
+// only refresh once every .3 seconds
 var rdfadapt_typingTimer;
-var rdfadapt_doneTypingInterval = 600;
+var rdfadapt_doneTypingInterval = 300;
 function adapt_RDF_preview(column) {
 	clearTimeout(rdfadapt_typingTimer);
 	rdfadapt_typingTimer = setTimeout(function(){adapt_RDF_preview_2(column);}, rdfadapt_doneTypingInterval);
@@ -431,11 +431,25 @@ function calculateCells(column){
 		var opt = $(this).find("select option:selected").text();
 
 		if(opt == "add URIs") {
+
 			noAction(column, false); //clear field
-			var topic_field = "id_table_head_" + column;
-			var topic = $("#"+topic_field).text().trim();
-			$("td[id^='id_table_field_"+column+"']").each( function(i){
-				askOracle($(this), topic, $(this).text().trim());
+
+			$("[id^='id_table_field_"+column+"']").each(function(i){
+				var id_as_array = $(this).attr("id").split("_");
+				var col = id_as_array[id_as_array.length-2];
+				var row = id_as_array[id_as_array.length-1];
+				var recon = get_model_reconciliation(col, row);
+
+				if(recon){
+					add_to_content_where_col("object_method", "reconciliation", column);
+					populate_from_model_reconciliation($(this), recon);
+					$("#id_table_settings_"+col+" select").val("add URIs");
+				}else{
+					//get reconciliation for fields that havent been reconciled before
+					var topic_field = "#id_table_head_" + col;
+					var topic = $(topic_field).text().trim();
+					askOracle($(this), topic, $(this).text().trim());
+				}
 			});
 		}
 		else if(opt == "add data type") {

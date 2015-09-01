@@ -372,7 +372,7 @@ def csv_object(request):
             request.session['model'] = ""
             print("N O     M O D E L")
     else:
-        print("form not valid verdammt!!!!!!!!!!")
+        print("form not valid!")
 
 
     num_rows_model = len(request.session['model']['columns'][0]['fields'])
