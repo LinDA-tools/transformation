@@ -171,6 +171,9 @@ def csv_column_choice(request):
         # when only a loaded model 'scaffolding'
         print("model 'scaffolding' was loaded")
 
+        #print("mod vor laden")
+        #printfields(request.session['model'])
+
         if len(request.session['model']['columns']) != len(inverted_csv):
             publish_message = "The file you tried to load does not fit the chosen transformation project. The number of columns is different."
         else:
@@ -183,11 +186,11 @@ def csv_column_choice(request):
                     else:
                         request.session['model']['columns'][i]['fields'].append({"orig_val": field, "field_num": j})
 
-
         #csv_rows_selected_columns = get_selected_rows_content(request.session)
         #mark_selected_rows_in_model(request.session)
 
-
+        #print("mod nach laden")
+        #printfields(request.session['model'])
 
     elif request.POST and form.is_valid() and 'hidden_model' in form.cleaned_data and form.cleaned_data['hidden_model']:
         reduced_model = ast.literal_eval(form.cleaned_data['hidden_model'])
@@ -201,11 +204,22 @@ def csv_column_choice(request):
     }
     if 'model' in request.session and not 'rdfModel' in html_post_data:
         html_post_data['rdfModel'] = reduce_model(request.session['model'], 10)
+        #html_post_data['rdfModel'] = request.session['model']
+    print("mod vor senden")
+    #printfields(request.session['model'])
+    #request.session['bla'] = "" # i dont know why but does not work without this when loading model 'scaffolding'
+
+    #print("mod vor senden 2")
+    #printfields(html_post_data['rdfModel'])
     return render(request, 'transformation/csv_column_choice.html', html_post_data)
 
 
 def csv_subject(request):
     print("VIEW csv_subject")
+    #print(request.session['bla'])
+    #print("mod direkt nach laden seite")
+    #printfields(request.session['model'])
+
     #print(request.session['model'])
     form_action = 4
     form = SubjectForm(request.POST)
@@ -224,7 +238,14 @@ def csv_subject(request):
 
         if 'hidden_model' in form.cleaned_data:
             reduced_model = ast.literal_eval(form.cleaned_data['hidden_model'])
-            request.session['model'] = update_model(request.session['model'], reduced_model)
+            #print("red mod")
+            #printfields(reduced_model)
+
+
+
+            if reduced_model:
+                request.session['model'] = update_model(request.session['model'], reduced_model)
+
 
         '''
         if not 'model' in request.session:
@@ -740,6 +761,7 @@ def update_model(model, reduced_model):
         for j, field in enumerate(reduced_model['columns'][i]['fields']):
             exists = False
             #fields
+
             for k, col_red in enumerate(model['columns'][i]['fields']):
                 if reduced_model['columns'][i]['fields'][j]['field_num'] == m['columns'][i]['fields'][k]['field_num']:
                     m['columns'][i]['fields'][k] = reduced_model['columns'][i]['fields'][j].copy()
@@ -798,6 +820,10 @@ def reduce_model(model, pagination):
     '''
 
     reduced_model = copy.deepcopy(model)
+
+    #print("reduced_model")
+    #printfields(reduced_model)
+
     num_rows = reduced_model['num_cols_selected']
     p = False
     f = 0
@@ -807,6 +833,7 @@ def reduce_model(model, pagination):
         t = f + pagination['perPage']
     for i, col in enumerate(reduced_model['columns']):
         if not 'col_num_new' in col or col['col_num_new'] > -1: #show column
+
             if p:
                 fields = reduced_model['columns'][i]['fields'][f:t].copy()
             elif isinstance(pagination, int):
@@ -815,6 +842,18 @@ def reduce_model(model, pagination):
                 fields = reduced_model['columns'][i]['fields'].copy()
 
             reduced_model['columns'][i]['fields'] = fields
+
         else: # remove columns that are not selected
             reduced_model['columns'][i]['fields'] = []
     return reduced_model
+
+
+def printfields(model):
+    '''
+    for debugging purposes
+    '''
+    for c in model['columns']:
+        if 'fields' in c:
+            print(str(len(c['fields']))," FIELDS YES in ",c['header']['orig_val'])
+        else:
+            print("FIELDS NOO in ",c['header']['orig_val'])
