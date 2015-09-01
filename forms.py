@@ -37,12 +37,6 @@ class CsvColumnChoiceForm(forms.Form):
     hidden_rdf_array_field = hidden_rdf_array_field
     hidden_model = hidden_model
 
-    FAVORITE_COLORS_CHOICES = (('blue', 'Blue'),
-                               ('green', 'Green'),
-                               ('black', 'Black'))
-    columns = forms.MultipleChoiceField(required=False,
-                                        widget=forms.CheckboxSelectMultiple, choices=FAVORITE_COLORS_CHOICES)
-
 
 class SubjectForm(forms.Form):
     hidden_filename_field = hidden_filename_field

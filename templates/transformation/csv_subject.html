@@ -90,7 +90,7 @@
         <h3>DATA VIEW</h3>
         <div>
         File: <b>{{ filename }}</b> (10 rows example)
-        {{ rdfModel | model_as_table:10 | safe }}
+        {{ rdfModel | model_as_table | safe }}
         </div>
     </div>
 </div>
