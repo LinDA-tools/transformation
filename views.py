@@ -158,7 +158,7 @@ def csv_column_choice(request):
 
         num_csv_rows = len(request.session['csv_rows'][0])
 
-        request.session['model'] = {"num_cols_total": num_csv_rows, "num_cols_selected": num_csv_rows, "columns": []} # get csv column-wise
+        request.session['model'] = {"file_name": request.session['file_name'], "num_cols_total": num_csv_rows, "num_cols_selected": num_csv_rows, "columns": []} # get csv column-wise
         for i, col in enumerate(inverted_csv):
             column_obj = {"col_num_orig": i+1, "fields": []}
             for j, field in enumerate(col):
@@ -310,9 +310,9 @@ def csv_subject(request):
         'rdfModel': reduce_model(request.session['model'], 10),
         'action': form_action,
         #'csvContent': csv_rows_selected_columns,
-        'filename': request.session['file_name'],
-        'rdfArray': request.session['rdf_array'],
-        'rdfPrefix': request.session['rdf_prefix']
+        #'filename': request.session['file_name'],
+        #'rdfArray': request.session['rdf_array'],
+        #'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_subject.html', html_post_data)
 
@@ -345,9 +345,9 @@ def csv_predicate(request):
         'action': form_action,
         'rdfModel': reduce_model(request.session['model'], 10),
         #'csvContent': csv_rows_selected_columns,
-        'filename': request.session['file_name'],
-        'rdfArray': request.session['rdf_array'],
-	    'rdfPrefix': request.session['rdf_prefix']
+        #'filename': request.session['file_name'],
+        #'rdfArray': request.session['rdf_array'],
+	    #'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_predicate.html', html_post_data)
 
@@ -482,9 +482,9 @@ def csv_object(request):
         'action': form_action,
         'rdfModel': reduce_model(request.session['model'], pagination), 
         #'csvContent': csv_rows_selected_columns,
-        'filename': request.session['file_name'],
-        'rdfArray': request.session['rdf_array'],
-	    'rdfPrefix': request.session['rdf_prefix']
+        #'filename': request.session['file_name'],
+        #'rdfArray': request.session['rdf_array'],
+	    #'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_object.html', html_post_data)
 
@@ -525,9 +525,9 @@ def csv_enrich(request):
         'action': form_action,
         'rdfModel': reduce_model(request.session['model'], 10),
         #'csvContent': csv_rows_selected_columns,
-        'filename': request.session['file_name'],
-        'rdfArray': request.session['rdf_array'],
-	    'rdfPrefix': request.session['rdf_prefix']
+        #'filename': request.session['file_name'],
+        #'rdfArray': request.session['rdf_array'],
+	    #'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_enrich.html', html_post_data)
 
@@ -599,9 +599,9 @@ def csv_publish(request):
         'action': form_action,
         'rdfModel': request.session['model'],
         #'csvContent': csv_rows_selected_columns,
-        'filename': request.session['file_name'],
-        'rdfArray': request.session['rdf_array'],
-	    'rdfPrefix': request.session['rdf_prefix']
+        #'filename': request.session['file_name'],
+        #'rdfArray': request.session['rdf_array'],
+	    #'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_publish.html', html_post_data)
 
