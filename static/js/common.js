@@ -2620,7 +2620,7 @@ function model_to_array(model){
 			});
 		}
 	});
-	console.log("array");
+
 	var rdf_array = create_multidim_array(num_total_rows_rdf, 3);
 
 

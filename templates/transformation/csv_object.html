@@ -219,7 +219,7 @@ function askOracle(widget, domain, term, keepReconciliationIfExists){
 
 function guessType(column){
 	column = typeof column !== 'undefined' ? column : "";
-
+console.log(column)
 	//http://www.sitepoint.com/jquery-basic-regex-selector-examples/
 //baseUris = ['Prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>', 'Prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>', 'Prefix xsd: <http://www.w3.org/2001/XMLSchema#>', 'Prefix fn: <http://aksw.org/sparqlify/>'];
 
@@ -334,6 +334,7 @@ function guessType(column){
 
 			//var repl = replacePrefix(value.url);
 			var repl = value.url;
+			console.log(recent_field)
 			if(recent_field.trim().match(value.regex)){
 				if(typeof matching[repl] == 'undefined'){
 					matching[repl] = 1;
@@ -384,18 +385,10 @@ function noAction(column, adaptRDF){
 	//remove data type select field from table header
 	$("td[id^='id_table_head_"+column+"']").find("select").remove();
 	$("td[id^='id_table_head_"+column+"']").find("br").remove();
+	$(this).not(':first').remove();
 
 	$("td[id^='id_table_field_"+column+"']").each( function(i){
-		var id = $(this).attr("id");
-		//get row and column field as included in table td id field
-		id_as_array = id.split("_");
-		var row = id_as_array[id_as_array.length-1];
-		var col = id_as_array[id_as_array.length-2];
-		//write original field content from model
-		for(var i = 0; i < model['columns'].length; i++){
-			if(model['columns'][i]['col_num_new'] == col)
-				$(this).text(model['columns'][i]['fields'][row-1]['orig_val']);
-		}
+		$(this).children().not(':first').remove();
 	});
 
 	add_to_content_where_col("object_method", "no action", column);

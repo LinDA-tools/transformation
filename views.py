@@ -765,6 +765,14 @@ def update_model(model, reduced_model):
         if 'header' in reduced_model['columns'][i]:
             col['header'] = copy.deepcopy(reduced_model['columns'][i]['header'])
 
+        #object_method
+        if 'object_method' in reduced_model['columns'][i]:
+            col['object_method'] = copy.deepcopy(reduced_model['columns'][i]['object_method'])
+
+        #data_type
+        if 'data_type' in reduced_model['columns'][i]:
+            col['data_type'] = copy.deepcopy(reduced_model['columns'][i]['data_type'])
+
     #subject
     if 'subject' in reduced_model:
         m['subject'] = copy.deepcopy(reduced_model['subject'])
@@ -772,6 +780,12 @@ def update_model(model, reduced_model):
     #enrich
     if 'enrich' in reduced_model:
         m['enrich'] = copy.deepcopy(reduced_model['enrich'])
+
+    #file_name
+    if 'file_name' in reduced_model:
+        m['file_name'] = copy.deepcopy(reduced_model['file_name'])
+
+
 
     return m
 
