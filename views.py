@@ -16,6 +16,8 @@ from .settings import API_HOST
 import ast
 from transformation.models import Mapping
 import copy
+import datetime
+from itertools import chain # for concatenating ranges
 
 
 # ###############################################
@@ -28,7 +30,7 @@ def user_test(request):
 
 def data_choice(request):
     print("VIEW data_choice")
-    print(request.session) 
+    #print(request.session) 
     if 'csv_rows' in request.session:
         del request.session['csv_rows']
     if 'csv_raw' in request.session:
@@ -133,7 +135,7 @@ def csv_upload(request):
             return render(request, 'transformation/csv_upload.html', html_post_data)
 
         if 'button_choose' in request.POST:
-            print(request.POST['mapping_id'])
+            #print(request.POST['mapping_id'])
             request.session['model'] = json.loads(Mapping.objects.filter(id=request.POST['mapping_id'])[0].mappingFile.read().decode("utf-8"))
             form = UploadFileForm()
             return render(request, 'transformation/csv_upload.html', {'action': 1, 'form': form})
@@ -151,7 +153,11 @@ def csv_column_choice(request):
     reduced_model = None
     publish_message = None
     form = CsvColumnChoiceForm(request.POST)
+    time1 = datetime.datetime.now()
+    print("inverting")
     inverted_csv = list(zip(*request.session['csv_rows']))
+    secs = datetime.datetime.now() - time1
+    print("done "+str(secs))
 
     if not 'model' in request.session:
         print('creating model')
@@ -162,11 +168,14 @@ def csv_column_choice(request):
         for i, col in enumerate(inverted_csv):
             column_obj = {"col_num_orig": i+1, "fields": []}
             for j, field in enumerate(col):
+                #print(i," ",j)
                 if j == 0: # table header / first row
                     column_obj['header'] = {"orig_val": field}
                 else:
                     column_obj['fields'].append({"orig_val": field, "field_num": j})
             request.session['model']['columns'].append(column_obj)
+        secs = datetime.datetime.now() - time1
+        print("done "+str(secs))
     elif 'model' in request.session and not 'fields' in request.session['model']['columns'][0]: #has fields? if not, only scaffolding from model 'loaded' in data choice page of wizard
         # when only a loaded model 'scaffolding'
         print("model 'scaffolding' was loaded")
@@ -198,17 +207,16 @@ def csv_column_choice(request):
 
     html_post_data = {         
         'action': form_action,
-        'csvContent': request.session['csv_rows'],
-        'filename': request.session['file_name'],
+        'csvContent': request.session['csv_rows'][:10],
+        #'filename': request.session['file_name'],
         'publish_message': publish_message
     }
     if 'model' in request.session and not 'rdfModel' in html_post_data:
         html_post_data['rdfModel'] = reduce_model(request.session['model'], 10)
         #html_post_data['rdfModel'] = request.session['model']
-    print("mod vor senden")
+    #print("mod vor senden")
     #printfields(request.session['model'])
-    #request.session['bla'] = "" # i dont know why but does not work without this when loading model 'scaffolding'
-
+    request.session.modified = True
     #print("mod vor senden 2")
     #printfields(html_post_data['rdfModel'])
     return render(request, 'transformation/csv_column_choice.html', html_post_data)
@@ -216,7 +224,11 @@ def csv_column_choice(request):
 
 def csv_subject(request):
     print("VIEW csv_subject")
-    #print(request.session['bla'])
+
+    time1 = datetime.datetime.now()
+
+
+
     #print("mod direkt nach laden seite")
     #printfields(request.session['model'])
 
@@ -228,23 +240,26 @@ def csv_subject(request):
         # content  is passed on via hidden html input fields
         if 'hidden_rdf_array_field' in form.cleaned_data:
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
-        else:
-            request.session['rdf_array'] = ""
 
         if 'hidden_rdf_prefix_field' in form.cleaned_data:
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
-        else:
-            request.session['rdf_prefix'] = ""
 
         if 'hidden_model' in form.cleaned_data:
             reduced_model = ast.literal_eval(form.cleaned_data['hidden_model'])
             #print("red mod")
             #printfields(reduced_model)
 
+            secs = datetime.datetime.now() - time1
+            print("init: "+str(secs))
+            time1 = datetime.datetime.now()
 
 
             if reduced_model:
                 request.session['model'] = update_model(request.session['model'], reduced_model)
+
+        secs = datetime.datetime.now() - time1
+        print("updateing model: "+str(secs))
+        time1 = datetime.datetime.now()
 
 
         '''
@@ -306,8 +321,12 @@ def csv_subject(request):
 
         mark_selected_rows_in_model(request.session)
         '''
+    redu = reduce_model(request.session['model'], 10)
+    secs = datetime.datetime.now() - time1
+    time1 = datetime.datetime.now()
+    print("reducing model: "+str(secs))
     html_post_data = {
-        'rdfModel': reduce_model(request.session['model'], 10),
+        'rdfModel': redu,
         'action': form_action,
         #'csvContent': csv_rows_selected_columns,
         #'filename': request.session['file_name'],
@@ -326,24 +345,25 @@ def csv_predicate(request):
         # content  is passed on via hidden html input fields
         if 'hidden_rdf_array_field' in form.cleaned_data:
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
-        else:
-            request.session['rdf_array'] = ""
 
         if 'hidden_rdf_prefix_field' in form.cleaned_data:
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
-        else:
-            request.session['rdf_prefix'] = ""
 
         if 'hidden_model' in form.cleaned_data:
             reduced_model = ast.literal_eval(form.cleaned_data['hidden_model'])
+            time1 = datetime.datetime.now()
             request.session['model'] = update_model(request.session['model'], reduced_model)
-        else:
-            request.session['model'] = ""
+            secs = datetime.datetime.now() - time1
+            print("updating model: "+str(secs))
 
     #csv_rows_selected_columns = get_selected_rows_content(request.session)
+    time1 = datetime.datetime.now()
+    redu = reduce_model(request.session['model'], 10)
+    secs = datetime.datetime.now() - time1
+    print("reducing model: "+str(secs))
     html_post_data = {
         'action': form_action,
-        'rdfModel': reduce_model(request.session['model'], 10),
+        'rdfModel': redu,
         #'csvContent': csv_rows_selected_columns,
         #'filename': request.session['file_name'],
         #'rdfArray': request.session['rdf_array'],
@@ -378,13 +398,9 @@ def csv_object(request):
         # content  is passed on via hidden html input fields
         if 'hidden_rdf_array_field' in form.cleaned_data:
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
-        else:
-            request.session['rdf_array'] = ""
 
         if 'hidden_rdf_prefix_field' in form.cleaned_data:
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
-        else:
-            request.session['rdf_prefix'] = ""
 
         if 'hidden_model' in form.cleaned_data:
             reduced_model = ast.literal_eval(form.cleaned_data['hidden_model'])
@@ -397,7 +413,7 @@ def csv_object(request):
 
 
     num_rows_model = len(request.session['model']['columns'][0]['fields'])
-    print(num_rows_model, " ROWS WOLL?")
+
     #print(request.session['model'])
 
     #pagination
@@ -467,13 +483,13 @@ def csv_object(request):
     #request.session['model'] = 
     #print("v ",len(request.session['model']['columns'][1]['fields']))
     #print("v ",request.session['model']['columns'][1]['fields'])
-    print("r ",len(reduced_model['columns'][1]))
-    print("r ",reduced_model['columns'][1])
+    #print("r ",len(reduced_model['columns'][1]))
+    #print("r ",reduced_model['columns'][1])
     request.session['model'] = update_model(request.session['model'], reduced_model)
     #print("r ",len(reduced_model['columns'][1]['fields']))
     #print("r ",reduced_model['columns'][1]['fields'])
-    print("n ",len(request.session['model']['columns'][1]))
-    print("n ",request.session['model']['columns'][1])
+    #print("n ",len(request.session['model']['columns'][1]))
+    #print("n ",request.session['model']['columns'][1])
     
 
     #csv_rows_selected_columns = get_selected_rows_content(request.session)
@@ -506,19 +522,13 @@ def csv_enrich(request):
         # content  is passed on via hidden html input fields
         if 'hidden_rdf_array_field' in form.cleaned_data:
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
-        else:
-            request.session['rdf_array'] = ""
 
         if 'hidden_rdf_prefix_field' in form.cleaned_data:
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
-        else:
-            request.session['rdf_prefix'] = ""
 
         if 'hidden_model' in form.cleaned_data:
             reduced_model = ast.literal_eval(form.cleaned_data['hidden_model'])
             request.session['model'] = update_model(request.session['model'], reduced_model)
-        else:
-            reduced_model = ""
 
     #csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
@@ -539,19 +549,20 @@ def csv_publish(request):
     reduced_model = None
     rdf_n3 = "@prefix dbpedia: <http://dbpedia.org/resource> .\n"
     publish_message = ""
+
+    for row in ast.literal_eval(request.session['rdf_array'])['rdf_array']:
+        for elem in row:
+            elem = elem.replace(",","\\,"); # escape commas
+            if elem[-1:] == ".": # cut off as we had problems when uploading some uri like xyz_inc. with trailing dot
+                elem = elem[:-1]
+            rdf_n3 += elem + " "
+        rdf_n3 += ".\n"
+
     if request.POST and form.is_valid() and form != None:
-        if form.cleaned_data['hidden_rdf_array_field']:            
-            request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
-            for row in ast.literal_eval(request.session['rdf_array'])['rdf_array']:
-                for elem in row:
-                    elem = elem.replace(",","\\,"); # escape commas
-                    if elem[-1:] == ".": # cut off as we had problems when uploading some uri like xyz_inc. with trailing dot
-                        elem = elem[:-1]
-                    rdf_n3 += elem + " "
-                rdf_n3 += ".\n"
-        else:
-            request.session['rdf_array'] = ""
-            print("no rdf array")
+    #    #if form.cleaned_data['hidden_rdf_array_field']:            
+    #    #    request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
+ 
+
 
         if 'hidden_model' in form.cleaned_data:
             reduced_model = ast.literal_eval(form.cleaned_data['hidden_model'])
@@ -763,17 +774,24 @@ def update_model(model, reduced_model):
     # fields
     m = copy.deepcopy(model)
     for i, col in enumerate(m['columns']):
+        exists = -1
         for j, field in enumerate(reduced_model['columns'][i]['fields']):
-            exists = False
-            #fields
 
-            for k, col_red in enumerate(model['columns'][i]['fields']):
+            #for performance when paginating
+            if exists == -1:
+                rnge = range(0,len(model['columns'][i]['fields']))
+            else:
+                rnge = chain(range(exists, len(model['columns'][i]['fields'])), range(0, exists))
+
+            #fields
+            #for k, col_red in enumerate(model['columns'][i]['fields']):
+            for k in rnge:
                 if reduced_model['columns'][i]['fields'][j]['field_num'] == m['columns'][i]['fields'][k]['field_num']:
                     m['columns'][i]['fields'][k] = reduced_model['columns'][i]['fields'][j].copy()
                     #print("OVERWRiTING ", m['columns'][i]['fields'][j], "  ",reduced_model['columns'][i]['fields'][k])
-                    exists = True
-                    #break
-            if not exists:
+                    exists = k
+                    break
+            if exists == -1:
                 m['columns'][i]['fields'].append(reduced_model['columns'][i]['fields'][j].copy())
                 #print("ADDING")
             # sort
@@ -823,7 +841,6 @@ def reduce_model(model, pagination):
     int number: first x elements will be selected
     dict of 'pagination', with page and perPage attributes as in views.py -> csv_object function
     '''
-
     reduced_model = copy.deepcopy(model)
 
     #print("reduced_model")
