@@ -18,6 +18,7 @@ from transformation.models import Mapping
 import copy
 import datetime
 from itertools import chain # for concatenating ranges
+import re # regex
 
 
 # ###############################################
@@ -263,11 +264,13 @@ def csv_subject(request):
     reduced_model = None
     if request.POST and form.is_valid() and form != None:
         # content  is passed on via hidden html input fields
+        '''
         if 'hidden_rdf_array_field' in form.cleaned_data:
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
 
         if 'hidden_rdf_prefix_field' in form.cleaned_data:
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
+        '''
 
         if 'hidden_model' in form.cleaned_data:
             time1 = datetime.datetime.now()
@@ -314,12 +317,13 @@ def csv_predicate(request):
     reduced_model = None
     if request.POST and form.is_valid() and form != None:
         # content  is passed on via hidden html input fields
+        '''
         if 'hidden_rdf_array_field' in form.cleaned_data:
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
 
         if 'hidden_rdf_prefix_field' in form.cleaned_data:
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
-
+        '''
         if 'hidden_model' in form.cleaned_data:
             reduced_model = json.loads(form.cleaned_data['hidden_model'])
             time1 = datetime.datetime.now()
@@ -367,12 +371,13 @@ def csv_object(request):
     #print(request.POST)
     if request.POST and form.is_valid():# and form != None:
         # content  is passed on via hidden html input fields
+        '''
         if 'hidden_rdf_array_field' in form.cleaned_data:
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
 
         if 'hidden_rdf_prefix_field' in form.cleaned_data:
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
-
+        '''
         if 'hidden_model' in form.cleaned_data:
             reduced_model = json.loads(form.cleaned_data['hidden_model'])
 
@@ -467,7 +472,7 @@ def csv_object(request):
     html_post_data = {
         'pagination': pagination,
         'action': form_action,
-        'rdfModel': json.dumps(reduce_model(request.session['model'], pagination)), 
+        'rdfModel': json.dumps(reduce_model(request.session['model'], pagination)),
         #'csvContent': csv_rows_selected_columns,
         #'filename': request.session['file_name'],
         #'rdfArray': request.session['rdf_array'],
@@ -491,20 +496,22 @@ def csv_enrich(request):
     reduced_model = None
     if request.POST and form.is_valid() and form != None:
         # content  is passed on via hidden html input fields
+        '''
         if 'hidden_rdf_array_field' in form.cleaned_data:
             request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
 
         if 'hidden_rdf_prefix_field' in form.cleaned_data:
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
-
+        '''
         if 'hidden_model' in form.cleaned_data:
             reduced_model = json.loads(form.cleaned_data['hidden_model'])
             request.session['model'] = update_model(request.session['model'], reduced_model)
 
+
     #csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'action': form_action,
-        'rdfModel': reduce_model(request.session['model'], 10),
+        'rdfModel': json.dumps(reduce_model(request.session['model'], 10)),
         #'csvContent': csv_rows_selected_columns,
         #'filename': request.session['file_name'],
         #'rdfArray': request.session['rdf_array'],
@@ -521,13 +528,17 @@ def csv_publish(request):
     rdf_n3 = "@prefix dbpedia: <http://dbpedia.org/resource> .\n"
     publish_message = ""
 
-    for row in ast.literal_eval(request.session['rdf_array'])['rdf_array']:
+    rdf_array = model_to_triples(request.session['model'])
+
+    for row in rdf_array:#ast.literal_eval(request.session['rdf_array']):#['rdf_array']:
         for elem in row:
             elem = elem.replace(",","\\,"); # escape commas
             if elem[-1:] == ".": # cut off as we had problems when uploading some uri like xyz_inc. with trailing dot
                 elem = elem[:-1]
             rdf_n3 += elem + " "
         rdf_n3 += ".\n"
+
+
 
     if request.POST and form.is_valid() and form != None:
     #    #if form.cleaned_data['hidden_rdf_array_field']:            
@@ -856,3 +867,141 @@ def print_model_dim(model):
     for debugging purposes
     '''
     print("model dim: ",len(model['columns']), " x ", len(model['columns'][0]['fields']))
+
+'''
+def create_subjects_from_model_skeleton(model):
+    skeleton = ""
+    base_url = ""
+
+    skeleton = model['subject']['skeleton'];
+    base_url = model['subject']['base_url'];
+
+    if not skeleton and not base_url:
+        skeleton = "?subject?"
+
+    subjects_array = []
+    for i,col in enumerate(model['columns']):
+        if col['col_num_new'] >- 1: # column was chosen, same as show==true
+            col_name = col['header']['orig_val']
+            for j,elem in enumerate(col['fields']):
+                #if model['subject']['blank_nodes'] == "true"):
+                #        subjects_array[j] = "_:"+toLetters(j+1);
+                #else:
+                if subjects_array[j] == undefined:
+                    subjects_array[j] = "<" + base_url.trim() + skeleton.trim() + ">"                    
+                subjects_array[j] = subjects_array[j].replace("{"+col_name.trim()+"}", elem['orig_val'].trim()).trim();    
+
+    return subjects_array;
+'''
+
+def model_to_triples(model):
+
+    num_fields_in_row_rdf = len(model['columns'][0]['fields'])
+    num_total_cols = 0
+
+    #count
+    for col in model['columns']:
+        if col['col_num_new'] >- 1:
+            num_total_cols += 1
+
+    num_total_fields_rdf = num_fields_in_row_rdf * num_total_cols
+
+
+    print_model_dim(model)
+    print(num_total_cols, " cols")
+
+    skeleton = model['subject']['skeleton']
+    base_url = model['subject']['base_url']
+
+    subject = "<?s>"
+    if skeleton != "" and base_url != "":
+        subject = base_url+skeleton
+
+    #contains names that are needed for subject creation
+    skeleton_array = re.findall("\{(.*?)\}",skeleton)
+    skeleton_array_ids = [x for x in range(0,len(skeleton_array))]
+    print("sekl: ", skeleton_array)
+    for i,col in enumerate(model['columns']):
+        for j,skel in enumerate(skeleton_array):
+            if col['header']['orig_val'] == skel:
+                skeleton_array_ids[j] = i
+                break
+
+    print("sekl: ", skeleton_array_ids)
+
+
+
+    rdf_array = [[subject,"<?p>","<?o>"] for x in range(0,num_total_fields_rdf)]
+
+    print(len(rdf_array)," x ",len(rdf_array[0]))
+
+    prefix_dict = {}
+
+    #objects
+    count1 = 0    
+    for i,col in enumerate(model['columns']):
+        if col['col_num_new'] >- 1:
+            count2 = count1 
+            add = ""
+            if 'object_method' in col and col['object_method'] == "data type":
+                add = "^^"+col['data_type']['suffix']
+                prefix_dict[col['data_type']['prefix']] = col['data_type']['suffix']   
+            for j,field in enumerate(col['fields']):  
+                if 'object_method' in col and col['object_method'] == "reconciliation" and 'reconciliation' in field:
+                    rdf_array[count2][2] = field['reconciliation']['prefix']['prefix']+":"+field['reconciliation']['prefix']['suffix']
+                else:
+                    rdf_array[count2][2] = '"'+field['orig_val']+'"'+add
+                count2 += num_total_cols
+        count1 += 1
+
+
+    #subjects
+    for i,s in enumerate(skeleton_array):
+        counter = 0
+        for field in model['columns'][i]['fields']:
+            pass
+            print(field)
+            for x in range(counter, counter+num_total_cols):
+                rdf_array[x][0] = rdf_array[x][0].replace("{"+skeleton_array[i]+"}",field['orig_val'])
+            counter += num_total_cols
+
+
+    #predicates
+    for i,col in enumerate(model['columns']):
+        if col['col_num_new'] >- 1:
+            url = col['predicate']['prefix']['url']
+            prefix = col['predicate']['prefix']['prefix']
+            suffix = col['predicate']['prefix']['suffix']            
+            if prefix == "" or suffix == "":
+                u = url
+            else:
+                u = prefix+":"+suffix
+                prefix_dict[prefix] = url
+            #count2 = i
+            for x in range(0, num_fields_in_row_rdf):
+                rdf_array[i+x*num_total_cols][1] = u
+                #count2 += num_fields_in_row_rdf
+
+    #enrich
+    enrich_array = []
+    for enr in model['enrich']:
+        enrich_array.append(["<subject?>","a",enr['prefix']['prefix']+":"+enr['prefix']['suffix']])
+
+    enrichs_inserted = 0
+    for n in range(num_total_cols-1,len(rdf_array)+num_total_cols-1,num_total_cols):
+        for enr in enrich_array:
+            print(enr)
+            x = n+enrichs_inserted+1
+            rdf_array.insert(x, enr.copy())
+            rdf_array[x][0] = rdf_array[x-1][0]
+            enrichs_inserted += 1
+
+
+    prefix_array = []
+    for x in prefix_dict:
+        prefix_array.append(["@prefix", x+":", "<"+prefix_dict[x]+">"])
+
+
+
+
+    return prefix_array + rdf_array

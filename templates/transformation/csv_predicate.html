@@ -164,6 +164,7 @@ function askOracle(widget_num){
 	recent_icon.className = "fa fa-refresh fa-spin";
 
 	var request = $.ajax({
+		timeout: 5000,
 		type: 'GET',
 		dataType: 'jsonp',
 		data: { 'property': recent_textinput.val() },
@@ -171,10 +172,36 @@ function askOracle(widget_num){
 	});
 
 	request.fail(function (jqXHR, textStatus, errorThrown) {
-			recent_icon.className = "fa fa-exclamation-triangle";
-			console.log(jqXHR);
+			$("#icon_"+widget_num).attr('class', "fa fa-clock-o");//fa fa-exclamation-triangle
+			$("#icon_"+widget_num).on("mouseover", function(){
+				Tip('Open in external window');
+			});
+			$("#icon_"+widget_num).on("mouseout", function(){
+				UnTip();
+			});
+			if(textStatus == "timeout"){
+				$("#icon_"+widget_num).attr('class', "fa fa-clock-o");//fa fa-exclamation-triangle
+				$("#icon_"+widget_num).on("mouseover", function(){
+					Tip("Connection timeout. Please try again.");
+				});
+				$("#icon_"+widget_num).on("mouseout", function(){
+					UnTip();
+				});
+			}else{
+				console.log(textStatus);
+				$("#icon_"+widget_num).attr('class', "fa fa-exclamation-triangle");
+				$("#icon_"+widget_num).on("mouseover", function(){
+					Tip("The server returned an error: "+textStatus);
+				});
+				$("#icon_"+widget_num).on("mouseout", function(){
+					UnTip();
+				});
+
+			}
+			//onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"
+			//console.log(jqXHR);
 			console.log(textStatus);
-			console.log(errorThrown);
+			//console.log(errorThrown);
 		}
 	);
 
