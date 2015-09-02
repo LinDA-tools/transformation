@@ -215,6 +215,10 @@ $(document).ready(function () {
 
     $("#button_back").prop('disabled', true);
 
+    if("{{ publish_message }}".indexOf("fa-exclamation-circle") > -1){
+         $("#button_next").prop('disabled', true);
+    }
+
 });
 
 

@@ -119,7 +119,7 @@ def csv_upload(request):
                     num_last_row = len(csv_rows[0])
                     for i in range(1,len(csv_rows)):
                         if len(csv_rows[i]) != num_last_row:
-                            print("File seems to be corrupt or was loaded with wrong parameters!")
+                            print("File seems to be either corrupted or it was loaded with wrong parameters!")
                             publish_message = '<span class="red"><i class="fa fa-exclamation-circle"></i> File seems to be corrupt or loaded with wrong parameters!</span>'
                             break
 
