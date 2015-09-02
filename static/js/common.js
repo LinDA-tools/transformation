@@ -2373,7 +2373,8 @@ function transpose_matrix(matrix) {
 function get_model(){
 	var model = $("#id_hidden_model");
 	if(model.length > 0)
-		return JSON.parse(model.val().replace(/'/g,"\""));
+		return JSON.parse(model.val());
+		//return JSON.parse(model.val().replace(/'/g,"\""));
 	else return false;
 }
 

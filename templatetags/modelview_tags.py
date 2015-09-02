@@ -1,4 +1,5 @@
 from django import template
+import json
 
 register = template.Library()
 
@@ -33,6 +34,7 @@ def model_as_table_object(model, pagination):
 
 @register.filter(name='model_as_thead')
 def model_header_as_table(model):
+	model = json.loads(model)
 	num_rows = model['num_cols_selected']
 	headers = []
 	for col in model['columns']:
@@ -60,6 +62,7 @@ def model_content_as_table(model, pagination):
 	int number: first x elements will be selected
 	dict of 'pagination', with page and perPage attributes as in views.py -> csv_object function
 	'''
+	model = json.loads(model)
 	num_rows = model['num_cols_selected']
 	content = []
 	#p = False
@@ -103,6 +106,7 @@ def model_content_as_table(model, pagination):
 
 @register.filter(name='model_as_thead_predicate')
 def model_header_as_table_predicate(model):
+	model = json.loads(model)
 	num_rows = model['num_cols_selected']
 	headers = []
 	for col in model['columns']:
@@ -135,6 +139,7 @@ def model_header_as_table_predicate(model):
 
 @register.filter(name='model_as_thead_object')
 def model_header_as_table_object(model):
+	model = json.loads(model)
 	num_rows = model['num_cols_selected']
 	headers = []
 	for col in model['columns']:

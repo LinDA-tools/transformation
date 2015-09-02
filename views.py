@@ -18,6 +18,7 @@ from transformation.models import Mapping
 import copy
 import datetime
 from itertools import chain # for concatenating ranges
+from numpy import transpose # for inversing matrixes
 
 
 # ###############################################
@@ -155,7 +156,10 @@ def csv_column_choice(request):
     form = CsvColumnChoiceForm(request.POST)
     time1 = datetime.datetime.now()
     print("inverting")
-    inverted_csv = list(zip(*request.session['csv_rows']))
+    #inverted_csv = list(zip(*request.session['csv_rows']))
+    #inverted_csv = list(zip(*request.session['csv_rows'][::-1]))
+    #inverted_csv = getColumns(request.session['csv_rows'])    
+    inverted_csv = transpose(request.session['csv_rows'])
     secs = datetime.datetime.now() - time1
     print("done "+str(secs))
 
@@ -163,6 +167,8 @@ def csv_column_choice(request):
         print('creating model')
 
         num_csv_rows = len(request.session['csv_rows'][0])
+        print("csvrows dim: ", str(num_csv_rows), "x", str(len(request.session['csv_rows'])))
+        print("invertd dim: ", str(len(inverted_csv)), "x", str(len(inverted_csv[0])))
 
         request.session['model'] = {"file_name": request.session['file_name'], "num_cols_total": num_csv_rows, "num_cols_selected": num_csv_rows, "columns": []} # get csv column-wise
         for i, col in enumerate(inverted_csv):
@@ -212,7 +218,7 @@ def csv_column_choice(request):
         'publish_message': publish_message
     }
     if 'model' in request.session and not 'rdfModel' in html_post_data:
-        html_post_data['rdfModel'] = reduce_model(request.session['model'], 10)
+        html_post_data['rdfModel'] = json.dumps(reduce_model(request.session['model'], 10))
         #html_post_data['rdfModel'] = request.session['model']
     #print("mod vor senden")
     #printfields(request.session['model'])
@@ -225,7 +231,7 @@ def csv_column_choice(request):
 def csv_subject(request):
     print("VIEW csv_subject")
 
-    time1 = datetime.datetime.now()
+
 
 
 
@@ -245,6 +251,8 @@ def csv_subject(request):
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
 
         if 'hidden_model' in form.cleaned_data:
+            time1 = datetime.datetime.now()
+            print("fetching model")
             reduced_model = ast.literal_eval(form.cleaned_data['hidden_model'])
             #print("red mod")
             #printfields(reduced_model)
@@ -256,10 +264,10 @@ def csv_subject(request):
 
             if reduced_model:
                 request.session['model'] = update_model(request.session['model'], reduced_model)
+                secs = datetime.datetime.now() - time1
+                print("updating model: "+str(secs))
+                time1 = datetime.datetime.now()
 
-        secs = datetime.datetime.now() - time1
-        print("updateing model: "+str(secs))
-        time1 = datetime.datetime.now()
 
 
         '''
@@ -321,12 +329,13 @@ def csv_subject(request):
 
         mark_selected_rows_in_model(request.session)
         '''
+    time1 = datetime.datetime.now()
     redu = reduce_model(request.session['model'], 10)
     secs = datetime.datetime.now() - time1
-    time1 = datetime.datetime.now()
+    #time1 = datetime.datetime.now()
     print("reducing model: "+str(secs))
     html_post_data = {
-        'rdfModel': redu,
+        'rdfModel': json.dumps(redu),
         'action': form_action,
         #'csvContent': csv_rows_selected_columns,
         #'filename': request.session['file_name'],
@@ -363,7 +372,7 @@ def csv_predicate(request):
     print("reducing model: "+str(secs))
     html_post_data = {
         'action': form_action,
-        'rdfModel': redu,
+        'rdfModel': json.dumps(redu),
         #'csvContent': csv_rows_selected_columns,
         #'filename': request.session['file_name'],
         #'rdfArray': request.session['rdf_array'],
@@ -496,7 +505,7 @@ def csv_object(request):
     html_post_data = {
         'pagination': pagination,
         'action': form_action,
-        'rdfModel': reduce_model(request.session['model'], pagination), 
+        'rdfModel': json.dumps(reduce_model(request.session['model'], pagination)), 
         #'csvContent': csv_rows_selected_columns,
         #'filename': request.session['file_name'],
         #'rdfArray': request.session['rdf_array'],
@@ -608,7 +617,7 @@ def csv_publish(request):
     html_post_data = {
         'publish_message': publish_message,
         'action': form_action,
-        'rdfModel': request.session['model'],
+        'rdfModel': json.dumps(request.session['model']),
         #'csvContent': csv_rows_selected_columns,
         #'filename': request.session['file_name'],
         #'rdfArray': request.session['rdf_array'],
