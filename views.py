@@ -18,7 +18,6 @@ from transformation.models import Mapping
 import copy
 import datetime
 from itertools import chain # for concatenating ranges
-from numpy import transpose # for inversing matrixes
 
 
 # ###############################################
@@ -55,7 +54,7 @@ def data_choice(request):
 def csv_upload(request):
     print("VIEW csv_upload")
     form_action = 2
-    publish_message = '<span class="green"><i class="fa fa-check-circle"></i> File seems to be okay.</span>'
+    publish_message = ""
     if request.method == 'POST':
         print("PATH 1 - POST")
         # a raw representation of the CSV file is also kept as we want to be able to change the CSV dialect and then reload the page
@@ -73,15 +72,6 @@ def csv_upload(request):
                 if form.cleaned_data['hidden_csv_raw_field']:
                     csv_raw = form.cleaned_data['hidden_csv_raw_field']
                     csv_rows, csv_dialect = process_csv(StringIO(form.cleaned_data['hidden_csv_raw_field']), form)
-
-                    #check if file is correct
-                    num_last_row = len(csv_rows[0])
-                    for i in range(1,csv_rows):
-                        if len(csv_rows[i]) != num_last_row:
-                            print("File seems to be corrupt or loaded with wrong parameters!")
-                            publish_message = '<span class="red"><i class="fa fa-exclamation-circle"></i> File seems to be corrupt or loaded with wrong parameters!</span>'
-                            break
-
 
                 else:
                     print('no raw csv')
@@ -123,6 +113,16 @@ def csv_upload(request):
                     # the file is also provided in raw formatting, so users can appy changes (choose csv params) without reloading file 
                     csv_raw = csvfile.read()
                     csv_rows, csv_dialect = process_csv(csvfile, form)
+
+                    #check if file is correct
+                    publish_message = '<span class="green"><i class="fa fa-check-circle"></i> File seems to be okay.</span>'
+                    num_last_row = len(csv_rows[0])
+                    for i in range(1,len(csv_rows)):
+                        if len(csv_rows[i]) != num_last_row:
+                            print("File seems to be corrupt or was loaded with wrong parameters!")
+                            publish_message = '<span class="red"><i class="fa fa-exclamation-circle"></i> File seems to be corrupt or loaded with wrong parameters!</span>'
+                            break
+
             else:  # if form.is_valid():
                 print("form not valid")
 
@@ -167,33 +167,38 @@ def csv_column_choice(request):
     publish_message = None
     form = CsvColumnChoiceForm(request.POST)
     time1 = datetime.datetime.now()
-    print("inverting")
-    #inverted_csv = list(zip(*request.session['csv_rows']))
-    #inverted_csv = list(zip(*request.session['csv_rows'][::-1]))
-    #inverted_csv = getColumns(request.session['csv_rows'])    
-    inverted_csv = transpose(request.session['csv_rows'])
-    secs = datetime.datetime.now() - time1
-    print("done "+str(secs))
+
 
     if not 'model' in request.session:
         print('creating model')
 
-        num_csv_rows = len(request.session['csv_rows'][0])
-        print("csvrows dim: ", str(num_csv_rows), "x", str(len(request.session['csv_rows'])))
-        print("invertd dim: ", str(len(inverted_csv)), "x", str(len(inverted_csv[0])))
+        arr = request.session['csv_rows']
+        m = {"file_name": request.session['file_name'], "num_cols_total": len(arr), "num_cols_selected": len(arr), "columns": []}
+        f = -1
+        c = -1
 
-        request.session['model'] = {"file_name": request.session['file_name'], "num_cols_total": num_csv_rows, "num_cols_selected": num_csv_rows, "columns": []} # get csv column-wise
-        for i, col in enumerate(inverted_csv):
-            column_obj = {"col_num_orig": i+1, "fields": []}
-            for j, field in enumerate(col):
-                #print(i," ",j)
-                if j == 0: # table header / first row
-                    column_obj['header'] = {"orig_val": field}
-                else:
-                    column_obj['fields'].append({"orig_val": field, "field_num": j})
-            request.session['model']['columns'].append(column_obj)
+        try:
+
+            for i,head in enumerate(arr[0]):                
+                m['columns'].append({'col_num_orig': i+1, 'fields': [], 'header': {'orig_val': arr[0][i]}})
+
+            for field in range(1,len(arr)):
+                f = field
+                for col in range(0,len(arr[field])):
+                    c = col
+                    m['columns'][col]['fields'].append({'orig_val': arr[field][col], 'field_num': field})
+
+        except IndexError:
+            print("index error: col "+str(c)+", field "+str(f))
+
+        request.session['model'] = m
+        #print(request.session['model'])
         secs = datetime.datetime.now() - time1
         print("done "+str(secs))
+        print_model_dim(request.session['model'])
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        #printfields(request.session['model'])
+
     elif 'model' in request.session and not 'fields' in request.session['model']['columns'][0]: #has fields? if not, only scaffolding from model 'loaded' in data choice page of wizard
         # when only a loaded model 'scaffolding'
         print("model 'scaffolding' was loaded")
@@ -218,10 +223,12 @@ def csv_column_choice(request):
 
         #print("mod nach laden")
         #printfields(request.session['model'])
+        print_model_dim(request.session['model'])
 
     elif request.POST and form.is_valid() and 'hidden_model' in form.cleaned_data and form.cleaned_data['hidden_model']:
         reduced_model = json.loads(form.cleaned_data['hidden_model'])
         request.session['model'] = update_model(request.session['model'],reduced_model)
+        print_model_dim(request.session['model'])
 
     html_post_data = {         
         'action': form_action,
@@ -265,10 +272,10 @@ def csv_subject(request):
         if 'hidden_model' in form.cleaned_data:
             time1 = datetime.datetime.now()
             print("fetching model")
-            print(form.cleaned_data['hidden_model'])
+            #print(form.cleaned_data['hidden_model'])
             reduced_model = json.loads(form.cleaned_data['hidden_model'])
-            #print("red mod")
-            #printfields(reduced_model)
+            print("red mod")
+            printfields(reduced_model)
 
             secs = datetime.datetime.now() - time1
             print("init: "+str(secs))
@@ -287,8 +294,10 @@ def csv_subject(request):
     secs = datetime.datetime.now() - time1
     #time1 = datetime.datetime.now()
     print("reducing model: "+str(secs))
+    dumped = json.dumps(redu)
+    print("dunped")
     html_post_data = {
-        'rdfModel': json.dumps(redu),
+        'rdfModel': dumped,
         'action': form_action,
         #'csvContent': csv_rows_selected_columns,
         #'filename': request.session['file_name'],
@@ -841,3 +850,9 @@ def printfields(model):
             print(str(len(c['fields']))," FIELDS YES in ",c['header']['orig_val'])
         else:
             print("FIELDS NOO in ",c['header']['orig_val'])
+
+def print_model_dim(model):
+    '''
+    for debugging purposes
+    '''
+    print("model dim: ",len(model['columns']), " x ", len(model['columns'][0]['fields']))
