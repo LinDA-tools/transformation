@@ -926,7 +926,7 @@ def model_to_triples(model):
 
 
     #subjects
-    if model['subject']['blank_nodes'] == "true":
+    if 'blank_nodes' in model['subject'] and model['subject']['blank_nodes'] == "true":
         for i,col in enumerate(model['columns']):
             counter = 0
             counter2 = 0
