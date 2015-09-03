@@ -228,7 +228,7 @@ def csv_column_choice(request):
 
     elif request.POST and form.is_valid() and 'hidden_model' in form.cleaned_data and form.cleaned_data['hidden_model']:
         reduced_model = json.loads(form.cleaned_data['hidden_model'])
-        request.session['model'] = update_model(request.session['model'],reduced_model)
+        #request.session['model'] = update_model(request.session['model'],reduced_model)
         print_model_dim(request.session['model'])
 
     html_post_data = {         
@@ -241,6 +241,7 @@ def csv_column_choice(request):
         #printfields(request.session['model'])
         #print("------------")
         redu = reduce_model(request.session['model'], 10)
+        #redu = reduced_model
         html_post_data['rdfModel'] = json.dumps(redu)
         #printfields(redu)
         #html_post_data['rdfModel'] = request.session['model']
@@ -286,14 +287,15 @@ def csv_subject(request):
 
 
             if reduced_model:
-                request.session['model'] = update_model(request.session['model'], reduced_model)
+                #request.session['model'] = update_model(request.session['model'], reduced_model)
                 secs = datetime.datetime.now() - time1
                 print("updating model: "+str(secs))
                 time1 = datetime.datetime.now()
 
 
     time1 = datetime.datetime.now()
-    redu = reduce_model(request.session['model'], 10)
+    #redu = reduce_model(request.session['model'], 10)
+    redu = reduced_model
     secs = datetime.datetime.now() - time1
     #time1 = datetime.datetime.now()
     print("reducing model: "+str(secs))
@@ -327,13 +329,14 @@ def csv_predicate(request):
         if 'hidden_model' in form.cleaned_data:
             reduced_model = json.loads(form.cleaned_data['hidden_model'])
             time1 = datetime.datetime.now()
-            request.session['model'] = update_model(request.session['model'], reduced_model)
+            #request.session['model'] = update_model(request.session['model'], reduced_model)
             secs = datetime.datetime.now() - time1
             print("updating model: "+str(secs))
 
     #csv_rows_selected_columns = get_selected_rows_content(request.session)
     time1 = datetime.datetime.now()
-    redu = reduce_model(request.session['model'], 10)
+    #redu = reduce_model(request.session['model'], 10)
+    redu = reduced_model
     secs = datetime.datetime.now() - time1
     print("reducing model: "+str(secs))
     html_post_data = {
@@ -473,6 +476,7 @@ def csv_object(request):
         'pagination': pagination,
         'action': form_action,
         'rdfModel': json.dumps(reduce_model(request.session['model'], pagination)),
+        #'rdfModel': json.dumps(reduced_model),
         #'csvContent': csv_rows_selected_columns,
         #'filename': request.session['file_name'],
         #'rdfArray': request.session['rdf_array'],
@@ -578,7 +582,8 @@ def csv_publish(request):
     html_post_data = {
         'publish_message': publish_message,
         'action': form_action,
-        'rdfModel': json.dumps(request.session['model']),
+        #'rdfModel': json.dumps(request.session['model']),
+        'rdfModel': json.dumps(reduced_model),
         #'csvContent': csv_rows_selected_columns,
         #'filename': request.session['file_name'],
         #'rdfArray': request.session['rdf_array'],
