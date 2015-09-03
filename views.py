@@ -525,20 +525,7 @@ def csv_publish(request):
     form_action = 7  #refers to itself
     form = PublishForm(request.POST)
     reduced_model = None
-    rdf_n3 = "@prefix dbpedia: <http://dbpedia.org/resource> .\n"
     publish_message = ""
-
-    rdf_array = model_to_triples(request.session['model'])
-
-    for row in rdf_array:#ast.literal_eval(request.session['rdf_array']):#['rdf_array']:
-        for elem in row:
-            elem = elem.replace(",","\\,"); # escape commas
-            if elem[-1:] == ".": # cut off as we had problems when uploading some uri like xyz_inc. with trailing dot
-                elem = elem[:-1]
-            rdf_n3 += elem + " "
-        rdf_n3 += ".\n"
-
-
 
     if request.POST and form.is_valid() and form != None:
     #    #if form.cleaned_data['hidden_rdf_array_field']:            
@@ -551,7 +538,7 @@ def csv_publish(request):
             request.session['model'] = update_model(request.session['model'], reduced_model)
 
         if 'button_publish' in request.POST:
-            payload = {'title': request.POST.get('name_publish'), 'content': rdf_n3, 'format': 'text/rdf+n3'}
+            payload = {'title': request.POST.get('name_publish'), 'content': model_to_triple_string(request.session['model']), 'format': 'text/rdf+n3'}
             #Please set the API_HOST in the settings file
             r = requests.post('http://' + API_HOST + '/api/datasource/create/', data=payload)
             j = json.loads(r.text)
@@ -560,7 +547,7 @@ def csv_publish(request):
 
         if 'button_download' in request.POST:
             new_fname = request.session['model']['file_name'].rsplit(".", 1)[0]+".n3"
-            rdf_string = rdf_n3
+            rdf_string = model_to_triple_string(request.session['model'])
             rdf_file = ContentFile(rdf_string.encode('utf-8'))
             response = HttpResponse(rdf_file, 'application/force-download')
             response['Content-Length'] = rdf_file.size
@@ -584,6 +571,7 @@ def csv_publish(request):
             mapping = Mapping(user = request.user, fileName = request.POST.get('name_mapping'), csvName = request.session['model']['file_name'])
             mapping.mappingFile.save(request.POST.get('name_mapping'), transformation_file)
             mapping.save()
+            publish_message = "Mapping was saved."
 
 
     #csv_rows_selected_columns = get_selected_rows_content(request.session)
@@ -869,6 +857,22 @@ def print_model_dim(model):
     print("model dim: ",len(model['columns']), " x ", len(model['columns'][0]['fields']))
 
 
+def model_to_triple_string(model):
+
+    rdf_n3 = "@prefix dbpedia: <http://dbpedia.org/resource> .\n"
+
+    rdf_array = model_to_triples(model)
+
+    for row in rdf_array:#ast.literal_eval(request.session['rdf_array']):#['rdf_array']:
+        for elem in row:
+            elem = elem.replace(",","\\,"); # escape commas
+            if elem[-1:] == ".": # cut off as we had problems when uploading some uri like xyz_inc. with trailing dot
+                elem = elem[:-1]
+            rdf_n3 += elem + " "
+        rdf_n3 += ".\n"
+
+    return rdf_n3
+
 
 def model_to_triples(model):
 
@@ -891,7 +895,7 @@ def model_to_triples(model):
 
     subject = "<?s>"
     if skeleton != "" and base_url != "":
-        subject = base_url+skeleton
+        subject = "<"+base_url+skeleton+">"
 
     #contains names that are needed for subject creation
     skeleton_array = re.findall("\{(.*?)\}",skeleton)
@@ -960,7 +964,10 @@ def model_to_triples(model):
     enrich_array = []
     if 'enrich' in model:
         for enr in model['enrich']:
-            enrich_array.append(["<subject?>","a",enr['prefix']['prefix']+":"+enr['prefix']['suffix']])
+            if enr['prefix']['prefix'] == "" or enr['prefix']['suffix'] == "":
+                enrich_array.append(["<subject?>","a","<"+enr['prefix']['url']+">"])
+            else:
+                enrich_array.append(["<subject?>","a",enr['prefix']['prefix']+":"+enr['prefix']['suffix']])
 
     enrichs_inserted = 0
     for n in range(num_total_cols-1,len(rdf_array)+num_total_cols-1,num_total_cols):

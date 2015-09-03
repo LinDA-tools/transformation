@@ -37,7 +37,7 @@
 
 
 <div class="content" id="rdf_view">
-	<h3 style="display: inline">RDF VIEW</h3><span>(complete data)</span>
+	<h3 style="display: inline">RDF VIEW</h3><span>(10 row example)</span>
 </div>
 
 	</form>
@@ -58,7 +58,7 @@ function adapt_RDF_preview() {
 	//$("#id_hidden_rdf_array_field").val(JSON.stringify(model_to_array(get_model())));
 
 	var rdf_view = $("#rdf_view");
-	var tbl = model_to_table(get_model());
+	var tbl = model_to_table(get_model(), 10);
 	rdf_view.find("table").remove();
 	rdf_view.append(tbl);
 }
