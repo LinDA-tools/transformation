@@ -868,31 +868,7 @@ def print_model_dim(model):
     '''
     print("model dim: ",len(model['columns']), " x ", len(model['columns'][0]['fields']))
 
-'''
-def create_subjects_from_model_skeleton(model):
-    skeleton = ""
-    base_url = ""
 
-    skeleton = model['subject']['skeleton'];
-    base_url = model['subject']['base_url'];
-
-    if not skeleton and not base_url:
-        skeleton = "?subject?"
-
-    subjects_array = []
-    for i,col in enumerate(model['columns']):
-        if col['col_num_new'] >- 1: # column was chosen, same as show==true
-            col_name = col['header']['orig_val']
-            for j,elem in enumerate(col['fields']):
-                #if model['subject']['blank_nodes'] == "true"):
-                #        subjects_array[j] = "_:"+toLetters(j+1);
-                #else:
-                if subjects_array[j] == undefined:
-                    subjects_array[j] = "<" + base_url.trim() + skeleton.trim() + ">"                    
-                subjects_array[j] = subjects_array[j].replace("{"+col_name.trim()+"}", elem['orig_val'].trim()).trim();    
-
-    return subjects_array;
-'''
 
 def model_to_triples(model):
 
@@ -908,7 +884,7 @@ def model_to_triples(model):
 
 
     print_model_dim(model)
-    print(num_total_cols, " cols")
+    #print(num_total_cols, " cols")
 
     skeleton = model['subject']['skeleton']
     base_url = model['subject']['base_url']
@@ -919,21 +895,11 @@ def model_to_triples(model):
 
     #contains names that are needed for subject creation
     skeleton_array = re.findall("\{(.*?)\}",skeleton)
-    skeleton_array_ids = [x for x in range(0,len(skeleton_array))]
-    print("sekl: ", skeleton_array)
-    for i,col in enumerate(model['columns']):
-        for j,skel in enumerate(skeleton_array):
-            if col['header']['orig_val'] == skel:
-                skeleton_array_ids[j] = i
-                break
-
-    print("sekl: ", skeleton_array_ids)
-
-
+    #print("skel: ", skeleton_array)
 
     rdf_array = [[subject,"<?p>","<?o>"] for x in range(0,num_total_fields_rdf)]
 
-    print(len(rdf_array)," x ",len(rdf_array[0]))
+    #print("rdf array dim ",len(rdf_array)," x ",len(rdf_array[0]))
 
     prefix_dict = {}
 
@@ -944,30 +910,39 @@ def model_to_triples(model):
             count2 = count1 
             add = ""
             if 'object_method' in col and col['object_method'] == "data type":
-                add = "^^"+col['data_type']['suffix']
-                prefix_dict[col['data_type']['prefix']] = col['data_type']['suffix']   
-            for j,field in enumerate(col['fields']):  
+                add = "^^"+col['data_type']['prefix']+":"+col['data_type']['suffix']
+                prefix_dict[col['data_type']['prefix']] = col['data_type']['url']   
+            for j,field in enumerate(col['fields']):
                 if 'object_method' in col and col['object_method'] == "reconciliation" and 'reconciliation' in field:
                     rdf_array[count2][2] = field['reconciliation']['prefix']['prefix']+":"+field['reconciliation']['prefix']['suffix']
                 else:
                     rdf_array[count2][2] = '"'+field['orig_val']+'"'+add
                 count2 += num_total_cols
-        count1 += 1
+            count1 += 1
 
 
     #subjects
-    for i,s in enumerate(skeleton_array):
-        counter = 0
-        for field in model['columns'][i]['fields']:
-            pass
-            print(field)
-            for x in range(counter, counter+num_total_cols):
-                rdf_array[x][0] = rdf_array[x][0].replace("{"+skeleton_array[i]+"}",field['orig_val'])
-            counter += num_total_cols
+    if model['subject']['blank_nodes'] == "true":
+        for i,col in enumerate(model['columns']):
+            counter = 0
+            counter2 = 0
+            for field in col['fields']:
+                for x in range(counter, counter+num_total_cols):
+                    rdf_array[x][0] = "_:"+toLetters(counter2)
+                counter += num_total_cols
+                counter2 += 1
+    else:
+        for i,s in enumerate(skeleton_array):
+            counter = 0
+            for field in model['columns'][i]['fields']:
+                for x in range(counter, counter+num_total_cols):
+                    rdf_array[x][0] = rdf_array[x][0].replace("{"+skeleton_array[i]+"}",field['orig_val'])
+                counter += num_total_cols
 
 
     #predicates
-    for i,col in enumerate(model['columns']):
+    count1 = 0
+    for col in model['columns']:
         if col['col_num_new'] >- 1:
             url = col['predicate']['prefix']['url']
             prefix = col['predicate']['prefix']['prefix']
@@ -977,20 +952,19 @@ def model_to_triples(model):
             else:
                 u = prefix+":"+suffix
                 prefix_dict[prefix] = url
-            #count2 = i
             for x in range(0, num_fields_in_row_rdf):
-                rdf_array[i+x*num_total_cols][1] = u
-                #count2 += num_fields_in_row_rdf
+                rdf_array[count1+x*num_total_cols][1] = u
+            count1 += 1
 
     #enrich
     enrich_array = []
-    for enr in model['enrich']:
-        enrich_array.append(["<subject?>","a",enr['prefix']['prefix']+":"+enr['prefix']['suffix']])
+    if 'enrich' in model:
+        for enr in model['enrich']:
+            enrich_array.append(["<subject?>","a",enr['prefix']['prefix']+":"+enr['prefix']['suffix']])
 
     enrichs_inserted = 0
     for n in range(num_total_cols-1,len(rdf_array)+num_total_cols-1,num_total_cols):
         for enr in enrich_array:
-            print(enr)
             x = n+enrichs_inserted+1
             rdf_array.insert(x, enr.copy())
             rdf_array[x][0] = rdf_array[x-1][0]
@@ -1001,7 +975,17 @@ def model_to_triples(model):
     for x in prefix_dict:
         prefix_array.append(["@prefix", x+":", "<"+prefix_dict[x]+">"])
 
-
-
-
     return prefix_array + rdf_array
+
+
+def toLetters(num):
+    # A = 65, Z = 90 chr ord
+    dev = num // 26
+    mod = num % 26
+    if dev > 0:
+        return toLetters(dev-1)+chr(mod+65)
+    else:
+        return chr(mod+65)
+
+
+
