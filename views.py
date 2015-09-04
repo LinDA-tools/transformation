@@ -19,6 +19,7 @@ import copy
 import datetime
 from itertools import chain # for concatenating ranges
 import re # regex
+import shutil
 
 
 # ###############################################
@@ -54,6 +55,8 @@ def data_choice(request):
 
 def csv_upload(request):
     print("VIEW csv_upload")
+     #save file
+
     form_action = 2
     publish_message = ""
     if request.method == 'POST':
@@ -99,6 +102,64 @@ def csv_upload(request):
                 data_xls.to_csv('tmp/' + uploadFileName[:-4] + '.csv', encoding='utf-8')
                 uploadFile = open('tmp/' + uploadFileName[:-4] + '.csv', "rb")
                 uploadFileName = uploadFileName[:-4] + '.csv'
+
+            #save file
+            '''
+            path = '/Some/path/to/Pics2'
+            filename = 'forcing{0}damping{1}omega{2}set2.png'.format(forcing, damping, omega)
+            filename = os.path.join(path, filename)
+            fig.savefig(filename)
+
+            import os.path
+
+            save_path = 'C:/example/'
+
+            name_of_file = raw_input("What is the name of the file: ")
+
+            completeName = os.path.join(save_path, name_of_file+".txt")
+
+            file1 = open(completeName, "w")
+
+            toFile = raw_input("Write what you want into the field")
+
+            file1.write(toFile)
+
+            file1.close()
+
+            path_to_file1 = join(expanduser('~/Dropbox/'), 'a')
+            path_to_file2 = join(expanduser('~'), 'a')
+            fout = open(path_to_file2, "w")
+            FILE = open(path_to_file1, "w")
+
+            '''
+            savepath = "filesaves/"
+            session_id = request.session.session_key
+            if request.user.is_authenticated():
+                print('user authenticated', request.user)
+                savepath += str(request.user)
+            else:
+                print('user NOT authenticated: ', session_id)
+                savepath += "anonymous"
+
+            savepath += "/"
+            savepath += str(session_id)
+            savepath += "/"
+
+            if not os.path.exists(savepath):
+                    os.makedirs(savepath)
+
+            pathandfile = os.path.join(os.path.expanduser(savepath), uploadFileName)
+            request.session['save_path'] = pathandfile
+            fout = open(pathandfile, "wb")
+            f = uploadFile.read()
+            print("cont: ",f)
+            fout.write(f)
+            fout.close()
+
+            #shutil.copy(pathandfile, )
+
+
+
 
             if form.is_valid():
                 csv_rows = []
@@ -197,8 +258,8 @@ def csv_column_choice(request):
         secs = datetime.datetime.now() - time1
         print("done "+str(secs))
         print_model_dim(request.session['model'])
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         #printfields(request.session['model'])
+
 
     elif 'model' in request.session and not 'fields' in request.session['model']['columns'][0]: #has fields? if not, only scaffolding from model 'loaded' in data choice page of wizard
         # when only a loaded model 'scaffolding'
@@ -514,6 +575,7 @@ def csv_enrich(request):
 
     #csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
+        'bla': len(json.dumps(request.session['model'])),
         'action': form_action,
         'rdfModel': json.dumps(reduce_model(request.session['model'], 10)),
         #'csvContent': csv_rows_selected_columns,
@@ -521,6 +583,7 @@ def csv_enrich(request):
         #'rdfArray': request.session['rdf_array'],
 	    #'rdfPrefix': request.session['rdf_prefix']
     }
+    pass
     return render(request, 'transformation/csv_enrich.html', html_post_data)
 
 
@@ -572,7 +635,7 @@ def csv_publish(request):
             #remove unwanted info from model
             m_light = model_light(request.session['model'])
             transformation_file = ContentFile(json.dumps(m_light).encode('utf-8'))
-            mapping = Mapping(user = request.user, fileName = request.POST.get('name_mapping'), csvName = request.session['model']['file_name'])
+            mapping = Mapping(user = request.user, fileName = request.POST.get('name_mapping'), csvName = request.session['save_path'])
             mapping.mappingFile.save(request.POST.get('name_mapping'), transformation_file)
             mapping.save()
             publish_message = "Mapping was saved."
