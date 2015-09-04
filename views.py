@@ -156,6 +156,8 @@ def csv_upload(request):
             fout.write(f)
             fout.close()
 
+            get_model_from_file(request.session['save_path'])
+
             #shutil.copy(pathandfile, )
 
 
@@ -214,6 +216,7 @@ def csv_upload(request):
             request.session['model'] = json.loads(Mapping.objects.filter(id=request.POST['mapping_id'])[0].mappingFile.read().decode("utf-8"))
             form = UploadFileForm()
             return render(request, 'transformation/csv_upload.html', {'action': 1, 'form': form})
+
 
     # html GET, we get here when loading the page 'for the first time'
     else:  # if request.method == 'POST':
@@ -1061,6 +1064,27 @@ def toLetters(num):
         return toLetters(dev-1)+chr(mod+65)
     else:
         return chr(mod+65)
+
+def get_model_from_file(pathandfile, start_row=0, num_rows=-1):
+
+    if not os.path.exists(pathandfile):
+        print("File", pathandfile, "does not exist!")
+    else:
+        f = open(pathandfile, "rb")
+        binary = f.read()
+        f.close()
+        print(binary)
+
+        #TODO read into array with csv params (delimiter etc)
+
+
+    '''
+            fout = open(pathandfile, "wb")
+            f = uploadFile.read()
+            print("cont: ",f)
+            fout.write(f)
+            fout.close()
+    '''
 
 
 
