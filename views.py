@@ -11,28 +11,25 @@ from django.http import JsonResponse
 import requests
 from django.core.files.base import ContentFile
 from .forms import *
-from django.conf import settings
 from .settings import API_HOST
-import ast
 from transformation.models import Mapping
 import copy
 import datetime
-from itertools import chain # for concatenating ranges
-import re # regex
-import shutil
-
+from itertools import chain  # for concatenating ranges
 
 # ###############################################
 # MODELS
 # ###############################################
 
+
 def user_test(request):
     return render_to_response('transformation/user_test.html',
-                             context_instance=RequestContext(request))
+                              context_instance=RequestContext(request))
+
 
 def data_choice(request):
     print("VIEW data_choice")
-    #print(request.session) 
+    # print(request.session)
     if 'csv_rows' in request.session:
         del request.session['csv_rows']
     if 'csv_raw' in request.session:
@@ -55,22 +52,21 @@ def data_choice(request):
 
 def csv_upload(request):
     print("VIEW csv_upload")
-     #save file
+    # save file
 
     form_action = 2
     publish_message = ""
     if request.method == 'POST':
         print("PATH 1 - POST")
         # a raw representation of the CSV file is also kept as we want to be able to change the CSV dialect and then reload the page
-        form = None
         csv_raw = None
         csv_rows = None
         csv_dialect = None
-        uploadFileName = 'no file selected'
+        upload_file_name = 'no file selected'
         # if page was loaded without selecting a file in html form    
         if not request.FILES:
             form = UploadFileForm(request.POST)
-            if request.POST and form.is_valid() and form != None:
+            if request.POST and form.is_valid() and form is not None:
                 print("PATH 1.1 - no file uploaded")
                 # content  is passed on via hidden html input fields
                 if form.cleaned_data['hidden_csv_raw_field']:
@@ -80,7 +76,7 @@ def csv_upload(request):
                 else:
                     print('no raw csv')
 
-                uploadFileName = form.cleaned_data['hidden_filename_field']
+                upload_file_name = form.cleaned_data['hidden_filename_field']
 
             # if page is loaded without POST
             else:
@@ -91,19 +87,19 @@ def csv_upload(request):
             print("PATH 3 - file was uploaded")
 
             form = UploadFileForm(request.POST, request.FILES)
-            uploadFileName = request.FILES['upload_file'].name
-            uploadFile = request.FILES['upload_file'].file
-            #print(uploadFileName[-4:]);
-            if (uploadFileName[-4:] == "xlsx" or uploadFileName[-4:] == ".xls"):
-                #print(uploadFileName[-4:]);
+            upload_file_name = request.FILES['upload_file'].name
+            upload_file = request.FILES['upload_file'].file
+            # print(upload_file_name[-4:]);
+            if upload_file_name[-4:] == "xlsx" or upload_file_name[-4:] == ".xls":
+                # print(upload_file_name[-4:]);
                 data_xls = pd.read_excel(request.FILES['upload_file'], 0, index_col=None)
                 if not os.path.exists('tmp'):
                     os.makedirs('tmp')
-                data_xls.to_csv('tmp/' + uploadFileName[:-4] + '.csv', encoding='utf-8')
-                uploadFile = open('tmp/' + uploadFileName[:-4] + '.csv', "rb")
-                uploadFileName = uploadFileName[:-4] + '.csv'
+                data_xls.to_csv('tmp/' + upload_file_name[:-4] + '.csv', encoding='utf-8')
+                upload_file = open('tmp/' + upload_file_name[:-4] + '.csv', "rb")
+                upload_file_name = upload_file_name[:-4] + '.csv'
 
-            #save file
+            # save file
             '''
             path = '/Some/path/to/Pics2'
             filename = 'forcing{0}damping{1}omega{2}set2.png'.format(forcing, damping, omega)
@@ -132,36 +128,31 @@ def csv_upload(request):
             FILE = open(path_to_file1, "w")
 
             '''
-            savepath = "filesaves/"
+            save_path = "filesaves/"
             session_id = request.session.session_key
             if request.user.is_authenticated():
                 print('user authenticated', request.user)
-                savepath += str(request.user)
+                save_path += str(request.user)
             else:
                 print('user NOT authenticated: ', session_id)
-                savepath += "anonymous"
+                save_path += "anonymous"
 
-            savepath += "/"
-            savepath += str(session_id)
-            savepath += "/"
+            save_path += "/"
+            save_path += str(session_id)
+            save_path += "/"
 
-            if not os.path.exists(savepath):
-                    os.makedirs(savepath)
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
 
-            pathandfile = os.path.join(os.path.expanduser(savepath), uploadFileName)
-            request.session['save_path'] = pathandfile
-            fout = open(pathandfile, "wb")
-            f = uploadFile.read()
-            print("cont: ",f)
+            path_and_file = os.path.join(os.path.expanduser(save_path), upload_file_name)
+            request.session['save_path'] = path_and_file
+            fout = open(path_and_file, "wb")
+            f = upload_file.read()
+            print("cont: ", f)
             fout.write(f)
             fout.close()
 
             get_model_from_file(request.session['save_path'])
-
-            #shutil.copy(pathandfile, )
-
-
-
 
             if form.is_valid():
                 csv_rows = []
@@ -172,16 +163,16 @@ def csv_upload(request):
 
                 # read/process the CSV file and find out about its dialect (csv params such as delimiter, line end...)
                 # https://docs.python.org/2/library/csv.html#
-                with TextIOWrapper(uploadFile, encoding=request.encoding) as csvfile:
-                    #with TextIOWrapper(uploadFile, encoding='utf-8') as csvfile:
+                with TextIOWrapper(upload_file, encoding=request.encoding) as csvfile:
+                    # with TextIOWrapper(upload_file, encoding='utf-8') as csvfile:
                     # the file is also provided in raw formatting, so users can appy changes (choose csv params) without reloading file 
                     csv_raw = csvfile.read()
                     csv_rows, csv_dialect = process_csv(csvfile, form)
 
-                    #check if file is correct
+                    # check if file is correct
                     publish_message = '<span class="green"><i class="fa fa-check-circle"></i> File seems to be okay.</span>'
                     num_last_row = len(csv_rows[0])
-                    for i in range(1,len(csv_rows)):
+                    for i in range(1, len(csv_rows)):
                         if len(csv_rows[i]) != num_last_row:
                             print("File seems to be either corrupted or it was loaded with wrong parameters!")
                             publish_message = '<span class="red"><i class="fa fa-exclamation-circle"></i> File seems to be corrupt or loaded with wrong parameters!</span>'
@@ -199,11 +190,11 @@ def csv_upload(request):
             request.session['csv_raw'] = csv_raw
             if 'upload_file' in request.FILES:
                 request.session['file_name'] = request.FILES['upload_file'].name
-            #return redirect(reverse('csv-column-choice-view'))
+            # return redirect(reverse('csv-column-choice-view'))
             html_post_data = {
                 'action': form_action,
                 'form': form,
-                'csvContent': request.session['csv_rows'],
+                'csvContent': request.session['csv_rows'][:10],
                 'csvRaw': request.session['csv_raw'],
                 'csvDialect': request.session['csv_dialect'],
                 'filename': request.session['file_name'],
@@ -212,8 +203,9 @@ def csv_upload(request):
             return render(request, 'transformation/csv_upload.html', html_post_data)
 
         if 'button_choose' in request.POST:
-            #print(request.POST['mapping_id'])
-            request.session['model'] = json.loads(Mapping.objects.filter(id=request.POST['mapping_id'])[0].mappingFile.read().decode("utf-8"))
+            # print(request.POST['mapping_id'])
+            request.session['model'] = json.loads(
+                Mapping.objects.filter(id=request.POST['mapping_id'])[0].mappingFile.read().decode("utf-8"))
             form = UploadFileForm()
             return render(request, 'transformation/csv_upload.html', {'action': 1, 'form': form})
 
@@ -233,101 +225,122 @@ def csv_column_choice(request):
     form = CsvColumnChoiceForm(request.POST)
     time1 = datetime.datetime.now()
 
-
-    if not 'model' in request.session:
+    if 'model' not in request.session:
         print('creating model')
 
         arr = request.session['csv_rows']
-        m = {"file_name": request.session['file_name'], "num_cols_total": len(arr), "num_cols_selected": len(arr), "columns": []}
+        m = {"file_name": request.session['file_name'], "num_cols_total": len(arr), "num_cols_selected": len(arr),
+             "columns": []}
         f = -1
         c = -1
 
         try:
 
-            for i,head in enumerate(arr[0]):                
-                m['columns'].append({'col_num_orig': i+1, 'fields': [], 'header': {'orig_val': arr[0][i]}})
+            for i, head in enumerate(arr[0]):
+                m['columns'].append({'col_num_orig': i + 1, 'fields': [], 'header': {'orig_val': arr[0][i]}})
 
-            for field in range(1,len(arr)):
+            for field in range(1, len(arr)):
                 f = field
-                for col in range(0,len(arr[field])):
+                for col in range(0, len(arr[field])):
                     c = col
                     m['columns'][col]['fields'].append({'orig_val': arr[field][col], 'field_num': field})
 
         except IndexError:
-            print("index error: col "+str(c)+", field "+str(f))
+            print("index error: col " + str(c) + ", field " + str(f))
 
         request.session['model'] = m
-        #print(request.session['model'])
+        # print(request.session['model'])
         secs = datetime.datetime.now() - time1
-        print("done "+str(secs))
+        print("done " + str(secs))
         print_model_dim(request.session['model'])
-        #printfields(request.session['model'])
+        # printfields(request.session['model'])
 
-
-    elif 'model' in request.session and not 'fields' in request.session['model']['columns'][0]: #has fields? if not, only scaffolding from model 'loaded' in data choice page of wizard
+    # has fields? if not, only scaffolding from model 'loaded' in data choice page of wizard
+    elif 'model' in request.session and 'fields' not in request.session['model']['columns'][0]:
         # when only a loaded model 'scaffolding'
         print("model 'scaffolding' was loaded")
 
-        #print("mod vor laden")
-        #printfields(request.session['model'])
+        # print("mod vor laden")
+        # printfields(request.session['model'])
 
-        if len(request.session['model']['columns']) != len(inverted_csv):
+        if len(request.session['model']['columns']) != len(request.session['csv_rows'][0]):
             publish_message = "The file you tried to load does not fit the chosen transformation project. The number of columns is different."
         else:
+            '''
             for i, col in enumerate(inverted_csv):
                 request.session['model']['columns'][i]['fields'] = []
                 for j, field in enumerate(col):
-                    if j == 0: # table header / first row
-                        #column_obj['header'] = {"orig_val": field}
+                    if j == 0:  # table header / first row
+                        # column_obj['header'] = {"orig_val": field}
                         pass
                     else:
                         request.session['model']['columns'][i]['fields'].append({"orig_val": field, "field_num": j})
+            '''
+            arr = request.session['csv_rows']
+            m = request.session['model']
+            f = -1
+            c = -1
 
-        #csv_rows_selected_columns = get_selected_rows_content(request.session)
-        #mark_selected_rows_in_model(request.session)
+            try:
 
-        #print("mod nach laden")
-        #printfields(request.session['model'])
+                for field in range(1, len(arr)):
+                    f = field
+                    for col in range(0, len(arr[field])):
+                        c = col
+                        if 'fields' not in m['columns'][col]:
+                            m['columns'][col]['fields'] = []
+                        m['columns'][col]['fields'].append({'orig_val': arr[field][col], 'field_num': field})
+
+            except IndexError:
+                print("index error: col " + str(c) + ", field " + str(f))
+
+        # csv_rows_selected_columns = get_selected_rows_content(request.session)
+        # mark_selected_rows_in_model(request.session)
+
+        # print("mod nach laden")
+        # printfields(request.session['model'])
         print_model_dim(request.session['model'])
 
     elif request.POST and form.is_valid() and 'hidden_model' in form.cleaned_data and form.cleaned_data['hidden_model']:
-        reduced_model = json.loads(form.cleaned_data['hidden_model'])
-        #request.session['model'] = update_model(request.session['model'],reduced_model)
+        print("model existing")
+        request.session['model'] = json.loads(form.cleaned_data['hidden_model'])
+        # request.session['model'] = update_model(request.session['model'],reduced_model)
         print_model_dim(request.session['model'])
 
-    html_post_data = {         
+    html_post_data = {
+        'rdfModel': json.dumps(request.session['model']),
         'action': form_action,
         'csvContent': request.session['csv_rows'][:10],
-        #'filename': request.session['file_name'],
+        # 'filename': request.session['file_name'],
         'publish_message': publish_message
     }
     if 'model' in request.session and not 'rdfModel' in html_post_data:
-        #printfields(request.session['model'])
-        #print("------------")
+        # printfields(request.session['model'])
+        # print("------------")
         redu = reduce_model(request.session['model'], 10)
-        #redu = reduced_model
+        # redu = reduced_model
         html_post_data['rdfModel'] = json.dumps(redu)
-        #printfields(redu)
-        #html_post_data['rdfModel'] = request.session['model']
-    #print("mod vor senden")
-    #printfields(request.session['model'])
+        # printfields(redu)
+        # html_post_data['rdfModel'] = request.session['model']
+    # print("mod vor senden")
+    # printfields(request.session['model'])
     request.session.modified = True
-    #print("mod vor senden 2")
-    #printfields(html_post_data['rdfModel'])
+    # print("mod vor senden 2")
+    # printfields(html_post_data['rdfModel'])
     return render(request, 'transformation/csv_column_choice.html', html_post_data)
 
 
 def csv_subject(request):
     print("VIEW csv_subject")
 
-    #print("mod direkt nach laden seite")
-    #printfields(request.session['model'])
+    # print("mod direkt nach laden seite")
+    # printfields(request.session['model'])
 
-    #print(request.session['model'])
+    # print(request.session['model'])
     form_action = 4
     form = SubjectForm(request.POST)
     reduced_model = None
-    if request.POST and form.is_valid() and form != None:
+    if request.POST and form.is_valid() and form is not None:
         # content  is passed on via hidden html input fields
         '''
         if 'hidden_rdf_array_field' in form.cleaned_data:
@@ -340,38 +353,36 @@ def csv_subject(request):
         if 'hidden_model' in form.cleaned_data:
             time1 = datetime.datetime.now()
             print("fetching model")
-            #print(form.cleaned_data['hidden_model'])
+            # print(form.cleaned_data['hidden_model'])
             reduced_model = json.loads(form.cleaned_data['hidden_model'])
             print("red mod")
             printfields(reduced_model)
 
             secs = datetime.datetime.now() - time1
-            print("init: "+str(secs))
+            print("init: " + str(secs))
             time1 = datetime.datetime.now()
 
-
             if reduced_model:
-                #request.session['model'] = update_model(request.session['model'], reduced_model)
+                # request.session['model'] = update_model(request.session['model'], reduced_model)
                 secs = datetime.datetime.now() - time1
-                print("updating model: "+str(secs))
+                print("updating model: " + str(secs))
                 time1 = datetime.datetime.now()
 
-
     time1 = datetime.datetime.now()
-    #redu = reduce_model(request.session['model'], 10)
+    # redu = reduce_model(request.session['model'], 10)
     redu = reduced_model
     secs = datetime.datetime.now() - time1
-    #time1 = datetime.datetime.now()
-    print("reducing model: "+str(secs))
+    # time1 = datetime.datetime.now()
+    print("reducing model: " + str(secs))
     dumped = json.dumps(redu)
     print("dunped")
     html_post_data = {
         'rdfModel': dumped,
         'action': form_action,
-        #'csvContent': csv_rows_selected_columns,
-        #'filename': request.session['file_name'],
-        #'rdfArray': request.session['rdf_array'],
-        #'rdfPrefix': request.session['rdf_prefix']
+        # 'csvContent': csv_rows_selected_columns,
+        # 'filename': request.session['file_name'],
+        # 'rdfArray': request.session['rdf_array'],
+        # 'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_subject.html', html_post_data)
 
@@ -381,7 +392,7 @@ def csv_predicate(request):
     form_action = 5
     form = PredicateForm(request.POST)
     reduced_model = None
-    if request.POST and form.is_valid() and form != None:
+    if request.POST and form.is_valid() and form is not None:
         # content  is passed on via hidden html input fields
         '''
         if 'hidden_rdf_array_field' in form.cleaned_data:
@@ -393,28 +404,30 @@ def csv_predicate(request):
         if 'hidden_model' in form.cleaned_data:
             reduced_model = json.loads(form.cleaned_data['hidden_model'])
             time1 = datetime.datetime.now()
-            #request.session['model'] = update_model(request.session['model'], reduced_model)
+            # request.session['model'] = update_model(request.session['model'], reduced_model)
             secs = datetime.datetime.now() - time1
-            print("updating model: "+str(secs))
+            print("updating model: " + str(secs))
 
-    #csv_rows_selected_columns = get_selected_rows_content(request.session)
+    # csv_rows_selected_columns = get_selected_rows_content(request.session)
     time1 = datetime.datetime.now()
-    #redu = reduce_model(request.session['model'], 10)
+    # redu = reduce_model(request.session['model'], 10)
     redu = reduced_model
     secs = datetime.datetime.now() - time1
-    print("reducing model: "+str(secs))
+    print("reducing model: " + str(secs))
     html_post_data = {
         'action': form_action,
         'rdfModel': json.dumps(redu),
-        #'csvContent': csv_rows_selected_columns,
-        #'filename': request.session['file_name'],
-        #'rdfArray': request.session['rdf_array'],
-	    #'rdfPrefix': request.session['rdf_prefix']
+        # 'csvContent': csv_rows_selected_columns,
+        # 'filename': request.session['file_name'],
+        # 'rdfArray': request.session['rdf_array'],
+        # 'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_predicate.html', html_post_data)
 
 
 def csv_object(request):
+    """
+    """
 
     '''
     #TEST
@@ -429,14 +442,13 @@ def csv_object(request):
     m2red = {'columns':[{'fields':[{'field_num':1,'c':'cccnew'},{'field_num':3,'c':'kkkkkkkkkkkkkkkkkk'}]}]}    
     print(m1)
     '''
-    
 
     print("VIEW csv_object")
     form_action = 6
     form = ObjectForm(request.POST)
     reduced_model = None
-    #print(request.POST)
-    if request.POST and form.is_valid():# and form != None:
+    # print(request.POST)
+    if request.POST and form.is_valid():  # and form != None:
         # content  is passed on via hidden html input fields
         '''
         if 'hidden_rdf_array_field' in form.cleaned_data:
@@ -454,103 +466,102 @@ def csv_object(request):
     else:
         print("form not valid!")
 
-
     num_rows_model = len(request.session['model']['columns'][0]['fields'])
 
-    #print(request.session['model'])
+    # print(request.session['model'])
 
-    #pagination
+    # pagination
     if "page" in request.GET and is_int(request.GET.get('page')):
         page = int(request.GET.get('page'))
     else:
         page = 1
 
     if "num" in request.GET and is_int(request.GET.get('num')):
-        perPage = int(request.GET.get('num'))
+        per_page = int(request.GET.get('num'))
     else:
-        perPage = 10    
+        per_page = 10
 
-    max_pages = num_rows_model // perPage
-    if num_rows_model % perPage > 0: #'rest'
+    max_pages = num_rows_model // per_page
+    if num_rows_model % per_page > 0:  # 'rest'
         max_pages += 1
 
-    if page > num_rows_model / perPage:
+    if page > num_rows_model / per_page:
         page = max_pages
 
     paging_html = ""
     for x in range(max_pages):
-        f = (x * perPage) + 1
-        t = f + perPage - 1
+        f = (x * per_page) + 1
+        t = f + per_page - 1
         if t > num_rows_model:
             t = num_rows_model
-        recentPage = ""
-        if x+1 == page:
-            recentPage = " recent-page"
-        paging_html += '<a class="pagination-link'+recentPage+'" href="?page='+str(x+1)+'&num='+str(perPage)+'">'+str(f)+'-'+str(t)+'</a> |'
+        recent_page = ""
+        if x + 1 == page:
+            recent_page = " recent-page"
+        paging_html += '<a class="pagination-link' + recent_page + '" href="?page=' + str(x + 1) + '&num=' + str(
+            per_page) + '">' + str(f) + '-' + str(t) + '</a> |'
     paging_html = paging_html[:-2]
 
-
     row_num_select = '<select id="select-rows-per-page">'
-    pages_arr = [10,25,50,100]
-    #insert a page amount in the the if it was modified in the url get params
-    if perPage not in pages_arr:
-        pages_arr.append(perPage)
+    pages_arr = [10, 25, 50, 100]
+    # insert a page amount in the the if it was modified in the url get params
+    if per_page not in pages_arr:
+        pages_arr.append(per_page)
     if num_rows_model not in pages_arr:
         pages_arr.append(num_rows_model)
     pages_arr = sorted(pages_arr)
     for p in pages_arr:
         if p <= num_rows_model:
             selected = ""
-            if p == perPage:
+            if p == per_page:
                 selected = " selected"
-            row_num_select += "<option"+selected+' href="?page='+str(page)+'&num='+str(p)+'">'+str(p)+"</option>"
+            row_num_select += "<option" + selected + ' href="?page=' + str(page) + '&num=' + str(p) + '">' + str(
+                p) + "</option>"
     row_num_select += "</select>"
 
-    startRow = page*perPage
-    endRow = page*perPage + perPage
+    start_row = page * per_page
+    end_row = page * per_page + per_page
 
     pagination = {
-            'startRow': startRow,
-            'endRow': endRow,
-            'html': paging_html,
-            'perPage': perPage,
-            'page': page,
-            'max_pages': max_pages,
-            'num_rows': num_rows_model,
-            'row_num_select_html': row_num_select}
+        'startRow': start_row,
+        'endRow': end_row,
+        'html': paging_html,
+        'perPage': per_page,
+        'page': page,
+        'max_pages': max_pages,
+        'num_rows': num_rows_model,
+        'row_num_select_html': row_num_select}
 
     # pagination end
 
-    
-    #request.session['model'] = json.loads(form.cleaned_data['hidden_model'])
-    #request.session['model'] = 
-    #print("v ",len(request.session['model']['columns'][1]['fields']))
-    #print("v ",request.session['model']['columns'][1]['fields'])
-    #print("r ",len(reduced_model['columns'][1]))
-    #print("r ",reduced_model['columns'][1])
+    # request.session['model'] = json.loads(form.cleaned_data['hidden_model'])
+    # request.session['model'] =
+    # print("v ",len(request.session['model']['columns'][1]['fields']))
+    # print("v ",request.session['model']['columns'][1]['fields'])
+    # print("r ",len(reduced_model['columns'][1]))
+    # print("r ",reduced_model['columns'][1])
     request.session['model'] = update_model(request.session['model'], reduced_model)
-    #print("r ",len(reduced_model['columns'][1]['fields']))
-    #print("r ",reduced_model['columns'][1]['fields'])
-    #print("n ",len(request.session['model']['columns'][1]))
-    #print("n ",request.session['model']['columns'][1])
-    
+    # print("r ",len(reduced_model['columns'][1]['fields']))
+    # print("r ",reduced_model['columns'][1]['fields'])
+    # print("n ",len(request.session['model']['columns'][1]))
+    # print("n ",request.session['model']['columns'][1])
 
-    #csv_rows_selected_columns = get_selected_rows_content(request.session)
+
+    # csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'pagination': pagination,
         'action': form_action,
         'rdfModel': json.dumps(reduce_model(request.session['model'], pagination)),
-        #'rdfModel': json.dumps(reduced_model),
-        #'csvContent': csv_rows_selected_columns,
-        #'filename': request.session['file_name'],
-        #'rdfArray': request.session['rdf_array'],
-	    #'rdfPrefix': request.session['rdf_prefix']
+        # 'rdfModel': json.dumps(reduced_model),
+        # 'csvContent': csv_rows_selected_columns,
+        # 'filename': request.session['file_name'],
+        # 'rdfArray': request.session['rdf_array'],
+        # 'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_object.html', html_post_data)
 
 
 def is_int(s):
-    try: 
+    try:
         int(s)
         return True
     except ValueError:
@@ -575,16 +586,15 @@ def csv_enrich(request):
             reduced_model = json.loads(form.cleaned_data['hidden_model'])
             request.session['model'] = update_model(request.session['model'], reduced_model)
 
-
-    #csv_rows_selected_columns = get_selected_rows_content(request.session)
+    # csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'bla': len(json.dumps(request.session['model'])),
         'action': form_action,
         'rdfModel': json.dumps(reduce_model(request.session['model'], 10)),
-        #'csvContent': csv_rows_selected_columns,
-        #'filename': request.session['file_name'],
-        #'rdfArray': request.session['rdf_array'],
-	    #'rdfPrefix': request.session['rdf_prefix']
+        # 'csvContent': csv_rows_selected_columns,
+        # 'filename': request.session['file_name'],
+        # 'rdfArray': request.session['rdf_array'],
+        # 'rdfPrefix': request.session['rdf_prefix']
     }
     pass
     return render(request, 'transformation/csv_enrich.html', html_post_data)
@@ -592,72 +602,67 @@ def csv_enrich(request):
 
 def csv_publish(request):
     print("VIEW csv_publish")
-    form_action = 7  #refers to itself
+    form_action = 7  # refers to itself
     form = PublishForm(request.POST)
     reduced_model = None
     publish_message = ""
 
     if request.POST and form.is_valid() and form != None:
-    #    #if form.cleaned_data['hidden_rdf_array_field']:            
-    #    #    request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
- 
-
 
         if 'hidden_model' in form.cleaned_data:
             reduced_model = json.loads(form.cleaned_data['hidden_model'])
             request.session['model'] = update_model(request.session['model'], reduced_model)
 
         if 'button_publish' in request.POST:
-            payload = {'title': request.POST.get('name_publish'), 'content': model_to_triple_string(request.session['model']), 'format': 'text/rdf+n3'}
-            #Please set the API_HOST in the settings file
+            payload = {'title': request.POST.get('name_publish'),
+                       'content': model_to_triple_string(request.session['model']), 'format': 'text/rdf+n3'}
+            # Please set the API_HOST in the settings file
             r = requests.post('http://' + API_HOST + '/api/datasource/create/', data=payload)
             j = json.loads(r.text)
             print(j["message"])
             publish_message = j["message"]
 
         if 'button_download' in request.POST:
-            new_fname = request.session['model']['file_name'].rsplit(".", 1)[0]+".n3"
+            new_fname = request.session['model']['file_name'].rsplit(".", 1)[0] + ".n3"
             rdf_string = model_to_triple_string(request.session['model'])
             rdf_file = ContentFile(rdf_string.encode('utf-8'))
             response = HttpResponse(rdf_file, 'application/force-download')
             response['Content-Length'] = rdf_file.size
-            response['Content-Disposition'] = 'attachment; filename="'+new_fname+'"'
-            #print(rdf_n3)
+            response['Content-Disposition'] = 'attachment; filename="' + new_fname + '"'
+            # print(rdf_n3)
             return response
 
         if 'button_r2rml' in request.POST:
-            new_fname = request.session['model']['file_name'].rsplit(".", 1)[0]+"_R2RML.ttl"
+            new_fname = request.session['model']['file_name'].rsplit(".", 1)[0] + "_R2RML.ttl"
             r2rml_string = transform2r2rml(request.session['model'])
             r2rml_file = ContentFile(r2rml_string.encode('utf-8'))
             response = HttpResponse(r2rml_file, 'application/force-download')
             response['Content-Length'] = r2rml_file.size
-            response['Content-Disposition'] = 'attachment; filename="'+new_fname+'"'
+            response['Content-Disposition'] = 'attachment; filename="' + new_fname + '"'
             return response
 
         if 'save_mapping' in request.POST:
-            #remove unwanted info from model
+            # remove unwanted info from model
             m_light = model_light(request.session['model'])
             transformation_file = ContentFile(json.dumps(m_light).encode('utf-8'))
-            mapping = Mapping(user = request.user, fileName = request.POST.get('name_mapping'), csvName = request.session['save_path'])
+            mapping = Mapping(user=request.user, fileName=request.POST.get('name_mapping'),
+                              csvName=request.session['save_path'])
             mapping.mappingFile.save(request.POST.get('name_mapping'), transformation_file)
             mapping.save()
             publish_message = "Mapping was saved."
 
-
-    #csv_rows_selected_columns = get_selected_rows_content(request.session)
+    # csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'publish_message': publish_message,
         'action': form_action,
-        #'rdfModel': json.dumps(request.session['model']),
+        # 'rdfModel': json.dumps(request.session['model']),
         'rdfModel': json.dumps(reduced_model),
-        #'csvContent': csv_rows_selected_columns,
-        #'filename': request.session['file_name'],
-        #'rdfArray': request.session['rdf_array'],
-	    #'rdfPrefix': request.session['rdf_prefix']
+        # 'csvContent': csv_rows_selected_columns,
+        # 'filename': request.session['file_name'],
+        # 'rdfArray': request.session['rdf_array'],
+        # 'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_publish.html', html_post_data)
-
-
 
 
 # ###############################################
@@ -666,17 +671,17 @@ def csv_publish(request):
 
 
 def model_light(model):
-    '''
+    """
     Delete all field and file specific data, that is keep only data that will be needed when loading csvs of the same structure but containing different content
-    '''
+    """
     result = copy.deepcopy(model)
     if 'file_name' in result:
         del result['file_name']
     for col in result['columns']:
         if 'fields' in col:
             del col['fields']
-        #if 'header' in col:
-        #    del col['header']
+            # if 'header' in col:
+            #    del col['header']
     return result
 
 
@@ -705,6 +710,8 @@ def get_selected_rows_content(session):
             tmp_row.append(row[cn - 1])
         result.append(tmp_row)
     return result
+
+
 '''
 # marks selected columns directly in model
 def mark_selected_rows_in_model(session):
@@ -724,14 +731,12 @@ def mark_selected_rows_in_model(session):
 '''
 
 
-
-
 def process_csv(csvfile, form):
-    '''
+    """
     Processes the CSV File and converts it to a 2dim array.
     Uses either the CSV Paramaters specified in the HTML form if those exist
     or the autodetected params instead.
-    '''
+    """
     csv_dialect = {}
     csv_rows = []
     csvfile.seek(0)
@@ -749,30 +754,29 @@ def process_csv(csvfile, form):
     # to avoid '"delimiter" must be an 1-character string' error, I encoded to utf-8
     # http://stackoverflow.com/questions/11174790/convert-unicode-string-to-byte-string
     if form.cleaned_data['delimiter'] != "":
-        dialect.delimiter = form.cleaned_data['delimiter']  #.encode('utf-8')
+        dialect.delimiter = form.cleaned_data['delimiter']  # .encode('utf-8')
     if form.cleaned_data['escape'] != "":
-        dialect.escapechar = form.cleaned_data['escape']  #.encode('utf-8')
+        dialect.escapechar = form.cleaned_data['escape']  # .encode('utf-8')
     if form.cleaned_data['quotechar'] != "":
-        dialect.quotechar = form.cleaned_data['quotechar']  #.encode('utf-8')
+        dialect.quotechar = form.cleaned_data['quotechar']  # .encode('utf-8')
     if form.cleaned_data['line_end'] != "":
-        dialect.lineterminator = form.cleaned_data['line_end']  #.encode('utf-8')
+        dialect.lineterminator = form.cleaned_data['line_end']  # .encode('utf-8')
 
     csvreader = csv.reader(csvfile, dialect)
-
-
 
     for row in csvreader:
         csv_rows.append(row)
 
-    #removal of blanks, especially special blanks \xA0 etc.
-    for i,rowa in enumerate(csv_rows):
-        for j,field in enumerate(rowa):
+    # removal of blanks, especially special blanks \xA0 etc.
+    for i, rowa in enumerate(csv_rows):
+        for j, field in enumerate(rowa):
             csv_rows[i][j] = field.strip()
 
     return [csv_rows, csv_dialect]
 
+
 def transform2r2rml(jsonmodel):
-    #head = json.load(jsonmodel)
+    # head = json.load(jsonmodel)
 
     subject = jsonmodel["subject"]
     columns = jsonmodel["columns"]
@@ -785,8 +789,10 @@ def transform2r2rml(jsonmodel):
             subjtypes.append(enr["url"])
 
     output = "@prefix rr: <http://www.w3.org/ns/r2rml#>.\n" \
-             "@prefix " + ourprefix + ": <" + subject["base_url"] + ">.\n\n" + ourprefix + ":TriplesMap a rr:TriplesMapClass;\n" \
-                "\trr:logicalTable [ rr:tableName \"" + jsonmodel["file_name"] + "\" ];\n\n\trr:subjectMap [ rr:template \"" + \
+             "@prefix " + ourprefix + ": <" + subject[
+                 "base_url"] + ">.\n\n" + ourprefix + ":TriplesMap a rr:TriplesMapClass;\n" \
+                                                      "\trr:logicalTable [ rr:tableName \"" + jsonmodel[
+                 "file_name"] + "\" ];\n\n\trr:subjectMap [ rr:template \"" + \
              subject["base_url"] + subject["skeleton"] + "\""
 
     for sutp in subjtypes:
@@ -798,146 +804,143 @@ def transform2r2rml(jsonmodel):
         if (column["col_num_new"] >= 0) and ("predicate" in column):
             predicate = column["predicate"]
             header = column["header"]
-            output += ";\n\trr:predicateObjectMap [\n\t\trr:predicateMap [ rr:predicate " + predicate["url"] + " ];\n\t\t" \
-                        "rr:ObjectMap [ rr:column \"" + header["orig_val"] + "\" ]\n\t]"
+            output += ";\n\trr:predicateObjectMap [\n\t\trr:predicateMap [ rr:predicate " + predicate[
+                "url"] + " ];\n\t\t" \
+                         "rr:ObjectMap [ rr:column \"" + header["orig_val"] + "\" ]\n\t]"
 
     output += "."
 
     return output
 
 
-
-
 def update_model(model, reduced_model):
-    '''
+    """
     Takes a model and updates it with reduced model
-    '''
+    """
     # fields
     m = copy.deepcopy(model)
     for i, col in enumerate(m['columns']):
         exists = -1
         for j, field in enumerate(reduced_model['columns'][i]['fields']):
 
-            #for performance when paginating
+            # for performance when paginating
             if exists == -1:
-                rnge = range(0,len(model['columns'][i]['fields']))
+                rnge = range(0, len(model['columns'][i]['fields']))
             else:
                 rnge = chain(range(exists, len(model['columns'][i]['fields'])), range(0, exists))
 
-            #fields
-            #for k, col_red in enumerate(model['columns'][i]['fields']):
+            # fields
+            # for k, col_red in enumerate(model['columns'][i]['fields']):
             for k in rnge:
                 if reduced_model['columns'][i]['fields'][j]['field_num'] == m['columns'][i]['fields'][k]['field_num']:
                     m['columns'][i]['fields'][k] = reduced_model['columns'][i]['fields'][j].copy()
-                    #print("OVERWRiTING ", m['columns'][i]['fields'][j], "  ",reduced_model['columns'][i]['fields'][k])
+                    # print("OVERWRiTING ", m['columns'][i]['fields'][j], "  ",reduced_model['columns'][i]['fields'][k])
                     exists = k
                     break
             if exists == -1:
                 m['columns'][i]['fields'].append(reduced_model['columns'][i]['fields'][j].copy())
-                #print("ADDING")
+                # print("ADDING")
             # sort
             newlist = sorted(m['columns'][i]['fields'].copy(), key=lambda k: k['field_num'])
             m['columns'][i]['fields'] = newlist
 
-        #predicate
+        # predicate
         if 'predicate' in reduced_model['columns'][i]:
             col['predicate'] = copy.deepcopy(reduced_model['columns'][i]['predicate'])
 
-        #column choice
+        # column choice
         if 'col_num_new' in reduced_model['columns'][i]:
             col['col_num_new'] = copy.deepcopy(reduced_model['columns'][i]['col_num_new'])
 
-        #header
+        # header
         if 'header' in reduced_model['columns'][i]:
             col['header'] = copy.deepcopy(reduced_model['columns'][i]['header'])
 
-        #object_method
+        # object_method
         if 'object_method' in reduced_model['columns'][i]:
             col['object_method'] = copy.deepcopy(reduced_model['columns'][i]['object_method'])
 
-        #data_type
+        # data_type
         if 'data_type' in reduced_model['columns'][i]:
             col['data_type'] = copy.deepcopy(reduced_model['columns'][i]['data_type'])
 
-    #subject
+    # subject
     if 'subject' in reduced_model:
         m['subject'] = copy.deepcopy(reduced_model['subject'])
 
-    #enrich
+    # enrich
     if 'enrich' in reduced_model:
         m['enrich'] = copy.deepcopy(reduced_model['enrich'])
 
-    #file_name
+    # file_name
     if 'file_name' in reduced_model:
         m['file_name'] = copy.deepcopy(reduced_model['file_name'])
-
-
 
     return m
 
 
 def reduce_model(model, pagination):
-    '''
+    """
     pagination can be 
     int number: first x elements will be selected
     dict of 'pagination', with page and perPage attributes as in views.py -> csv_object function
-    '''
+    """
     reduced_model = copy.deepcopy(model)
 
-    #print("reduced_model")
-    #printfields(reduced_model)
-
-    num_rows = reduced_model['num_cols_selected']
     p = False
     f = 0
     if isinstance(pagination, dict) and 'page' in pagination and 'perPage' in pagination:
         p = True
-        f = (pagination['page']-1) * pagination['perPage']
+        f = (pagination['page'] - 1) * pagination['perPage']
         t = f + pagination['perPage']
     for i, col in enumerate(reduced_model['columns']):
-        if not 'col_num_new' in col or col['col_num_new'] > -1: #show column
+        if 'col_num_new' not in col or col['col_num_new'] > -1:  # show column
 
-            if p:
-                fields = reduced_model['columns'][i]['fields'][f:t].copy()
-            elif isinstance(pagination, int):
-                fields = reduced_model['columns'][i]['fields'][:pagination].copy()
+            if 'fields' not in reduced_model['columns'][i]:
+                print("no fields in column ", i)
             else:
-                fields = reduced_model['columns'][i]['fields'].copy()
+                if p:
+                    fields = reduced_model['columns'][i]['fields'][f:t].copy()
+                elif isinstance(pagination, int):
+                    fields = reduced_model['columns'][i]['fields'][:pagination].copy()
+                else:
+                    fields = reduced_model['columns'][i]['fields'].copy()
 
-            reduced_model['columns'][i]['fields'] = fields
+                reduced_model['columns'][i]['fields'] = fields
 
-        else: # remove columns that are not selected
+        else:  # remove columns that are not selected
             reduced_model['columns'][i]['fields'] = []
     return reduced_model
 
 
 def printfields(model):
-    '''
+    """
     for debugging purposes
-    '''
+    """
     for c in model['columns']:
         if 'fields' in c:
-            print(str(len(c['fields']))," FIELDS YES in ",c['header']['orig_val'])
+            print(str(len(c['fields'])), " FIELDS YES in ", c['header']['orig_val'])
         else:
-            print("FIELDS NOO in ",c['header']['orig_val'])
+            print("FIELDS NOO in ", c['header']['orig_val'])
+
 
 def print_model_dim(model):
-    '''
+    """
     for debugging purposes
-    '''
-    print("model dim: ",len(model['columns']), " x ", len(model['columns'][0]['fields']))
+    """
+    if 'columns' in model and 'fields' in model['columns']:
+        print("model dim: ", len(model['columns']), " x ", len(model['columns'][0]['fields']))
 
 
 def model_to_triple_string(model):
-
     rdf_n3 = "@prefix dbpedia: <http://dbpedia.org/resource> .\n"
 
     rdf_array = model_to_triples(model)
 
-    for row in rdf_array:#ast.literal_eval(request.session['rdf_array']):#['rdf_array']:
+    for row in rdf_array:  # ast.literal_eval(request.session['rdf_array']):#['rdf_array']:
         for elem in row:
-            elem = elem.replace(",","\\,"); # escape commas
-            if elem[-1:] == ".": # cut off as we had problems when uploading some uri like xyz_inc. with trailing dot
+            elem = elem.replace(",", "\\,");  # escape commas
+            if elem[-1:] == ".":  # cut off as we had problems when uploading some uri like xyz_inc. with trailing dot
                 elem = elem[:-1]
             rdf_n3 += elem + " "
         rdf_n3 += ".\n"
@@ -946,112 +949,109 @@ def model_to_triple_string(model):
 
 
 def model_to_triples(model):
-
     num_fields_in_row_rdf = len(model['columns'][0]['fields'])
     num_total_cols = 0
 
-    #count
+    # count
     for col in model['columns']:
-        if col['col_num_new'] >- 1:
+        if col['col_num_new'] > - 1:
             num_total_cols += 1
 
     num_total_fields_rdf = num_fields_in_row_rdf * num_total_cols
 
-
     print_model_dim(model)
-    #print(num_total_cols, " cols")
+    # print(num_total_cols, " cols")
 
     skeleton = model['subject']['skeleton']
     base_url = model['subject']['base_url']
 
     subject = "<?s>"
     if skeleton != "" and base_url != "":
-        subject = "<"+base_url+skeleton+">"
+        subject = "<" + base_url + skeleton + ">"
 
-    #contains names that are needed for subject creation
-    skeleton_array = re.findall("\{(.*?)\}",skeleton)
-    #print("skel: ", skeleton_array)
+    # contains names that are needed for subject creation
+    skeleton_array = re.findall("\{(.*?)\}", skeleton)
+    # print("skel: ", skeleton_array)
 
-    rdf_array = [[subject,"<?p>","<?o>"] for x in range(0,num_total_fields_rdf)]
+    rdf_array = [[subject, "<?p>", "<?o>"] for x in range(0, num_total_fields_rdf)]
 
-    #print("rdf array dim ",len(rdf_array)," x ",len(rdf_array[0]))
+    # print("rdf array dim ",len(rdf_array)," x ",len(rdf_array[0]))
 
     prefix_dict = {}
 
-    #objects
-    count1 = 0    
-    for i,col in enumerate(model['columns']):
-        if col['col_num_new'] >- 1:
-            count2 = count1 
+    # objects
+    count1 = 0
+    for i, col in enumerate(model['columns']):
+        if col['col_num_new'] > - 1:
+            count2 = count1
             add = ""
             if 'object_method' in col and col['object_method'] == "data type":
-                add = "^^"+col['data_type']['prefix']+":"+col['data_type']['suffix']
-                prefix_dict[col['data_type']['prefix']] = col['data_type']['url']   
-            for j,field in enumerate(col['fields']):
+                add = "^^" + col['data_type']['prefix'] + ":" + col['data_type']['suffix']
+                prefix_dict[col['data_type']['prefix']] = col['data_type']['url']
+            for j, field in enumerate(col['fields']):
                 if 'object_method' in col and col['object_method'] == "reconciliation" and 'reconciliation' in field:
-                    rdf_array[count2][2] = field['reconciliation']['prefix']['prefix']+":"+field['reconciliation']['prefix']['suffix']
+                    rdf_array[count2][2] = field['reconciliation']['prefix']['prefix'] + ":" + \
+                                           field['reconciliation']['prefix']['suffix']
                 else:
-                    rdf_array[count2][2] = '"'+field['orig_val']+'"'+add
+                    rdf_array[count2][2] = '"' + field['orig_val'] + '"' + add
                 count2 += num_total_cols
             count1 += 1
 
-
-    #subjects
+    # subjects
     if 'blank_nodes' in model['subject'] and model['subject']['blank_nodes'] == "true":
-        for i,col in enumerate(model['columns']):
+        for i, col in enumerate(model['columns']):
             counter = 0
             counter2 = 0
             for field in col['fields']:
-                for x in range(counter, counter+num_total_cols):
-                    rdf_array[x][0] = "_:"+toLetters(counter2)
+                for x in range(counter, counter + num_total_cols):
+                    rdf_array[x][0] = "_:" + toLetters(counter2)
                 counter += num_total_cols
                 counter2 += 1
     else:
-        for i,s in enumerate(skeleton_array):
+        for i, s in enumerate(skeleton_array):
             counter = 0
             for field in model['columns'][i]['fields']:
-                for x in range(counter, counter+num_total_cols):
-                    rdf_array[x][0] = rdf_array[x][0].replace("{"+skeleton_array[i]+"}",field['orig_val'])
+                for x in range(counter, counter + num_total_cols):
+                    rdf_array[x][0] = rdf_array[x][0].replace("{" + skeleton_array[i] + "}", field['orig_val'])
                 counter += num_total_cols
 
 
-    #predicates
+    # predicates
     count1 = 0
     for col in model['columns']:
-        if col['col_num_new'] >- 1:
+        if col['col_num_new'] > - 1:
             url = col['predicate']['prefix']['url']
             prefix = col['predicate']['prefix']['prefix']
-            suffix = col['predicate']['prefix']['suffix']            
+            suffix = col['predicate']['prefix']['suffix']
             if prefix == "" or suffix == "":
                 u = url
             else:
-                u = prefix+":"+suffix
+                u = prefix + ":" + suffix
                 prefix_dict[prefix] = url
             for x in range(0, num_fields_in_row_rdf):
-                rdf_array[count1+x*num_total_cols][1] = u
+                rdf_array[count1 + x * num_total_cols][1] = u
             count1 += 1
 
-    #enrich
+    # enrich
     enrich_array = []
     if 'enrich' in model:
         for enr in model['enrich']:
             if enr['prefix']['prefix'] == "" or enr['prefix']['suffix'] == "":
-                enrich_array.append(["<subject?>","a","<"+enr['prefix']['url']+">"])
+                enrich_array.append(["<subject?>", "a", "<" + enr['prefix']['url'] + ">"])
             else:
-                enrich_array.append(["<subject?>","a",enr['prefix']['prefix']+":"+enr['prefix']['suffix']])
+                enrich_array.append(["<subject?>", "a", enr['prefix']['prefix'] + ":" + enr['prefix']['suffix']])
 
     enrichs_inserted = 0
-    for n in range(num_total_cols-1,len(rdf_array)+num_total_cols-1,num_total_cols):
+    for n in range(num_total_cols - 1, len(rdf_array) + num_total_cols - 1, num_total_cols):
         for enr in enrich_array:
-            x = n+enrichs_inserted+1
+            x = n + enrichs_inserted + 1
             rdf_array.insert(x, enr.copy())
-            rdf_array[x][0] = rdf_array[x-1][0]
+            rdf_array[x][0] = rdf_array[x - 1][0]
             enrichs_inserted += 1
-
 
     prefix_array = []
     for x in prefix_dict:
-        prefix_array.append(["@prefix", x+":", "<"+prefix_dict[x]+">"])
+        prefix_array.append(["@prefix", x + ":", "<" + prefix_dict[x] + ">"])
 
     return prefix_array + rdf_array
 
@@ -1061,12 +1061,12 @@ def toLetters(num):
     dev = num // 26
     mod = num % 26
     if dev > 0:
-        return toLetters(dev-1)+chr(mod+65)
+        return toLetters(dev - 1) + chr(mod + 65)
     else:
-        return chr(mod+65)
+        return chr(mod + 65)
+
 
 def get_model_from_file(pathandfile, start_row=0, num_rows=-1):
-
     if not os.path.exists(pathandfile):
         print("File", pathandfile, "does not exist!")
     else:
@@ -1075,16 +1075,12 @@ def get_model_from_file(pathandfile, start_row=0, num_rows=-1):
         f.close()
         print(binary)
 
-        #TODO read into array with csv params (delimiter etc)
-
+        # TODO read into array with csv params (delimiter etc)
 
     '''
             fout = open(pathandfile, "wb")
-            f = uploadFile.read()
+            f = upload_file.read()
             print("cont: ",f)
             fout.write(f)
             fout.close()
     '''
-
-
-
