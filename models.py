@@ -19,7 +19,7 @@ class Person(models.Model):
 # end person model
 '''
 
-
+'''
 class CSV(models.Model):
     rdf_subject = models.CharField(max_length='512', default=None, blank=True, null=True)
     # owner = models.ForeignKey(Person, verbose_name="Owner / creator of represented data model")
@@ -91,7 +91,7 @@ class CSVFile(models.Model):
 
     def __str__(self):
         return "CSV CSV File #" + str(self.id) + " (CSV #" + str(self.csv.id) + ")"
-
+'''
 class Mapping(models.Model):
     user = models.ForeignKey(User)
     date = models.DateTimeField(auto_now_add=True, blank=True, null=True)

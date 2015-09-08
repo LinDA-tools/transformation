@@ -63,7 +63,7 @@ def csv_upload(request):
         csv_rows = None
         csv_dialect = None
         upload_file_name = 'no file selected'
-        # if page was loaded without selecting a file in html form    
+   
         if not request.FILES:
             form = UploadFileForm(request.POST)
             if request.POST and form.is_valid() and form is not None:
@@ -99,7 +99,68 @@ def csv_upload(request):
                 upload_file = open('tmp/' + upload_file_name[:-4] + '.csv', "rb")
                 upload_file_name = upload_file_name[:-4] + '.csv'
 
-            # save file
+
+
+            # file to array
+
+            csv_rows = []
+            csvLines = []
+            rows = []
+            csv_dialect = {}
+            csv_raw = ""
+
+            # read/process the CSV file and find out about its dialect (csv params such as delimiter, line end...)
+            # https://docs.python.org/2/library/csv.html#
+            print("endoding ", request.encoding)
+            with TextIOWrapper(upload_file, encoding=request.encoding) as csvfile:
+                # with TextIOWrapper(upload_file, encoding='utf-8') as csvfile:
+                # the file is also provided in raw formatting, so users can appy changes (choose csv params) without reloading file 
+                csv_raw = csvfile.read()
+                csv_rows, csv_dialect = process_csv(csvfile, form)
+
+                # check if file is correct
+                publish_message = '<span class="green"><i class="fa fa-check-circle"></i> File seems to be okay.</span>'
+                num_last_row = len(csv_rows[0])
+                for i in range(1, len(csv_rows)):
+                    if len(csv_rows[i]) != num_last_row:
+                        print("File seems to be either corrupted or it was loaded with wrong parameters!")
+                        publish_message = '<span class="red"><i class="fa fa-exclamation-circle"></i> File seems to be corrupt or loaded with wrong parameters!</span>'
+                        break
+
+                # save file
+                save_path = "filesaves/"
+                session_id = request.session.session_key
+                if request.user.is_authenticated():
+                    print('user authenticated', request.user)
+                    save_path += str(request.user)
+                else:
+                    print('user NOT authenticated: ', session_id)
+                    save_path += "anonymous"
+
+                save_path += "/"
+                save_path += str(session_id)
+                save_path += "/"
+
+                if not os.path.exists(save_path):
+                    os.makedirs(save_path)
+
+                path_and_file = os.path.join(os.path.expanduser(save_path), upload_file_name)
+                request.session['save_path'] = path_and_file
+                fout = open(path_and_file, "w")
+                #f = csvfile.read()
+                print("cont: ", csv_raw)
+                fout.write(csv_raw)#(bytes(csv_raw, 'UTF-8'))
+                fout.close()
+
+                request.session['csv_dialect'] = csv_dialect
+                request.session['csv_rows'] = csv_rows
+                request.session['csv_raw'] = csv_raw
+
+                #TODO
+                csv_array = file_to_array(request=request, start_row=1, num_rows=2)
+                #file_to_array(request=None, model=None, start_row=0, num_rows=-1
+
+
             '''
             path = '/Some/path/to/Pics2'
             filename = 'forcing{0}damping{1}omega{2}set2.png'.format(forcing, damping, omega)
@@ -128,58 +189,10 @@ def csv_upload(request):
             FILE = open(path_to_file1, "w")
 
             '''
-            save_path = "filesaves/"
-            session_id = request.session.session_key
-            if request.user.is_authenticated():
-                print('user authenticated', request.user)
-                save_path += str(request.user)
-            else:
-                print('user NOT authenticated: ', session_id)
-                save_path += "anonymous"
 
-            save_path += "/"
-            save_path += str(session_id)
-            save_path += "/"
 
-            if not os.path.exists(save_path):
-                os.makedirs(save_path)
 
-            path_and_file = os.path.join(os.path.expanduser(save_path), upload_file_name)
-            request.session['save_path'] = path_and_file
-            fout = open(path_and_file, "wb")
-            f = upload_file.read()
-            print("cont: ", f)
-            fout.write(f)
-            fout.close()
 
-            get_model_from_file(request.session['save_path'])
-
-            if form.is_valid():
-                csv_rows = []
-                csvLines = []
-                rows = []
-                csv_dialect = {}
-                csv_raw = ""
-
-                # read/process the CSV file and find out about its dialect (csv params such as delimiter, line end...)
-                # https://docs.python.org/2/library/csv.html#
-                with TextIOWrapper(upload_file, encoding=request.encoding) as csvfile:
-                    # with TextIOWrapper(upload_file, encoding='utf-8') as csvfile:
-                    # the file is also provided in raw formatting, so users can appy changes (choose csv params) without reloading file 
-                    csv_raw = csvfile.read()
-                    csv_rows, csv_dialect = process_csv(csvfile, form)
-
-                    # check if file is correct
-                    publish_message = '<span class="green"><i class="fa fa-check-circle"></i> File seems to be okay.</span>'
-                    num_last_row = len(csv_rows[0])
-                    for i in range(1, len(csv_rows)):
-                        if len(csv_rows[i]) != num_last_row:
-                            print("File seems to be either corrupted or it was loaded with wrong parameters!")
-                            publish_message = '<span class="red"><i class="fa fa-exclamation-circle"></i> File seems to be corrupt or loaded with wrong parameters!</span>'
-                            break
-
-            else:  # if form.is_valid():
-                print("form not valid")
 
         if 'button_upload' in request.POST:
             print("UPLOAD BUTTON PRESSED")
@@ -230,7 +243,7 @@ def csv_column_choice(request):
 
         arr = request.session['csv_rows']
         m = {"file_name": request.session['file_name'], "num_cols_total": len(arr), "num_cols_selected": len(arr),
-             "columns": []}
+             "columns": [], "csv_dialect": request.session['csv_dialect'], "save_path": request.session['save_path']}
         f = -1
         c = -1
 
@@ -753,26 +766,31 @@ def process_csv(csvfile, form):
     # use csv params / dialect chosen by user if specified
     # to avoid '"delimiter" must be an 1-character string' error, I encoded to utf-8
     # http://stackoverflow.com/questions/11174790/convert-unicode-string-to-byte-string
-    if form.cleaned_data['delimiter'] != "":
-        dialect.delimiter = form.cleaned_data['delimiter']  # .encode('utf-8')
-    if form.cleaned_data['escape'] != "":
-        dialect.escapechar = form.cleaned_data['escape']  # .encode('utf-8')
-    if form.cleaned_data['quotechar'] != "":
-        dialect.quotechar = form.cleaned_data['quotechar']  # .encode('utf-8')
-    if form.cleaned_data['line_end'] != "":
-        dialect.lineterminator = form.cleaned_data['line_end']  # .encode('utf-8')
+    if form.is_valid() and form is not None:
+        if form.cleaned_data['delimiter'] != "":
+            dialect.delimiter = form.cleaned_data['delimiter']  # .encode('utf-8')
+        if form.cleaned_data['escape'] != "":
+            dialect.escapechar = form.cleaned_data['escape']  # .encode('utf-8')
+        if form.cleaned_data['quotechar'] != "":
+            dialect.quotechar = form.cleaned_data['quotechar']  # .encode('utf-8')
+        if form.cleaned_data['line_end'] != "":
+            dialect.lineterminator = form.cleaned_data['line_end']  # .encode('utf-8')
 
-    csvreader = csv.reader(csvfile, dialect)
+        csvreader = csv.reader(csvfile, dialect)
 
-    for row in csvreader:
-        csv_rows.append(row)
+        for row in csvreader:
+            csv_rows.append(row)
 
-    # removal of blanks, especially special blanks \xA0 etc.
-    for i, rowa in enumerate(csv_rows):
-        for j, field in enumerate(rowa):
-            csv_rows[i][j] = field.strip()
+        # removal of blanks, especially special blanks \xA0 etc.
+        for i, rowa in enumerate(csv_rows):
+            for j, field in enumerate(rowa):
+                csv_rows[i][j] = field.strip()
 
-    return [csv_rows, csv_dialect]
+        return [csv_rows, csv_dialect]
+    else:
+        print("Form invalid")
+        return None
+
 
 
 def transform2r2rml(jsonmodel):
@@ -1066,19 +1084,108 @@ def toLetters(num):
         return chr(mod + 65)
 
 
-def get_model_from_file(pathandfile, start_row=0, num_rows=-1):
-    if not os.path.exists(pathandfile):
-        print("File", pathandfile, "does not exist!")
+def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
+    """
+    either request or model parameter must exist
+    """
+
+    # do not count header row
+    start_row += 1
+
+    path_and_file = None
+    csv_dialect = None
+
+    if request is not None:
+        if 'save_path' in request.session and 'csv_dialect' in request.session:
+            path_and_file = request.session['save_path']
+            csv_dialect = request.session['csv_dialect']
+        else:
+            print("request param for file_to_array function is invalid")
+    elif model is not None:
+        if 'save_path' in model and 'csv_dialect' in model:
+            path_and_file = model['save_path']
+            csv_dialect = model['csv_dialect']
+        else:
+            print("model param for file_to_array function is invalid")
     else:
-        f = open(pathandfile, "rb")
+        print("request and model parameters both None in file_to_array function")
+
+
+
+    #TODO is user exusts
+    #mappings = Mapping.objects.filter(user=request.user.id)
+    #file_name = mappings.
+
+    csv_array = []
+
+    if not os.path.exists(path_and_file):
+        print("File", path_and_file, "does not exist!")
+    else:
+        f = open(path_and_file, "rb")
+        with TextIOWrapper(f, encoding=request.encoding) as csvfile:
+            csvreader = csv.reader(csvfile, csv_dialect)
+
+            row_count = sum(1 for row in csvreader)
+            print(row_count, " rows")
+            f.seek(0)
+
+            # if params not fitting
+            if start_row + num_rows >= row_count:
+                start_row = row_count - num_rows
+                if start_row < 0:
+                    # take all
+                    start_row = 0
+                    num_rows = row_count
+            if num_rows == -1:
+                start_row = 0
+                num_rows = row_count
+
+            r = range(start_row, start_row + num_rows)
+            print(r)
+            for i,row in enumerate(csvreader):#range(start_row, start_row + num_rows):
+                if i in r:
+                    print("taking row ",i)
+                    csv_array.append(row)
+                else:
+                    print("skipping row ",i)
+
+            # removal of blanks, especially special blanks \xA0 etc.
+            for i, rowa in enumerate(csv_array):
+                for j, field in enumerate(rowa):
+                    csv_array[i][j] = field.strip()
+
+    for x in csv_array:
+        print(" > ", x)
+    return csv_array
+    '''
+        f = open(path_and_file, "rb")
         binary = f.read()
         f.close()
         print(binary)
+        '''
 
         # TODO read into array with csv params (delimiter etc)
 
     '''
-            fout = open(pathandfile, "wb")
+
+    csvreader = csv.reader(csvfile, dialect)
+
+    for row in csvreader:
+        csv_rows.append(row)
+
+    # removal of blanks, especially special blanks \xA0 etc.
+    for i, rowa in enumerate(csv_rows):
+        for j, field in enumerate(rowa):
+            csv_rows[i][j] = field.strip()
+
+
+            with TextIOWrapper(upload_file, encoding=request.encoding) as csvfile:
+                # with TextIOWrapper(upload_file, encoding='utf-8') as csvfile:
+                # the file is also provided in raw formatting, so users can appy changes (choose csv params) without reloading file 
+                csv_raw = csvfile.read()
+                csv_rows, csv_dialect = process_csv(csvfile, form)
+
+            fout = open(path_and_file, "wb")
             f = upload_file.read()
             print("cont: ",f)
             fout.write(f)
