@@ -266,7 +266,7 @@ def csv_column_choice(request):
         secs = datetime.datetime.now() - time1
         print("done " + str(secs))
         print_model_dim(request.session['model'])
-        # printfields(request.session['model'])
+        # print_fields(request.session['model'])
 
     # has fields? if not, only scaffolding from model 'loaded' in data choice page of wizard
     elif 'model' in request.session and 'fields' not in request.session['model']['columns'][0]:
@@ -274,7 +274,7 @@ def csv_column_choice(request):
         print("model 'scaffolding' was loaded")
 
         # print("mod vor laden")
-        # printfields(request.session['model'])
+        # print_fields(request.session['model'])
 
         if len(request.session['model']['columns']) != len(request.session['csv_rows'][0]):
             publish_message = "The file you tried to load does not fit the chosen transformation project. The number of columns is different."
@@ -311,7 +311,7 @@ def csv_column_choice(request):
         # mark_selected_rows_in_model(request.session)
 
         # print("mod nach laden")
-        # printfields(request.session['model'])
+        # print_fields(request.session['model'])
         print_model_dim(request.session['model'])
 
     elif request.POST and form.is_valid() and 'hidden_model' in form.cleaned_data and form.cleaned_data['hidden_model']:
@@ -328,18 +328,18 @@ def csv_column_choice(request):
         'publish_message': publish_message
     }
     if 'model' in request.session and not 'rdfModel' in html_post_data:
-        # printfields(request.session['model'])
+        # print_fields(request.session['model'])
         # print("------------")
         redu = reduce_model(request.session['model'], 10)
         # redu = reduced_model
         html_post_data['rdfModel'] = json.dumps(redu)
-        # printfields(redu)
+        # print_fields(redu)
         # html_post_data['rdfModel'] = request.session['model']
     # print("mod vor senden")
-    # printfields(request.session['model'])
+    # print_fields(request.session['model'])
     request.session.modified = True
     # print("mod vor senden 2")
-    # printfields(html_post_data['rdfModel'])
+    # print_fields(html_post_data['rdfModel'])
     return render(request, 'transformation/csv_column_choice.html', html_post_data)
 
 
@@ -347,7 +347,7 @@ def csv_subject(request):
     print("VIEW csv_subject")
 
     # print("mod direkt nach laden seite")
-    # printfields(request.session['model'])
+    # print_fields(request.session['model'])
 
     # print(request.session['model'])
     form_action = 4
@@ -369,7 +369,7 @@ def csv_subject(request):
             # print(form.cleaned_data['hidden_model'])
             reduced_model = json.loads(form.cleaned_data['hidden_model'])
             print("red mod")
-            printfields(reduced_model)
+            print_fields(reduced_model)
 
             secs = datetime.datetime.now() - time1
             print("init: " + str(secs))
@@ -647,7 +647,7 @@ def csv_publish(request):
 
         if 'button_r2rml' in request.POST:
             new_fname = request.session['model']['file_name'].rsplit(".", 1)[0] + "_R2RML.ttl"
-            r2rml_string = transform2r2rml(request.session['model'])
+            r2rml_string = transform_to_r2rml(request.session['model'])
             r2rml_file = ContentFile(r2rml_string.encode('utf-8'))
             response = HttpResponse(r2rml_file, 'application/force-download')
             response['Content-Length'] = r2rml_file.size
@@ -776,9 +776,9 @@ def process_csv(csvfile, form):
         if form.cleaned_data['line_end'] != "":
             dialect.lineterminator = form.cleaned_data['line_end']  # .encode('utf-8')
 
-        csvreader = csv.reader(csvfile, dialect)
+        csv_reader = csv.reader(csvfile, dialect)
 
-        for row in csvreader:
+        for row in csv_reader:
             csv_rows.append(row)
 
         # removal of blanks, especially special blanks \xA0 etc.
@@ -792,31 +792,30 @@ def process_csv(csvfile, form):
         return None
 
 
+def transform_to_r2rml(model):
+    # head = json.load(model)
 
-def transform2r2rml(jsonmodel):
-    # head = json.load(jsonmodel)
-
-    subject = jsonmodel["subject"]
-    columns = jsonmodel["columns"]
-    ourprefix = "demo"
-    subjtypes = []
+    subject = model["subject"]
+    columns = model["columns"]
+    our_prefix = "demo"
+    subject_types = []
     output = ""
 
-    if "enrich" in jsonmodel:
-        for enr in jsonmodel["enrich"]:
-            subjtypes.append(enr["url"])
+    if "enrich" in model:
+        for enr in model["enrich"]:
+            subject_types.append(enr["url"])
 
     output = "@prefix rr: <http://www.w3.org/ns/r2rml#>.\n" \
-             "@prefix " + ourprefix + ": <" + subject[
-                 "base_url"] + ">.\n\n" + ourprefix + ":TriplesMap a rr:TriplesMapClass;\n" \
-                                                      "\trr:logicalTable [ rr:tableName \"" + jsonmodel[
+             "@prefix " + our_prefix + ": <" + subject[
+                 "base_url"] + ">.\n\n" + our_prefix + ":TriplesMap a rr:TriplesMapClass;\n" \
+                                                      "\trr:logicalTable [ rr:tableName \"" + model[
                  "file_name"] + "\" ];\n\n\trr:subjectMap [ rr:template \"" + \
              subject["base_url"] + subject["skeleton"] + "\""
 
-    for sutp in subjtypes:
-        output += ";\n\t\trr:class " + sutp
+    for s in subject_types:
+        output += ";\n\t\trr:class " + s
 
-    output += "\n\t];  # of columns selected: " + str(jsonmodel["num_cols_selected"])
+    output += "\n\t];  # of columns selected: " + str(model["num_cols_selected"])
 
     for column in columns:
         if (column["col_num_new"] >= 0) and ("predicate" in column):
@@ -859,8 +858,8 @@ def update_model(model, reduced_model):
                 m['columns'][i]['fields'].append(reduced_model['columns'][i]['fields'][j].copy())
                 # print("ADDING")
             # sort
-            newlist = sorted(m['columns'][i]['fields'].copy(), key=lambda k: k['field_num'])
-            m['columns'][i]['fields'] = newlist
+            new_list = sorted(m['columns'][i]['fields'].copy(), key=lambda k: k['field_num'])
+            m['columns'][i]['fields'] = new_list
 
         # predicate
         if 'predicate' in reduced_model['columns'][i]:
@@ -931,7 +930,7 @@ def reduce_model(model, pagination):
     return reduced_model
 
 
-def printfields(model):
+def print_fields(model):
     """
     for debugging purposes
     """
@@ -1022,7 +1021,7 @@ def model_to_triples(model):
             counter2 = 0
             for field in col['fields']:
                 for x in range(counter, counter + num_total_cols):
-                    rdf_array[x][0] = "_:" + toLetters(counter2)
+                    rdf_array[x][0] = "_:" + to_letters(counter2)
                 counter += num_total_cols
                 counter2 += 1
     else:
@@ -1074,12 +1073,12 @@ def model_to_triples(model):
     return prefix_array + rdf_array
 
 
-def toLetters(num):
+def to_letters(num):
     # A = 65, Z = 90 chr ord
     dev = num // 26
     mod = num % 26
     if dev > 0:
-        return toLetters(dev - 1) + chr(mod + 65)
+        return to_letters(dev - 1) + chr(mod + 65)
     else:
         return chr(mod + 65)
 
@@ -1088,7 +1087,7 @@ def update_row_excerpt(model, start_row=0, num_rows=-1):
     """
     Includes an excerpt of the model content as an array in 'excerpt' property of the model.
     also holds values about where the excerpt begins and how big it is.
-    {'rows': csv_array, 'start_row:': start_row, 'num_rows': num_rows}
+    {'rows': csv_array, 'start_row:': start_row, 'num_rows': num_rows, 'total_rows_num': row_count}
     """
     if not model:
         print("no model!")
@@ -1104,7 +1103,7 @@ def update_row_excerpt(model, start_row=0, num_rows=-1):
 def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
     """
     either request or model parameter must exist.
-    returns a dict like: {'rows': csv_array, 'start_row:': start_row, 'num_rows': num_rows}
+    returns a dict like: {'rows': csv_array, 'start_row:': start_row, 'num_rows': num_rows, 'total_rows_num': row_count}
     """
 
     # do not count header row
@@ -1141,10 +1140,9 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
     else:
         f = open(path_and_file, "rb")
         with TextIOWrapper(f, encoding=request.encoding) as csvfile:
-            csvreader = csv.reader(csvfile, csv_dialect)
+            csv_reader = csv.reader(csvfile, csv_dialect)
 
-            row_count = sum(1 for row in csvreader)
-            print(row_count, " rows")
+            row_count = sum(1 for row in csv_reader)
             f.seek(0)
 
             # if params not fitting
@@ -1160,19 +1158,16 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
 
             r = range(start_row, start_row + num_rows)
             print(r)
-            for i, row in enumerate(csvreader):
+            for i, row in enumerate(csv_reader):
                 if i in r:
-                    print("taking row ",i)
                     csv_array.append(row)
-                else:
-                    print("skipping row ",i)
 
             # removal of blanks, especially special blanks \xA0 etc.
             for i, row in enumerate(csv_array):
                 for j, field in enumerate(row):
                     csv_array[i][j] = field.strip()
 
-    for x in csv_array:
-        print(" > ", x)
-    return {'rows': csv_array, 'start_row:': start_row, 'num_rows': num_rows}
+    #for x in csv_array:
+    #    print(" > ", x)
+    return {'rows': csv_array, 'start_row:': start_row, 'num_rows': num_rows, 'total_rows_num': row_count}
 
