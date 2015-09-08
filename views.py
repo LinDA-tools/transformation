@@ -1084,9 +1084,27 @@ def toLetters(num):
         return chr(mod + 65)
 
 
+def update_row_excerpt(model, start_row=0, num_rows=-1):
+    """
+    Includes an excerpt of the model content as an array in 'excerpt' property of the model.
+    also holds values about where the excerpt begins and how big it is.
+    {'rows': csv_array, 'start_row:': start_row, 'num_rows': num_rows}
+    """
+    if not model:
+        print("no model!")
+        return
+
+    # check if calculation of new excerpt is needed
+    if 'excerpt' in model and model['excerpt']['num_rows'] == num_rows and model['excerpt']['start_row'] == start_row:
+        return model
+    else:
+        model['excerpt'] = file_to_array(model=model, start_row=start_row, num_rows=num_rows)
+
+
 def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
     """
-    either request or model parameter must exist
+    either request or model parameter must exist.
+    returns a dict like: {'rows': csv_array, 'start_row:': start_row, 'num_rows': num_rows}
     """
 
     # do not count header row
@@ -1142,7 +1160,7 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
 
             r = range(start_row, start_row + num_rows)
             print(r)
-            for i,row in enumerate(csvreader):#range(start_row, start_row + num_rows):
+            for i, row in enumerate(csvreader):
                 if i in r:
                     print("taking row ",i)
                     csv_array.append(row)
@@ -1150,44 +1168,11 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
                     print("skipping row ",i)
 
             # removal of blanks, especially special blanks \xA0 etc.
-            for i, rowa in enumerate(csv_array):
-                for j, field in enumerate(rowa):
+            for i, row in enumerate(csv_array):
+                for j, field in enumerate(row):
                     csv_array[i][j] = field.strip()
 
     for x in csv_array:
         print(" > ", x)
-    return csv_array
-    '''
-        f = open(path_and_file, "rb")
-        binary = f.read()
-        f.close()
-        print(binary)
-        '''
+    return {'rows': csv_array, 'start_row:': start_row, 'num_rows': num_rows}
 
-        # TODO read into array with csv params (delimiter etc)
-
-    '''
-
-    csvreader = csv.reader(csvfile, dialect)
-
-    for row in csvreader:
-        csv_rows.append(row)
-
-    # removal of blanks, especially special blanks \xA0 etc.
-    for i, rowa in enumerate(csv_rows):
-        for j, field in enumerate(rowa):
-            csv_rows[i][j] = field.strip()
-
-
-            with TextIOWrapper(upload_file, encoding=request.encoding) as csvfile:
-                # with TextIOWrapper(upload_file, encoding='utf-8') as csvfile:
-                # the file is also provided in raw formatting, so users can appy changes (choose csv params) without reloading file 
-                csv_raw = csvfile.read()
-                csv_rows, csv_dialect = process_csv(csvfile, form)
-
-            fout = open(path_and_file, "wb")
-            f = upload_file.read()
-            print("cont: ",f)
-            fout.write(f)
-            fout.close()
-    '''
