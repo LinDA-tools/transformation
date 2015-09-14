@@ -53,7 +53,7 @@
                 </p>
 
                 <p>
-                    To build you subject URI, click the column name fields below into the subject URI field.
+                    To build you subject URI, click the '+' symbols in the data view table below.
                 </p>
 
                 <p>
@@ -177,7 +177,7 @@ function adapt_RDF_preview() {
     add_model_subject("base_url",base_url_insert.text());
 
     var rdf_view = $("#rdf_view");
-    var tbl = model_to_table(get_model(), 10);
+    var tbl = model_to_table(get_model());
     rdf_view.find("table").remove();
     rdf_view.append(tbl);
 
