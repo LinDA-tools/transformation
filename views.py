@@ -72,8 +72,6 @@ def csv_upload(request):
                 print("PATH 1.1 - no file uploaded")
                 # content is passed on via hidden html input fields
                 if 'save_path' in request.session:
-                    # ################ csv_raw = form.cleaned_data['hidden_csv_raw_field']
-                    #csv_raw = file_as_binary(request.session['save_path'])  # , encoding="UTF-8")
                     csv_rows, csv_dialect = process_csv(open(request.session['save_path'], "r"), form)
                 else:
                     print('no raw csv')
@@ -159,13 +157,6 @@ def csv_upload(request):
                 request.session['csv_rows'] = csv_rows
                 request.session['csv_raw'] = csv_raw
 
-                #TODO
-                #rows_dict = file_to_array(request=request, start_row=1, num_rows=2)
-                #rows_dict = file_to_array(request=request)
-                rows_dict = file_to_array(request=request, start_row=1, num_rows=100)
-                #file_to_array(request=None, model=None, start_row=0, num_rows=-1
-                #print(rows_dict)
-
         if 'button_upload' in request.POST:
             print("UPLOAD BUTTON PRESSED")
             csv_rows = csv_rows if csv_rows else None
@@ -231,6 +222,11 @@ def csv_column_choice(request):
 
         except IndexError:
             print("index error: col " + str(c) + ", field " + str(f))
+
+
+        # TODO uncomment
+        # update_excerpt(m, start_row=0, num_rows=-1)
+
 
         request.session['model'] = m
         # print(request.session['model'])
@@ -1095,17 +1091,20 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
 
     path_and_file = None
     csv_dialect = None
+    encoding = None
 
     if model is not None:
         if 'save_path' in model and 'csv_dialect' in model:
             path_and_file = model['save_path']
             csv_dialect = model['csv_dialect']
+            encoding = "UTF-8"
         else:
             print("model param for file_to_array function is invalid")
     elif request is not None:
         if 'save_path' in request.session and 'csv_dialect' in request.session:
             path_and_file = request.session['save_path']
             csv_dialect = request.session['csv_dialect']
+            encoding = request.encoding
         else:
             print("request param for file_to_array function is invalid")
     else:
@@ -1122,7 +1121,7 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
         print("File", path_and_file, "does not exist!")
     else:
         f = open(path_and_file, "rb")
-        with TextIOWrapper(f, encoding=request.encoding) as csv_file:
+        with TextIOWrapper(f, encoding=encoding) as csv_file:
             #TODO performance: maybe not read the whole file...
             csv_reader = csv.reader(csv_file, csv_dialect)
 
@@ -1158,9 +1157,3 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
     print(num_rows," / ", row_count, " rows in " + str(secs))
 
     return {'rows': csv_array, 'start_row:': start_row_original, 'num_rows': num_rows, 'total_rows_num': row_count}
-
-
-def file_as_binary(path_and_file, encoding="UTF-8"):
-    f = open(path_and_file, "rb")
-    with TextIOWrapper(f, encoding=encoding) as csv_file:
-        return csv_file.read()
