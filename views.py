@@ -240,6 +240,8 @@ def csv_column_choice(request):
         # when only a loaded model 'scaffolding'
         print("model 'scaffolding' was loaded")
 
+
+
         # print("mod vor laden")
         # print_fields(request.session['model'])
 
@@ -256,6 +258,9 @@ def csv_column_choice(request):
                     else:
                         request.session['model']['columns'][i]['fields'].append({"orig_val": field, "field_num": j})
             '''
+
+            request.session['model']['file_name'] = request.session['file_name']
+
             arr = request.session['csv_rows']
             m = request.session['model']
             f = -1
@@ -291,7 +296,7 @@ def csv_column_choice(request):
         'rdfModel': json.dumps(request.session['model']),
         'action': form_action,
         'csvContent': request.session['csv_rows'][:10],
-        # 'filename': request.session['file_name'],
+        'filename': request.session['file_name'],
         'publish_message': publish_message
     }
     if 'model' in request.session and not 'rdfModel' in html_post_data:
@@ -319,22 +324,23 @@ def csv_subject(request):
     # print(request.session['model'])
     form_action = 4
     form = SubjectForm(request.POST)
+    dump = None
     reduced_model = None
     if request.POST and form.is_valid() and form is not None:
+
         # content  is passed on via hidden html input fields
-        '''
-        if 'hidden_rdf_array_field' in form.cleaned_data:
-            request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
 
-        if 'hidden_rdf_prefix_field' in form.cleaned_data:
-            request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
+        dump = form.cleaned_data['hidden_model']
+        #reduced_model = json.loads(form.cleaned_data['hidden_model'])
+        #dump = json.dumps(reduced_model)
+        #print("dump   ", str(dump))
         '''
-
         if 'hidden_model' in form.cleaned_data:
             time1 = datetime.datetime.now()
             print("fetching model")
-            # print(form.cleaned_data['hidden_model'])
+            print(form.cleaned_data['hidden_model'].index("file_name"))
             reduced_model = json.loads(form.cleaned_data['hidden_model'])
+            print(reduced_model)
             print("red mod")
             print_fields(reduced_model)
 
@@ -347,20 +353,12 @@ def csv_subject(request):
                 secs = datetime.datetime.now() - time1
                 print("updating model: " + str(secs))
                 time1 = datetime.datetime.now()
-
-    time1 = datetime.datetime.now()
-    # redu = reduce_model(request.session['model'], 10)
-    redu = reduced_model
-    secs = datetime.datetime.now() - time1
-    # time1 = datetime.datetime.now()
-    print("reducing model: " + str(secs))
-    dumped = json.dumps(redu)
-    print("dunped")
+        '''
     html_post_data = {
-        'rdfModel': dumped,
+        'rdfModel': dump,
         'action': form_action,
         # 'csvContent': csv_rows_selected_columns,
-        # 'filename': request.session['file_name'],
+        'filename': request.session['file_name'],
         # 'rdfArray': request.session['rdf_array'],
         # 'rdfPrefix': request.session['rdf_prefix']
     }
@@ -398,7 +396,7 @@ def csv_predicate(request):
         'action': form_action,
         'rdfModel': json.dumps(redu),
         # 'csvContent': csv_rows_selected_columns,
-        # 'filename': request.session['file_name'],
+        'filename': request.session['file_name'],
         # 'rdfArray': request.session['rdf_array'],
         # 'rdfPrefix': request.session['rdf_prefix']
     }
@@ -533,7 +531,7 @@ def csv_object(request):
         'rdfModel': json.dumps(reduce_model(request.session['model'], pagination)),
         # 'rdfModel': json.dumps(reduced_model),
         # 'csvContent': csv_rows_selected_columns,
-        # 'filename': request.session['file_name'],
+        'filename': request.session['file_name'],
         # 'rdfArray': request.session['rdf_array'],
         # 'rdfPrefix': request.session['rdf_prefix']
     }
@@ -572,7 +570,7 @@ def csv_enrich(request):
         'action': form_action,
         'rdfModel': json.dumps(reduce_model(request.session['model'], 10)),
         # 'csvContent': csv_rows_selected_columns,
-        # 'filename': request.session['file_name'],
+        'filename': request.session['file_name'],
         # 'rdfArray': request.session['rdf_array'],
         # 'rdfPrefix': request.session['rdf_prefix']
     }
@@ -603,7 +601,9 @@ def csv_publish(request):
             publish_message = j["message"]
 
         if 'button_download' in request.POST:
-            new_fname = request.session['model']['file_name'].rsplit(".", 1)[0] + ".n3"
+            # TODO why does model lose file_name attr in subject view?
+            # new_fname = request.session['model']['file_name'].rsplit(".", 1)[0] + ".n3"
+            new_fname = request.session['file_name'].rsplit(".", 1)[0] + ".n3"
             rdf_string = model_to_triple_string(request.session['model'])
             rdf_file = ContentFile(rdf_string.encode('utf-8'))
             response = HttpResponse(rdf_file, 'application/force-download')
@@ -613,7 +613,9 @@ def csv_publish(request):
             return response
 
         if 'button_r2rml' in request.POST:
-            new_fname = request.session['model']['file_name'].rsplit(".", 1)[0] + "_R2RML.ttl"
+            # TODO why does model lose file_name attr in subject view?
+            # new_fname = request.session['model']['file_name'].rsplit(".", 1)[0] + "_R2RML.ttl"
+            new_fname = request.session['file_name'].rsplit(".", 1)[0] + "_R2RML.ttl"
             r2rml_string = transform_to_r2rml(request.session['model'])
             r2rml_file = ContentFile(r2rml_string.encode('utf-8'))
             response = HttpResponse(r2rml_file, 'application/force-download')
@@ -638,7 +640,7 @@ def csv_publish(request):
         # 'rdfModel': json.dumps(request.session['model']),
         'rdfModel': json.dumps(reduced_model),
         # 'csvContent': csv_rows_selected_columns,
-        # 'filename': request.session['file_name'],
+        'filename': request.session['file_name'],
         # 'rdfArray': request.session['rdf_array'],
         # 'rdfPrefix': request.session['rdf_prefix']
     }

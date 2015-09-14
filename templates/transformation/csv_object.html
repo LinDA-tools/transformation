@@ -41,7 +41,7 @@
     <div class="content scrollit">
         <h3>DATA VIEW</h3>
         <div>
-        File: <b>{{ rdfModel.file_name }}</b> ( {{ pagination.row_num_select_html | safe }} of {{ pagination.num_rows }} rows per page)<br>
+        File: <b>{{ filename }}</b> ( {{ pagination.row_num_select_html | safe }} of {{ pagination.num_rows }} rows per page)<br>
         {% if pagination.max_pages > 1 %}
         show rows: {{ pagination.html | safe }}
         {% endif %}
