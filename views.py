@@ -16,6 +16,7 @@ from transformation.models import Mapping
 import copy
 import datetime
 from itertools import chain  # for concatenating ranges
+import re
 
 # ###############################################
 # MODELS
@@ -63,16 +64,17 @@ def csv_upload(request):
         csv_rows = None
         csv_dialect = None
         upload_file_name = 'no file selected'
-   
+
+        # when an upload file was selected in html form, APPLY BUTTON
         if not request.FILES:
             form = UploadFileForm(request.POST)
             if request.POST and form.is_valid() and form is not None:
                 print("PATH 1.1 - no file uploaded")
-                # content  is passed on via hidden html input fields
-                if form.cleaned_data['hidden_csv_raw_field']:
-                    csv_raw = form.cleaned_data['hidden_csv_raw_field']
-                    csv_rows, csv_dialect = process_csv(StringIO(form.cleaned_data['hidden_csv_raw_field']), form)
-
+                # content is passed on via hidden html input fields
+                if 'save_path' in request.session:
+                    # ################ csv_raw = form.cleaned_data['hidden_csv_raw_field']
+                    #csv_raw = file_as_binary(request.session['save_path'])  # , encoding="UTF-8")
+                    csv_rows, csv_dialect = process_csv(open(request.session['save_path'], "r"), form)
                 else:
                     print('no raw csv')
 
@@ -82,14 +84,15 @@ def csv_upload(request):
             else:
                 print("PATH 1.2")
 
-        # when an upload file was selected in html form, APPLY BUTTON
-        else:  # if not request.FILES:
+        # when file was uploaded
+        else:  # if request.FILES:
             print("PATH 3 - file was uploaded")
 
             form = UploadFileForm(request.POST, request.FILES)
             upload_file_name = request.FILES['upload_file'].name
             upload_file = request.FILES['upload_file'].file
-            # print(upload_file_name[-4:]);
+
+            # transformation of excel files to csv
             if upload_file_name[-4:] == "xlsx" or upload_file_name[-4:] == ".xls":
                 # print(upload_file_name[-4:]);
                 data_xls = pd.read_excel(request.FILES['upload_file'], 0, index_col=None)
@@ -112,11 +115,12 @@ def csv_upload(request):
             # read/process the CSV file and find out about its dialect (csv params such as delimiter, line end...)
             # https://docs.python.org/2/library/csv.html#
             print("endoding ", request.encoding)
-            with TextIOWrapper(upload_file, encoding=request.encoding) as csvfile:
+            with TextIOWrapper(upload_file, encoding=request.encoding) as csv_file:
                 # with TextIOWrapper(upload_file, encoding='utf-8') as csvfile:
                 # the file is also provided in raw formatting, so users can appy changes (choose csv params) without reloading file 
-                csv_raw = csvfile.read()
-                csv_rows, csv_dialect = process_csv(csvfile, form)
+                csv_raw = csv_file.read()
+                 # TODO only one upload function!
+                csv_rows, csv_dialect = process_csv(csv_file, form)
 
                 # check if file is correct
                 publish_message = '<span class="green"><i class="fa fa-check-circle"></i> File seems to be okay.</span>'
@@ -148,7 +152,6 @@ def csv_upload(request):
                 request.session['save_path'] = path_and_file
                 fout = open(path_and_file, "w")
                 #f = csvfile.read()
-                print("cont: ", csv_raw)
                 fout.write(csv_raw)#(bytes(csv_raw, 'UTF-8'))
                 fout.close()
 
@@ -157,42 +160,11 @@ def csv_upload(request):
                 request.session['csv_raw'] = csv_raw
 
                 #TODO
-                csv_array = file_to_array(request=request, start_row=1, num_rows=2)
+                #rows_dict = file_to_array(request=request, start_row=1, num_rows=2)
+                #rows_dict = file_to_array(request=request)
+                rows_dict = file_to_array(request=request, start_row=1, num_rows=100)
                 #file_to_array(request=None, model=None, start_row=0, num_rows=-1
-
-
-            '''
-            path = '/Some/path/to/Pics2'
-            filename = 'forcing{0}damping{1}omega{2}set2.png'.format(forcing, damping, omega)
-            filename = os.path.join(path, filename)
-            fig.savefig(filename)
-
-            import os.path
-
-            save_path = 'C:/example/'
-
-            name_of_file = raw_input("What is the name of the file: ")
-
-            completeName = os.path.join(save_path, name_of_file+".txt")
-
-            file1 = open(completeName, "w")
-
-            toFile = raw_input("Write what you want into the field")
-
-            file1.write(toFile)
-
-            file1.close()
-
-            path_to_file1 = join(expanduser('~/Dropbox/'), 'a')
-            path_to_file2 = join(expanduser('~'), 'a')
-            fout = open(path_to_file2, "w")
-            FILE = open(path_to_file1, "w")
-
-            '''
-
-
-
-
+                #print(rows_dict)
 
         if 'button_upload' in request.POST:
             print("UPLOAD BUTTON PRESSED")
@@ -200,7 +172,7 @@ def csv_upload(request):
 
             request.session['csv_dialect'] = csv_dialect
             request.session['csv_rows'] = csv_rows
-            request.session['csv_raw'] = csv_raw
+            #request.session['csv_raw'] = csv_raw
             if 'upload_file' in request.FILES:
                 request.session['file_name'] = request.FILES['upload_file'].name
             # return redirect(reverse('csv-column-choice-view'))
@@ -208,8 +180,8 @@ def csv_upload(request):
                 'action': form_action,
                 'form': form,
                 'csvContent': request.session['csv_rows'][:10],
-                'csvRaw': request.session['csv_raw'],
-                'csvDialect': request.session['csv_dialect'],
+                #'csvRaw': request.session['csv_raw'],
+                #'csvDialect': request.session['csv_dialect'],
                 'filename': request.session['file_name'],
                 'publish_message': publish_message
             }
@@ -222,9 +194,8 @@ def csv_upload(request):
             form = UploadFileForm()
             return render(request, 'transformation/csv_upload.html', {'action': 1, 'form': form})
 
-
     # html GET, we get here when loading the page 'for the first time'
-    else:  # if request.method == 'POST':
+    else:  # if request.method != 'POST':
         print("PATH 4 - initial page call (HTML GET)")
         form = UploadFileForm()
         return render(request, 'transformation/csv_upload.html', {'action': 1, 'form': form})
@@ -744,19 +715,19 @@ def mark_selected_rows_in_model(session):
 '''
 
 
-def process_csv(csvfile, form):
+def process_csv(csv_file, form):
     """
     Processes the CSV File and converts it to a 2dim array.
-    Uses either the CSV Paramaters specified in the HTML form if those exist
-    or the autodetected params instead.
+    Uses either the CSV parameters specified in the HTML form if those exist
+    or the auto-detected params instead.
     """
     csv_dialect = {}
     csv_rows = []
-    csvfile.seek(0)
+    csv_file.seek(0)
     # Sniffer guesses CSV parameters / dialect
     # when error 'could not determine delimiter' -> raise bytes to sniff
-    dialect = csv.Sniffer().sniff(csvfile.read(10240))
-    csvfile.seek(0)
+    dialect = csv.Sniffer().sniff(csv_file.read(10240))
+    csv_file.seek(0)
     # ['delimiter', 'doublequote', 'escapechar', 'lineterminator', 'quotechar', 'quoting', 'skipinitialspace']
     csv_dialect['delimiter'] = dialect.delimiter
     csv_dialect['escape'] = dialect.escapechar
@@ -776,7 +747,7 @@ def process_csv(csvfile, form):
         if form.cleaned_data['line_end'] != "":
             dialect.lineterminator = form.cleaned_data['line_end']  # .encode('utf-8')
 
-        csv_reader = csv.reader(csvfile, dialect)
+        csv_reader = csv.reader(csv_file, dialect)
 
         for row in csv_reader:
             csv_rows.append(row)
@@ -1074,6 +1045,11 @@ def model_to_triples(model):
 
 
 def to_letters(num):
+    """
+    Transforms numbers to letters, e.g. 0 -> A, 1 -> B, 27 -> AB,...
+    :param num: number
+    :return: letter(s)
+    """
     # A = 65, Z = 90 chr ord
     dev = num // 26
     mod = num % 26
@@ -1083,7 +1059,7 @@ def to_letters(num):
         return chr(mod + 65)
 
 
-def update_row_excerpt(model, start_row=0, num_rows=-1):
+def update_excerpt(model, start_row=0, num_rows=-1):
     """
     Includes an excerpt of the model content as an array in 'excerpt' property of the model.
     also holds values about where the excerpt begins and how big it is.
@@ -1102,36 +1078,43 @@ def update_row_excerpt(model, start_row=0, num_rows=-1):
 
 def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
     """
-    either request or model parameter must exist.
-    returns a dict like: {'rows': csv_array, 'start_row:': start_row, 'num_rows': num_rows, 'total_rows_num': row_count}
+    Either HTTP request containing 'save_path' and 'csv_dialect', or LinDA JSON model parameter must exist.
+    Prefers model.
+    :param request: HTTP request
+    :param model: LinDA JSON model
+    :param start_row:
+    :param num_rows:
+    :return: a dict like: {'rows': csv_array, 'start_row:': start_row, 'num_rows': num_rows, 'total_rows_num': row_count}
     """
 
+    time1 = datetime.datetime.now()
+
     # do not count header row
+    start_row_original = start_row
     start_row += 1
 
     path_and_file = None
     csv_dialect = None
 
-    if request is not None:
-        if 'save_path' in request.session and 'csv_dialect' in request.session:
-            path_and_file = request.session['save_path']
-            csv_dialect = request.session['csv_dialect']
-        else:
-            print("request param for file_to_array function is invalid")
-    elif model is not None:
+    if model is not None:
         if 'save_path' in model and 'csv_dialect' in model:
             path_and_file = model['save_path']
             csv_dialect = model['csv_dialect']
         else:
             print("model param for file_to_array function is invalid")
+    elif request is not None:
+        if 'save_path' in request.session and 'csv_dialect' in request.session:
+            path_and_file = request.session['save_path']
+            csv_dialect = request.session['csv_dialect']
+        else:
+            print("request param for file_to_array function is invalid")
     else:
         print("request and model parameters both None in file_to_array function")
+        return False
 
-
-
-    #TODO is user exusts
-    #mappings = Mapping.objects.filter(user=request.user.id)
-    #file_name = mappings.
+    #TODO is user exists
+    # mappings = Mapping.objects.filter(user=request.user.id)
+    # file_name = mappings.
 
     csv_array = []
 
@@ -1139,8 +1122,9 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
         print("File", path_and_file, "does not exist!")
     else:
         f = open(path_and_file, "rb")
-        with TextIOWrapper(f, encoding=request.encoding) as csvfile:
-            csv_reader = csv.reader(csvfile, csv_dialect)
+        with TextIOWrapper(f, encoding=request.encoding) as csv_file:
+            #TODO performance: maybe not read the whole file...
+            csv_reader = csv.reader(csv_file, csv_dialect)
 
             row_count = sum(1 for row in csv_reader)
             f.seek(0)
@@ -1153,7 +1137,7 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
                     start_row = 0
                     num_rows = row_count
             if num_rows == -1:
-                start_row = 0
+                start_row = 1
                 num_rows = row_count
 
             r = range(start_row, start_row + num_rows)
@@ -1169,5 +1153,14 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
 
     #for x in csv_array:
     #    print(" > ", x)
-    return {'rows': csv_array, 'start_row:': start_row, 'num_rows': num_rows, 'total_rows_num': row_count}
 
+    secs = datetime.datetime.now() -time1
+    print(num_rows," / ", row_count, " rows in " + str(secs))
+
+    return {'rows': csv_array, 'start_row:': start_row_original, 'num_rows': num_rows, 'total_rows_num': row_count}
+
+
+def file_as_binary(path_and_file, encoding="UTF-8"):
+    f = open(path_and_file, "rb")
+    with TextIOWrapper(f, encoding=encoding) as csv_file:
+        return csv_file.read()
