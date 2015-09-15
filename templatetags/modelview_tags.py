@@ -46,7 +46,7 @@ def model_header_as_table(model):
     model = json.loads(model)
     headers = []
     for col in model['columns']:
-        if not 'col_num_new' in col or col['col_num_new'] > -1:  # show column
+        if 'col_num_new' not in col or col['col_num_new'] > -1:  # show column
             headers.append(col['header']['orig_val'])
 
     result = "<thead>"

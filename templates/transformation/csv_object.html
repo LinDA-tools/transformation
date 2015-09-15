@@ -162,7 +162,8 @@ function askOracle(widget, domain, term, keepReconciliationIfExists){
 		type: 'GET',
 		dataType: 'json',
 		//url: "http://localhost:8000/transformation/lookup/"+domain+"/"+term+"/",
-		url: 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + domain + '&QueryString=' + term,
+		//url: 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + domain + '&QueryString=' + term,
+		url: 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryString=' + term,
 	});
 
 	request.fail(function (xhr, ajaxOptions, thrownError) {
