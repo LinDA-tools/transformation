@@ -977,6 +977,7 @@ def model_to_triples(model):
                 if 'object_method' in col and col['object_method'] == "reconciliation" and 'reconciliation' in field:
                     rdf_array[count2][2] = field['reconciliation']['prefix']['prefix'] + ":" + \
                                            field['reconciliation']['prefix']['suffix']
+                    prefix_dict[field['reconciliation']['prefix']['prefix']] = field['reconciliation']['prefix']['url']
                 else:
                     rdf_array[count2][2] = '"' + field['orig_val'] + '"' + add
                 count2 += num_total_cols
