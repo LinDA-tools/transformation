@@ -121,12 +121,12 @@ def csv_upload(request):
                 csv_rows, csv_dialect = process_csv(csv_file, form)
 
                 # check if file is correct
-                publish_message = '<span class="green"><i class="fa fa-check-circle"></i> File seems to be okay.</span>'
+                publish_message = '<span class="trafo_green"><i class="fa fa-check-circle"></i> File seems to be okay.</span>'
                 num_last_row = len(csv_rows[0])
                 for i in range(1, len(csv_rows)):
                     if len(csv_rows[i]) != num_last_row:
                         print("File seems to be either corrupted or it was loaded with wrong parameters!")
-                        publish_message = '<span class="red"><i class="fa fa-exclamation-circle"></i> File seems to be corrupt or loaded with wrong parameters!</span>'
+                        publish_message = '<span class="trafo_red"><i class="fa fa-exclamation-circle"></i> File seems to be corrupt or loaded with wrong parameters!</span>'
                         break
 
                 # save file
@@ -951,7 +951,7 @@ def model_to_triples(model):
     skeleton = model['subject']['skeleton']
     base_url = model['subject']['base_url']
 
-    subject = "<?s>"
+    subject = "<?subject>"
     if skeleton != "" and base_url != "":
         subject = "<" + base_url + skeleton + ">"
 
@@ -1010,7 +1010,7 @@ def model_to_triples(model):
             prefix = col['predicate']['prefix']['prefix']
             suffix = col['predicate']['prefix']['suffix']
             if prefix == "" or suffix == "":
-                u = url
+                u = "<"+url+">"
             else:
                 u = prefix + ":" + suffix
                 prefix_dict[prefix] = url
