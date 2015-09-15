@@ -919,8 +919,7 @@ def print_model_dim(model):
 
 
 def model_to_triple_string(model):
-    rdf_n3 = "@prefix dbpedia: <http://dbpedia.org/resource> .\n"
-
+    rdf_n3 = ""
     rdf_array = model_to_triples(model)
 
     for row in rdf_array:  # ast.literal_eval(request.session['rdf_array']):#['rdf_array']:
