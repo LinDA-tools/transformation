@@ -225,9 +225,17 @@ function addToUri(ev) {
     adapt_RDF_preview();
 }
 
-
+function toggle_next_button(){
+    console.log("x");
+    if($("#id_blanks_blanks").is(':checked') || $("#id_blanks_subject").is(':checked') && $("#id_base_url").val() && $("#id_subject_uri").val()){
+        return false;
+    }
+    return true;
+}
 
 $( document ).ready(function() {
+
+    $("#button_next").prop('disabled', toggle_next_button());
     
     add_model_filename($("#id_hidden_filename_field").val());
 
@@ -236,7 +244,9 @@ $( document ).ready(function() {
     subject_uri.on('keyup', changeURI);
     subject_uri.on('drop', changeURI);
     subject_uri.on('select', changeURI);
-
+    subject_uri.on('keyup', function(){$("#button_next").prop('disabled', toggle_next_button())});
+    subject_uri.on('drop', function(){$("#button_next").prop('disabled', toggle_next_button())});
+    subject_uri.on('select', function(){$("#button_next").prop('disabled', toggle_next_button())});
 
     //base_url_insert.innerHTML = base_url.value;
     var tipText = "'Add to subject URI'";
@@ -261,6 +271,8 @@ $( document ).ready(function() {
 var base_url = $("#id_base_url");
 base_url.on('keyup', base_url_change);
 base_url.on('select', base_url_change);
+base_url.on('keyup', function(){$("#button_next").prop('disabled', toggle_next_button())});
+base_url.on('select', function(){$("#button_next").prop('disabled', toggle_next_button())});
 
 $("input[name=blanknodes_only]:radio").on('change', function () {
     var uri_container = $("#id_uri_container");
@@ -272,6 +284,7 @@ $("input[name=blanknodes_only]:radio").on('change', function () {
         uri_container.css("visibility", "visible");
         add_model_subject("blank_nodes","false");
     }
+    $("#button_next").prop('disabled', toggle_next_button());
     adapt_RDF_preview();
 });
 
@@ -285,13 +298,11 @@ if(model['subject'] && model['subject']['skeleton'])
 
 if(model['subject'] && model['subject']['blank_nodes'] && model['subject']['blank_nodes'] == "true"){
 
-    console.log("blanks");
     $("#id_uri_container").css("visibility", "hidden");
     $("#id_blanks_blanks").prop("checked", true);
     $("#id_blanks_subject").prop("checked", false);
 }
 else{
-    console.log("subject");
     $("#id_blanks_blanks").prop("checked", false);
     $("#id_blanks_subject").prop("checked", true);
 }
