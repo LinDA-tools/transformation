@@ -170,7 +170,7 @@ def csv_upload(request):
             html_post_data = {
                 'action': form_action,
                 'form': form,
-                'csvContent': request.session['csv_rows'][:10],
+                'csvContent': request.session['csv_rows'][:11],
                 #'csvRaw': request.session['csv_raw'],
                 #'csvDialect': request.session['csv_dialect'],
                 'filename': request.session['file_name'],
@@ -288,20 +288,20 @@ def csv_column_choice(request):
 
     elif request.POST and form.is_valid() and 'hidden_model' in form.cleaned_data and form.cleaned_data['hidden_model']:
         print("model existing")
-        request.session['model'] = json.loads(form.cleaned_data['hidden_model'])
-        # request.session['model'] = update_model(request.session['model'],reduced_model)
-        print_model_dim(request.session['model'])
+        reduced_model = json.loads(form.cleaned_data['hidden_model'])
+        request.session['model'] = update_model(request.session['model'], reduced_model)
+        #print_model_dim(request.session['model'])
 
     html_post_data = {
         'rdfModel': json.dumps(request.session['model']),
         'action': form_action,
-        'csvContent': request.session['csv_rows'][:10],
+        'csvContent': request.session['csv_rows'][:11],
         'filename': request.session['file_name'],
         'publish_message': publish_message
     }
-    if 'model' in request.session and not 'rdfModel' in html_post_data:
+    if 'model' in request.session and 'rdfModel' not in html_post_data:
         # print_fields(request.session['model'])
-        # print("------------")
+        print("reducing...")
         redu = reduce_model(request.session['model'], 10)
         # redu = reduced_model
         html_post_data['rdfModel'] = json.dumps(redu)
@@ -382,14 +382,14 @@ def csv_predicate(request):
         if 'hidden_model' in form.cleaned_data:
             reduced_model = json.loads(form.cleaned_data['hidden_model'])
             time1 = datetime.datetime.now()
-            # request.session['model'] = update_model(request.session['model'], reduced_model)
+            request.session['model'] = update_model(request.session['model'], reduced_model)
             secs = datetime.datetime.now() - time1
             print("updating model: " + str(secs))
 
     # csv_rows_selected_columns = get_selected_rows_content(request.session)
     time1 = datetime.datetime.now()
-    # redu = reduce_model(request.session['model'], 10)
-    redu = reduced_model
+    redu = reduce_model(request.session['model'], 10)
+    # redu = reduced_model
     secs = datetime.datetime.now() - time1
     print("reducing model: " + str(secs))
     html_post_data = {
@@ -568,7 +568,7 @@ def csv_enrich(request):
     html_post_data = {
         'bla': len(json.dumps(request.session['model'])),
         'action': form_action,
-        'rdfModel': json.dumps(reduce_model(request.session['model'], 10)),
+        'rdfModel': json.dumps(reduce_model(request.session['model'], 11)),
         # 'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         # 'rdfArray': request.session['rdf_array'],
@@ -1001,8 +1001,7 @@ def model_to_triples(model):
                     for field in col['fields']:
                         for x in range(counter, counter + num_total_cols):
                             if col['header']['orig_val'] == s:
-                                rdf_array[x][0] = rdf_array[x][0].replace("{" + s + "}", field['orig_val'])
-                                rdf_array[x][0] = rdf_array[x][0].replace(" ", "%20")
+                                rdf_array[x][0] = rdf_array[x][0].replace("{" + s + "}", field['orig_val'].replace(" ", "%20"))
                         counter += num_total_cols
 
 

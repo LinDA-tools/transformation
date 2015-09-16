@@ -73,23 +73,24 @@ def model_content_as_table(model, pagination):
     model = json.loads(model)
     #num_rows = model['num_cols_selected']
     content = []
-    # p = False
+    #p = False
     f = 0
+
     if isinstance(pagination, dict) and 'page' in pagination and 'perPage' in pagination:
-        # p = True
+        #p = True
         f = (pagination['page'] - 1) * pagination['perPage']
-        # t = f + pagination['perPage']
+        #t = f + pagination['perPage']
+
     for col in model['columns']:
         if 'col_num_new' not in col or col['col_num_new'] > -1:  # show column
             row = []
-            '''
-            if p:
-                fields = col['fields'][f:t]
-            elif isinstance(pagination, int):
+
+            #if p:
+            #    fields = col['fields'][f:t]
+            if isinstance(pagination, int):
                 fields = col['fields'][:pagination]
             else:
-            '''
-            fields = col['fields']
+                fields = col['fields']
 
             for elem in fields:
                 row.append(elem['orig_val'])

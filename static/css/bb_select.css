@@ -46,6 +46,10 @@ Design for Vocabulary selection boxes
     cursor: pointer;
 }
 
+.bb_select_nodropdown i.fa-times{
+    cursor: pointer;
+}
+
 /*The top part taht shows the selected vocab*/
 .bb_select_selection {
     background-color: #9b9;/#d0d0d0;*/
