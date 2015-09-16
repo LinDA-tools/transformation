@@ -2587,7 +2587,7 @@ function model_to_table(model, numrows){
 	});
 
 	//numrows = typeof numrows !== "undefined" ? Math.min(rdf_array['rdf_array'].length, numrows*model['columns'].length) : rdf_array['rdf_array'].length;
-	numrows = typeof numrows !== "undefined" ? Math.min(rdf_array['rdf_array'].length, numrows*num_selected_cols+rdf_array['num_prefixes']) : rdf_array['rdf_array'].length;
+	numrows = typeof numrows !== "undefined" ? Math.min(rdf_array['rdf_array'].length, numrows*(num_selected_cols+rdf_array['num_enrichments'])+rdf_array['num_prefixes']) : rdf_array['rdf_array'].length;
 
 
 	//create table content
@@ -2693,7 +2693,7 @@ function model_to_array(model){
 	//insert from enrichment
 	var num_enrichments = 0;
 	if(model['enrich']){
-		num_enrichments++;
+		num_enrichments = model['enrich'].length	
 		var inserted = 0;
 		for(var i=num_total_cols; i<=(rdf_array.length-inserted); i+=num_total_cols){
 			for(var j=0; j<model['enrich'].length; j++){
@@ -2723,6 +2723,7 @@ function model_to_array(model){
 		prefix_array.push(p);
 		
 	});
+
 
 	return {"rdf_array": prefix_array.concat(rdf_array),
 		"num_prefixes": prefix_array.length,
