@@ -995,11 +995,15 @@ def model_to_triples(model):
                 counter2 += 1
     else:
         for i, s in enumerate(skeleton_array):
-            counter = 0
-            for field in model['columns'][i]['fields']:
-                for x in range(counter, counter + num_total_cols):
-                    rdf_array[x][0] = rdf_array[x][0].replace("{" + skeleton_array[i] + "}", field['orig_val'])
-                counter += num_total_cols
+            for col in model['columns']:
+                counter = 0
+                if col['col_num_new'] > - 1:
+                    for field in col['fields']:
+                        for x in range(counter, counter + num_total_cols):
+                            if col['header']['orig_val'] == s:
+                                rdf_array[x][0] = rdf_array[x][0].replace("{" + s + "}", field['orig_val'])
+                                rdf_array[x][0] = rdf_array[x][0].replace(" ", "%20")
+                        counter += num_total_cols
 
 
     # predicates
