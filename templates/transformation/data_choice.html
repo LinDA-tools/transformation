@@ -1,5 +1,7 @@
 {% extends "transformation-base.html" %}
 
+{% load modelview_tags %}
+
 {% block content %}
 <div class="title">
 	<h2>Transformation: Data Source Choice</h2>
@@ -36,7 +38,7 @@
 	            	{% csrf_token %}
 		            <select size="5" name="mapping_id">
 		            {% for mapping in mappings %}
-		            <option value="{{ mapping.id }}">{{ mapping.fileName }} | {{ mapping.date }} | {{ mapping.csvName }}</option>
+		            <option value="{{ mapping.id }}">{{ mapping.fileName }} ('{{ mapping.csvName | kill_path }}', {{ mapping.date }})</option>
 		            {% endfor %}
 		            </select><br>
 					<input type="submit" name="button_choose" id="id_button_choose" value="Choose">

@@ -1,5 +1,6 @@
 from django import template
 import json
+import ntpath
 
 register = template.Library()
 
@@ -12,6 +13,21 @@ def n3(filename):
     """
 
     return filename.rsplit(".", 1)[0] + ".n3"
+
+
+def path_leaf(path):
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
+
+
+@register.filter(name='kill_path')
+def kill_path(path):
+    """
+    :param path:
+    :return: file without path
+    """
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
 
 
 @register.filter(name='model_as_table')
