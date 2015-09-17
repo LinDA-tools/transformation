@@ -1029,6 +1029,7 @@ def model_to_triples(model):
                 enrich_array.append(["<subject?>", "a", "<" + enr['prefix']['url'] + ">"])
             else:
                 enrich_array.append(["<subject?>", "a", enr['prefix']['prefix'] + ":" + enr['prefix']['suffix']])
+                prefix_dict[enr['prefix']['prefix']] = enr['prefix']['url']
 
     enrichs_inserted = 0
     for n in range(num_total_cols - 1, len(rdf_array) + num_total_cols - 1, num_total_cols):
