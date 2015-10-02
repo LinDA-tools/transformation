@@ -109,14 +109,22 @@ def model_content_as_table2(model):
     model = json.loads(model)
     f = model['excerpt']['start_row']
 
+    selected_cols = []
+
+    for col in model['columns']:
+        if col['col_num_new'] > -1:
+            selected_cols.append(True)
+        else:
+            selected_cols.append(False)
+
     result = "<tbody>"
     for i, row in enumerate(model['excerpt']['rows']):
         result += "<tr>"
         for j, field in enumerate(row):
-            print(i," ",j)
-            result += '<td id="id_table_field_' + str(j + 1) + '_' + str(i + 1 + f) + '">'
-            result += '<span>' + field + '</span>'
-            result += "</td>"
+            if selected_cols[j] is True:
+                result += '<td id="id_table_field_' + str(j + 1) + '_' + str(i + 1 + f) + '">'
+                result += '<span>' + field + '</span>'
+                result += "</td>"
         result += "</tr>"
     result += "</tbody>"
     
