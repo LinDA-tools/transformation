@@ -123,7 +123,8 @@
 				var col = id_as_array[id_as_array.length-2];
 				var row = id_as_array[id_as_array.length-1];
 
-				add_to_model_field_where_col_and_row("reconciliation", {"url":href,"prefix": replacePrefix(href)}, col, row);
+				//add_to_model_field_where_col_and_row("reconciliation", {"url":href,"prefix": replacePrefix(href)}, col, row);
+				add_to_objects_reconciliations_where_col(row, {"url":href,"prefix": replacePrefix(href)}, col);
 
                 adapt_RDF_preview(col);
             });
