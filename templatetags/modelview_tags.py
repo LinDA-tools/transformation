@@ -120,9 +120,11 @@ def model_content_as_table2(model):
     result = "<tbody>"
     for i, row in enumerate(model['excerpt']['rows']):
         result += "<tr>"
+        col_counter = 0
         for j, field in enumerate(row):
             if selected_cols[j] is True:
-                result += '<td id="id_table_field_' + str(j + 1) + '_' + str(i + 1 + f) + '">'
+                col_counter += 1
+                result += '<td id="id_table_field_' + str(col_counter) + '_' + str(i + 1 + f) + '">'
                 result += '<span>' + field + '</span>'
                 result += "</td>"
         result += "</tr>"
