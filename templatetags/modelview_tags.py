@@ -124,7 +124,7 @@ def model_content_as_table2(model):
         for j, field in enumerate(row):
             if selected_cols[j] is True:
                 col_counter += 1
-                result += '<td id="id_table_field_' + str(col_counter) + '_' + str(i + 1 + f) + '">'
+                result += '<td id="id_table_field_' + str(col_counter) + '_' + str(j + 1) + '_' + str(i + 1 + f) + '">'
                 result += '<span>' + field + '</span>'
                 result += "</td>"
         result += "</tr>"

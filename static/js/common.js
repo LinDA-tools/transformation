@@ -2493,6 +2493,19 @@ function add_to_content_where_col(new_key, new_value, col){
 	write_model(model);
 }
 
+function add_to_objects_reconciliations_where_col(new_key, new_value, col){
+	var model = get_model();
+	$.each(model['columns'], function(i, v1){
+		if(v1["col_num_new"]==col){
+			if(!v1["obj_recons"]){
+				v1["obj_recons"] = {};
+			}
+			v1["obj_recons"][new_key] = new_value;
+		}
+	});
+	write_model(model);
+}
+
 //GENERIC
 function add_to_model_header_where_col(new_key, new_value, col){
 	var model = get_model();

@@ -206,7 +206,10 @@ function askOracle(widget, domain, term, keepReconciliationIfExists){
 					recon_result_prefixed['url'] = recon_result_prefixed['url'].substring(0, recon_result_prefixed['url'].length-1);
 				}
 
-				add_to_model_field_where_col_and_row("reconciliation", {"url":recon_result,"prefix": recon_result_prefixed}, col, row);
+				//old way, save in fields
+				add_to_model_field_where_col_and_row("object_method", {"url":recon_result,"prefix": recon_result_prefixed}, col);
+				//new way
+				add_to_objects_reconciliations_where_col(row, {"url":recon_result,"prefix": recon_result_prefixed}, col);
 
 
 			}
@@ -436,7 +439,7 @@ function calculateCells(column){
 
 			$("[id^='id_table_field_"+column+"']").each(function(i){
 				var id_as_array = $(this).attr("id").split("_");
-				var col = id_as_array[id_as_array.length-2];
+				var col = id_as_array[id_as_array.length-3];
 				var row = id_as_array[id_as_array.length-1];
 				var recon = get_model_reconciliation(col, row);
 
@@ -544,7 +547,7 @@ $( document ).ready(function() {
 				$("#id_table_settings_"+col+" select").val("add URIs");
 				$("[id^='id_table_field_"+col+"']").each(function(i){
 					var id_as_array = $(this).attr("id").split("_");
-					var col = id_as_array[id_as_array.length-2];
+					var col = id_as_array[id_as_array.length-3];
 					var row = id_as_array[id_as_array.length-1];
 
 					var recon = get_model_reconciliation(col, row);
