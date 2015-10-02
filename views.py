@@ -214,12 +214,13 @@ def csv_column_choice(request):
             for i, head in enumerate(arr[0]):
                 m['columns'].append({'col_num_orig': i + 1, 'fields': [], 'header': {'orig_val': arr[0][i]}})
 
+            '''   
             for field in range(1, len(arr)):
                 f = field
                 for col in range(0, len(arr[field])):
                     c = col
                     m['columns'][col]['fields'].append({'orig_val': arr[field][col], 'field_num': field})
-
+            '''
         except IndexError:
             print("index error: col " + str(c) + ", field " + str(f))
 
@@ -504,8 +505,11 @@ def csv_object(request):
                 p) + "</option>"
     row_num_select += "</select>"
 
-    start_row = page * per_page - per_page
-    end_row = page * per_page 
+    start_row = page * per_page - per_page +1
+    end_row = page * per_page
+
+    if end_row > num_rows_model:
+        end_row = num_rows_model
 
     update_excerpt(request.session['model'], start_row=start_row, num_rows=per_page)
 
