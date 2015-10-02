@@ -192,7 +192,9 @@ function askOracle(widget, domain, term, keepReconciliationIfExists){
 			//SAVE IN MODEL
 			var id_as_array = widget.attr("id").split("_");
 			var row = id_as_array[id_as_array.length-1];
-			var col = id_as_array[id_as_array.length-2];
+			var col = id_as_array[id_as_array.length-3];
+			//column number when also counting non selected
+			//var col_orig = id_as_array[id_as_array.length-2];
 
 			add_to_content_where_col("object_method", "reconciliation", col);
 

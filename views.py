@@ -1163,7 +1163,7 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
                 start_row = row_count - num_rows
                 if start_row < 0:
                     # take all
-                    start_row = 0
+                    start_row = 1
                     num_rows = row_count
             if num_rows == -1:
                 start_row = 1
