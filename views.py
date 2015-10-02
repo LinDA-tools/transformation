@@ -1146,7 +1146,13 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
         f = open(path_and_file, "rb")
         with TextIOWrapper(f, encoding=encoding) as csv_file:
             #TODO performance: maybe not read the whole file...
-            csv_reader = csv.reader(csv_file, csv_dialect)
+            '''
+            csv_dialect['delimiter'] = dialect.delimiter
+            csv_dialect['escape'] = dialect.escapechar
+            csv_dialect['quotechar'] = dialect.quotechar
+            csv_dialect['line_end'] = dialect.lineterminator.replace('\r', 'cr').replace('\n', 'lf')
+            '''
+            csv_reader = csv.reader(csv_file, lineterminator=csv_dialect['line_end'].replace('cr', '\r').replace('lf', '\n'), escapechar=csv_dialect['escape'], quotechar=csv_dialect['quotechar'], delimiter=csv_dialect['delimiter'])
 
             if row_count is None:
                 row_count = sum(1 for row in csv_reader)

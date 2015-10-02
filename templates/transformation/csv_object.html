@@ -45,7 +45,7 @@
         {% if pagination.max_pages > 1 %}
         show rows: {{ pagination.html | safe }}
         {% endif %}
-        {{ rdfModel | model_as_table_object:pagination | safe }}
+        {{ rdfModel | model_as_table_object2 | safe }}
         </div>
     </div>
 </div>

@@ -38,6 +38,14 @@ def model_as_table(model, num_rows=-1):
     result += '</table>'
     return result
 
+@register.filter(name='model_as_table2')
+def model_as_table2(model, num_rows=-1):
+    result = '<table class="table_view">'
+    result += model_header_as_table(model)
+    result += model_content_as_table2(model)
+    result += '</table>'
+    return result
+
 
 @register.filter(name='model_as_table_predicate')
 def model_as_table_predicate(model, num_rows=-1):
@@ -47,12 +55,28 @@ def model_as_table_predicate(model, num_rows=-1):
     result += '</table>'
     return result
 
+@register.filter(name='model_as_table_predicate2')
+def model_as_table_predicate2(model):
+    result = '<table class="table_view">'
+    result += model_header_as_table_predicate(model)
+    result += model_content_as_table2(model)
+    result += '</table>'
+    return result
+
 
 @register.filter(name='model_as_table_object')
 def model_as_table_object(model, pagination):
     result = '<table class="table_view">'
     result += model_header_as_table_object(model)
     result += model_content_as_table(model, pagination)
+    result += '</table>'
+    return result
+
+@register.filter(name='model_as_table_object2')
+def model_as_table_object2(model):
+    result = '<table class="table_view">'
+    result += model_header_as_table_object(model)
+    result += model_content_as_table2(model)
     result += '</table>'
     return result
 
@@ -76,6 +100,26 @@ def model_header_as_table(model):
     result += "</tr>"
     result += "</thead>"
 
+    return result
+
+
+@register.filter(name='model_as_tbody2')
+def model_content_as_table2(model):
+
+    model = json.loads(model)
+    f = model['excerpt']['start_row']
+
+    result = "<tbody>"
+    for i, row in enumerate(model['excerpt']['rows']):
+        result += "<tr>"
+        for j, field in enumerate(row):
+            print(i," ",j)
+            result += '<td id="id_table_field_' + str(j + 1) + '_' + str(i + 1 + f) + '">'
+            result += '<span>' + field + '</span>'
+            result += "</td>"
+        result += "</tr>"
+    result += "</tbody>"
+    
     return result
 
 
