@@ -2539,6 +2539,7 @@ function get_model_predicate_of_col(col){
 	return false;
 }
 
+/*
 function get_model_reconciliation(col, row){
 	var model = get_model();
 	for(var i=0; i<model['columns'].length; i++){
@@ -2554,6 +2555,17 @@ function get_model_reconciliation(col, row){
 			}
 			else
 				return false;
+		}
+	}
+	return false;
+}
+*/
+
+function get_model_reconciliation(col, row){
+	var model = get_model();
+	for(var i=0; i<model['columns'].length; i++){
+		if(model['columns'][i]["col_num_new"] == col){
+			return typeof model['columns'][i]['obj_recons'] != 'undefined' ? model['columns'][i]['obj_recons'][row] : false;
 		}
 	}
 	return false;
