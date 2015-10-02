@@ -164,7 +164,7 @@ function askOracle(widget_num){
 	recent_icon.className = "fa fa-refresh fa-spin";
 
 	var request = $.ajax({
-		timeout: 5000,
+		//timeout: 5000,
 		type: 'GET',
 		dataType: 'jsonp',
 		data: { 'property': recent_textinput.val() },

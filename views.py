@@ -204,7 +204,7 @@ def csv_column_choice(request):
         print('creating model')
 
         arr = request.session['csv_rows']
-        m = {"file_name": request.session['file_name'], "num_cols_total": len(arr), "num_cols_selected": len(arr),
+        m = {"file_name": request.session['file_name'], "num_rows_total": len(arr)-1, "num_cols_selected": len(arr),
              "columns": [], "csv_dialect": request.session['csv_dialect'], "save_path": request.session['save_path']}
         f = -1
         c = -1
@@ -225,7 +225,7 @@ def csv_column_choice(request):
 
 
         # TODO uncomment
-        # update_excerpt(m, start_row=0, num_rows=-1)
+        update_excerpt(m, start_row=0, num_rows=10)
 
 
         request.session['model'] = m
@@ -330,7 +330,7 @@ def csv_subject(request):
 
         # content  is passed on via hidden html input fields
 
-        dump = form.cleaned_data['hidden_model']
+        request.session['model'] = json.loads(form.cleaned_data['hidden_model'])
         #reduced_model = json.loads(form.cleaned_data['hidden_model'])
         #dump = json.dumps(reduced_model)
         #print("dump   ", str(dump))
@@ -354,8 +354,10 @@ def csv_subject(request):
                 print("updating model: " + str(secs))
                 time1 = datetime.datetime.now()
         '''
+
+        update_excerpt(model=request.session['model'], start_row=0, num_rows=10)
     html_post_data = {
-        'rdfModel': dump,
+        'rdfModel': json.dumps(request.session['model']),
         'action': form_action,
         # 'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
@@ -380,21 +382,29 @@ def csv_predicate(request):
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
         '''
         if 'hidden_model' in form.cleaned_data:
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model'])
+            update_excerpt(request.session['model'], start_row=0, num_rows=10)
+            '''
             reduced_model = json.loads(form.cleaned_data['hidden_model'])
+
+            request.session['model'] = reduced_model
+            update_excerpt(request.session['model'], start_row=0, num_rows=10)
+
             time1 = datetime.datetime.now()
             request.session['model'] = update_model(request.session['model'], reduced_model)
             secs = datetime.datetime.now() - time1
             print("updating model: " + str(secs))
+            '''
 
     # csv_rows_selected_columns = get_selected_rows_content(request.session)
-    time1 = datetime.datetime.now()
-    redu = reduce_model(request.session['model'], 10)
+    #time1 = datetime.datetime.now()
+    #redu = reduce_model(request.session['model'], 10)
     # redu = reduced_model
-    secs = datetime.datetime.now() - time1
-    print("reducing model: " + str(secs))
+    #secs = datetime.datetime.now() - time1
+    #print("reducing model: " + str(secs))
     html_post_data = {
         'action': form_action,
-        'rdfModel': json.dumps(redu),
+        'rdfModel': json.dumps(request.session['model']),
         # 'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         # 'rdfArray': request.session['rdf_array'],
@@ -436,7 +446,7 @@ def csv_object(request):
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
         '''
         if 'hidden_model' in form.cleaned_data:
-            reduced_model = json.loads(form.cleaned_data['hidden_model'])
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model'])            
 
         else:
             request.session['model'] = ""
@@ -444,9 +454,7 @@ def csv_object(request):
     else:
         print("form not valid!")
 
-    num_rows_model = len(request.session['model']['columns'][0]['fields'])
-
-    # print(request.session['model'])
+    num_rows_model = request.session['model']['num_rows_total']
 
     # pagination
     if "page" in request.GET and is_int(request.GET.get('page')):
@@ -496,8 +504,10 @@ def csv_object(request):
                 p) + "</option>"
     row_num_select += "</select>"
 
-    start_row = page * per_page
-    end_row = page * per_page + per_page
+    start_row = page * per_page - per_page
+    end_row = page * per_page 
+
+    update_excerpt(request.session['model'], start_row=start_row, num_rows=per_page)
 
     pagination = {
         'startRow': start_row,
@@ -517,7 +527,7 @@ def csv_object(request):
     # print("v ",request.session['model']['columns'][1]['fields'])
     # print("r ",len(reduced_model['columns'][1]))
     # print("r ",reduced_model['columns'][1])
-    request.session['model'] = update_model(request.session['model'], reduced_model)
+    # request.session['model'] = update_model(request.session['model'], reduced_model)
     # print("r ",len(reduced_model['columns'][1]['fields']))
     # print("r ",reduced_model['columns'][1]['fields'])
     # print("n ",len(request.session['model']['columns'][1]))
@@ -528,7 +538,8 @@ def csv_object(request):
     html_post_data = {
         'pagination': pagination,
         'action': form_action,
-        'rdfModel': json.dumps(reduce_model(request.session['model'], pagination)),
+        #'rdfModel': json.dumps(reduce_model(request.session['model'], pagination)),
+        'rdfModel': json.dumps(request.session['model']),
         # 'rdfModel': json.dumps(reduced_model),
         # 'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
@@ -561,14 +572,15 @@ def csv_enrich(request):
             request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
         '''
         if 'hidden_model' in form.cleaned_data:
-            reduced_model = json.loads(form.cleaned_data['hidden_model'])
-            request.session['model'] = update_model(request.session['model'], reduced_model)
+            #reduced_model = json.loads(form.cleaned_data['hidden_model'])
+            #request.session['model'] = update_model(request.session['model'], reduced_model)
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model']) 
+            update_excerpt(request.session['model'], start_row=0, num_rows=10)
 
     # csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
-        'bla': len(json.dumps(request.session['model'])),
         'action': form_action,
-        'rdfModel': json.dumps(reduce_model(request.session['model'], 11)),
+        'rdfModel': json.dumps(request.session['model']),
         # 'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         # 'rdfArray': request.session['rdf_array'],
@@ -588,8 +600,10 @@ def csv_publish(request):
     if request.POST and form.is_valid() and form != None:
 
         if 'hidden_model' in form.cleaned_data:
-            reduced_model = json.loads(form.cleaned_data['hidden_model'])
-            request.session['model'] = update_model(request.session['model'], reduced_model)
+            #reduced_model = json.loads(form.cleaned_data['hidden_model'])
+            #request.session['model'] = update_model(request.session['model'], reduced_model)
+            request.session['model'] = json.loads(form.cleaned_data['hidden_model'])
+            update_excerpt(request.session['model'], start_row=0, num_rows=10)
 
         if 'button_publish' in request.POST:
             payload = {'title': request.POST.get('name_publish'),
@@ -638,7 +652,7 @@ def csv_publish(request):
         'publish_message': publish_message,
         'action': form_action,
         # 'rdfModel': json.dumps(request.session['model']),
-        'rdfModel': json.dumps(reduced_model),
+        'rdfModel': json.dumps(request.session['model']),
         # 'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
         # 'rdfArray': request.session['rdf_array'],
@@ -1065,7 +1079,7 @@ def update_excerpt(model, start_row=0, num_rows=-1):
     """
     Includes an excerpt of the model content as an array in 'excerpt' property of the model.
     also holds values about where the excerpt begins and how big it is.
-    {'rows': csv_array, 'start_row:': start_row, 'num_rows': num_rows, 'total_rows_num': row_count}
+    {'rows': csv_array, 'start_row': start_row, 'num_rows': num_rows, 'total_rows_num': row_count}
     """
     if not model:
         print("no model!")
@@ -1085,8 +1099,8 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
     :param request: HTTP request
     :param model: LinDA JSON model
     :param start_row:
-    :param num_rows:
-    :return: a dict like: {'rows': csv_array, 'start_row:': start_row, 'num_rows': num_rows, 'total_rows_num': row_count}
+    :param num_rows: if -1 then all is returned
+    :return: a dict like: {'rows': csv_array, 'start_row': start_row, 'num_rows': num_rows, 'total_rows_num': row_count}
     """
 
     time1 = datetime.datetime.now()
@@ -1098,12 +1112,15 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
     path_and_file = None
     csv_dialect = None
     encoding = None
+    row_count = None
 
     if model is not None:
         if 'save_path' in model and 'csv_dialect' in model:
             path_and_file = model['save_path']
             csv_dialect = model['csv_dialect']
             encoding = "UTF-8"
+            if 'num_rows_total' in model:
+                row_count = model['num_rows_total']
         else:
             print("model param for file_to_array function is invalid")
     elif request is not None:
@@ -1131,8 +1148,9 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
             #TODO performance: maybe not read the whole file...
             csv_reader = csv.reader(csv_file, csv_dialect)
 
-            row_count = sum(1 for row in csv_reader)
-            f.seek(0)
+            if row_count is None:
+                row_count = sum(1 for row in csv_reader)
+                f.seek(0)
 
             # if params not fitting
             if start_row + num_rows >= row_count:
@@ -1162,4 +1180,4 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
     secs = datetime.datetime.now() -time1
     print(num_rows," / ", row_count, " rows in " + str(secs))
 
-    return {'rows': csv_array, 'start_row:': start_row_original, 'num_rows': num_rows, 'total_rows_num': row_count}
+    return {'rows': csv_array, 'start_row': start_row_original, 'num_rows': num_rows}
