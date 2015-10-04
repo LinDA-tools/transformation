@@ -2605,7 +2605,6 @@ function model_to_table(model, numrows){
 	}
 
 	var rdf_array = model_to_array(model);
-	console.log(rdf_array);
 
 	num_selected_cols = 0;
 	$.each(model['columns'], function(){
@@ -2639,8 +2638,6 @@ function model_to_table(model, numrows){
 
 
 function model_to_array(model){
-
-	console.log("model_to_array");
 
 	if(typeof model === "undefined" || !model['columns']){
 		return;
@@ -2700,12 +2697,12 @@ function model_to_array(model){
 
 				if(method === "data type" && col['data_type'] ){//reconciliation, no action, data type
 					suffix = "^^"+col['data_type']['prefix']+":"+col['data_type']['suffix'];
-					rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
+					rdf_array[j*num_total_cols+col_count][2] = '"'+elem+'"'+suffix;
 					lindaGlobals.used_prefixes[col['data_type']['prefix']] = col['data_type'];
 				}
-				if(method == "reconciliation" && col['obj_recons']){//reconciliation, no action, data type
+				if(method == "reconciliation"){//reconciliation, no action, data type
 					rdf_array[j*num_total_cols+col_count][2] = col['obj_recons'][j+1]['prefix']['prefix']+":"+col['obj_recons'][j+1]['prefix']['suffix'];
-					lindaGlobals.used_prefixes[col['obj_recons'][j+1]['prefix']] = col['obj_recons'][j+1]['prefix'];
+					lindaGlobals.used_prefixes[col['obj_recons'][j+1]['prefix']['prefix']] = col['obj_recons'][j+1];
 				}else{
 					rdf_array[j*num_total_cols+col_count][2] = '"'+elem+'"'+suffix;
 				}

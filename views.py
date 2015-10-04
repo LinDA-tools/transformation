@@ -212,7 +212,7 @@ def csv_column_choice(request):
         try:
 
             for i, head in enumerate(arr[0]):
-                m['columns'].append({'col_num_orig': i + 1, 'fields': [], 'header': {'orig_val': arr[0][i]}})
+                m['columns'].append({'col_num_orig': i + 1, 'header': {'orig_val': arr[0][i]}})
 
             '''   
             for field in range(1, len(arr)):
@@ -237,7 +237,7 @@ def csv_column_choice(request):
         # print_fields(request.session['model'])
 
     # has fields? if not, only scaffolding from model 'loaded' in data choice page of wizard
-    elif 'model' in request.session and 'fields' not in request.session['model']['columns'][0]:
+    elif 'model' in request.session and 'excerpt' not in request.session['model']:
         # when only a loaded model 'scaffolding'
         print("model 'scaffolding' was loaded")
 
@@ -319,10 +319,10 @@ def csv_column_choice(request):
 def csv_subject(request):
     print("VIEW csv_subject")
 
-    # print("mod direkt nach laden seite")
-    # print_fields(request.session['model'])
+    print("mod direkt nach laden seite")
+    print(request.session['model'])
 
-    # print(request.session['model'])
+    print("-----")
     form_action = 4
     form = SubjectForm(request.POST)
     dump = None
@@ -952,7 +952,8 @@ def model_to_triple_string(model):
 
 
 def model_to_triples(model):
-    num_fields_in_row_rdf = len(model['columns'][0]['fields'])
+    #num_fields_in_row_rdf = len(model['columns'][0]['fields'])
+    num_fields_in_row_rdf = model['num_rows_total']
     num_total_cols = 0
 
     # count
@@ -982,6 +983,9 @@ def model_to_triples(model):
 
     prefix_dict = {}
 
+    complete_array = file_to_array(model=model)['rows']
+    print("gealden ", len(complete_array), " - ", len(complete_array[0]))
+
     # objects
     count1 = 0
     for i, col in enumerate(model['columns']):
@@ -990,36 +994,41 @@ def model_to_triples(model):
             add = ""
             if 'object_method' in col and col['object_method'] == "data type":
                 add = "^^" + col['data_type']['prefix'] + ":" + col['data_type']['suffix']
-                prefix_dict[col['data_type']['prefix']] = col['data_type']['url']
-            for j, field in enumerate(col['fields']):
-                if 'object_method' in col and col['object_method'] == "reconciliation" and 'reconciliation' in field:
-                    rdf_array[count2][2] = field['reconciliation']['prefix']['prefix'] + ":" + \
-                                           field['reconciliation']['prefix']['suffix']
-                    prefix_dict[field['reconciliation']['prefix']['prefix']] = field['reconciliation']['prefix']['url']
+                prefix_dict[col['data_type']['prefix']] = col['data_type']
+            for j, field in enumerate(complete_array):
+                elem = field[col['col_num_orig']-1]
+                if 'object_method' in col and col['object_method'] == "reconciliation" and 'obj_recons' in col and str(j+1) in col['obj_recons']:
+                    rdf_array[count2][2] = col['obj_recons'][str(j+1)]['prefix']['prefix']+":"+col['obj_recons'][str(j+1)]['prefix']['suffix']
+                    xxx = str(col['obj_recons'][str(j+1)]['prefix']['prefix'])
+                    prefix_dict[xxx] = col['obj_recons'][str(j+1)]['prefix']['url']
                 else:
-                    rdf_array[count2][2] = '"' + field['orig_val'] + '"' + add
+                    rdf_array[count2][2] = '"' + elem + '"' + add
                 count2 += num_total_cols
             count1 += 1
 
     # subjects
-    if 'blank_nodes' in model['subject'] and model['subject']['blank_nodes'] == "true":
+    rowlength = model['num_rows_total']
+    if 'blank_nodes' in model['subject'] and model['subject']['blank_nodes'] == "true":        
         for i, col in enumerate(model['columns']):
             counter = 0
             counter2 = 0
-            for field in col['fields']:
-                for x in range(counter, counter + num_total_cols):
-                    rdf_array[x][0] = "_:" + to_letters(counter2)
-                counter += num_total_cols
-                counter2 += 1
+            if col['col_num_new'] > - 1:
+                for row_num in range(0,rowlength):
+                    for x in range(counter, counter + num_total_cols):
+                        rdf_array[x][0] = "_:" + to_letters(counter2)
+                    counter += num_total_cols
+                    counter2 += 1
     else:
         for i, s in enumerate(skeleton_array):
             for col in model['columns']:
                 counter = 0
                 if col['col_num_new'] > - 1:
-                    for field in col['fields']:
+                    for row_num in range(0,rowlength):
+                        field = complete_array[row_num][col['col_num_orig']-1]
                         for x in range(counter, counter + num_total_cols):
                             if col['header']['orig_val'] == s:
-                                rdf_array[x][0] = rdf_array[x][0].replace("{" + s + "}", field['orig_val'].replace(" ", "%20"))
+                                #TODO translate url into right format instead of only .replace(" ", "%20")
+                                rdf_array[x][0] = rdf_array[x][0].replace("{" + s + "}", field.replace(" ", "%20"))
                         counter += num_total_cols
 
 
@@ -1059,7 +1068,9 @@ def model_to_triples(model):
 
     prefix_array = []
     for x in prefix_dict:
-        prefix_array.append(["@prefix", x + ":", "<" + prefix_dict[x] + ">"])
+        x1 = prefix_dict[x]
+        x2 = prefix_dict[str(x)]
+        prefix_array.append(["@prefix", x + ":", "<" + str(prefix_dict[x]) + ">"])
 
     return prefix_array + rdf_array
 
