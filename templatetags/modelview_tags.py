@@ -38,6 +38,14 @@ def model_as_table(model, num_rows=-1):
     result += '</table>'
     return result
 
+@register.filter(name='model_as_table2')
+def model_as_table2(model, num_rows=-1):
+    result = '<table class="table_view">'
+    result += model_header_as_table(model)
+    result += model_content_as_table2(model)
+    result += '</table>'
+    return result
+
 
 @register.filter(name='model_as_table_predicate')
 def model_as_table_predicate(model, num_rows=-1):
@@ -47,12 +55,28 @@ def model_as_table_predicate(model, num_rows=-1):
     result += '</table>'
     return result
 
+@register.filter(name='model_as_table_predicate2')
+def model_as_table_predicate2(model):
+    result = '<table class="table_view">'
+    result += model_header_as_table_predicate(model)
+    result += model_content_as_table2(model)
+    result += '</table>'
+    return result
+
 
 @register.filter(name='model_as_table_object')
 def model_as_table_object(model, pagination):
     result = '<table class="table_view">'
     result += model_header_as_table_object(model)
     result += model_content_as_table(model, pagination)
+    result += '</table>'
+    return result
+
+@register.filter(name='model_as_table_object2')
+def model_as_table_object2(model):
+    result = '<table class="table_view">'
+    result += model_header_as_table_object(model)
+    result += model_content_as_table2(model)
     result += '</table>'
     return result
 
@@ -76,6 +100,36 @@ def model_header_as_table(model):
     result += "</tr>"
     result += "</thead>"
 
+    return result
+
+
+@register.filter(name='model_as_tbody2')
+def model_content_as_table2(model):
+    print(model)
+    model = json.loads(model)
+    f = model['excerpt']['start_row']
+
+    selected_cols = []
+
+    for col in model['columns']:
+        if col['col_num_new'] > -1:
+            selected_cols.append(True)
+        else:
+            selected_cols.append(False)
+
+    result = "<tbody>"
+    for i, row in enumerate(model['excerpt']['rows']):
+        result += "<tr>"
+        col_counter = 0
+        for j, field in enumerate(row):
+            if selected_cols[j] is True:
+                col_counter += 1
+                result += '<td id="id_table_field_' + str(col_counter) + '_' + str(j + 1) + '_' + str(i + f) + '">'
+                result += '<span>' + field + '</span>'
+                result += "</td>"
+        result += "</tr>"
+    result += "</tbody>"
+    
     return result
 
 

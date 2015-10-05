@@ -45,7 +45,7 @@
         {% if pagination.max_pages > 1 %}
         show rows: {{ pagination.html | safe }}
         {% endif %}
-        {{ rdfModel | model_as_table_object:pagination | safe }}
+        {{ rdfModel | model_as_table_object2 | safe }}
         </div>
     </div>
 </div>
@@ -123,7 +123,8 @@
 				var col = id_as_array[id_as_array.length-2];
 				var row = id_as_array[id_as_array.length-1];
 
-				add_to_model_field_where_col_and_row("reconciliation", {"url":href,"prefix": replacePrefix(href)}, col, row);
+				//add_to_model_field_where_col_and_row("reconciliation", {"url":href,"prefix": replacePrefix(href)}, col, row);
+				add_to_objects_reconciliations_where_col(row, {"url":href,"prefix": replacePrefix(href)}, col);
 
                 adapt_RDF_preview(col);
             });
@@ -192,7 +193,9 @@ function askOracle(widget, domain, term, keepReconciliationIfExists){
 			//SAVE IN MODEL
 			var id_as_array = widget.attr("id").split("_");
 			var row = id_as_array[id_as_array.length-1];
-			var col = id_as_array[id_as_array.length-2];
+			var col = id_as_array[id_as_array.length-3];
+			//column number when also counting non selected
+			var col_orig = id_as_array[id_as_array.length-2];
 
 			add_to_content_where_col("object_method", "reconciliation", col);
 
@@ -206,7 +209,7 @@ function askOracle(widget, domain, term, keepReconciliationIfExists){
 					recon_result_prefixed['url'] = recon_result_prefixed['url'].substring(0, recon_result_prefixed['url'].length-1);
 				}
 
-				add_to_model_field_where_col_and_row("reconciliation", {"url":recon_result,"prefix": recon_result_prefixed}, col, row);
+				add_to_objects_reconciliations_where_col(row, {"url":recon_result,"prefix": recon_result_prefixed}, col);
 
 
 			}
@@ -326,16 +329,14 @@ function guessType(column){
 
 	var model = get_model();
 	var all_fields = undefined;
-	for(var i=0; i<model['columns'].length; i++){
-		if(model['columns'][i]['col_num_new'] == column){
-			all_fields = model['columns'][i]['fields']
-			break;
-		}
+
+	all_fields = []
+	for(var i = 0; i < model['excerpt']['rows'].length; i++){
+		all_fields.push(model['excerpt']['rows'][i][column]);
 	}
-	//var all_fields = model['columns'][column-1]['fields'];
-	var num_fields = all_fields.length;
+
 	for(var i=0; i< all_fields.length; i++){
-		var recent_field = all_fields[i]['orig_val'];
+		var recent_field = all_fields[i];
 		$.each(datatypes, function(key, value){
 
 			//var repl = replacePrefix(value.url);
@@ -354,7 +355,7 @@ function guessType(column){
 
 	var select = "<br><select class=\"type_guessing\">";
 	$.each(matching, function(k,v){
-		if(v == num_fields){
+		if(v == all_fields.length){
 			select += '<option value="'+k+'">'+replacePrefix(k)["suffix"]+'</option>';
 		}
 	});
@@ -436,7 +437,7 @@ function calculateCells(column){
 
 			$("[id^='id_table_field_"+column+"']").each(function(i){
 				var id_as_array = $(this).attr("id").split("_");
-				var col = id_as_array[id_as_array.length-2];
+				var col = id_as_array[id_as_array.length-3];
 				var row = id_as_array[id_as_array.length-1];
 				var recon = get_model_reconciliation(col, row);
 
@@ -544,7 +545,7 @@ $( document ).ready(function() {
 				$("#id_table_settings_"+col+" select").val("add URIs");
 				$("[id^='id_table_field_"+col+"']").each(function(i){
 					var id_as_array = $(this).attr("id").split("_");
-					var col = id_as_array[id_as_array.length-2];
+					var col = id_as_array[id_as_array.length-3];
 					var row = id_as_array[id_as_array.length-1];
 
 					var recon = get_model_reconciliation(col, row);

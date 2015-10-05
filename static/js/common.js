@@ -2178,16 +2178,18 @@ function create_subjects_from_model_skeleton(model) {
 	$.each(model['columns'], function(i, col){
 		if(col['col_num_new'] >- 1){ // column was chosen, same as show==true
 			var col_name = col['header']['orig_val'];
-			$.each(col['fields'], function(j, elem){
+			for(var j=0; j<model['excerpt']['rows'].length; j++){
 				if(model && model['subject']['blank_nodes'] == "true"){
 						subjects_array[j] = "_:"+toLetters(j+1);
 				}else{
 					if(subjects_array[j] == undefined){
 						subjects_array[j] = "<" + base_url.trim() + skeleton.trim() + ">";
 					}
-					subjects_array[j] = subjects_array[j].replace(new RegExp("{"+col_name.trim()+"}","g"), elem['orig_val'].trim()).trim();
+					var col_num_orig = model['columns'][i]['col_num_orig'] - 1;
+					subjects_array[j] = subjects_array[j].replace(new RegExp("{"+col_name.trim()+"}","g"), model['excerpt']['rows'][j][col_num_orig].trim()).trim();
 				}
-			});
+
+			}
 		}
 	});
 	
@@ -2493,6 +2495,19 @@ function add_to_content_where_col(new_key, new_value, col){
 	write_model(model);
 }
 
+function add_to_objects_reconciliations_where_col(new_key, new_value, col){
+	var model = get_model();
+	$.each(model['columns'], function(i, v1){
+		if(v1["col_num_new"]==col){
+			if(!v1["obj_recons"]){
+				v1["obj_recons"] = {};
+			}
+			v1["obj_recons"][new_key] = new_value;
+		}
+	});
+	write_model(model);
+}
+
 //GENERIC
 function add_to_model_header_where_col(new_key, new_value, col){
 	var model = get_model();
@@ -2526,6 +2541,7 @@ function get_model_predicate_of_col(col){
 	return false;
 }
 
+/*
 function get_model_reconciliation(col, row){
 	var model = get_model();
 	for(var i=0; i<model['columns'].length; i++){
@@ -2541,6 +2557,17 @@ function get_model_reconciliation(col, row){
 			}
 			else
 				return false;
+		}
+	}
+	return false;
+}
+*/
+
+function get_model_reconciliation(col, row){
+	var model = get_model();
+	for(var i=0; i<model['columns'].length; i++){
+		if(model['columns'][i]["col_num_new"] == col){
+			return typeof model['columns'][i]['obj_recons'] != 'undefined' ? model['columns'][i]['obj_recons'][row] : false;
 		}
 	}
 	return false;
@@ -2612,7 +2639,6 @@ function model_to_table(model, numrows){
 
 function model_to_array(model){
 
-
 	if(typeof model === "undefined" || !model['columns']){
 		return;
 	}
@@ -2624,16 +2650,14 @@ function model_to_array(model){
 	$.each(model['columns'], function(){
 		if($(this)[0]['col_num_new'] >- 1){ // column was chosen
 			num_total_cols++;
-			$.each($(this)[0]['fields'], function(){
-				num_total_rows_rdf++;
-			
-			});
 		}
 	});
 
+	num_total_rows_rdf = num_total_cols * model['num_rows_total'];
+
 	var rdf_array = create_multidim_array(num_total_rows_rdf, 3);
 
-
+	// TODO #########
 	//insert subjects
 	var subjects = create_subjects_from_model_skeleton(model);
 	for(var i = 0; i < rdf_array.length; i++){
@@ -2660,28 +2684,32 @@ function model_to_array(model){
 	}
 
 	//insert objects
+	
 	var col_count = -1;
-	$.each(model['columns'], function(i, row){
-		if(row['col_num_new'] >- 1){ // column was chosen, same as show==true
+	$.each(model['columns'], function(i, col){
+		if(col['col_num_new'] >- 1){ // column was chosen, same as show==true
 			col_count++;
-			var method = row['object_method'];
-			$.each($(this)[0]['fields'], function(j, elem){
+			var method = col['object_method'];
+			//$.each($(this)[0]['fields'], function(j, elem){
+			for(var j=0; j<model['excerpt']['rows'].length; j++){
+				var elem = model['excerpt']['rows'][j][col['col_num_orig']-1];
 				var suffix = "";
 
-				if(method === "data type" && row['data_type'] ){//reconciliation, no action, data type
-					suffix = "^^"+row['data_type']['prefix']+":"+row['data_type']['suffix'];
-					rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
-					lindaGlobals.used_prefixes[row['data_type']['prefix']] = row['data_type'];
+				if(method === "data type" && col['data_type'] ){//reconciliation, no action, data type
+					suffix = "^^"+col['data_type']['prefix']+":"+col['data_type']['suffix'];
+					rdf_array[j*num_total_cols+col_count][2] = '"'+elem+'"'+suffix;
+					lindaGlobals.used_prefixes[col['data_type']['prefix']] = col['data_type'];
 				}
-				if(method == "reconciliation" && elem['reconciliation']){//reconciliation, no action, data type
-					rdf_array[j*num_total_cols+col_count][2] = elem['reconciliation']['prefix']['prefix']+":"+elem['reconciliation']['prefix']['suffix'];
-					lindaGlobals.used_prefixes[elem['reconciliation']['prefix']] = elem['reconciliation']['prefix'];
+				if(method == "reconciliation"){//reconciliation, no action, data type
+					rdf_array[j*num_total_cols+col_count][2] = col['obj_recons'][j+1]['prefix']['prefix']+":"+col['obj_recons'][j+1]['prefix']['suffix'];
+					lindaGlobals.used_prefixes[col['obj_recons'][j+1]['prefix']['prefix']] = col['obj_recons'][j+1];
 				}else{
-					rdf_array[j*num_total_cols+col_count][2] = '"'+elem['orig_val']+'"'+suffix;
+					rdf_array[j*num_total_cols+col_count][2] = '"'+elem+'"'+suffix;
 				}
-			});
+			};
 		}
 	});
+	
 
 
 	/*array.splice(index, 0, item);
