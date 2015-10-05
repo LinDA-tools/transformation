@@ -2702,7 +2702,7 @@ function model_to_array(model){
 				}
 				if(method == "reconciliation"){//reconciliation, no action, data type
 					rdf_array[j*num_total_cols+col_count][2] = col['obj_recons'][j+1]['prefix']['prefix']+":"+col['obj_recons'][j+1]['prefix']['suffix'];
-					lindaGlobals.used_prefixes[col['obj_recons'][j+1]['prefix']['prefix']] = col['obj_recons'][j+1];
+					lindaGlobals.used_prefixes[col['obj_recons'][j+1]['prefix']['prefix']] = col['obj_recons'][j+1]['prefix'];
 				}else{
 					rdf_array[j*num_total_cols+col_count][2] = '"'+elem+'"'+suffix;
 				}

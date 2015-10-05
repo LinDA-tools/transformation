@@ -999,8 +999,7 @@ def model_to_triples(model):
                 elem = field[col['col_num_orig']-1]
                 if 'object_method' in col and col['object_method'] == "reconciliation" and 'obj_recons' in col and str(j+1) in col['obj_recons']:
                     rdf_array[count2][2] = col['obj_recons'][str(j+1)]['prefix']['prefix']+":"+col['obj_recons'][str(j+1)]['prefix']['suffix']
-                    xxx = str(col['obj_recons'][str(j+1)]['prefix']['prefix'])
-                    prefix_dict[xxx] = col['obj_recons'][str(j+1)]['prefix']['url']
+                    prefix_dict[col['obj_recons'][str(j+1)]['prefix']['prefix']] = col['obj_recons'][str(j+1)]['prefix']
                 else:
                     rdf_array[count2][2] = '"' + elem + '"' + add
                 count2 += num_total_cols
@@ -1043,7 +1042,7 @@ def model_to_triples(model):
                 u = "<"+url+">"
             else:
                 u = prefix + ":" + suffix
-                prefix_dict[prefix] = url
+                prefix_dict[prefix] = col['predicate']['prefix']
             for x in range(0, num_fields_in_row_rdf):
                 rdf_array[count1 + x * num_total_cols][1] = u
             count1 += 1
@@ -1056,7 +1055,7 @@ def model_to_triples(model):
                 enrich_array.append(["<subject?>", "a", "<" + enr['prefix']['url'] + ">"])
             else:
                 enrich_array.append(["<subject?>", "a", enr['prefix']['prefix'] + ":" + enr['prefix']['suffix']])
-                prefix_dict[enr['prefix']['prefix']] = enr['prefix']['url']
+                prefix_dict[enr['prefix']['prefix']] = enr['prefix']
 
     enrichs_inserted = 0
     for n in range(num_total_cols - 1, len(rdf_array) + num_total_cols - 1, num_total_cols):
@@ -1068,9 +1067,9 @@ def model_to_triples(model):
 
     prefix_array = []
     for x in prefix_dict:
-        x1 = prefix_dict[x]
-        x2 = prefix_dict[str(x)]
-        prefix_array.append(["@prefix", x + ":", "<" + str(prefix_dict[x]) + ">"])
+        x1 = x + ":"
+        x2 = "<" + prefix_dict[x]['url'] + ">"
+        prefix_array.append(["@prefix", x1, x2])
 
     return prefix_array + rdf_array
 
