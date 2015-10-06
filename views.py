@@ -112,7 +112,7 @@ def csv_upload(request):
 
             # read/process the CSV file and find out about its dialect (csv params such as delimiter, line end...)
             # https://docs.python.org/2/library/csv.html#
-            print("endoding ", request.encoding)
+            print("encoding ", request.encoding)
             with TextIOWrapper(upload_file, encoding=request.encoding) as csv_file:
                 # with TextIOWrapper(upload_file, encoding='utf-8') as csvfile:
                 # the file is also provided in raw formatting, so users can appy changes (choose csv params) without reloading file 
@@ -130,6 +130,8 @@ def csv_upload(request):
                         break
 
                 # save file
+
+                time1 = datetime.datetime.now()
                 save_path = "filesaves/"
                 session_id = request.session.session_key
                 if request.user.is_authenticated():
@@ -145,21 +147,26 @@ def csv_upload(request):
 
                 if not os.path.exists(save_path):
                     os.makedirs(save_path)
-
+                
                 path_and_file = os.path.join(os.path.expanduser(save_path), upload_file_name)
                 request.session['save_path'] = path_and_file
                 fout = open(path_and_file, "w")
                 #f = csvfile.read()
                 fout.write(csv_raw)#(bytes(csv_raw, 'UTF-8'))
-                fout.close()
+                fout.close()  
+
+                secs = datetime.datetime.now() - time1
+                print("writing file took " + str(secs))              
 
                 request.session['csv_dialect'] = csv_dialect
                 request.session['csv_rows'] = csv_rows
-                request.session['csv_raw'] = csv_raw
+                #request.session['csv_raw'] = csv_raw
 
         if 'button_upload' in request.POST:
+            time1 = datetime.datetime.now()
+
             print("UPLOAD BUTTON PRESSED")
-            csv_rows = csv_rows if csv_rows else None
+            csv_rows = csv_rows[:11] if csv_rows else None
 
             request.session['csv_dialect'] = csv_dialect
             request.session['csv_rows'] = csv_rows
@@ -170,12 +177,15 @@ def csv_upload(request):
             html_post_data = {
                 'action': form_action,
                 'form': form,
-                'csvContent': request.session['csv_rows'][:11],
+                'csvContent': request.session['csv_rows'],
                 #'csvRaw': request.session['csv_raw'],
                 #'csvDialect': request.session['csv_dialect'],
                 'filename': request.session['file_name'],
                 'publish_message': publish_message
             }
+
+            secs = datetime.datetime.now() - time1
+            print("upload button stuff took " + str(secs))
             return render(request, 'transformation/csv_upload.html', html_post_data)
 
         if 'button_choose' in request.POST:
@@ -202,7 +212,7 @@ def csv_column_choice(request):
 
     if 'model' not in request.session:
         print('creating model')
-
+        time1 = datetime.datetime.now()
         arr = request.session['csv_rows']
         m = {"file_name": request.session['file_name'], "num_rows_total": len(arr)-1, "num_cols_selected": len(arr),
              "columns": [], "csv_dialect": request.session['csv_dialect'], "save_path": request.session['save_path']}
@@ -223,18 +233,16 @@ def csv_column_choice(request):
             '''
         except IndexError:
             print("index error: col " + str(c) + ", field " + str(f))
+        secs = datetime.datetime.now() - time1
+        print("model creation took " + str(secs))
 
-
-        # TODO uncomment
+        time1 = datetime.datetime.now()
         update_excerpt(m, start_row=0, num_rows=10)
+        secs = datetime.datetime.now() - time1
+        print("update_excerpt took " + str(secs))
 
 
         request.session['model'] = m
-        # print(request.session['model'])
-        secs = datetime.datetime.now() - time1
-        print("done " + str(secs))
-        print_model_dim(request.session['model'])
-        # print_fields(request.session['model'])
 
     # has fields? if not, only scaffolding from model 'loaded' in data choice page of wizard
     elif 'model' in request.session and 'excerpt' not in request.session['model']:
