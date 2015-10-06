@@ -2653,7 +2653,8 @@ function model_to_array(model){
 		}
 	});
 
-	num_total_rows_rdf = num_total_cols * model['num_rows_total'];
+	//num_total_rows_rdf = num_total_cols * model['num_rows_total'];
+	num_total_rows_rdf = num_total_cols * 10;
 
 	var rdf_array = create_multidim_array(num_total_rows_rdf, 3);
 
