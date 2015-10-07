@@ -119,6 +119,7 @@ def csv_upload(request):
                 csv_raw = csv_file.read()
                  # TODO only one upload function!
                 csv_rows, csv_dialect = process_csv(csv_file, form)
+                request.session['csv_rows_num'] = len(csv_rows) - 1
 
                 # check if file is correct
                 publish_message = '<span class="trafo_green"><i class="fa fa-check-circle"></i> File seems to be okay.</span>'
@@ -214,7 +215,7 @@ def csv_column_choice(request):
         print('creating model')
         time1 = datetime.datetime.now()
         arr = request.session['csv_rows']
-        m = {"file_name": request.session['file_name'], "num_rows_total": len(arr)-1, "num_cols_selected": len(arr),
+        m = {"file_name": request.session['file_name'], "num_rows_total": request.session['csv_rows_num'], "num_cols_selected": len(arr[0]),
              "columns": [], "csv_dialect": request.session['csv_dialect'], "save_path": request.session['save_path']}
         f = -1
         c = -1
@@ -1183,7 +1184,7 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
             # if params not fitting
             if start_row + num_rows >= row_count:
                 start_row = row_count - num_rows
-                if start_row < 0:
+                if start_row <= 0:
                     # take all
                     start_row = 1
                     num_rows = row_count
@@ -1192,10 +1193,12 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
                 num_rows = row_count
 
             r = range(start_row, start_row + num_rows)
-            print(r)
+            maxi = max(r)
             for i, row in enumerate(csv_reader):
                 if i in r:
                     csv_array.append(row)
+                    if i > maxi:
+                        break
 
             # removal of blanks, especially special blanks \xA0 etc.
             for i, row in enumerate(csv_array):
