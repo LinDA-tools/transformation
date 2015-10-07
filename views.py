@@ -484,18 +484,35 @@ def csv_object(request):
     if page > num_rows_model / per_page:
         page = max_pages
 
-    paging_html = ""
-    for x in range(max_pages):
-        f = (x * per_page) + 1
-        t = f + per_page - 1
-        if t > num_rows_model:
-            t = num_rows_model
-        recent_page = ""
-        if x + 1 == page:
-            recent_page = " recent-page"
-        paging_html += '<a class="pagination-link' + recent_page + '" href="?page=' + str(x + 1) + '&num=' + str(
-            per_page) + '">' + str(f) + '-' + str(t) + '</a> |'
-    paging_html = paging_html[:-2]
+    if max_pages > 15:
+        paging_html = "<select>"
+        for x in range(max_pages):
+            f = (x * per_page) + 1
+            t = f + per_page - 1
+            if t > num_rows_model:
+                t = num_rows_model
+            sel = ""
+            if x + 1 == page:
+                sel = "selected"
+            paging_html += '<option class="pagination-link" ' + sel + ' href="?page=' + str(x + 1) + '&num=' + str(
+                per_page) + '">' + str(f) + '-' + str(t) + '</option>'
+        #paging_html = paging_html[:-2]
+        paging_html += "</select>"
+
+    else:        
+        paging_html = ""
+        for x in range(max_pages):
+            f = (x * per_page) + 1
+            t = f + per_page - 1
+            if t > num_rows_model:
+                t = num_rows_model
+            recent_page = ""
+            if x + 1 == page:
+                recent_page = " recent-page"
+            paging_html += '<a class="pagination-link' + recent_page + '" href="?page=' + str(x + 1) + '&num=' + str(
+                per_page) + '">' + str(f) + '-' + str(t) + '</a> |'
+        paging_html = paging_html[:-2]
+
 
     row_num_select = '<select id="select-rows-per-page">'
     pages_arr = [10, 25, 50, 100]
