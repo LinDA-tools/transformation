@@ -1120,7 +1120,7 @@ def model_to_triples(model):
                                     rdf_array[counter][0] = rdf_array[counter][0].replace("{" + s + "}", field.replace(" ", "%20"))
                                 else:
                                     rdf_array[x][0] = rdf_array[counter][0]
-                        counter += num_total_cols
+                        counter += num_total_cols + num_enrichs
 
     secs = datetime.datetime.now() - time
     print("subjects creation time ", secs)
