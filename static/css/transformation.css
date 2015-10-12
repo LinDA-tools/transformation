@@ -202,7 +202,7 @@ h2 {
     color: #bbb;
 }
 
-input[type="button"], .uribuilder {
+input[type="button"] {
     background: rgb(82, 179, 217);
     padding: 2px 8px;
     text-decoration: none;
@@ -210,6 +210,19 @@ input[type="button"], .uribuilder {
     color: white;
     width: 8em;
     cursor: pointer;
+}
+
+.uribuilder {
+    background: rgb(82, 179, 217);
+    padding: 2px 8px;
+    margin: .2em;
+    text-decoration: none;
+    border-style: none;
+    color: white;
+    width: 8em;
+    cursor: pointer;
+    border-radius: 3px;
+    white-space: pre-line;
 }
 
 input[type="button"]:hover {

@@ -57,17 +57,7 @@
                 </p>
 
                 <p>
-                    {% for col in rdfModel.columns %}
-                    {% if col.col_num_new > -1%}
-
-
-                            <span class="uribuilder" draggable="true" ondragstart="drag(event)"
-                                  id="id_dragme_{{ line.col_num_orig }}" name="dragme_{{ line.col_num_orig }}"
-                                  onmouseover="Tip('Drag this column name to the URI text field below.')"
-                                  onmouseout="UnTip()">{{ col.header.orig_val }}</span>
-
-                    {% endif %}
-                    {% endfor %}
+                {{ rdfModel | subj_drag_drop | safe }}
                 </p>
 
                 <p>
@@ -122,12 +112,12 @@ function drag(ev) {
 
 function drop(ev) {
     //var curser_pos = ev.target.selectionStart;
-    ev.preventDefault();
-    var data = ev.dataTransfer.getData("text");
+    //ev.preventDefault();
+    //var data = ev.dataTransfer.getData("text");
     //alert(data);
     //ev.target.appendChild(document.getElementById(data));
     //ev.target.value = ev.target.value.substr(0, curser_pos) + "{" + data + "}" + ev.target.value.substr(curser_pos, ev.target.value.length);
-    $("#id_subject_uri").insertAtCaret("{" + data + "}");
+    //$("#id_subject_uri").insertAtCaret("{" + data + "}");
     changeURI();
 }
 
@@ -226,7 +216,6 @@ function addToUri(ev) {
 }
 
 function toggle_next_button(){
-    console.log("x");
     if($("#id_blanks_blanks").is(':checked') || $("#id_blanks_subject").is(':checked') && $("#id_base_url").val() && $("#id_subject_uri").val()){
         return false;
     }
@@ -256,13 +245,13 @@ $( document ).ready(function() {
         $(this).find("a").first().on("click", function(event){
             event.preventDefault();
             var column_name = $(this).parent().contents().first().text().trim();
-            $("#id_subject_uri").insertAtCaret("{"+column_name+"}");
+            $("#id_subject_uri").insertAtCaret(column_name);
             adapt_RDF_preview();
         });
     });
     $("span[id^='id_dragme_']").each(function(){
         $(this).on("click", function(){
-            $("#id_subject_uri").insertAtCaret("{"+$(this).text()+"}");
+            $("#id_subject_uri").insertAtCaret($(this).text());
         });
     });
 

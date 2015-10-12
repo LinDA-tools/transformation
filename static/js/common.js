@@ -2326,6 +2326,7 @@ function shortenURI(uri, maxlength){
 	}	
 }
 */
+
 jQuery.fn.extend({
 insertAtCaret: function(myValue){
   return this.each(function(i) {

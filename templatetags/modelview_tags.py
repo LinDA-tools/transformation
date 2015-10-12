@@ -105,7 +105,6 @@ def model_header_as_table(model):
 
 @register.filter(name='model_as_tbody2')
 def model_content_as_table2(model):
-    print(model)
     model = json.loads(model)
     f = model['excerpt']['start_row']
 
@@ -250,3 +249,20 @@ def model_header_as_table_object(model):
     result += "</thead>"
 
     return result
+
+
+@register.filter(name='subj_drag_drop')
+def subj_drag_drop(model):
+    model = json.loads(model)
+    html = ""
+    for col in model['columns']:
+        if col['col_num_new'] > -1:
+            html += '<span id="id_dragme_'
+            html += str(col['col_num_orig'])
+            html += '" name="dragme_'
+            html += str(col['col_num_orig'])
+            html += '" class="uribuilder" draggable="true" ondragstart="drag(event)" onmouseover="Tip(\'Drag this column name to the URI text field below.\')" onmouseout="UnTip()">'
+            html += '{'+col['header']['orig_val']+'}'#.replace(" ", "&nbsp;")
+            html += '</span>'
+    return html
+
