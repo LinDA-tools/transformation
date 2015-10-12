@@ -425,6 +425,9 @@ a .fa {
     font-weight: bold;
 }
 
+.refetch-field {
+    cursor: pointer;
+}
 
 
 

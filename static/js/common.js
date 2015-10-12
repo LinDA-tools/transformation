@@ -2564,11 +2564,11 @@ function get_model_reconciliation(col, row){
 }
 */
 
-function get_model_reconciliation(col, row){
+function get_model_reconciliation(col, content_str){
 	var model = get_model();
 	for(var i=0; i<model['columns'].length; i++){
 		if(model['columns'][i]["col_num_new"] == col){
-			return typeof model['columns'][i]['obj_recons'] != 'undefined' ? model['columns'][i]['obj_recons'][row] : false;
+			return typeof model['columns'][i]['obj_recons'] != 'undefined' ? model['columns'][i]['obj_recons'][content_str] : false;
 		}
 	}
 	return false;
@@ -2703,8 +2703,9 @@ function model_to_array(model){
 					lindaGlobals.used_prefixes[col['data_type']['prefix']] = col['data_type'];
 				}
 				if(method == "reconciliation"){//reconciliation, no action, data type
-					rdf_array[j*num_total_cols+col_count][2] = col['obj_recons'][j+1]['prefix']['prefix']+":"+col['obj_recons'][j+1]['prefix']['suffix'];
-					lindaGlobals.used_prefixes[col['obj_recons'][j+1]['prefix']['prefix']] = col['obj_recons'][j+1]['prefix'];
+					//rdf_array[j*num_total_cols+col_count][2] = col['obj_recons'][j+1]['prefix']['prefix']+":"+col['obj_recons'][j+1]['prefix']['suffix'];
+					rdf_array[j*num_total_cols+col_count][2] = col['obj_recons'][elem]['prefix']+":"+col['obj_recons'][elem]['suffix'];
+					lindaGlobals.used_prefixes[col['obj_recons'][elem]['prefix']] = col['obj_recons'][elem];
 				}else{
 					rdf_array[j*num_total_cols+col_count][2] = '"'+elem+'"'+suffix;
 				}

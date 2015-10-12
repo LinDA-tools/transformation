@@ -121,11 +121,13 @@
 				elem.attr("value", '{"url":"'+href+'", "prefix": '+JSON.stringify(replacePrefix(href))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'"}');
 				var id_as_array = $(this).closest("[id^='search_result_id_table_field']").attr("id").split("_");
 				var col = id_as_array[id_as_array.length-2];
+				var col_orig = id_as_array[id_as_array.length-3];
 				var row = id_as_array[id_as_array.length-1];
 
+				var orig_val = $(this).closest("[id^='id_table_field']").find("span").first().html();
 				//add_to_model_field_where_col_and_row("reconciliation", {"url":href,"prefix": replacePrefix(href)}, col, row);
-				add_to_objects_reconciliations_where_col(row, {"url":href,"prefix": replacePrefix(href)}, col);
-
+				//add_to_objects_reconciliations_where_col(row, {"url":href,"prefix": replacePrefix(href)}, col);
+				add_to_objects_reconciliations_where_col(orig_val, replacePrefix(href), col_orig);
                 adapt_RDF_preview(col);
             });
         });
@@ -156,7 +158,27 @@
 // e.g. domain = bird; term = sparrow, tit, ..
 //keepReconciliationIfExists: will only refetch ajax call if no results are already stored in model, false by default
 function askOracle(widget, domain, term, keepReconciliationIfExists){
-	var model = 
+
+	//var content = widget.find("span").first().html();
+	var id_as_array = widget.attr("id").split("_");
+	var row = id_as_array[id_as_array.length-1];
+	var col = id_as_array[id_as_array.length-3];
+	//column number when also counting non selected
+	var col_orig = id_as_array[id_as_array.length-2];
+
+	if(keepReconciliationIfExists){
+		var recon = get_model_reconciliation(col, term);
+			if(recon){
+				//add_to_content_where_col("object_method", "reconciliation", column);
+				populate_from_model_reconciliation($(this), recon);
+				//$("#id_table_settings_"+col+" select").val("add URIs");
+				return;
+			}
+	}
+	
+
+				
+
 	keepReconciliationIfExists = typeof keepReconciliationIfExists == 'undefined' ? false : keepReconciliationIfExists
 	//console.log('http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + domain + '&QueryString=' + term);
 	var request = $.ajax({
@@ -191,11 +213,7 @@ function askOracle(widget, domain, term, keepReconciliationIfExists){
 			$(widget).find("* .bb_select_elements").children().first().trigger("click");
 
 			//SAVE IN MODEL
-			var id_as_array = widget.attr("id").split("_");
-			var row = id_as_array[id_as_array.length-1];
-			var col = id_as_array[id_as_array.length-3];
-			//column number when also counting non selected
-			var col_orig = id_as_array[id_as_array.length-2];
+
 
 			add_to_content_where_col("object_method", "reconciliation", col);
 
@@ -208,8 +226,9 @@ function askOracle(widget, domain, term, keepReconciliationIfExists){
 					recon_result_prefixed['suffix'] = recon_result_prefixed['suffix'].substring(0, recon_result_prefixed['suffix'].length-1);
 					recon_result_prefixed['url'] = recon_result_prefixed['url'].substring(0, recon_result_prefixed['url'].length-1);
 				}
-
-				add_to_objects_reconciliations_where_col(row, {"url":recon_result,"prefix": recon_result_prefixed}, col);
+				var orig_val = widget.find("span").first().html();
+				//add_to_objects_reconciliations_where_col(row, {"url":recon_result,"prefix": recon_result_prefixed}, col);
+				add_to_objects_reconciliations_where_col(orig_val, recon_result_prefixed, col);
 
 
 			}
@@ -279,10 +298,18 @@ function guessType(column){
 	var model = get_model();
 	var all_fields = undefined;
 
+	var col_num_orig = -1;
+
+	for (var i=0; i<model['columns'].length; i++){
+		if(model['columns'][i]['col_num_new'] == column){
+			col_num_orig = model['columns'][i]['col_num_orig'];
+			break;
+		}
+	}
+
 	all_fields = []
 	for(var i = 0; i < model['excerpt']['rows'].length; i++){
-		console.log(model['excerpt']['rows'][i][column-1]);
-		all_fields.push(model['excerpt']['rows'][i][column-1]);
+		all_fields.push(model['excerpt']['rows'][i][col_num_orig-1]);
 	}
 
 	for(var i=0; i< all_fields.length; i++){
@@ -342,6 +369,7 @@ function noAction(column, adaptRDF){
 	$("td[id^='id_table_head_"+column+"']").find("select").remove();
 	$("td[id^='id_table_head_"+column+"']").find("br").remove();
 	$(this).not(':first').remove();
+	
 
 	$("td[id^='id_table_field_"+column+"']").each( function(i){
 		$(this).children().not(':first').remove();
@@ -386,10 +414,11 @@ function calculateCells(column){
 			noAction(column, false); //clear field
 
 			$("[id^='id_table_field_"+column+"']").each(function(i){
+				var content = $(this).find("span").first().html();
 				var id_as_array = $(this).attr("id").split("_");
 				var col = id_as_array[id_as_array.length-3];
 				var row = id_as_array[id_as_array.length-1];
-				var recon = get_model_reconciliation(col, row);
+				var recon = get_model_reconciliation(col, content);
 
 				if(recon){
 					add_to_content_where_col("object_method", "reconciliation", column);
@@ -399,7 +428,7 @@ function calculateCells(column){
 					//get reconciliation for fields that havent been reconciled before
 					var topic_field = "#id_table_head_" + col;
 					var topic = $(topic_field).text().trim();
-					askOracle($(this), topic, $(this).text().trim());
+					askOracle($(this), topic, $(this).text().trim(), true);
 				}
 			});
 		}
@@ -432,12 +461,12 @@ function populate_from_model_reconciliation(widget, recon){
 		star += "fa-star-o";
 */
 
-	var short_uri = recon.url;
-	if(recon.url)
-			short_uri = shortenURI(recon.url, 40);
+	var short_uri = recon.url+recon.suffix;
+	if(short_uri)
+			short_uri = shortenURI(recon.url+recon.suffix, 40);
 
 
-	var obj_div = " <i class=\"refetch-field fa fa-search\" onmouseover=\"Tip('Click here to refetch proposals for this field.')\" onmouseout=\"UnTip()\"></i><div class=\"bb_select_nodropdown\"><a href=\""+recon.url+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window: "+recon.url+"')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>";
+	var obj_div = " <i class=\"refetch-field fa fa-search\" onmouseover=\"Tip('Click here to refetch proposals for this field.')\" onmouseout=\"UnTip()\"></i><div class=\"bb_select_nodropdown\"><a href=\""+recon.url+recon.suffix+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window: "+recon.url+"')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>";
 
 	widget.find(":not(span)").remove();
 	widget.html(widget.html()+obj_div);
@@ -449,41 +478,6 @@ var rdf_content = $("#id_hidden_rdf_array_field");
 
 
 $( document ).ready(function() {
-
-	/*
-
-	//get information about reconciliation, type guessing etc from model and show in page
-	//RECONCILIATION
-	$("[id^='id_table_field_']").each( function(i){
-		var id_as_array = $(this).attr("id").split("_");
-		var col = id_as_array[id_as_array.length-2];
-		var row = id_as_array[id_as_array.length-1];
-
-		var recon = get_model_reconciliation(col, row);
-
-		if(recon){
-			populate_from_model_reconciliation($(this), recon);
-			$("#id_table_settings_"+col+" select").val("add URIs");
-		}
-	});
-
-	//DATA TYPE
-	$("[id^='id_table_settings_']").each( function(i){
-
-		var id_as_array = $(this).attr("id").split("_");
-		var col = id_as_array[id_as_array.length-1];
-
-		var data_type = get_model_data_type(col);
-
-		if(data_type){
-			$("#id_table_settings_"+col+" select").val("add data type");
-			calculateCells(column=col);
-			$("#id_table_head_"+col+" select.type_guessing").val(data_type.url+data_type.suffix);
-		}
-
-	});
-
-	*/
 
 	var model = get_model();
 	var cols = model['columns'];
@@ -497,8 +491,9 @@ $( document ).ready(function() {
 					var id_as_array = $(this).attr("id").split("_");
 					var col = id_as_array[id_as_array.length-3];
 					var row = id_as_array[id_as_array.length-1];
+					var content = $(this).find("span").first().html();
 
-					var recon = get_model_reconciliation(col, row);
+					var recon = get_model_reconciliation(col, content);
 
 					if(recon){
 						populate_from_model_reconciliation($(this), recon);
@@ -507,7 +502,7 @@ $( document ).ready(function() {
 						//get reconciliation for fields that havent been reconciled before
 						var topic_field = "id_table_head_" + col;
 						var topic = $("#"+topic_field).text().trim();
-						askOracle($(this), topic, $(this).text().trim());
+						askOracle($(this), topic, $(this).text().trim(), true);
 					}
 				});
 
@@ -558,11 +553,11 @@ $( document ).ready(function() {
 	$(".refetch-field").on("click", function(){
 		var field = $(this).closest("td");
 		var field_as_array = field.attr("id").split("_");
-		var col = field_as_array[field_as_array.length-2];
+		var col = field_as_array[field_as_array.length-3];
 		var row = field_as_array[field_as_array.length-1];
-		var topic = $("#id_table_head_"+col);//text().trim();
+		var topic = $("#id_table_head_"+col).text().trim();
 		field.find(":not(span)").remove();
-		askOracle(field, topic.text().trim(), field.find("span").text().trim());
+		askOracle(field, topic, field.find("span").text().trim(), false);
 	});
 
 	calculateCells();
