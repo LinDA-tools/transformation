@@ -245,7 +245,7 @@ $( document ).ready(function() {
         $(this).find("a").first().on("click", function(event){
             event.preventDefault();
             var column_name = $(this).parent().contents().first().text().trim();
-            $("#id_subject_uri").insertAtCaret(column_name);
+            $("#id_subject_uri").insertAtCaret("{"+column_name+"}");
             adapt_RDF_preview();
         });
     });

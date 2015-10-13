@@ -754,13 +754,10 @@ def ask_oracle_for_rest(request, callback, column):
             #queryClass = ""
             #url = 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + queryClass + '&QueryString=' + queryString
             url = 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryString=' + queryString
-            print("looking up "+ url)
             r = requests.get(url, headers=headers)
             json_result = json.loads(r.text)['results'][0]['uri']
             x = {queryString:{'url': json_result}}
             obj_recons[queryString] = x
-            print("----------------------")
-            print(json_result)
             output.append(x)
 
 
