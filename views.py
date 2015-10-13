@@ -710,7 +710,7 @@ def model_light(model):
             #    del col['header']
     return result
 
-
+'''
 def lookup(request, queryClass, queryString, callback):
     headers = {'Accept': 'application/json'}
     r = requests.get(
@@ -719,6 +719,57 @@ def lookup(request, queryClass, queryString, callback):
     text = r.text
     results = json.loads(text)
     return callback + "(" + JsonResponse(results) + ");"
+'''
+
+
+
+def ask_oracle_for_rest(request, callback, column):
+    """
+    column: needs to be ORIGINAL column num, not column num of selected columns
+    """
+
+    m = request.session['model']
+    obj_recons = m['columns'][int(column)]['obj_recons']
+
+    content = file_to_array(request=None, model=m, start_row=0, num_rows=-1)
+
+    one_row = []
+
+    for row in content['rows']:
+        one_row.append(row[int(column)-1])
+
+    # no duplicates
+    one_row = list(set(one_row))
+
+    del content
+
+    print(one_row)
+
+    headers = {'Accept': 'application/json'}
+
+    output = []
+
+    for queryString in one_row:
+        if queryString not in obj_recons:
+            #queryClass = ""
+            #url = 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + queryClass + '&QueryString=' + queryString
+            url = 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryString=' + queryString
+            print("looking up "+ url)
+            r = requests.get(url, headers=headers)
+            json_result = json.loads(r.text)['results'][0]['uri']
+            x = {queryString:{'url': json_result}}
+            obj_recons[queryString] = x
+            print("----------------------")
+            print(json_result)
+            output.append(x)
+
+
+    
+    
+    text = r.text
+    results = json.loads(text)    
+    return render(request, 'transformation/ajax.html', {"results": callback+"("+str(output)+");"})
+
 
 
 # returns only the contents of the columns that were chosen in the html form from the session data
