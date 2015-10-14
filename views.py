@@ -114,7 +114,7 @@ def csv_upload(request):
             # read/process the CSV file and find out about its dialect (csv params such as delimiter, line end...)
             # https://docs.python.org/2/library/csv.html#
             print("encoding ", request.encoding)
-            with TextIOWrapper(upload_file, encoding=request.encoding) as csv_file:
+            with TextIOWrapper(upload_file, encoding=request.encoding, errors='replace') as csv_file:
                 # with TextIOWrapper(upload_file, encoding='utf-8') as csvfile:
                 # the file is also provided in raw formatting, so users can appy changes (choose csv params) without reloading file 
                 csv_raw = csv_file.read()
