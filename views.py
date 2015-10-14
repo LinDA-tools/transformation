@@ -93,7 +93,7 @@ def csv_upload(request):
             # transformation of excel files to csv
             if upload_file_name[-4:] == "xlsx" or upload_file_name[-4:] == ".xls":
                 # print(upload_file_name[-4:]);
-                data_xls = pd.read_excel(request.FILES['upload_file'], 0, index_col=None)
+                data_xls = pd.read_excel(request.FILES['upload_file'], 0, index_col=0)
                 if not os.path.exists('tmp'):
                     os.makedirs('tmp')
                 data_xls.to_csv('tmp/' + upload_file_name[:-4] + '.csv', encoding='utf-8')
