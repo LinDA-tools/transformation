@@ -167,7 +167,7 @@ function askOracle(widget, domain, term, keepReconciliationIfExists){
 	var col_orig = id_as_array[id_as_array.length-2];
 
 	if(keepReconciliationIfExists){
-		var recon = get_model_reconciliation(col, term);
+		var recon = get_model_reconciliation(col_orig, term);
 			if(recon){
 				//add_to_content_where_col("object_method", "reconciliation", column);
 				populate_from_model_reconciliation($(this), recon);
@@ -228,7 +228,7 @@ function askOracle(widget, domain, term, keepReconciliationIfExists){
 				}
 				var orig_val = widget.find("span").first().html();
 				//add_to_objects_reconciliations_where_col(row, {"url":recon_result,"prefix": recon_result_prefixed}, col);
-				add_to_objects_reconciliations_where_col(orig_val, recon_result_prefixed, col);
+				add_to_objects_reconciliations_where_col(orig_val, recon_result_prefixed, col_orig);
 
 
 			}
