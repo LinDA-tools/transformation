@@ -216,15 +216,14 @@ def csv_column_choice(request):
         time1 = datetime.datetime.now()
         arr = request.session['csv_rows']
         m = {"file_name": request.session['file_name'], "num_rows_total": request.session['csv_rows_num'], "num_cols_selected": len(arr[0]),
-             "columns": [], "csv_dialect": request.session['csv_dialect'], "save_path": request.session['save_path']}
+             "columns": [], "csv_dialect": request.session['csv_dialect'], "save_path": request.session['save_path'], "object_recons": {}}
         f = -1
         c = -1
 
         try:
 
             for i, head in enumerate(arr[0]):
-                m['columns'].append({'col_num_orig': i + 1, 'header': {'orig_val': arr[0][i]}})
-
+                m['columns'].append({'col_num_orig': i + 1, 'col_num_new': i + 1, 'header': {'orig_val': arr[0][i]}})
             '''   
             for field in range(1, len(arr)):
                 f = field
@@ -232,6 +231,7 @@ def csv_column_choice(request):
                     c = col
                     m['columns'][col]['fields'].append({'orig_val': arr[field][col], 'field_num': field})
             '''
+
         except IndexError:
             print("index error: col " + str(c) + ", field " + str(f))
         secs = datetime.datetime.now() - time1
@@ -1026,6 +1026,9 @@ def model_to_triple_string(model):
 
 
 def model_to_triples(model):
+
+    time1 = datetime.datetime.now()
+
     #num_fields_in_row_rdf = len(model['columns'][0]['fields'])
     num_fields_in_row_rdf = model['num_rows_total']
     num_total_cols = 0
@@ -1035,7 +1038,11 @@ def model_to_triples(model):
         if col['col_num_new'] > - 1:
             num_total_cols += 1
 
-    num_total_fields_rdf = num_fields_in_row_rdf * num_total_cols
+    num_enrichs = 0
+    if 'enrich' in model:
+        num_enrichs = len(model['enrich'])
+
+    num_total_fields_rdf = num_fields_in_row_rdf * num_total_cols + num_fields_in_row_rdf * num_enrichs
 
     print_model_dim(model)
     # print(num_total_cols, " cols")
@@ -1053,12 +1060,12 @@ def model_to_triples(model):
 
     rdf_array = [[subject, "<?p>", "<?o>"] for x in range(0, num_total_fields_rdf)]
 
-    # print("rdf array dim ",len(rdf_array)," x ",len(rdf_array[0]))
 
     prefix_dict = {}
 
     complete_array = file_to_array(model=model)['rows']
-    print("gealden ", len(complete_array), " - ", len(complete_array[0]))
+
+    time = datetime.datetime.now()
 
     # objects
     count1 = 0
@@ -1071,39 +1078,52 @@ def model_to_triples(model):
                 prefix_dict[col['data_type']['prefix']] = col['data_type']
             for j, field in enumerate(complete_array):
                 elem = field[col['col_num_orig']-1]
-                if 'object_method' in col and col['object_method'] == "reconciliation" and 'obj_recons' in col and str(j+1) in col['obj_recons']:
-                    rdf_array[count2][2] = col['obj_recons'][str(j+1)]['prefix']['prefix']+":"+col['obj_recons'][str(j+1)]['prefix']['suffix']
-                    prefix_dict[col['obj_recons'][str(j+1)]['prefix']['prefix']] = col['obj_recons'][str(j+1)]['prefix']
+                #print(col['object_method'])
+                #print(model['object_recons']["5"])
+                if 'object_method' in col and col['object_method'] == "reconciliation" and 'object_recons' in model and str(i+1) in model['object_recons'] and elem in model['object_recons'][str(i+1)]:
+                    rdf_array[count2][2] = model['object_recons'][str(i+1)][elem]['prefix']+":"+model['object_recons'][str(i+1)][elem]['suffix']
+                    prefix_dict[model['object_recons'][str(i+1)][elem]['prefix']] = model['object_recons'][str(i+1)][elem]
                 else:
                     rdf_array[count2][2] = '"' + elem + '"' + add
-                count2 += num_total_cols
+                count2 += num_total_cols + num_enrichs
             count1 += 1
 
+    secs = datetime.datetime.now() - time
+    print("objects creation time ", secs)
+    time = datetime.datetime.now()
+
+
     # subjects
-    rowlength = model['num_rows_total']
+    row_length = model['num_rows_total']
     if 'blank_nodes' in model['subject'] and model['subject']['blank_nodes'] == "true":        
         for i, col in enumerate(model['columns']):
             counter = 0
             counter2 = 0
             if col['col_num_new'] > - 1:
-                for row_num in range(0,rowlength):
-                    for x in range(counter, counter + num_total_cols):
+                for row_num in range(0, row_length):
+                    for x in range(counter, counter + num_total_cols + num_enrichs):
                         rdf_array[x][0] = "_:" + to_letters(counter2)
-                    counter += num_total_cols
+                    counter += num_total_cols + num_enrichs
                     counter2 += 1
     else:
         for i, s in enumerate(skeleton_array):
             for col in model['columns']:
                 counter = 0
                 if col['col_num_new'] > - 1:
-                    for row_num in range(0,rowlength):
+                    for row_num in range(0, row_length):
                         field = complete_array[row_num][col['col_num_orig']-1]
-                        for x in range(counter, counter + num_total_cols):
-                            if col['header']['orig_val'] == s:
-                                #TODO translate url into right format instead of only .replace(" ", "%20")
-                                rdf_array[x][0] = rdf_array[x][0].replace("{" + s + "}", field.replace(" ", "%20"))
+                        if col['header']['orig_val'] == s:
+                            for x in range(counter, counter + num_total_cols + num_enrichs):
+                                if x == counter:
+                                    #TODO translate url into right format instead of only .replace(" ", "%20")
+                                    rdf_array[counter][0] = rdf_array[counter][0].replace("{" + s + "}", field.replace(" ", "%20"))
+                                else:
+                                    rdf_array[x][0] = rdf_array[counter][0]
                         counter += num_total_cols
 
+    secs = datetime.datetime.now() - time
+    print("subjects creation time ", secs)
+    time = datetime.datetime.now()
 
     # predicates
     count1 = 0
@@ -1118,26 +1138,31 @@ def model_to_triples(model):
                 u = prefix + ":" + suffix
                 prefix_dict[prefix] = col['predicate']['prefix']
             for x in range(0, num_fields_in_row_rdf):
-                rdf_array[count1 + x * num_total_cols][1] = u
+                rdf_array[count1 + x * (num_total_cols + num_enrichs)][1] = u
             count1 += 1
 
-    # enrich
-    enrich_array = []
-    if 'enrich' in model:
-        for enr in model['enrich']:
-            if enr['prefix']['prefix'] == "" or enr['prefix']['suffix'] == "":
-                enrich_array.append(["<subject?>", "a", "<" + enr['prefix']['url'] + ">"])
-            else:
-                enrich_array.append(["<subject?>", "a", enr['prefix']['prefix'] + ":" + enr['prefix']['suffix']])
-                prefix_dict[enr['prefix']['prefix']] = enr['prefix']
+    secs = datetime.datetime.now() - time
+    print("predicates creation time ", secs)
+    time = datetime.datetime.now()
 
-    enrichs_inserted = 0
-    for n in range(num_total_cols - 1, len(rdf_array) + num_total_cols - 1, num_total_cols):
-        for enr in enrich_array:
-            x = n + enrichs_inserted + 1
-            rdf_array.insert(x, enr.copy())
-            rdf_array[x][0] = rdf_array[x - 1][0]
-            enrichs_inserted += 1
+    if 'enrich' in model:
+        for enr_count, enr in enumerate(model['enrich']):
+            enrich_uri = ""
+            if enr['prefix']['prefix'] == "" or enr['prefix']['suffix'] == "":
+                enrich_uri = "<" + enr['prefix']['url'] + ">"
+            else:
+                enrich_uri = enr['prefix']['prefix'] + ":" + enr['prefix']['suffix']
+                prefix_dict[enr['prefix']['prefix']] = enr['prefix']
+            print(enr_count)
+            counter = num_total_cols + enr_count
+            while counter < len(rdf_array):
+                rdf_array[counter][1] = "a"
+                rdf_array[counter][2] = enrich_uri
+                counter += num_total_cols + num_enrichs
+
+    secs = datetime.datetime.now() - time
+    print("enrich creation time ", secs)
+    time = datetime.datetime.now()
 
     prefix_array = []
     for x in prefix_dict:
@@ -1145,7 +1170,16 @@ def model_to_triples(model):
         x2 = "<" + prefix_dict[x]['url'] + ">"
         prefix_array.append(["@prefix", x1, x2])
 
+
+    secs = datetime.datetime.now() - time
+    print("prefix creation time ", secs)
+    time = datetime.datetime.now()
+
+    secs = datetime.datetime.now() - time1
+    print("RDF creation time ", secs)
+
     return prefix_array + rdf_array
+    #return rdf_array
 
 
 def to_letters(num):

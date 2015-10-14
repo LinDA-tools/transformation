@@ -2496,16 +2496,25 @@ function add_to_content_where_col(new_key, new_value, col){
 	write_model(model);
 }
 
-function add_to_objects_reconciliations_where_col(new_key, new_value, col){
+/*function add_to_objects_reconciliations_where_col(new_key, new_value, col){
 	var model = get_model();
 	$.each(model['columns'], function(i, v1){
 		if(v1["col_num_new"]==col){
-			if(!v1["obj_recons"]){
-				v1["obj_recons"] = {};
+			if(!v1["object_recons"]){
+				v1["object_recons"] = {};
 			}
-			v1["obj_recons"][new_key] = new_value;
+			v1["object_recons"][new_key] = new_value;
 		}
 	});
+	write_model(model);
+}*/
+
+function add_to_objects_reconciliations_where_col(new_key, new_value, col_orig){
+	var model = get_model();
+	if(!model['object_recons'][col_orig]){
+		model['object_recons'][col_orig] = {}
+	}
+	model['object_recons'][col_orig][new_key] = new_value;
 	write_model(model);
 }
 
@@ -2564,14 +2573,25 @@ function get_model_reconciliation(col, row){
 }
 */
 
-function get_model_reconciliation(col, content_str){
+/*function get_model_reconciliation(col, content_str){
 	var model = get_model();
 	for(var i=0; i<model['columns'].length; i++){
 		if(model['columns'][i]["col_num_new"] == col){
-			return typeof model['columns'][i]['obj_recons'] != 'undefined' ? model['columns'][i]['obj_recons'][content_str] : false;
+			return typeof model['columns'][i]['object_recons'] != 'undefined' ? model['columns'][i]['object_recons'][content_str] : false;
 		}
 	}
 	return false;
+}*/
+
+function get_model_reconciliation(col_orig, content_str){
+	var model = get_model();
+
+	if(!model['object_recons'][col_orig] || !model['object_recons'][col_orig][content_str]){
+		return false;
+	}else{
+		return model['object_recons'][col_orig][content_str];
+	}
+
 }
 
 function get_model_data_type(col){
@@ -2702,10 +2722,10 @@ function model_to_array(model){
 					rdf_array[j*num_total_cols+col_count][2] = '"'+elem+'"'+suffix;
 					lindaGlobals.used_prefixes[col['data_type']['prefix']] = col['data_type'];
 				}
-				if(method == "reconciliation"){//reconciliation, no action, data type
-					//rdf_array[j*num_total_cols+col_count][2] = col['obj_recons'][j+1]['prefix']['prefix']+":"+col['obj_recons'][j+1]['prefix']['suffix'];
-					rdf_array[j*num_total_cols+col_count][2] = col['obj_recons'][elem]['prefix']+":"+col['obj_recons'][elem]['suffix'];
-					lindaGlobals.used_prefixes[col['obj_recons'][elem]['prefix']] = col['obj_recons'][elem];
+				if(method == "reconciliation" && model['object_recons'][col['col_num_orig']]){//reconciliation, no action, data type
+					console.log("x");
+					rdf_array[j*num_total_cols+col_count][2] = model['object_recons'][col['col_num_orig']][elem]['prefix']+":"+model['object_recons'][col['col_num_orig']][elem]['suffix'];
+					lindaGlobals.used_prefixes[model['object_recons'][col['col_num_orig']][elem]['prefix']] = model['object_recons'][col['col_num_orig']][elem];
 				}else{
 					rdf_array[j*num_total_cols+col_count][2] = '"'+elem+'"'+suffix;
 				}
