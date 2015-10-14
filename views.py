@@ -99,6 +99,7 @@ def csv_upload(request):
                 data_xls.to_csv('tmp/' + upload_file_name[:-4] + '.csv', encoding='utf-8')
                 upload_file = open('tmp/' + upload_file_name[:-4] + '.csv', "rb")
                 upload_file_name = upload_file_name[:-4] + '.csv'
+                os.remove('tmp/' + upload_file_name[:-4] + '.csv')
 
 
 
