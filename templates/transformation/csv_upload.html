@@ -184,20 +184,19 @@ $(document).ready(function () {
                 upload_button.value = "Upload file";
                 upload_button.innerHTML = "Upload file";
                 next_button.disabled = true;
-                console.log(1);
             }
             else { // file was uploaded and submitted via form / html post in the previous step
                 upload_button.disabled = false;
                 upload_button.value = "Apply";
                 upload_button.innerHTML = "Apply";
-                next_button.disabled = false;console.log(2);
+                next_button.disabled = false;
             }
         }
         else { // file selected for upload
             upload_button.disabled = false;
             upload_button.value = "Upload file";
             upload_button.innerHTML = "Upload file";
-            next_button.disabled = true;console.log(3);
+            next_button.disabled = true;
         }
 
     }
