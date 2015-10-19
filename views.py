@@ -329,10 +329,6 @@ def csv_column_choice(request):
 def csv_subject(request):
     print("VIEW csv_subject")
 
-    print("mod direkt nach laden seite")
-    print(request.session['model'])
-
-    print("-----")
     form_action = 4
     form = SubjectForm(request.POST)
     dump = None
@@ -696,7 +692,7 @@ def csv_publish(request):
 #  OTHER FUNCTIONS
 # ###############################################
 
-
+'''
 def model_light(model):
     """
     Delete all field and file specific data, that is keep only data that will be needed when loading csvs of the same structure but containing different content
@@ -710,6 +706,7 @@ def model_light(model):
             # if 'header' in col:
             #    del col['header']
     return result
+'''
 
 '''
 def lookup(request, queryClass, queryString, callback):
@@ -723,19 +720,20 @@ def lookup(request, queryClass, queryString, callback):
 '''
 
 
-
-def ask_oracle_for_rest(request, callback, column):
+def ask_oracle_for_rest(model, column):
     """
     column: needs to be ORIGINAL column num, not column num of selected columns
     """
+    print("asking oracle, col ", column)
+    if str(column) not in model['object_recons']:
+        print("model['object_recons'][",column,"] existiert nicht")
+        return
+    obj_recons = model['object_recons'][str(column)]
 
-    m = request.session['model']
-    obj_recons = m['columns'][int(column)]['obj_recons']
+    content = file_to_array(request=None, model=model, start_row=0, num_rows=-1)
 
-    content = file_to_array(request=None, model=m, start_row=0, num_rows=-1)
-
+    # store all fields of one column in single array
     one_row = []
-
     for row in content['rows']:
         one_row.append(row[int(column)-1])
 
@@ -744,35 +742,45 @@ def ask_oracle_for_rest(request, callback, column):
 
     del content
 
-    print(one_row)
-
+    # json header
     headers = {'Accept': 'application/json'}
 
-    output = []
+    #output = []
 
     for queryString in one_row:
+        print(queryString)
         if queryString not in obj_recons:
-            #queryClass = ""
-            #url = 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + queryClass + '&QueryString=' + queryString
+            print("not in")
+            print("asking oracle for ", queryString, " in column ", column)
+            # queryClass = ""
+            # url = 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + queryClass + '&QueryString=' + queryString
             url = 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryString=' + queryString
+            print(url)
             r = requests.get(url, headers=headers)
             json_result = json.loads(r.text)['results'][0]['uri']
-            x = {queryString:{'url': json_result}}
+            #x = {queryString: {'url': json_result}}
+            # TODO could be more general
+            url_array = json_result.rsplit("/", 1)
+            suffix = url_array[-1]
+            uri = url_array[0]
+            x = {'prefix': 'dbpedia', 'suffix': suffix, 'url': uri}
             obj_recons[queryString] = x
-            output.append(x)
+            #output.append(x)
+        else:
+            print("in")
+
+    #text = r.text
+    #results = json.loads(text)
+    #return render(request, 'transformation/ajax.html', {"results": callback+"("+str(output)+");"})
 
 
-    
-    
-    text = r.text
-    results = json.loads(text)    
-    return render(request, 'transformation/ajax.html', {"results": callback+"("+str(output)+");"})
-
-
-
-# returns only the contents of the columns that were chosen in the html form from the session data
-# for step 2 (column selection)
 def get_selected_rows_content(session):
+    """
+    returns only the contents of the columns that were chosen in the html form from the session data
+    for step 2 (column selection)
+    :param session:
+    :return:
+    """
     result = []
     # write column numbers in array
     col_nums = []
@@ -891,7 +899,7 @@ def transform_to_r2rml(model):
 
     return output
 
-
+'''
 def update_model(model, reduced_model):
     """
     Takes a model and updates it with reduced model
@@ -990,6 +998,7 @@ def reduce_model(model, pagination):
         else:  # remove columns that are not selected
             reduced_model['columns'][i]['fields'] = []
     return reduced_model
+'''
 
 
 def print_fields(model):
@@ -1017,7 +1026,7 @@ def model_to_triple_string(model):
 
     for row in rdf_array:  # ast.literal_eval(request.session['rdf_array']):#['rdf_array']:
         for elem in row:
-            elem = elem.replace(",", "\\,");  # escape commas
+            elem = elem.replace(",", "\\,")  # escape commas
             if elem[-1:] == ".":  # cut off as we had problems when uploading some uri like xyz_inc. with trailing dot
                 elem = elem[:-1]
             rdf_n3 += elem + " "
@@ -1072,6 +1081,7 @@ def model_to_triples(model):
     count1 = 0
     for i, col in enumerate(model['columns']):
         if col['col_num_new'] > - 1:
+            ask_oracle_for_rest(model, col['col_num_orig'])
             count2 = count1
             add = ""
             if 'object_method' in col and col['object_method'] == "data type":
@@ -1079,8 +1089,6 @@ def model_to_triples(model):
                 prefix_dict[col['data_type']['prefix']] = col['data_type']
             for j, field in enumerate(complete_array):
                 elem = field[col['col_num_orig']-1]
-                #print(col['object_method'])
-                #print(model['object_recons']["5"])
                 if 'object_method' in col and col['object_method'] == "reconciliation" and 'object_recons' in model and str(i+1) in model['object_recons'] and elem in model['object_recons'][str(i+1)]:
                     rdf_array[count2][2] = model['object_recons'][str(i+1)][elem]['prefix']+":"+model['object_recons'][str(i+1)][elem]['suffix']
                     prefix_dict[model['object_recons'][str(i+1)][elem]['prefix']] = model['object_recons'][str(i+1)][elem]
@@ -1092,7 +1100,6 @@ def model_to_triples(model):
     secs = datetime.datetime.now() - time
     print("objects creation time ", secs)
     time = datetime.datetime.now()
-
 
     # subjects
     row_length = model['num_rows_total']
@@ -1145,7 +1152,7 @@ def model_to_triples(model):
     secs = datetime.datetime.now() - time
     print("predicates creation time ", secs)
     time = datetime.datetime.now()
-
+    
     if 'enrich' in model:
         for enr_count, enr in enumerate(model['enrich']):
             enrich_uri = ""
