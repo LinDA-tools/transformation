@@ -692,42 +692,17 @@ def csv_publish(request):
 #  OTHER FUNCTIONS
 # ###############################################
 
-'''
-def model_light(model):
-    """
-    Delete all field and file specific data, that is keep only data that will be needed when loading csvs of the same structure but containing different content
-    """
-    result = copy.deepcopy(model)
-    if 'file_name' in result:
-        del result['file_name']
-    for col in result['columns']:
-        if 'fields' in col:
-            del col['fields']
-            # if 'header' in col:
-            #    del col['header']
-    return result
-'''
-
-'''
-def lookup(request, queryClass, queryString, callback):
-    headers = {'Accept': 'application/json'}
-    r = requests.get(
-        'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + queryClass + '&QueryString=' + queryString,
-        headers=headers)
-    text = r.text
-    results = json.loads(text)
-    return callback + "(" + JsonResponse(results) + ");"
-'''
-
-
 def ask_oracle_for_rest(model, column):
     """
-    column: needs to be ORIGINAL column num, not column num of selected columns
+    This function reconciles all fields in table that were have not been
+    reconciled in the object step in the frontend. The model parameter is manipulated directly.
+    :param model: json 'model' that contains the frontend settings and reconciliation data
+    :param column: needs to be ORIGINAL column num, not column num of selected columns
+    :return: Whether or not model could be manipulated successfully as boolean
     """
     print("asking oracle, col ", column)
     if str(column) not in model['object_recons']:
-        print("model['object_recons'][",column,"] existiert nicht")
-        return
+        return False
     obj_recons = model['object_recons'][str(column)]
 
     content = file_to_array(request=None, model=model, start_row=0, num_rows=-1)
@@ -745,41 +720,28 @@ def ask_oracle_for_rest(model, column):
     # json header
     headers = {'Accept': 'application/json'}
 
-    #output = []
-
     for queryString in one_row:
         print(queryString)
         if queryString not in obj_recons:
-            print("not in")
-            print("asking oracle for ", queryString, " in column ", column)
-            # queryClass = ""
-            # url = 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + queryClass + '&QueryString=' + queryString
             url = 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryString=' + queryString
-            print(url)
             r = requests.get(url, headers=headers)
             json_result = json.loads(r.text)['results'][0]['uri']
-            #x = {queryString: {'url': json_result}}
             # TODO could be more general
             url_array = json_result.rsplit("/", 1)
             suffix = url_array[-1]
             uri = url_array[0]
             x = {'prefix': 'dbpedia', 'suffix': suffix, 'url': uri}
             obj_recons[queryString] = x
-            #output.append(x)
-        else:
-            print("in")
 
-    #text = r.text
-    #results = json.loads(text)
-    #return render(request, 'transformation/ajax.html', {"results": callback+"("+str(output)+");"})
+    return True
 
 
 def get_selected_rows_content(session):
     """
     returns only the contents of the columns that were chosen in the html form from the session data
-    for step 2 (column selection)
-    :param session:
-    :return:
+    for step 2 (csv column selection) in frontend
+    :param session: django session object, contains CSV data
+    :return: array containing rows that were marked as 'selected' in frontend only
     """
     result = []
     # write column numbers in array
@@ -795,30 +757,13 @@ def get_selected_rows_content(session):
     return result
 
 
-'''
-# marks selected columns directly in model
-def mark_selected_rows_in_model(session):
-    # write column numbers in array
-    col_nums = []
-    print(session['selected_columns'])
-    for col_num in session['selected_columns']:
-        col_nums.append(col_num.get("col_num_orig"))
-    session['model']['num_cols_selected'] = len(col_nums)
-    counter = 1;
-    for i, col in enumerate(session['model']['columns']):
-        if col["col_num_orig"] in col_nums:
-            col["col_num_new"] = counter
-            counter = counter + 1
-        else:
-            col["col_num_new"] = -1
-'''
-
-
 def process_csv(csv_file, form):
     """
     Processes the CSV File and converts it to a 2dim array.
-    Uses either the CSV parameters specified in the HTML form if those exist
+    Uses either the CSV parameters (delimiter, quotechars,...) specified in the HTML form if those exist
     or the auto-detected params instead.
+    :param csv_file: fiel containing CSV data
+    :param form: django form object that should contain CSV parameters from the CSV upload page (frontend) of the transformation tool
     """
     csv_dialect = {}
     csv_rows = []
@@ -863,6 +808,13 @@ def process_csv(csv_file, form):
 
 
 def transform_to_r2rml(model):
+    """
+    Transforms the data in the json 'model' to a R2RML representation.
+    R2RML is a language for expressing customized mappings from relational databases to RDF datasets.
+    This function is intended to be used for the RDB version of the transformation tool.
+    :param model: json 'model' that contains the frontend settings and reconciliation data
+    :return: string representation of R2RML
+    """
     # head = json.load(model)
 
     subject = model["subject"]
@@ -899,128 +851,14 @@ def transform_to_r2rml(model):
 
     return output
 
-'''
-def update_model(model, reduced_model):
-    """
-    Takes a model and updates it with reduced model
-    """
-    # fields
-    m = copy.deepcopy(model)
-    for i, col in enumerate(m['columns']):
-        exists = -1
-        for j, field in enumerate(reduced_model['columns'][i]['fields']):
-
-            # for performance when paginating
-            if exists == -1:
-                rnge = range(0, len(model['columns'][i]['fields']))
-            else:
-                rnge = chain(range(exists, len(model['columns'][i]['fields'])), range(0, exists))
-
-            # fields
-            # for k, col_red in enumerate(model['columns'][i]['fields']):
-            for k in rnge:
-                if reduced_model['columns'][i]['fields'][j]['field_num'] == m['columns'][i]['fields'][k]['field_num']:
-                    m['columns'][i]['fields'][k] = reduced_model['columns'][i]['fields'][j].copy()
-                    # print("OVERWRiTING ", m['columns'][i]['fields'][j], "  ",reduced_model['columns'][i]['fields'][k])
-                    exists = k
-                    break
-            if exists == -1:
-                m['columns'][i]['fields'].append(reduced_model['columns'][i]['fields'][j].copy())
-                # print("ADDING")
-            # sort
-            new_list = sorted(m['columns'][i]['fields'].copy(), key=lambda k: k['field_num'])
-            m['columns'][i]['fields'] = new_list
-
-        # predicate
-        if 'predicate' in reduced_model['columns'][i]:
-            col['predicate'] = copy.deepcopy(reduced_model['columns'][i]['predicate'])
-
-        # column choice
-        if 'col_num_new' in reduced_model['columns'][i]:
-            col['col_num_new'] = copy.deepcopy(reduced_model['columns'][i]['col_num_new'])
-
-        # header
-        if 'header' in reduced_model['columns'][i]:
-            col['header'] = copy.deepcopy(reduced_model['columns'][i]['header'])
-
-        # object_method
-        if 'object_method' in reduced_model['columns'][i]:
-            col['object_method'] = copy.deepcopy(reduced_model['columns'][i]['object_method'])
-
-        # data_type
-        if 'data_type' in reduced_model['columns'][i]:
-            col['data_type'] = copy.deepcopy(reduced_model['columns'][i]['data_type'])
-
-    # subject
-    if 'subject' in reduced_model:
-        m['subject'] = copy.deepcopy(reduced_model['subject'])
-
-    # enrich
-    if 'enrich' in reduced_model:
-        m['enrich'] = copy.deepcopy(reduced_model['enrich'])
-
-    # file_name
-    if 'file_name' in reduced_model:
-        m['file_name'] = copy.deepcopy(reduced_model['file_name'])
-
-    return m
-
-
-def reduce_model(model, pagination):
-    """
-    pagination can be 
-    int number: first x elements will be selected
-    dict of 'pagination', with page and perPage attributes as in views.py -> csv_object function
-    """
-    reduced_model = copy.deepcopy(model)
-
-    p = False
-    f = 0
-    if isinstance(pagination, dict) and 'page' in pagination and 'perPage' in pagination:
-        p = True
-        f = (pagination['page'] - 1) * pagination['perPage']
-        t = f + pagination['perPage']
-    for i, col in enumerate(reduced_model['columns']):
-        if 'col_num_new' not in col or col['col_num_new'] > -1:  # show column
-
-            if 'fields' not in reduced_model['columns'][i]:
-                print("no fields in column ", i)
-            else:
-                if p:
-                    fields = reduced_model['columns'][i]['fields'][f:t].copy()
-                elif isinstance(pagination, int):
-                    fields = reduced_model['columns'][i]['fields'][:pagination].copy()
-                else:
-                    fields = reduced_model['columns'][i]['fields'].copy()
-
-                reduced_model['columns'][i]['fields'] = fields
-
-        else:  # remove columns that are not selected
-            reduced_model['columns'][i]['fields'] = []
-    return reduced_model
-'''
-
-
-def print_fields(model):
-    """
-    for debugging purposes
-    """
-    for c in model['columns']:
-        if 'fields' in c:
-            print(str(len(c['fields'])), " FIELDS YES in ", c['header']['orig_val'])
-        else:
-            print("FIELDS NOO in ", c['header']['orig_val'])
-
-
-def print_model_dim(model):
-    """
-    for debugging purposes
-    """
-    if 'columns' in model and 'fields' in model['columns']:
-        print("model dim: ", len(model['columns']), " x ", len(model['columns'][0]['fields']))
-
 
 def model_to_triple_string(model):
+    """
+    Builds an string with RDF triples from the JSON 'model'.
+    (Eventually, the string is to be returned to the frontend to download as a file)
+    :param model: json 'model' that contains the frontend settings and reconciliation data
+    :return: a 3xn array, representing RDF data
+    """
     rdf_n3 = ""
     rdf_array = model_to_triples(model)
 
@@ -1036,6 +874,11 @@ def model_to_triple_string(model):
 
 
 def model_to_triples(model):
+    """
+    Builds an Array with RDF triples from the JSON 'model'
+    :param model: json 'model' that contains the frontend settings and reconciliation data
+    :return: a 3xn array, representing RDF data
+    """
 
     time1 = datetime.datetime.now()
 
@@ -1152,7 +995,7 @@ def model_to_triples(model):
     secs = datetime.datetime.now() - time
     print("predicates creation time ", secs)
     time = datetime.datetime.now()
-    
+
     if 'enrich' in model:
         for enr_count, enr in enumerate(model['enrich']):
             enrich_uri = ""
@@ -1210,6 +1053,9 @@ def update_excerpt(model, start_row=0, num_rows=-1):
     Includes an excerpt of the model content as an array in 'excerpt' property of the model.
     also holds values about where the excerpt begins and how big it is.
     {'rows': csv_array, 'start_row': start_row, 'num_rows': num_rows, 'total_rows_num': row_count}
+    :param model: json 'model' that contains the frontend settings and reconciliation data
+    :param start_row: row to start from, default = 0
+    :param num_rows: number of rows to include in model, default = all rows
     """
     if not model:
         print("no model!")
@@ -1224,13 +1070,14 @@ def update_excerpt(model, start_row=0, num_rows=-1):
 
 def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
     """
-    Either HTTP request containing 'save_path' and 'csv_dialect', or LinDA JSON model parameter must exist.
-    Prefers model.
+    Reads file in model['save_path'] and returns contents as array.
+    Either django HTTP request object containing 'save_path' and 'csv_dialect', or LinDA JSON 'model' parameter must exist.
+    Prefers model parameter if both are present.
     :param request: HTTP request
     :param model: LinDA JSON model
-    :param start_row:
-    :param num_rows: if -1 then all is returned
-    :return: a dict like: {'rows': csv_array, 'start_row': start_row, 'num_rows': num_rows, 'total_rows_num': row_count}
+    :param start_row: row to start from, default = 0
+    :param num_rows: number of rows to include in model, default = all rows
+    :return: a python dict like: {'rows': csv_array, 'start_row': start_row, 'num_rows': num_rows, 'total_rows_num': row_count}
     """
 
     time1 = datetime.datetime.now()
