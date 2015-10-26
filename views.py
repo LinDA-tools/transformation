@@ -292,8 +292,9 @@ def csv_column_choice(request):
 
     elif request.POST and form.is_valid() and 'hidden_model' in form.cleaned_data and form.cleaned_data['hidden_model']:
         print("model existing")
-        reduced_model = json.loads(form.cleaned_data['hidden_model'])
-        request.session['model'] = update_model(request.session['model'], reduced_model)
+        #reduced_model = json.loads(form.cleaned_data['hidden_model'])
+        #request.session['model'] = update_model(request.session['model'], reduced_model)
+        request.session['model'] = json.loads(form.cleaned_data['hidden_model'])
 
     html_post_data = {
         'rdfModel': json.dumps(request.session['model']),
