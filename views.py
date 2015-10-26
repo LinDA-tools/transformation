@@ -290,18 +290,10 @@ def csv_column_choice(request):
             except IndexError:
                 print("index error: col " + str(c) + ", field " + str(f))
 
-        # csv_rows_selected_columns = get_selected_rows_content(request.session)
-        # mark_selected_rows_in_model(request.session)
-
-        # print("mod nach laden")
-        # print_fields(request.session['model'])
-        print_model_dim(request.session['model'])
-
     elif request.POST and form.is_valid() and 'hidden_model' in form.cleaned_data and form.cleaned_data['hidden_model']:
         print("model existing")
         reduced_model = json.loads(form.cleaned_data['hidden_model'])
         request.session['model'] = update_model(request.session['model'], reduced_model)
-        #print_model_dim(request.session['model'])
 
     html_post_data = {
         'rdfModel': json.dumps(request.session['model']),
@@ -725,13 +717,15 @@ def ask_oracle_for_rest(model, column):
         if queryString not in obj_recons:
             url = 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryString=' + queryString
             r = requests.get(url, headers=headers)
-            json_result = json.loads(r.text)['results'][0]['uri']
-            # TODO could be more general
-            url_array = json_result.rsplit("/", 1)
-            suffix = url_array[-1]
-            uri = url_array[0]
-            x = {'prefix': 'dbpedia', 'suffix': suffix, 'url': uri}
-            obj_recons[queryString] = x
+            print(r.text)
+            json_result = json.loads(r.text)['results']#[0]['uri']
+            if type(json_result) == "list" and len(json_result) > 0:
+                # TODO could be more general
+                url_array = json_result.rsplit("/", 1)
+                suffix = url_array[-1]
+                uri = url_array[0]
+                x = {'prefix': 'dbpedia', 'suffix': suffix, 'url': uri}
+                obj_recons[queryString] = x
 
     return True
 
@@ -896,9 +890,6 @@ def model_to_triples(model):
         num_enrichs = len(model['enrich'])
 
     num_total_fields_rdf = num_fields_in_row_rdf * num_total_cols + num_fields_in_row_rdf * num_enrichs
-
-    print_model_dim(model)
-    # print(num_total_cols, " cols")
 
     skeleton = model['subject']['skeleton']
     base_url = model['subject']['base_url']
