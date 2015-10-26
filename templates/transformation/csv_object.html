@@ -336,8 +336,9 @@ function guessType(column){
 			select += '<option value="'+k+'">'+replacePrefix(k)["suffix"]+'</option>';
 		}
 	});
+	console.log(column);
 	select += "</select>";
-	var table_header = $("td[id^='id_table_head_"+column+"']");
+	var table_header = $("#id_table_head_"+column);
 	table_header.html(table_header.html()+select);
 
 	var type_guessing = table_header.find("select.type_guessing");
@@ -366,8 +367,9 @@ function noAction(column, adaptRDF){
 	adaptRDF = typeof adaptRDF !== 'undefined' ? adaptRDF : true;
 
 	//remove data type select field from table header
-	$("td[id^='id_table_head_"+column+"']").find("select").remove();
-	$("td[id^='id_table_head_"+column+"']").find("br").remove();
+	var table_head = $("#id_table_head_"+column);
+	table_head.find("select").remove();
+	table_head.find("br").remove();
 	$(this).not(':first').remove();
 	
 
@@ -416,9 +418,10 @@ function calculateCells(column){
 			$("[id^='id_table_field_"+column+"']").each(function(i){
 				var content = $(this).find("span").first().html();
 				var id_as_array = $(this).attr("id").split("_");
-				var col = id_as_array[id_as_array.length-3];
+				//var col = id_as_array[id_as_array.length-3];
+				var col_orig = id_as_array[id_as_array.length-2];
 				var row = id_as_array[id_as_array.length-1];
-				var recon = get_model_reconciliation(col, content);
+				var recon = get_model_reconciliation(col_orig, content);
 
 				if(recon){
 					add_to_content_where_col("object_method", "reconciliation", column);
@@ -426,8 +429,7 @@ function calculateCells(column){
 					$("#id_table_settings_"+col+" select").val("add URIs");
 				}else{
 					//get reconciliation for fields that havent been reconciled before
-					var topic_field = "#id_table_head_" + col;
-					var topic = $(topic_field).text().trim();
+					var topic = $("#id_table_head_" + column).text().trim();
 					askOracle($(this), topic, $(this).text().trim(), true);
 				}
 			});
@@ -500,8 +502,7 @@ $( document ).ready(function() {
 						$("#id_table_settings_"+col+" select").val("add URIs");
 					}else{
 						//get reconciliation for fields that havent been reconciled before
-						var topic_field = "id_table_head_" + col;
-						var topic = $("#"+topic_field).text().trim();
+						var topic = $("#id_table_head_" + col).text().trim();
 						askOracle($(this), topic, $(this).text().trim(), true);
 					}
 				});
