@@ -417,20 +417,6 @@ def csv_object(request):
     """
     """
 
-    '''
-    #TEST
-    m1 = {'columns':[{'fields':[{'field_num':1,'c':'cccold'},{'field_num':4,'c':'ccc2'}]}]}
-    print(">>>>>>>>>>")
-    print(m1)
-    m2red = {'columns':[{'fields':[{'field_num':1,'c':'cccnew'},{'field_num':3,'c':'cccverynew'}]}]}
-    m1 = update_model(m1,m2red)
-    print("<<<<<<<<<<")
-    print(m1)
-    print("<<<<<<<<<<")
-    m2red = {'columns':[{'fields':[{'field_num':1,'c':'cccnew'},{'field_num':3,'c':'kkkkkkkkkkkkkkkkkk'}]}]}    
-    print(m1)
-    '''
-
     print("VIEW csv_object")
     form_action = 6
     form = ObjectForm(request.POST)
@@ -541,20 +527,6 @@ def csv_object(request):
 
     # pagination end
 
-    # request.session['model'] = json.loads(form.cleaned_data['hidden_model'])
-    # request.session['model'] =
-    # print("v ",len(request.session['model']['columns'][1]['fields']))
-    # print("v ",request.session['model']['columns'][1]['fields'])
-    # print("r ",len(reduced_model['columns'][1]))
-    # print("r ",reduced_model['columns'][1])
-    # request.session['model'] = update_model(request.session['model'], reduced_model)
-    # print("r ",len(reduced_model['columns'][1]['fields']))
-    # print("r ",reduced_model['columns'][1]['fields'])
-    # print("n ",len(request.session['model']['columns'][1]))
-    # print("n ",request.session['model']['columns'][1])
-
-
-    # csv_rows_selected_columns = get_selected_rows_content(request.session)
     html_post_data = {
         'pagination': pagination,
         'action': form_action,
@@ -584,13 +556,7 @@ def csv_enrich(request):
     reduced_model = None
     if request.POST and form.is_valid() and form != None:
         # content  is passed on via hidden html input fields
-        '''
-        if 'hidden_rdf_array_field' in form.cleaned_data:
-            request.session['rdf_array'] = form.cleaned_data['hidden_rdf_array_field']
 
-        if 'hidden_rdf_prefix_field' in form.cleaned_data:
-            request.session['rdf_prefix'] = form.cleaned_data['hidden_rdf_prefix_field']
-        '''
         if 'hidden_model' in form.cleaned_data:
             #reduced_model = json.loads(form.cleaned_data['hidden_model'])
             #request.session['model'] = update_model(request.session['model'], reduced_model)
@@ -601,10 +567,7 @@ def csv_enrich(request):
     html_post_data = {
         'action': form_action,
         'rdfModel': json.dumps(request.session['model']),
-        # 'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
-        # 'rdfArray': request.session['rdf_array'],
-        # 'rdfPrefix': request.session['rdf_prefix']
     }
     pass
     return render(request, 'transformation/csv_enrich.html', html_post_data)
@@ -620,8 +583,6 @@ def csv_publish(request):
     if request.POST and form.is_valid() and form != None:
 
         if 'hidden_model' in form.cleaned_data:
-            #reduced_model = json.loads(form.cleaned_data['hidden_model'])
-            #request.session['model'] = update_model(request.session['model'], reduced_model)
             request.session['model'] = json.loads(form.cleaned_data['hidden_model'])
             update_excerpt(request.session['model'], start_row=0, num_rows=10)
 
@@ -635,20 +596,15 @@ def csv_publish(request):
             publish_message = j["message"]
 
         if 'button_download' in request.POST:
-            # TODO why does model lose file_name attr in subject view?
-            # new_fname = request.session['model']['file_name'].rsplit(".", 1)[0] + ".n3"
             new_fname = request.session['file_name'].rsplit(".", 1)[0] + ".n3"
             rdf_string = model_to_triple_string(request.session['model'])
             rdf_file = ContentFile(rdf_string.encode('utf-8'))
             response = HttpResponse(rdf_file, 'application/force-download')
             response['Content-Length'] = rdf_file.size
             response['Content-Disposition'] = 'attachment; filename="' + new_fname + '"'
-            # print(rdf_n3)
             return response
 
         if 'button_r2rml' in request.POST:
-            # TODO why does model lose file_name attr in subject view?
-            # new_fname = request.session['model']['file_name'].rsplit(".", 1)[0] + "_R2RML.ttl"
             new_fname = request.session['file_name'].rsplit(".", 1)[0] + "_R2RML.ttl"
             r2rml_string = transform_to_r2rml(request.session['model'])
             r2rml_file = ContentFile(r2rml_string.encode('utf-8'))
@@ -671,12 +627,8 @@ def csv_publish(request):
     html_post_data = {
         'publish_message': publish_message,
         'action': form_action,
-        # 'rdfModel': json.dumps(request.session['model']),
         'rdfModel': json.dumps(request.session['model']),
-        # 'csvContent': csv_rows_selected_columns,
         'filename': request.session['file_name'],
-        # 'rdfArray': request.session['rdf_array'],
-        # 'rdfPrefix': request.session['rdf_prefix']
     }
     return render(request, 'transformation/csv_publish.html', html_post_data)
 
@@ -714,11 +666,9 @@ def ask_oracle_for_rest(model, column):
     headers = {'Accept': 'application/json'}
 
     for queryString in one_row:
-        print(queryString)
         if queryString not in obj_recons:
             url = 'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryString=' + queryString
             r = requests.get(url, headers=headers)
-            print(r.text)
             json_result = json.loads(r.text)['results']#[0]['uri']
             if type(json_result) == "list" and len(json_result) > 0:
                 # TODO could be more general
@@ -901,7 +851,6 @@ def model_to_triples(model):
 
     # contains names that are needed for subject creation
     skeleton_array = re.findall("\{(.*?)\}", skeleton)
-    # print("skel: ", skeleton_array)
 
     rdf_array = [[subject, "<?p>", "<?o>"] for x in range(0, num_total_fields_rdf)]
 
@@ -996,7 +945,6 @@ def model_to_triples(model):
             else:
                 enrich_uri = enr['prefix']['prefix'] + ":" + enr['prefix']['suffix']
                 prefix_dict[enr['prefix']['prefix']] = enr['prefix']
-            print(enr_count)
             counter = num_total_cols + enr_count
             while counter < len(rdf_array):
                 rdf_array[counter][1] = "a"

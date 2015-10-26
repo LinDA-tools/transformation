@@ -156,7 +156,7 @@
 
 
 // e.g. domain = bird; term = sparrow, tit, ..
-//keepReconciliationIfExists: will only refetch ajax call if no results are already stored in model, false by default
+//keepReconciliationIfExists: will only refetch ajax call if no results are already stored in model, true by default
 function askOracle(widget, domain, term, keepReconciliationIfExists){
 
 	//var content = widget.find("span").first().html();
@@ -165,6 +165,10 @@ function askOracle(widget, domain, term, keepReconciliationIfExists){
 	var col = id_as_array[id_as_array.length-3];
 	//column number when also counting non selected
 	var col_orig = id_as_array[id_as_array.length-2];
+
+	keepReconciliationIfExists = typeof keepReconciliationIfExists == 'undefined' ? false : keepReconciliationIfExists;
+
+
 
 	if(keepReconciliationIfExists){
 		var recon = get_model_reconciliation(col_orig, term);
@@ -179,7 +183,7 @@ function askOracle(widget, domain, term, keepReconciliationIfExists){
 
 				
 
-	keepReconciliationIfExists = typeof keepReconciliationIfExists == 'undefined' ? false : keepReconciliationIfExists
+
 	//console.log('http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + domain + '&QueryString=' + term);
 	var request = $.ajax({
 		type: 'GET',
@@ -336,7 +340,6 @@ function guessType(column){
 			select += '<option value="'+k+'">'+replacePrefix(k)["suffix"]+'</option>';
 		}
 	});
-	console.log(column);
 	select += "</select>";
 	var table_header = $("#id_table_head_"+column);
 	table_header.html(table_header.html()+select);
@@ -415,7 +418,9 @@ function calculateCells(column){
 
 			noAction(column, false); //clear field
 
+			var already_looked_at_array = [];
 			$("[id^='id_table_field_"+column+"']").each(function(i){
+				/*
 				var content = $(this).find("span").first().html();
 				var id_as_array = $(this).attr("id").split("_");
 				//var col = id_as_array[id_as_array.length-3];
@@ -432,6 +437,21 @@ function calculateCells(column){
 					var topic = $("#id_table_head_" + column).text().trim();
 					askOracle($(this), topic, $(this).text().trim(), true);
 				}
+				*/
+				/*
+				var topic = $("#id_table_head_" + column).text().trim();
+				var txt = $(this).text().trim();
+				if($.inArray(topic +" "+txt, already_looked_at_array) == -1){
+
+					already_looked_at_array.push(topic + " " + txt);
+					askOracle($(this), topic, txt, true);
+				}
+				*/
+
+				var topic = $("#id_table_head_" + column).text().trim();
+				var txt = $(this).text().trim();
+				askOracle($(this), topic, txt, true);
+				
 			});
 		}
 		else if(opt == "add data type") {
