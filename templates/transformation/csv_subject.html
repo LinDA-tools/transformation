@@ -43,7 +43,7 @@
         <div class="col-5-10 right-side-box">
 
             <p>
-                <input type="radio" name="blanknodes_only" id="id_blanks_blanks" onclick="hideURL();" value="blanks"> Use Blank Nodes only<br>
+                <input type="radio" name="blanknodes_only" id="id_blanks_blanks" value="blanks"> Use Blank Nodes only<br>
                 <input type="radio" name="blanknodes_only" id="id_blanks_subject" value="subject"> Provide a subject
             </p>
 
@@ -204,12 +204,6 @@ function changeURI() {
     adapt_RDF_preview();
 }
 
-function hideURL() {
-    $("#id_base_url").prop('disabled', true);
-}
-
-
-
 function addToUri(ev) {
     ev.preventDefault();
     var column_name = ev.target.parentNode.childNodes[1].innerHTML;
@@ -242,7 +236,7 @@ $( document ).ready(function() {
     //base_url_insert.innerHTML = base_url.value;
     var tipText = "'Add to subject URI'";
     //onclick="addToUri(event)"
-    var addToUriButton = ' <a href="" onmouseover="Tip('+tipText+')" onmouseout="UnTip()"> <i class="fa fa-plus-square"></i></a>'
+    var addToUriButton = ' <a href="" onmid_blanks_blanksouseover="Tip('+tipText+')" onmouseout="UnTip()"> <i class="fa fa-plus-square"></i></a>'
     $("td[id^='id_table_head_']").each(function(){
         $(this).html($(this).html()+addToUriButton);
         $(this).find("a").first().on("click", function(event){
