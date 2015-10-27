@@ -35,6 +35,11 @@
 
 	</div>
 
+<div id="processing">
+creating your file...<br>
+<i class="fa fa-spinner fa-pulse"></i>
+</div>
+
 
 <div class="content" id="rdf_view">
 	<h3 style="display: inline">RDF VIEW</h3><span>(10 row example)</span>
@@ -52,6 +57,34 @@
 	alert("{{ publish_message }}");
 {% endif %}
 
+var interval = "";
+var last_download_time = -1;
+
+function check_download_status(){
+	console.log("check");
+	var request = $.ajax({
+		type: 'GET',
+		//dataType: 'jsonp',
+		data: {},
+		url: "../../status/",
+	});
+
+	var result = false;
+
+	request.fail(function (jqXHR, textStatus, errorThrown) {
+
+	});
+
+	request.success(function (data) {
+			console.log(data);
+			if(data.status == "finished download" && data.time > last_download_time){
+				$("#processing").css("visibility","hidden");
+				clearInterval(interval);
+				last_download_time = data.time;
+			}
+	});
+	return result;
+}
 
 function adapt_RDF_preview() {
 
@@ -69,6 +102,11 @@ $( document ).ready(function() {
 		var form = $("#main_form");
 		form.attr("action", "6");
 		form.submit();
+	});
+
+	$("#button_download").on("click", function () {
+		$("#processing").css("visibility","visible");
+		interval = setInterval(function(){ check_download_status() }, 1000);
 	});
 
 	$("#button_next").css("visibility","hidden");

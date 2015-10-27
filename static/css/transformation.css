@@ -333,16 +333,17 @@ a .fa {
     position: fixed;
     text-align: center;
     width: 100%;
-    height: 40%;
-    background-color: black;
-    filter: alpha(opacity=60);
-    opacity: 0.6;
+    height: 100%;
+    background-color: #555;
+    opacity: 0.80;
     /*border: 12px red solid;*/
-    top: 3em;
+    top: 0px;
     left: 0px;
     font-size: 300%;
     color: white;
-    padding: 2.5em;
+    padding: 3em;
+    font-weight: bold;
+    vertical-align: middle;
 }
 
 #id_base_url_insert {

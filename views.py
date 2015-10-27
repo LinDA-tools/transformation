@@ -17,6 +17,7 @@ import copy
 import datetime
 from itertools import chain  # for concatenating ranges
 import re
+import time
 
 # ###############################################
 # MODELS
@@ -30,6 +31,7 @@ def user_test(request):
 
 def data_choice(request):
     print("VIEW data_choice")
+    request.session['processing_status'] = get_status_dict("data_choice")
     # print(request.session)
     if 'csv_rows' in request.session:
         del request.session['csv_rows']
@@ -45,6 +47,8 @@ def data_choice(request):
         del request.session['rdf_array']
     if 'rdf_prefix' in request.session:
         del request.session['rdf_prefix']
+    if 'processing_status' in request.session:
+        request.session['processing_status'] = "data_choice"
     form = DataChoiceForm()
     mappings = Mapping.objects.filter(user=request.user.id)
     return render_to_response('transformation/data_choice.html', {'form': form, 'mappings': mappings},
@@ -57,6 +61,9 @@ def csv_upload(request):
 
     form_action = 2
     publish_message = ""
+
+    request.session['processing_status'] = get_status_dict("csv_upload")
+
     if request.method == 'POST':
         print("PATH 1 - POST")
         # a raw representation of the CSV file is also kept as we want to be able to change the CSV dialect and then reload the page
@@ -207,9 +214,10 @@ def csv_upload(request):
 def csv_column_choice(request):
     print("VIEW csv_column_choice")
     form_action = 3
-    reduced_model = None
     publish_message = None
     form = CsvColumnChoiceForm(request.POST)
+    request.session['processing_status'] = get_status_dict("csv_column_choice")
+
     time1 = datetime.datetime.now()
 
     if 'model' not in request.session:
@@ -324,8 +332,7 @@ def csv_subject(request):
 
     form_action = 4
     form = SubjectForm(request.POST)
-    dump = None
-    reduced_model = None
+    request.session['processing_status'] = get_status_dict("csv_subject")
     if request.POST and form.is_valid() and form is not None:
 
         # content  is passed on via hidden html input fields
@@ -371,7 +378,7 @@ def csv_predicate(request):
     print("VIEW csv_predicate")
     form_action = 5
     form = PredicateForm(request.POST)
-    reduced_model = None
+    request.session['processing_status'] = get_status_dict("csv_predicate")
     if request.POST and form.is_valid() and form is not None:
         # content  is passed on via hidden html input fields
         '''
@@ -420,7 +427,7 @@ def csv_object(request):
     print("VIEW csv_object")
     form_action = 6
     form = ObjectForm(request.POST)
-    reduced_model = None
+    request.session['processing_status'] = get_status_dict("csv_object")
     # print(request.POST)
     if request.POST and form.is_valid():  # and form != None:
         # content  is passed on via hidden html input fields
@@ -553,7 +560,7 @@ def csv_enrich(request):
     print("VIEW csv_additional")
     form_action = 7
     form = EnrichForm(request.POST)
-    reduced_model = None
+    request.session['processing_status'] = get_status_dict("csv_enrich")
     if request.POST and form.is_valid() and form != None:
         # content  is passed on via hidden html input fields
 
@@ -577,8 +584,8 @@ def csv_publish(request):
     print("VIEW csv_publish")
     form_action = 7  # refers to itself
     form = PublishForm(request.POST)
-    reduced_model = None
     publish_message = ""
+    request.session['processing_status'] = get_status_dict("csv_publish")
 
     if request.POST and form.is_valid() and form != None:
 
@@ -595,13 +602,15 @@ def csv_publish(request):
             print(j["message"])
             publish_message = j["message"]
 
-        if 'button_download' in request.POST:
+        if 'button_download' in request.POST:            
             new_fname = request.session['file_name'].rsplit(".", 1)[0] + ".n3"
             rdf_string = model_to_triple_string(request.session['model'])
             rdf_file = ContentFile(rdf_string.encode('utf-8'))
             response = HttpResponse(rdf_file, 'application/force-download')
+            response.set_cookie('rdf_download_status', 'complete')
             response['Content-Length'] = rdf_file.size
             response['Content-Disposition'] = 'attachment; filename="' + new_fname + '"'
+            request.session['processing_status'] = get_status_dict("finished download", 100)
             return response
 
         if 'button_r2rml' in request.POST:
@@ -611,6 +620,7 @@ def csv_publish(request):
             response = HttpResponse(r2rml_file, 'application/force-download')
             response['Content-Length'] = r2rml_file.size
             response['Content-Disposition'] = 'attachment; filename="' + new_fname + '"'
+            request.session['processing_status'] = get_status_dict("finished download", 100)
             return response
 
         if 'save_mapping' in request.POST:
@@ -633,9 +643,53 @@ def csv_publish(request):
     return render(request, 'transformation/csv_publish.html', html_post_data)
 
 
+
+def json_response(func):
+    """
+    A decorator that takes a view response and turns it
+    into json. If a callback is added through GET or POST
+    the response is JSONP.
+    """
+    def decorator(request, *args, **kwargs):
+        objects = func(request, *args, **kwargs)
+        if isinstance(objects, HttpResponse):
+            return objects
+        try:
+            data = json.dumps(objects)
+            if 'callback' in request.REQUEST:
+                # a jsonp response!
+                data = '%s(%s);' % (request.REQUEST['callback'], data)
+                return HttpResponse(data, "text/javascript")
+        except:
+            data = json.dumps(str(objects))
+        return HttpResponse(data, "application/json")
+    return decorator
+
+
+@json_response
+def status(request):
+    """
+    REST interface w/ HTTP GET params:
+    callback: name of callback function
+    uri: url to retrieve the prefix for, make sure to use url-encode
+    (python urllib.urlencode(uri), JavaScript: encodeURIComponent(uri);)
+    :param request: HTTP request
+    :return: python dict
+    """
+    if 'processing_status' not in request.session:
+        request.session['processing_status'] = "not set"
+        print("set session ", request.session['processing_status'])
+    result = request.session['processing_status'];
+    return result
+
+
 # ###############################################
 #  OTHER FUNCTIONS
 # ###############################################
+
+
+def get_status_dict(status_str, percent=100):
+    return {'status': status_str,'time': time.time(), 'percent': percent}
 
 def ask_oracle_for_rest(model, column):
     """
@@ -645,7 +699,7 @@ def ask_oracle_for_rest(model, column):
     :param column: needs to be ORIGINAL column num, not column num of selected columns
     :return: Whether or not model could be manipulated successfully as boolean
     """
-    print("asking oracle, col ", column)
+
     if str(column) not in model['object_recons']:
         return False
     obj_recons = model['object_recons'][str(column)]
@@ -797,7 +851,7 @@ def transform_to_r2rml(model):
     return output
 
 
-def model_to_triple_string(model):
+def model_to_triple_string(model, request=None):
     """
     Builds an string with RDF triples from the JSON 'model'.
     (Eventually, the string is to be returned to the frontend to download as a file)
@@ -1103,6 +1157,6 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
     #    print(" > ", x)
 
     secs = datetime.datetime.now() -time1
-    print(num_rows," / ", row_count, " rows in " + str(secs))
+    print(num_rows," / ", row_count, " rows read from file in " + str(secs))
 
     return {'rows': csv_array, 'start_row': start_row_original, 'num_rows': num_rows}
