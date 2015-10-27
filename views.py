@@ -4,7 +4,7 @@ from io import StringIO
 import os
 import json
 from django.http import HttpResponse
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render, render_to_response, redirect
 from django.template import RequestContext
 import pandas as pd
 from django.http import JsonResponse
@@ -612,7 +612,7 @@ def csv_publish(request):
             response['Content-Disposition'] = 'attachment; filename="' + new_fname + '"'
             request.session['processing_status'] = get_status_dict("finished download", 100)
             return response
-
+        '''
         if 'button_r2rml' in request.POST:
             new_fname = request.session['file_name'].rsplit(".", 1)[0] + "_R2RML.ttl"
             r2rml_string = transform_to_r2rml(request.session['model'])
@@ -622,6 +622,12 @@ def csv_publish(request):
             response['Content-Disposition'] = 'attachment; filename="' + new_fname + '"'
             request.session['processing_status'] = get_status_dict("finished download", 100)
             return response
+        '''
+
+
+        if 'button_close' in request.POST:
+           return redirect('csv-upload-view')
+        
 
         if 'save_mapping' in request.POST:
             # remove unwanted info from model
@@ -805,7 +811,7 @@ def process_csv(csv_file, form):
         print("Form invalid")
         return None
 
-
+'''
 def transform_to_r2rml(model):
     """
     Transforms the data in the json 'model' to a R2RML representation.
@@ -849,7 +855,7 @@ def transform_to_r2rml(model):
     output += "."
 
     return output
-
+'''
 
 def model_to_triple_string(model, request=None):
     """

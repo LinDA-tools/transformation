@@ -26,7 +26,7 @@
             <p>Please enter a name for your publication:<br><input type="text" name="name_publish" id="name_publish" value="{{filename}}" size="35"></p>
             <p><input type="submit" name="button_publish" id="button_publish" value="Publish to triple store"></p>
             <p><input type="submit" name="button_download" id="button_download" value="Download RDF"></p>
-            <p><input type="submit" name="button_r2rml" id="button_r2rml" value="Download R2RML"></p>
+            <!---p><input type="submit" name="button_r2rml" id="button_r2rml" value="Download R2RML"></p-->
             {% if user and not user.is_anonymous %}
                 <p>Please enter a name for your transformation:<br><input type="text" name="name_mapping" id="name_mapping" size="35"></p>
                 <p><input type="submit" name="save_mapping" id="save_mapping" value="Save Transformation"></p>
@@ -61,7 +61,6 @@ var interval = "";
 var last_download_time = -1;
 
 function check_download_status(){
-	console.log("check");
 	var request = $.ajax({
 		type: 'GET',
 		//dataType: 'jsonp',
@@ -76,7 +75,6 @@ function check_download_status(){
 	});
 
 	request.success(function (data) {
-			console.log(data);
 			if(data.status == "finished download" && data.time > last_download_time){
 				$("#processing").css("visibility","hidden");
 				clearInterval(interval);
@@ -85,6 +83,8 @@ function check_download_status(){
 	});
 	return result;
 }
+
+var close_tool = false;
 
 function adapt_RDF_preview() {
 
@@ -109,7 +109,22 @@ $( document ).ready(function() {
 		interval = setInterval(function(){ check_download_status() }, 1000);
 	});
 
-	$("#button_next").css("visibility","hidden");
+	//Transforming next button into Close button :)
+	$("#button_next").val("Close");
+	$("#button_next").attr("name", "button_close");
+	$("#button_next").css("font-weight", "bold");
+	$("#button_next").on("click", function (event) {
+		if(!close_tool){			
+			event.preventDefault();
+			if (confirm('By closing the transformation tool you will lose all data that has not been saved. Are you sure?')) {
+				close_tool = true;
+	    		$(this).trigger('click');
+			} else {
+	    		// Do nothing!
+			}
+		}
+		
+	});
 
 	adapt_RDF_preview();
 });
