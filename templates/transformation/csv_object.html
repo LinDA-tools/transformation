@@ -535,6 +535,9 @@ $( document ).ready(function() {
 					calculateCells(column=column['col_num_new']);
 					$("#id_table_head_"+col+" select.type_guessing").val(data_type.url+data_type.suffix);
 				}
+			}else if(!method){ // preselect "add data type" on first page load as default
+				guessType(col);
+				$("#id_table_settings_"+col+" select").val("add data type");
 			}
 		}
 	});
