@@ -693,6 +693,12 @@ def status(request):
 #  OTHER FUNCTIONS
 # ###############################################
 
+def model_light(model):
+    m2 = model.copy()
+    del m2['object_recons']
+    del m2['excerpt']
+    del m2['file_name']
+    return m2
 
 def get_status_dict(status_str, percent=100):
     return {'status': status_str,'time': time.time(), 'percent': percent}
