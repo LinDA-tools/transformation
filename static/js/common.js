@@ -2625,7 +2625,7 @@ function model_to_table(model, numrows){
 		return tbl;
 	}
 
-	var rdf_array = model_to_array(model);
+	var rdf_array = model_to_array(model, numrows);
 
 	num_selected_cols = 0;
 	$.each(model['columns'], function(){
@@ -2658,7 +2658,7 @@ function model_to_table(model, numrows){
 }
 
 
-function model_to_array(model){
+function model_to_array(model, numrows){
 
 	if(typeof model === "undefined" || !model['columns']){
 		return;
@@ -2674,12 +2674,10 @@ function model_to_array(model){
 		}
 	});
 
-	//num_total_rows_rdf = num_total_cols * model['num_rows_total'];
-	num_total_rows_rdf = num_total_cols * 10;
+	num_total_rows_rdf = num_total_cols * Math.min(numrows, model['num_rows_total']);
 
 	var rdf_array = create_multidim_array(num_total_rows_rdf, 3);
 
-	// TODO #########
 	//insert subjects
 	var subjects = create_subjects_from_model_skeleton(model);
 	for(var i = 0; i < rdf_array.length; i++){
@@ -2705,8 +2703,7 @@ function model_to_array(model){
 		}
 	}
 
-	//insert objects
-	
+	//insert objects	
 	var col_count = -1;
 	$.each(model['columns'], function(i, col){
 		if(col['col_num_new'] >- 1){ // column was chosen, same as show==true
@@ -2733,14 +2730,6 @@ function model_to_array(model){
 		}
 	});
 	
-
-
-	/*array.splice(index, 0, item);
-	var num_total_rows_rdf = 0;
-	var num_total_cols = 0;
-*/
-
-
 	//insert from enrichment
 	var num_enrichments = 0;
 	if(model['enrich']){
