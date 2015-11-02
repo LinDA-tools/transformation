@@ -18,6 +18,9 @@ import datetime
 from itertools import chain  # for concatenating ranges
 import re
 import time
+from django.contrib.sessions.models import Session
+from django.utils import timezone
+import shutil
 
 # ###############################################
 # MODELS
@@ -49,6 +52,9 @@ def data_choice(request):
         del request.session['rdf_prefix']
     if 'processing_status' in request.session:
         request.session['processing_status'] = "data_choice"
+
+    delete_unused_tmp_files()
+
     form = DataChoiceForm()
     mappings = Mapping.objects.filter(user=request.user.id)
     return render_to_response('transformation/data_choice.html', {'form': form, 'mappings': mappings},
@@ -599,7 +605,7 @@ def csv_publish(request):
             # Please set the API_HOST in the settings file
             r = requests.post('http://' + API_HOST + '/api/datasource/create/', data=payload)
             j = json.loads(r.text)
-            print(j["message"])
+            #print(j["message"])
             publish_message = j["message"]
 
         if 'button_download' in request.POST:            
@@ -1172,3 +1178,54 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
     print(num_rows," / ", row_count, " rows read from file in " + str(secs))
 
     return {'rows': csv_array, 'start_row': start_row_original, 'num_rows': num_rows}
+
+
+def delete_unused_tmp_files():    
+    """
+    This checks for unused temporary files of which the session has expired.
+    """
+
+    sessions = Session.objects.filter(expire_date__gte=timezone.now())
+
+    fresh_sessions = []
+
+    for session in sessions:
+        fresh_sessions.append(session.session_key)
+
+    '''
+    a_dir = 'filesaves/anonymous/'
+
+    for dir in [name for name in os.listdir(a_dir)
+            if os.path.isdir(os.path.join(a_dir, name))]:
+        if dir not in fresh_sessions:
+            print("ALT:")
+            shutil.rmtree(a_dir + dir)
+        else:
+            print("FRISCH:")
+        print(dir)
+    '''
+
+    a_dir = 'filesaves/'
+
+    for dir_user in [name for name in os.listdir(a_dir)
+                if os.path.isdir(os.path.join(a_dir, name))]:
+        #users
+        print("dir1", dir_user)
+        for dir_session in [name for name in os.listdir(a_dir+dir_user)
+                if os.path.isdir(os.path.join(a_dir+dir_user, name))]:
+            if dir_user == "anonymous": # user not logged in / anonymous
+                if dir_session not in fresh_sessions:
+                    shutil.rmtree(a_dir+ dir_user + '/' + dir_session)
+                    print("deleted mapping ", a_dir+ dir_user , '/' , dir_session)
+            else: # user logged in
+                #mapping = Mapping(user=request.user, fileName=request.POST.get('name_mapping'),
+                #              csvName=request.session['save_path'])
+                mappings = Mapping.objects.filter(csvName__contains=dir_session)
+                #for map in mappings:
+                #    print(str(map.csvName))
+                if len(mappings) == 0:
+                    #if we have no saved mapping for the dir, we delete it
+                    print("deleted mapping ", a_dir+ dir_user , '/' , dir_session)
+                    shutil.rmtree(a_dir+ dir_user + '/' + dir_session)
+
+ 
