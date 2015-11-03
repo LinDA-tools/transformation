@@ -12,7 +12,6 @@ urlpatterns = patterns('',
                        url(r'csv/step/5', views.csv_object, name='csv-object-view'),
                        url(r'csv/step/6', views.csv_enrich, name='csv-enrich-view'),
                        url(r'csv/step/7', views.csv_publish, name='csv-publish-view'),
-                       url(r'user_test', views.user_test, name='user-test'),
                        url(r'^status/', 'transformation.views.status',
                            name="status"),
 )
