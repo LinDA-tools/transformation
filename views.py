@@ -832,7 +832,7 @@ def model_to_triples(model):
     base_url = model['subject']['base_url']
 
     subject = "<?subject>"
-    if skeleton != "" and base_url != "":
+    if skeleton != "":
         subject = "<" + base_url + skeleton + ">"
 
     # contains names that are needed for subject creation
@@ -873,7 +873,7 @@ def model_to_triples(model):
 
     # subjects
     row_length = model['num_rows_total']
-    if 'blank_nodes' in model['subject'] and model['subject']['blank_nodes'] == "true":        
+    if 'blank_nodes' in model['subject'] and model['subject']['blank_nodes'] == "true":
         for i, col in enumerate(model['columns']):
             counter = 0
             counter2 = 0
