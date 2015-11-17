@@ -30,9 +30,9 @@ logger = logging.getLogger(__name__)
 # ###############################################
 
 def data_choice(request):
-    logger.debug("VIEW data_choice")
+    logger.info("VIEW data_choice")
     request.session['processing_status'] = get_status_dict("data_choice")
-    # logger.debug(request.session)
+    # logger.info(request.session)
     if 'csv_rows' in request.session:
         del request.session['csv_rows']
     if 'csv_raw' in request.session:
@@ -59,7 +59,7 @@ def data_choice(request):
 
 
 def csv_upload(request):
-    logger.debug("VIEW csv_upload")
+    logger.info("VIEW csv_upload")
     # save file
 
     form_action = 2
@@ -100,9 +100,11 @@ def csv_upload(request):
             upload_file_name = request.FILES['upload_file'].name
             upload_file = request.FILES['upload_file'].file
 
+            logger.info('File: %s', upload_file_name)
+
             # transformation of excel files to csv
             if upload_file_name[-4:] == "xlsx" or upload_file_name[-4:] == ".xls":
-                # logger.debug(upload_file_name[-4:]);
+                # logger.info(upload_file_name[-4:]);
                 data_xls = pd.read_excel(request.FILES['upload_file'], 0, index_col=0)
                 if not os.path.exists('tmp'):
                     os.makedirs('tmp')
@@ -123,7 +125,7 @@ def csv_upload(request):
 
             # read/process the CSV file and find out about its dialect (csv params such as delimiter, line end...)
             # https://docs.python.org/2/library/csv.html#
-            logger.debug("encoding ", request.encoding)
+            logger.debug("encoding %s", request.encoding)
             with TextIOWrapper(upload_file, encoding=request.encoding, errors='replace') as csv_file:
                 # with TextIOWrapper(upload_file, encoding='utf-8') as csvfile:
                 # the file is also provided in raw formatting, so users can appy changes (choose csv params) without reloading file 
@@ -137,8 +139,8 @@ def csv_upload(request):
                 num_last_row = len(csv_rows[0])
                 for i in range(1, len(csv_rows)):
                     if len(csv_rows[i]) != num_last_row:
-                        logger.debug("File seems to be either corrupted or it was loaded with wrong parameters!")
-                        publish_message = '<span class="trafo_red"><i class="fa fa-exclamation-circle"></i> File seems to be corrupt or loaded with wrong parameters!</span>'
+                        logger.info("File seems to be either corrupted or it was loaded with wrong parameters! Line: " + str(i+1)+ ": "+ str(csv_rows[i]))
+                        publish_message = '<span class="trafo_red"><i class="fa fa-exclamation-circle"></i> File seems to be corrupt or loaded with wrong parameters!</span><br><span>Line: ' + str(i+1) + ':'+str(csv_rows[i])+'</span>'
                         break
 
                 # save file
@@ -147,10 +149,10 @@ def csv_upload(request):
                 save_path = "filesaves/"
                 session_id = request.session.session_key
                 if request.user.is_authenticated():
-                    logger.debug('user authenticated', request.user)
+                    logger.info('user authenticated: %s', request.user)
                     save_path += str(request.user)
                 else:
-                    logger.debug('user NOT authenticated: ', session_id)
+                    logger.info('user NOT authenticated / anonymous: %s', session_id)
                     save_path += "anonymous"
 
                 save_path += "/"
@@ -168,7 +170,7 @@ def csv_upload(request):
                 fout.close()  
 
                 secs = datetime.datetime.now() - time1
-                logger.debug("writing file took " + str(secs))              
+                logger.info("writing file time: %s", str(secs))              
 
                 request.session['csv_dialect'] = csv_dialect
                 request.session['csv_rows'] = csv_rows
@@ -197,11 +199,11 @@ def csv_upload(request):
             }
 
             secs = datetime.datetime.now() - time1
-            logger.debug("upload button stuff took " + str(secs))
+            logger.info("upload procedure time: %s" + str(secs))
             return render(request, 'transformation/csv_upload.html', html_post_data)
 
         if 'button_choose' in request.POST:
-            # logger.debug(request.POST['mapping_id'])
+            # logger.info(request.POST['mapping_id'])
             request.session['model'] = json.loads(
                 Mapping.objects.filter(id=request.POST['mapping_id'])[0].mappingFile.read().decode("utf-8"))
             form = UploadFileForm()
@@ -215,7 +217,7 @@ def csv_upload(request):
 
 
 def csv_column_choice(request):
-    logger.debug("VIEW csv_column_choice")
+    logger.info("VIEW csv_column_choice")
     form_action = 3
     publish_message = None
     form = CsvColumnChoiceForm(request.POST)
@@ -224,11 +226,11 @@ def csv_column_choice(request):
     time1 = datetime.datetime.now()
 
     if 'model' not in request.session:
-        logger.debug('creating model')
+        logger.info('creating model')
         time1 = datetime.datetime.now()
         arr = request.session['csv_rows']
         m = {"file_name": request.session['file_name'], "num_rows_total": request.session['csv_rows_num'], "num_cols_selected": len(arr[0]),
-             "columns": [], "csv_dialect": request.session['csv_dialect'], "save_path": request.session['save_path'], "object_recons": {}}
+             "columns": [], "csv_dialect": request.session['csv_dialect'], "save_path": request.session['save_path'], "object_recons": {}, "object_recons_all": {}}
         f = -1
         c = -1
 
@@ -238,21 +240,21 @@ def csv_column_choice(request):
                 m['columns'].append({'col_num_orig': i + 1, 'col_num_new': i + 1, 'header': {'orig_val': arr[0][i]}})
 
         except IndexError:
-            logger.debug("index error: col " + str(c) + ", field " + str(f))
+            logger.info("index error: col " + str(c) + ", field " + str(f))
         secs = datetime.datetime.now() - time1
-        logger.debug("model creation took " + str(secs))
+        logger.info("model creation took " + str(secs))
 
         time1 = datetime.datetime.now()
         update_excerpt(m, start_row=0, num_rows=10)
         secs = datetime.datetime.now() - time1
-        logger.debug("update_excerpt took " + str(secs))
+        logger.info("update_excerpt took " + str(secs))
 
         request.session['model'] = m
 
     # has fields? if not, only scaffolding from model 'loaded' in data choice page of wizard
     elif 'model' in request.session and 'excerpt' not in request.session['model']:
         # when only a loaded model 'scaffolding'
-        logger.debug("model 'scaffolding' was loaded")
+        logger.info("model 'scaffolding' was loaded")
 
         if len(request.session['model']['columns']) != len(request.session['csv_rows'][0]):
             publish_message = "The file you tried to load does not fit the chosen transformation project. The number of columns is different."
@@ -286,10 +288,10 @@ def csv_column_choice(request):
                         m['columns'][col]['fields'].append({'orig_val': arr[field][col], 'field_num': field})
 
             except IndexError:
-                logger.debug("index error: col " + str(c) + ", field " + str(f))
+                logger.info("index error: col %s, field %s",  str(c), str(f))
 
     elif request.POST and form.is_valid() and 'hidden_model' in form.cleaned_data and form.cleaned_data['hidden_model']:
-        logger.debug("model existing")
+        logger.info("model existing")
         request.session['model'] = json.loads(form.cleaned_data['hidden_model'])
 
     html_post_data = {
@@ -300,7 +302,7 @@ def csv_column_choice(request):
         'publish_message': publish_message
     }
     if 'model' in request.session and 'rdfModel' not in html_post_data:
-        logger.debug("reducing...")
+        logger.info("reducing...")
         redu = reduce_model(request.session['model'], 10)
         html_post_data['rdfModel'] = json.dumps(redu)
     request.session.modified = True
@@ -308,7 +310,7 @@ def csv_column_choice(request):
 
 
 def csv_subject(request):
-    logger.debug("VIEW csv_subject")
+    logger.info("VIEW csv_subject")
 
     form_action = 4
     form = SubjectForm(request.POST)
@@ -329,7 +331,7 @@ def csv_subject(request):
 
 
 def csv_predicate(request):
-    logger.debug("VIEW csv_predicate")
+    logger.info("VIEW csv_predicate")
     form_action = 5
     form = PredicateForm(request.POST)
     request.session['processing_status'] = get_status_dict("csv_predicate")
@@ -351,7 +353,7 @@ def csv_object(request):
     """
     """
 
-    logger.debug("VIEW csv_object")
+    logger.info("VIEW csv_object")
     form_action = 6
     form = ObjectForm(request.POST)
     request.session['processing_status'] = get_status_dict("csv_object")
@@ -361,9 +363,9 @@ def csv_object(request):
             request.session['model'] = json.loads(form.cleaned_data['hidden_model'])
         else:
             request.session['model'] = ""
-            logger.debug("no model")
+            logger.info("no model")
     else:
-        logger.debug("form not valid!")
+        logger.info("form not valid!")
 
     num_rows_model = request.session['model']['num_rows_total']
 
@@ -470,7 +472,7 @@ def is_int(s):
 
 
 def csv_enrich(request):
-    logger.debug("VIEW csv_additional")
+    logger.info("VIEW csv_additional")
     form_action = 7
     form = EnrichForm(request.POST)
     request.session['processing_status'] = get_status_dict("csv_enrich")
@@ -494,7 +496,7 @@ def csv_enrich(request):
 
 
 def csv_publish(request):
-    logger.debug("VIEW csv_publish")
+    logger.info("VIEW csv_publish")
     form_action = 7  # refers to itself
     form = PublishForm(request.POST)
     publish_message = ""
@@ -512,7 +514,7 @@ def csv_publish(request):
             # Please set the API_HOST in the settings file
             r = requests.post('http://' + API_HOST + '/api/datasource/create/', data=payload)
             j = json.loads(r.text)
-            #logger.debug(j["message"])
+            #logger.info(j["message"])
             publish_message = j["message"]
 
         if 'button_download' in request.POST:            
@@ -597,7 +599,7 @@ def status(request):
     """
     if 'processing_status' not in request.session:
         request.session['processing_status'] = "not set"
-        logger.debug("set session ", request.session['processing_status'])
+        logger.info("set session %s", request.session['processing_status'])
     result = request.session['processing_status'];
     return result
 
@@ -727,7 +729,7 @@ def process_csv(csv_file, form):
 
         return [csv_rows, csv_dialect]
     else:
-        logger.debug("Form invalid")
+        logger.info("Form invalid")
         return None
 
 '''
@@ -861,7 +863,7 @@ def model_to_triples(model):
             count1 += 1
 
     secs = datetime.datetime.now() - time
-    logger.debug("objects creation time ", secs)
+    logger.info("objects creation time %s", str(secs))
     time = datetime.datetime.now()
 
     # subjects
@@ -893,7 +895,7 @@ def model_to_triples(model):
                         counter += num_total_cols + num_enrichs
 
     secs = datetime.datetime.now() - time
-    logger.debug("subjects creation time ", secs)
+    logger.info("subjects creation time %s", str(secs))
     time = datetime.datetime.now()
 
     # predicates
@@ -913,7 +915,7 @@ def model_to_triples(model):
             count1 += 1
 
     secs = datetime.datetime.now() - time
-    logger.debug("predicates creation time ", secs)
+    logger.info("predicates creation time %s", str(secs))
     time = datetime.datetime.now()
 
     if 'enrich' in model:
@@ -931,7 +933,7 @@ def model_to_triples(model):
                 counter += num_total_cols + num_enrichs
 
     secs = datetime.datetime.now() - time
-    logger.debug("enrich creation time ", secs)
+    logger.info("enrich creation time %s", str(secs))
     time = datetime.datetime.now()
 
     prefix_array = []
@@ -942,11 +944,11 @@ def model_to_triples(model):
 
 
     secs = datetime.datetime.now() - time
-    logger.debug("prefix creation time ", secs)
+    logger.info("prefix creation time %s", str(secs))
     time = datetime.datetime.now()
 
     secs = datetime.datetime.now() - time1
-    logger.debug("RDF creation time ", secs)
+    logger.info("RDF creation time %s", str(secs))
 
     return prefix_array + rdf_array
     #return rdf_array
@@ -977,7 +979,7 @@ def update_excerpt(model, start_row=0, num_rows=-1):
     :param num_rows: number of rows to include in model, default = all rows
     """
     if not model:
-        logger.debug("no model!")
+        logger.info("no model!")
         return
 
     # check if calculation of new excerpt is needed
@@ -1018,16 +1020,16 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
             if 'num_rows_total' in model:
                 row_count = model['num_rows_total']
         else:
-            logger.debug("model param for file_to_array function is invalid")
+            logger.info("model param for file_to_array function is invalid")
     elif request is not None:
         if 'save_path' in request.session and 'csv_dialect' in request.session:
             path_and_file = request.session['save_path']
             csv_dialect = request.session['csv_dialect']
             encoding = request.encoding
         else:
-            logger.debug("request param for file_to_array function is invalid")
+            logger.info("request param for file_to_array function is invalid")
     else:
-        logger.debug("request and model parameters both None in file_to_array function")
+        logger.info("request and model parameters both None in file_to_array function")
         return False
 
     #TODO is user exists
@@ -1037,7 +1039,7 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
     csv_array = []
 
     if not os.path.exists(path_and_file):
-        logger.debug("File %s does not exist!", (path_and_file))
+        logger.info("File %s does not exist!", str(path_and_file))
     else:
         f = open(path_and_file, "rb")
         with TextIOWrapper(f, encoding=encoding) as csv_file:
@@ -1079,7 +1081,7 @@ def file_to_array(request=None, model=None, start_row=0, num_rows=-1):
                     csv_array[i][j] = field.strip()
 
     secs = datetime.datetime.now() -time1
-    logger.debug("bla %d / %d rows read from file in %s", (num_rows, row_count, secs))
+    logger.info("%d / %d rows read from file in %s", num_rows, row_count, str(secs))
 
     return {'rows': csv_array, 'start_row': start_row_original, 'num_rows': num_rows}
 
@@ -1089,7 +1091,7 @@ def delete_unused_tmp_files():
     This checks for unused temporary files of which the session has expired.
     """
 
-    logger.debug("Checking for unused tmp files...")
+    logger.info("Checking for unused tmp files...")
 
     sessions = Session.objects.filter(expire_date__gte=timezone.now())
 
@@ -1104,11 +1106,11 @@ def delete_unused_tmp_files():
     for dir in [name for name in os.listdir(a_dir)
             if os.path.isdir(os.path.join(a_dir, name))]:
         if dir not in fresh_sessions:
-            logger.debug("ALT:")
+            logger.info("ALT:")
             shutil.rmtree(a_dir + dir)
         else:
-            logger.debug("FRISCH:")
-        logger.debug(dir)
+            logger.info("FRISCH:")
+        logger.info(dir)
     '''
 
     a_dir = 'filesaves/'
@@ -1116,22 +1118,22 @@ def delete_unused_tmp_files():
     for dir_user in [name for name in os.listdir(a_dir)
                 if os.path.isdir(os.path.join(a_dir, name))]:
         #users
-        #logger.debug("dir1", dir_user)
+        #logger.info("dir1", dir_user)
         for dir_session in [name for name in os.listdir(a_dir+dir_user)
                 if os.path.isdir(os.path.join(a_dir+dir_user, name))]:
             if dir_user == "anonymous": # user not logged in / anonymous
                 if dir_session not in fresh_sessions:
                     shutil.rmtree(a_dir+ dir_user + '/' + dir_session)
-                    logger.debug("deleted mapping ", a_dir+ dir_user , '/' , dir_session)
+                    logger.info("deleted mapping %s%s/%s", a_dir, dir_user, dir_session)
             else: # user logged in
                 #mapping = Mapping(user=request.user, fileName=request.POST.get('name_mapping'),
                 #              csvName=request.session['save_path'])
                 mappings = Mapping.objects.filter(csvName__contains=dir_session)
                 #for map in mappings:
-                #    logger.debug(str(map.csvName))
+                #    logger.info(str(map.csvName))
                 if len(mappings) == 0:
                     #if we have no saved mapping for the dir, we delete it
-                    logger.debug("deleted mapping ", a_dir+ dir_user , '/' , dir_session)
-                    shutil.rmtree(a_dir+ dir_user + '/' + dir_session)
+                    logger.info("deleted mapping %s%s/%s", a_dir, dir_user, dir_session)
+                    shutil.rmtree(a_dir + dir_user + '/' + dir_session)
 
  
