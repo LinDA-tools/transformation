@@ -118,6 +118,7 @@ $( document ).ready(function() {
 			event.preventDefault();
 			if (confirm('By closing the transformation tool you will lose all data that has not been saved. Are you sure?')) {
 				close_tool = true;
+				$("#main_form").attr("action", "../..");
 	    		$(this).trigger('click');
 			} else {
 	    		// Do nothing!

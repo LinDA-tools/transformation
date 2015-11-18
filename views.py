@@ -614,14 +614,14 @@ def model_light(model):
     m2['object_recons'] = {}
     del m2['excerpt']
     #m2['excerpt'] = []
-    del m2['file_name']
+    #del m2['file_name']
     #m2['file_name'] = ""
     return m2
 
 
 def get_status_dict(status_str, percent=100):
     return {'status': status_str,'time': time.time(), 'percent': percent}
-    
+
 
 def ask_oracle_for_rest(model, column):
     """
