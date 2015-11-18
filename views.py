@@ -618,8 +618,10 @@ def model_light(model):
     #m2['file_name'] = ""
     return m2
 
+
 def get_status_dict(status_str, percent=100):
     return {'status': status_str,'time': time.time(), 'percent': percent}
+    
 
 def ask_oracle_for_rest(model, column):
     """
@@ -630,7 +632,7 @@ def ask_oracle_for_rest(model, column):
     :return: Whether or not model could be manipulated successfully as boolean
     """
 
-    if str(column) not in model['object_recons']:
+    if 'object_recons' not in model or str(column) not in model['object_recons']:
         return False
     obj_recons = model['object_recons'][str(column)]
 
