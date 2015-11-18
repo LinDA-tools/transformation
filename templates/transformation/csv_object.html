@@ -174,14 +174,14 @@ function askOracle(widget, domain, term, keepReconciliationIfExists){
 		var recon = get_model_reconciliation(col_orig, term);
 			if(recon){
 				//add_to_content_where_col("object_method", "reconciliation", column);
-				populate_from_model_reconciliation($(this), recon);
+				populate_from_model_reconciliation(widget, recon);
 				//$("#id_table_settings_"+col+" select").val("add URIs");
 				return;
 			}
 	}
 	
 
-				
+			
 
 
 	//console.log('http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + domain + '&QueryString=' + term);
@@ -417,8 +417,8 @@ function calculateCells(column){
 		if(opt == "add URIs") {
 
 			noAction(column, false); //clear field
-
-			var already_looked_at_array = [];
+			//var already_looked_at_array = [];
+			add_to_content_where_col("object_method", "reconciliation", column);
 			$("[id^='id_table_field_"+column+"']").each(function(i){
 				/*
 				var content = $(this).find("span").first().html();
@@ -488,16 +488,46 @@ function populate_from_model_reconciliation(widget, recon){
 			short_uri = shortenURI(recon.url+recon.suffix, 40);
 
 
-	var obj_div = " <i class=\"refetch-field fa fa-search\" onmouseover=\"Tip('Click here to refetch proposals for this field.')\" onmouseout=\"UnTip()\"></i><div class=\"bb_select_nodropdown\"><a href=\""+recon.url+recon.suffix+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window: "+recon.url+"')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>";
-
+	var obj_div_str = " <i class=\"refetch-field fa fa-search\" onmouseover=\"Tip('Click here to refetch proposals for this field.')\" onmouseout=\"UnTip()\"></i><div class=\"bb_select_nodropdown\"><a href=\""+recon.url+recon.suffix+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window: "+recon.url+"')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>";
+	obj_div_html = $.parseHTML(obj_div_str);
 	widget.find(":not(span)").remove();
-	widget.html(widget.html()+obj_div);
+	//var search_icon = $(obj_div_html).closest(".refetch-field");
+	widget.append(obj_div_html);
+	widget.find("i.refetch-field").on("click", function(event){
+		console.log("klk");
+		var field = $(this).parents("td");
+		console.log(field);
+		console.log(field.attr("id"));
+		var field_as_array = field.attr("id").split("_");
+		var col = field_as_array[field_as_array.length-3];
+		var row = field_as_array[field_as_array.length-1];
+		var topic = $("#id_table_head_"+col).text().trim();
+		field.find(":not(span)").remove();
+		askOracle(field, topic, field.find("span").text().trim(), false);
+		
+	});
+
+	//set_refetch_field_events();
 
 }
 
 
 var rdf_content = $("#id_hidden_rdf_array_field");
 
+
+function set_refetch_field_events(){
+	$(".refetch-field").on("click", function(){
+		var field = $(this).closest("td");
+		console.log($(this));
+		console.log(field);
+		var field_as_array = field.attr("id").split("_");
+		var col = field_as_array[field_as_array.length-3];
+		var row = field_as_array[field_as_array.length-1];
+		var topic = $("#id_table_head_"+col).text().trim();
+		field.find(":not(span)").remove();
+		askOracle(field, topic, field.find("span").text().trim(), false);
+	});
+}
 
 $( document ).ready(function() {
 
@@ -512,11 +542,11 @@ $( document ).ready(function() {
 				$("[id^='id_table_field_"+col+"']").each(function(i){
 					var id_as_array = $(this).attr("id").split("_");
 					var col = id_as_array[id_as_array.length-3];
+					var col_orig = id_as_array[id_as_array.length-2];
 					var row = id_as_array[id_as_array.length-1];
 					var content = $(this).find("span").first().html();
 
-					var recon = get_model_reconciliation(col, content);
-
+					var recon = get_model_reconciliation(col_orig, content);
 					if(recon){
 						populate_from_model_reconciliation($(this), recon);
 						$("#id_table_settings_"+col+" select").val("add URIs");
@@ -549,7 +579,7 @@ $( document ).ready(function() {
 		form.submit();
 	});
 
-	adapt_RDF_preview();
+
 
 	$("td[id^='id_table_settings_'] select").each(function(){
 		$(this).on("change", function(){
@@ -574,17 +604,12 @@ $( document ).ready(function() {
 		return false;
 	});
 
-	$(".refetch-field").on("click", function(){
-		var field = $(this).closest("td");
-		var field_as_array = field.attr("id").split("_");
-		var col = field_as_array[field_as_array.length-3];
-		var row = field_as_array[field_as_array.length-1];
-		var topic = $("#id_table_head_"+col).text().trim();
-		field.find(":not(span)").remove();
-		askOracle(field, topic, field.find("span").text().trim(), false);
-	});
+	//set_refetch_field_events();
 
 	calculateCells();
+
+	adapt_RDF_preview();
+
 });
 
 </script>
