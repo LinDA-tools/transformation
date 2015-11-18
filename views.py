@@ -610,9 +610,12 @@ def status(request):
 
 def model_light(model):
     m2 = model.copy()
-    del m2['object_recons']
+    #del m2['object_recons']
+    m2['object_recons'] = {}
     del m2['excerpt']
+    #m2['excerpt'] = []
     del m2['file_name']
+    #m2['file_name'] = ""
     return m2
 
 def get_status_dict(status_str, percent=100):

@@ -2720,7 +2720,6 @@ function model_to_array(model, numrows){
 					lindaGlobals.used_prefixes[col['data_type']['prefix']] = col['data_type'];
 				}
 				if(method == "reconciliation" && model['object_recons'][col['col_num_orig']] && model['object_recons'][col['col_num_orig']][elem]){//reconciliation, no action, data type
-					console.log("x");
 					rdf_array[j*num_total_cols+col_count][2] = model['object_recons'][col['col_num_orig']][elem]['prefix']+":"+model['object_recons'][col['col_num_orig']][elem]['suffix'];
 					lindaGlobals.used_prefixes[model['object_recons'][col['col_num_orig']][elem]['prefix']] = model['object_recons'][col['col_num_orig']][elem];
 				}else{
