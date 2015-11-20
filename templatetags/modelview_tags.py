@@ -203,12 +203,13 @@ def model_header_as_table_predicate(model):
     result += "<tr>"
     for i, field in enumerate(headers):
         result += '<td>'
-        result += '<input type="text" value="' + field + '" id="search_textinput_' + str(
-            i + 1) + '" onkeyup="delayedOracleCall(' + str(i + 1) + ')" autocomplete="off">'
-        result += '<i id="icon_' + str(i + 1) + '" class="fa fa-search" onclick="askOracle(' + str(i + 1) + ')"></i>'
-        result += '<br><div id="result_area_' + str(i + 1) + '">'
-        result += '<div class="bb_select" id="search_result_' + str(i + 1) + '">'
-        result += '</div></div>'
+        result += '<div class="bb_select2" id="id_table_settings_'+str(i + 1)+'"></div>'
+        #result += '<input type="text" value="' + field + '" id="search_textinput_' + str(
+        #    i + 1) + '" onkeyup="delayedOracleCall(' + str(i + 1) + ')" autocomplete="off">'
+        #result += '<i id="icon_' + str(i + 1) + '" class="fa fa-search" onclick="askOracle(' + str(i + 1) + ')"></i>'
+        #result += '<br><div id="result_area_' + str(i + 1) + '">'
+        #result += '<div class="bb_select" id="search_result_' + str(i + 1) + '">'
+        #result += '</div></div>'
         result += '</td>'
     result += "</tr>"
 

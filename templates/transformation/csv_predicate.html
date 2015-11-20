@@ -57,14 +57,147 @@
 {% block extra_scripts %}
 	<script>
 
-	/* vocab selection widgets
-	can be provided in simple html like
-	<div class="bb_select">
-	 <div>item1</div>
-	 <div>item2</div>
-	</div>
-	This function does a lot of dom manipulation to transform it into a cool widget :)
-	*/
+function addInnerDiv(elem) {
+    
+    var container = jQuery('<div/>', {
+        class: "bb_container",
+    });    
+    
+    elem.wrap(container);  
+    
+    var inner1Div = jQuery('<div/>', {
+        class: "bb_inner1",
+    }).appendTo(elem);
+
+    var inner2Div = jQuery('<div/>', {
+        class: "bb_inner2",
+    }).appendTo(inner1Div);
+
+    var choices_div = jQuery('<div/>', {
+        class: "bb_select_choices",
+        //text: "drop here",
+    }).insertBefore(elem);
+
+   
+    var magnifier = jQuery('<i/>', {
+        class: "fa fa-search",
+        style: "margin-left: 3px;"
+    }).insertBefore(elem);
+    
+    magnifier.click(function(){
+    	$(".bb_select2").trigger("change")
+    });
+
+    var text_in = jQuery('<input/>', {
+        class: "bb_select_text_input",
+        type: "text",
+        placeholder: "enter search term here",
+    }).insertBefore(magnifier);
+
+    inner2Div.on("mouseover", function () {
+        inner2Div.css("height", "200px");
+        inner2Div.css("overflow-y", "scroll");
+    })
+
+    inner2Div.on("mouseout", function () {
+        var height = parseInt(inner2Div.find("div:first").css("height").replace(/[^-\d\.]/g, '')) + 4.0;
+        inner2Div.css("height", height + "px");
+        inner2Div.css("overflow-y", "hidden");
+    })
+
+
+    function apply_changes(json) {
+        elem.find(".bb_inner2").outerWidth(elem.find(".bb_inner1").innerWidth());
+        elem.find(".bb_inner2").empty();
+        
+       
+        if ($.isArray(json.values)) {
+
+            $.each(json.values, function (i, x) {
+
+                var item = jQuery('<div/>', {
+                    class: "item",
+                    html: "(<i class=\"fa fa-star\"></i> " + x.score + ") " + x.name,
+                    id: "choice_info_" + i,
+                    style: "position: relative;"
+                });
+
+                var additionalInfo = jQuery('<div/>', {
+                    class: "item_additional_info",
+                    html: x.vocab + '<br><a href="' + x.url + '"><i class="fa fa-external-link-square additl_vert_pad"></i></a> ' + x.url + '<br><a href="' + x.url_intern + '"><i class="fa fa-external-link-square additl_vert_pad"></i></a> ' + x.url_intern,
+                    id: "choice_additional_info_" + i,
+                }).appendTo(item);
+
+                elem.find(".bb_inner2").append(item);
+
+                item.on("click", function (event) {
+                    
+                    //check if already in list                    
+                    var exists = false;                    
+                    $(".bb_select_choices .item").each(function(i,x){
+                        var url = $(this).find(".item_additional_info a:first").attr("href");
+                        if(item.find(".item_additional_info a:first").attr("href") == url){
+                        	exists = true;
+                        } 
+                    });
+                    
+                    if(exists){
+                    	return;
+                    }
+
+                    var clone = $(this).clone();
+                    clone.find(".item_additional_info").addClass("hide");
+                    var close_button = jQuery('<i/>', {
+                        class: "fa fa-times close_button",
+                        style: "position: absolute; top: 0.1em; right: 0.2em; color: rgb(136, 136, 136); opacity: 1;",
+                        text: "",
+                    }).appendTo(clone);
+
+                    close_button.click(function (event) {
+                        $(this).parent().remove();
+                    });
+
+                    var resize_button = jQuery('<i/>', {
+                        class: "fa fa-caret-square-o-down resize_button",
+                        style: "position: absolute; top: 0.1em; right: 1.1em; color: rgb(136, 136, 136); opacity: 1;",
+                        text: "",
+                    }).appendTo(clone);
+
+                    resize_button.click(function (event) {
+                        var x = $(this).siblings(".item_additional_info");
+                          x.toggleClass("hide");
+                        //x.css("display", "");
+                        $(this).closest(".item").siblings().find(".item_additional_info").addClass("hide");
+                    });
+
+                    choices_div.append(clone);
+                });
+
+                inner2Div.css("height", parseInt(inner2Div.find("div:first").css("height").replace(/[^-\d\.]/g, '')) + 4.0 + "px");
+            });
+
+        } else {
+            console.log("The content of the 'data-content' had the wrong formatting.");
+            return;
+        }
+    }
+
+    function change_function() {
+        var content_json = elem.attr("data-content");
+        try {
+            content_json = $.parseJSON(content_json);
+        } catch (err) {
+            console.log("The content of the 'data-content' attribute was not valid JSON!");
+            return;
+        }
+
+        apply_changes(content_json);
+    };
+    elem.on("change", change_function);
+    elem.trigger("change");
+}
+
+	/*
 	function addInnerDiv(elem) {
 
 		var id_array = elem.attr("id").split("_");
@@ -109,8 +242,6 @@
 		var elementsDiv = jQuery('<div/>', {
 			class: "bb_select_elements"
 		}).appendTo(innerDiv);
-		/*elementsDiv.css("position","fixed");
-		elementsDiv.css("width","inherit");*/
 
 		elementsDiv.append(kids);
 
@@ -150,6 +281,8 @@
 		elementsDiv.trigger("mouseout");
 	}
 
+	*/
+
 
 var recent_result = null;
 var recent_textinput = null;
@@ -159,19 +292,23 @@ var recent_text = null;
 
 function askOracle(widget_num){
 	$("#result_from_model_"+widget_num).remove();
-	recent_textinput = $("#search_textinput_"+widget_num);
-	recent_icon = document.getElementById("icon_"+widget_num);
-	recent_icon.className = "fa fa-refresh fa-spin";
+	//recent_textinput = $("#search_textinput_"+widget_num);
+	//recent_icon = document.getElementById("icon_"+widget_num);
+	//recent_icon.className = "fa fa-refresh fa-spin";
+
+	bb_select = $("#id_table_settings_"+widget_num);
+	table_topic = $("#id_table_head_"+widget_num).text();
 
 	var request = $.ajax({
 		//timeout: 5000,
 		type: 'GET',
 		dataType: 'jsonp',
-		data: { 'property': recent_textinput.val() },
+		data: { 'property': table_topic },
 		url: lindaGlobals.server_url+"/coreapi/recommend/",
 	});
 
 	request.fail(function (jqXHR, textStatus, errorThrown) {
+		/*
 			$("#icon_"+widget_num).attr('class', "fa fa-clock-o");//fa fa-exclamation-triangle
 			$("#icon_"+widget_num).on("mouseover", function(){
 				Tip('Open in external window');
@@ -199,15 +336,20 @@ function askOracle(widget_num){
 
 			}
 			//onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"
-			//console.log(jqXHR);
+
+			*/
+			console.log(jqXHR);
 			console.log(textStatus);
-			//console.log(errorThrown);
-		}
-	);
+			console.log(errorThrown);
+
+	});
 
 	request.success(function (data) {
 			var result_container = $("#result_area_"+widget_num);
-			result_container.html('<div class="bb_select" id="search_result_'+widget_num+'"></div>');
+
+			/*
+
+			result_container.html('<div class="bb_select2" id="search_result_'+widget_num+'"></div>');
 			recent_result = $("#search_result_"+widget_num);
 
 
@@ -221,6 +363,9 @@ function askOracle(widget_num){
 				adapt_RDF_preview(widget_num);
 				return;
 			}
+			*/
+			result_json = {"values":[]};
+
 			//recent_text.innerHTML = "please choose from list";
 			for(var i = 0; i < data.length; i++){
 
@@ -249,6 +394,9 @@ function askOracle(widget_num){
 				else
 					star += "fa-star-o";
 
+				var result_json_part = {"vocab":"Some Fine Vocab", "score":33 ,"name": data[i].label, "url": "http://someurl3.com", "url_intern": "http://inturl3.com"};
+				result_json.values[result_json.values.length]= result_json_part;
+				/*
 				var url_intern_html = "";
 				if(uri_intern)
 					url_intern_html = "<br><a class=\"intern_uri\" href=\""+uri_intern+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>lookup in LinDA dictionary";
@@ -258,12 +406,18 @@ function askOracle(widget_num){
 					url_extern_html = "<br><a class=\"extern_uri\" href=\""+uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri;
 
 				recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i><span class=\"vocab_score\">"+Math.floor(data[i].ranking)+"</span>) <em>"+data[i].label+"</em><br><span class=\"vocab_description\">"+data[i].vocabulary+"</span></span>"+url_intern_html+url_extern_html+"</div>");
+				*/
+				console.log(data[i]);
 			}
 
-			addInnerDiv($("#search_result_"+widget_num));
+			console.log(result_json);
+
+			bb_select.attr("data-content", JSON.stringify(result_json)); 
+
+			addInnerDiv(bb_select);
 
 			//auto-select first element after oracle call
-			$("#search_result_"+widget_num+" * .bb_select_elements").children().first().trigger("click");
+			//$("#search_result_"+widget_num+" * .bb_select_elements").children().first().trigger("click");
 		}
 
 	);
@@ -372,6 +526,7 @@ $( document ).ready(function() {
 
 	// do an oracle lookup on page load
 
+/*
 	$("div[id^='search_result_']").each( function(i, obj){
 		var predicate = get_model_predicate_of_col(i+1);
 		if(typeof predicate === 'undefined'){//} || get_model_predicate_of_col(i+1) === 'false'){
@@ -380,6 +535,21 @@ $( document ).ready(function() {
 			populate_from_model((i+1), predicate);
 		}
 	});
+	*/
+/*
+	$(".bb_select2").each( function(i, obj){
+	var id = $(this).attr("id").split("_")[-1];	
+	console.log(id);	
+		var predicate = get_model_predicate_of_col(i+1);
+		if(typeof predicate === 'undefined'){//} || get_model_predicate_of_col(i+1) === 'false'){
+			askOracle(i+1);
+		}else{
+			populate_from_model((i+1), predicate);
+		}
+	});
+	*/
+	askOracle(1);
+	//askOracle(2);
 
 	$("#button_next").attr("disabled", "disabled");
 
