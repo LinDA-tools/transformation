@@ -1,0 +1,1762 @@
+{% extends "transformation-base.html" %}
+
+
+{% block content %}
+
+{% load modelview_tags %}
+
+{% include "transformation/snippets/title_snippet.html" with format='RDB' %}
+
+<!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
+{% for hidden in form.hidden_fields %}
+    {{ hidden }}
+{% endfor %}
+
+<input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ model }}">
+<input type="hidden" name="hidden_fkeys" id="id_hidden_fkeys" value="{{ fkeys }}">
+<input type="hidden" name="hidden_source" id="hidden_source" value="5">
+
+<div class="minimizable">
+<div class="content">
+
+	<h3>Specify the RDF Predicate</h3>
+		<div>
+		<p>In the last step, you constructed a RDF subject URI for each line of your data. As every line represents data for one single real world entity (e.g. a customer, accounting information ...), the single fields in that line represent characteristics of these entities (e.g. customer name, date of money transfer ...). </p>
+		<p>In this step, we try and find a suitable RDF property that can represent data in one column. We use the column names to find suitable candidates. If the results are unsatisfactory, do type in your own search term to receive more adequate results. The RDF view below is automatically updated with the selected property.</p>
+
+		<div class="show-additional-help">show more</div>
+		<div class="additional-help">
+		<p><em>What is it about?</em><br>
+		In this step, the RDF properties are specified that link the subject URI of each line to the values in the individual columns. Hence, for every selected column, a property needs to be specified. These properties should express the meaning the column values have for the subject. These meanings may be hinted at by the columns headers, but be aware that they often just express the type of the data instead of their meaning for the subject. – In contrast to the lines´ subject URIs, these properties should be selected from public sources whenever possible, so as to promote world-wide uniform semantic formalizations.</p>
+		</div>
+		</div>
+
+
+</div>
+</div>
+
+<div class="minimizable">
+<div class="content scrollit">
+    <h3>DATA VIEW</h3>
+    <div>
+        Database: <b>{{ model.database }}</b> (10 rows example)
+        <br>
+        {% for table in model.tables %}
+        {% if table.selected == "true" %}
+   
+                <div id="{{ table.name }}">table <b>{{ table.name }}</b>&nbsp; referenced by: &nbsp;
+                    {% for fkey in fkeys %}
+                        {% if fkey.3 ==  table.name %}
+                            <a href="#{{ fkey.0 }}">{{ fkey.0 }}</a>&nbsp;
+                        {% endif %}
+                    {% endfor %}
+                </div>
+        {% endif %}
+            
+        <table class="table_view"  id="id_table_{{ table.name }}">
+            <thead>
+                <tr>
+                    {% for column in table.columns %}
+                    {% if column.selected == "true" %}
+                            <td id="id_row_{{table.name}}_{{ column.name }}">
+                                <b>{{ column.name }}</b><br>
+                                {% if ":" in column.foreign_key_string %}
+                                    {% for fkey in fkeys %}
+                                        {% if fkey.0 ==  table.name and fkey.3 in column.foreign_key_string and fkey.4 in column.foreign_key_string %}
+                                            <a href="#{{ fkey.3 }}">{{ column.foreign_key_string }}</a>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    {% for column in table.columns %}
+                        {% if column.selected == "true" %}
+                        
+                            <td>
+                                <input type="text" value="{{ column.name }}" id="search_textinput_{{ table.name }}___{{ column.name }}" onkeyup="delayedOracleCall( '{{ table.name }}___{{ column.name }}' )" autocomplete="off">
+                                <i id="icon_{{ table.name }}___{{ column.name }}" class="fa fa-search" onclick="askOracle('{{ table.name }}___{{ column.name }}' )"></i>
+                                <br>
+                                <div class="bb_select2" id="result_area___{{ table.name }}_{{ column.name }}">
+                                <div class="bb_select2" id="search_result___{{ table.name }}___{{ column.name }}">
+                                </div></div>
+                            </td>
+                        
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                
+            </thead>
+            <tbody>
+                {% for row in table.values_10_selected %}
+                {% if not forloop.first %}
+                    <tr>
+                        {% for value in row %}
+                            {% if value != None %}
+                                <td>{{ value }}</td>
+                            {% else %}
+                                <td></td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+        <br>
+   {% endfor %}            
+   </div>
+</div></div>
+
+
+<div class="content" id="rdf_view">
+    <h3 style="display: inline">RDF VIEW</h3><span>(10 rows example)</span>
+</div>
+
+</form>
+
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+
+
+
+
+function addInnerDiv(elem) {
+
+//    console.log("addInnerDiv(elem = "+elem+")");
+    var id_array = elem.attr("id").split("___");
+    var column_name = id_array[id_array.length-1];
+    var table_name = id_array[id_array.length-2];
+    var column_num = table_name + "___" + column_name;
+
+    var kids = elem.children();
+
+    elem.empty();
+    elem.css("height", "5em");
+
+    var innerDiv = jQuery('<div/>', {
+        class: "bb_select_inner"
+    }).appendTo(elem);
+
+    var selectionDiv = jQuery('<div/>', {
+        class: "bb_select_selection",
+        text: "please chose"
+    }).appendTo(innerDiv);
+
+    selectionDiv.css("position","relative");
+
+    //font awesome arrow down
+    var caretDown = jQuery('<i/>', {
+        class: "fa fa-caret-square-o-down fa-2x"
+    }).appendTo(selectionDiv);
+
+    caretDown.css("position","absolute");
+    caretDown.css("top",".1em");
+    caretDown.css("right",".2em");
+    caretDown.css("color","#888");
+
+    elem.on("mouseover", function() {
+        $(this).find("i.fa-caret-square-o-down").css("opacity","1");
+    $(this).find("div div").css("z-index", 999999);
+    });
+
+    elem.on("mouseout", function() {
+        $(this).find("i.fa-caret-square-o-down").css("opacity",".3");
+    $(this).find("div div").css("z-index", "auto");
+    });
+
+    var elementsDiv = jQuery('<div/>', {
+        class: "bb_select_elements"
+    }).appendTo(innerDiv);
+    /* elementsDiv.css("position","fixed");
+    elementsDiv.css("width","inherit"); */
+
+    elementsDiv.append(kids);
+
+    kids.each(function (i) {
+        $(this).on("click", function () {
+//            console.log('$(this).on("click", function ()');
+//            console.log('$(this).html(): ' + $(this).html());
+            $(this).parent().siblings().first().html($(this).html());
+            $(this).addClass("bb_select_clicked");
+            $(this).siblings().removeClass("bb_select_clicked");
+            caretDown.appendTo(selectionDiv);
+            var vocab_name = $(this).find(".oracle_label em").text();
+            var extern_uri = $(this).find("a.extern_uri").attr("href");
+            var intern_uri = $(this).find("a.intern_uri").attr("href");
+            var vocab_description = $(this).find("span.vocab_description").text();
+            var vocab_score = $(this).find("span.vocab_score").text();
+            var search_term = $("#search_textinput_"+column_num).val();
+            elem.attr("value", '{"url":"'+extern_uri+'", "url_intern":"'+intern_uri+'", "prefix": '+JSON.stringify(replacePrefix(extern_uri))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'", "search_term": "'+search_term+'"}');
+            var predicate_fix = replacePrefix(extern_uri);
+            if (predicate_fix['suffix'] != "" && predicate_fix['prefix'] != "" ) {
+                var predicate = predicate_fix['prefix'] + ":" + predicate_fix['suffix'];
+                add_prefix_to_model(predicate_fix);
+            } else {
+                var predicate = "<" + predicate_fix['url'] + ">";
+            }
+            add_predicate_to_model(table_name, column_name, predicate);
+            addInnerDiv3(elem);
+            adapt_RDF_preview(column_num);
+        });
+    });
+
+    innerDiv.on("mouseover", function () {
+        elementsDiv.css("top", selectionDiv.offset().top + selectionDiv.outerHeight() - $(window).scrollTop());
+        elementsDiv.css("left", selectionDiv.offset().left);
+        elementsDiv.css("visibility", "visible");
+    });
+
+    innerDiv.on("mouseout", function () {
+        elementsDiv.css("visibility", "hidden");
+
+    });
+
+    //avoid the dropdown staying open when scrolling
+    $(window).on("scroll", function(){
+        elementsDiv.css("visibility", "hidden");
+    });
+
+    elementsDiv.trigger("mouseout");
+    checkEnableNextButton();
+}
+
+
+
+function addInnerDiv3(elem) {
+//    console.log("addInnerDiv3(elem = "+elem.prop('outerHTML')+")");
+    var id_array = elem.attr("id").split("___");
+//    console.log("id_array: "+id_array);
+    var value = elem.attr("value");
+    var value = JSON.parse(elem.attr("value").replace(/'/g,"\"")); // JSON.parse(model.val().replace(/'/g,"\""));
+//    console.log("value: "+ elem.attr("value"));
+    
+    //check if div[class: "bb_select_choices"] already exists
+    if ($(elem).prev().length == 0 ) {
+        var choices_div = jQuery('<div/>', {
+            class: "bb_select_choices",
+            id: "bb_select_choices___" + id_array[id_array.length-2] + "___" + id_array[id_array.length-1],
+            //text: "drop here",
+        }).insertBefore(elem);
+    } else {
+        var choices_div = $(elem).prev();
+    }
+    
+    var exists = false;
+    $(choices_div).children().each(function(i,x){
+        var url = $(this).find(".item_additional_info a:last").attr("href");
+//        console.log("url: "+ url);
+//        console.log("value.url: "+ value.url);
+//        console.log("value.url_intern: "+ value.url_intern);
+//        console.log("$(this): "+ $(this).prop('outerHTML'));
+        if(value.url_intern == url){
+            exists = true;
+        }
+    });
+    if(exists){
+        return;
+    }
+
+/*
+    {
+        "url":"http://dbpedia.org/ontology/id", 
+        "url_intern":"http://linda.epu.ntua.gr:8000/property/281582/", 
+        "prefix": {
+                "url":"http://dbpedia.org/ontology/",
+                "suffix":"id",
+                "prefix":"dbpedia"
+            }, 
+        "label": "id", 
+        "vocab_description": 
+        "DBPedia Ontology", 
+        "score": "100", 
+        "search_term": "ID"
+    }
+*/
+//    var clone = $(this).clone();
+    var item = jQuery('<div/>', {
+        id: "choice_info_1", 
+        class: "item",
+        style: "position: relative;",
+        html: "(<i class=\"fa fa-star\"></i> " + value.score + ") " + value.label,
+        //text: "drop here",
+    });//.insertBefore(elem);    
+    //clone.find(".item_additional_info").addClass("hide");
+    item.attr("value", elem.attr("value"));
+    
+    var additionalInfo = jQuery('<div/>', {
+        class: "item_additional_info",
+        html: value.vocab_description + '<br><a href="' + value.url + '"><i class="fa fa-external-link-square additl_vert_pad"></i></a> ' + value.url + '<br><a href="' + value.url_intern + '"><i class="fa fa-external-link-square additl_vert_pad"></i></a> ' + value.url_intern,
+        id: "choice_additional_info_1",
+    }).appendTo(item);
+                
+    var close_button = jQuery('<i/>', {
+        class: "fa fa-times close_button",
+        style: "position: absolute; top: 0.1em; right: 0.2em; color: rgb(136, 136, 136); opacity: 1;",
+        text: "",
+    }).appendTo(item);
+
+    close_button.click(function (event) {
+        //console.log($(this).prop('outerHTML'));
+        var value = $(this).parent().attr('value');
+        value = JSON.parse(value.replace(/'/g,"\""));
+        
+        var id_array = $(this).parent().parent().attr('id').split("___");
+        var table_name = id_array[id_array.length-2];
+        var column_name = id_array[id_array.length-1];
+        
+//        console.log("remove::");
+//        console.log($(this).parent().prop('outerHTML'));
+//        console.log("  table_name: " + table_name);
+//        console.log("  column_name: " + column_name);
+//        console.log("  value.url: " + value.url);
+//        console.log("value.vocab_description: " + value.vocab_description);
+        
+        var predicate_fix = replacePrefix(value.url);
+        if (predicate_fix['suffix'] != "" && predicate_fix['prefix'] != "" ) {
+            var predicate = predicate_fix['prefix'] + ":" + predicate_fix['suffix'];
+        } else {
+            var predicate = "<" + predicate_fix['url'] + ">";
+        }
+//        console.log("  predicate: " + predicate);
+        remove_predicate_from_model(table_name, column_name, predicate);
+        $(this).parent().remove();
+        adapt_RDF_preview(table_name + "___" + column_name);
+    });
+
+    var resize_button = jQuery('<i/>', {
+        class: "fa fa-caret-square-o-down resize_button",
+        style: "position: absolute; top: 0.1em; right: 1.1em; color: rgb(136, 136, 136); opacity: 1;",
+        text: "",
+    }).appendTo(item);
+
+    resize_button.click(function (event) {
+        var x = $(this).siblings(".item_additional_info");
+          x.toggleClass("hide");
+        //x.css("display", "");
+        $(this).closest(".item").siblings().find(".item_additional_info").addClass("hide");
+    });
+    choices_div.append(item);
+    resize_button.click();
+}
+
+
+function addInnerDiv2(elem) {
+//    console.log("addInnerDiv2(elem = "+elem+")");
+    
+    var container = jQuery('<div/>', {
+        class: "bb_container",
+    });    
+    
+    elem.wrap(container);  
+    
+    var inner1Div = jQuery('<div/>', {
+        class: "bb_inner1",
+    }).appendTo(elem);
+
+    var inner2Div = jQuery('<div/>', {
+        class: "bb_inner2",
+    }).appendTo(inner1Div);
+
+    var choices_div = jQuery('<div/>', {
+        class: "bb_select_choices",
+        //text: "drop here",
+    }).insertBefore(elem);
+
+   
+    var magnifier = jQuery('<i/>', {
+        class: "fa fa-search",
+        style: "margin-left: 3px;"
+    }).insertBefore(elem);
+    
+    magnifier.click(function(){
+        $(".bb_select2").trigger("change")
+    });
+    
+//    console.log("inner2Div.outerWidth(): " + inner2Div.outerWidth());
+/*    
+    var text_in = jQuery('<input/>', {
+        class: "bb_select_text_input",
+        type: "text",
+        placeholder: "enter search term here",
+    }).insertBefore(magnifier);
+*/
+    inner2Div.on("mouseover", function () {
+        inner2Div.css("height", "200px");
+        inner2Div.css("overflow-y", "scroll");
+    })
+
+    inner2Div.on("mouseout", function () {
+        var height = parseInt(inner2Div.find("div:first").css("height").replace(/[^-\d\.]/g, '')) + 4.0;
+        inner2Div.css("height", height + "px");
+        inner2Div.css("overflow-y", "hidden");
+    })
+
+
+    function apply_changes(json) {
+        elem.find(".bb_inner2").outerWidth(elem.find(".bb_inner1").innerWidth());
+        elem.find(".bb_inner2").empty();
+               
+        if ($.isArray(json.values)) {
+
+            $.each(json.values, function (i, x) {
+
+                var item = jQuery('<div/>', {
+                    class: "item",
+                    html: "(<i class=\"fa fa-star\"></i> " + x.score + ") " + x.name,
+                    id: "choice_info_" + i,
+                    style: "position: relative;"
+                });
+
+                var additionalInfo = jQuery('<div/>', {
+                    class: "item_additional_info",
+                    html: x.vocab + '<br><a href="' + x.url + '"><i class="fa fa-external-link-square additl_vert_pad"></i></a> ' + x.url + '<br><a href="' + x.url_intern + '"><i class="fa fa-external-link-square additl_vert_pad"></i></a> ' + x.url_intern,
+                    id: "choice_additional_info_" + i,
+                }).appendTo(item);
+
+                elem.find(".bb_inner2").append(item);
+
+                item.on("click", function (event) {
+                    
+                    //check if already in list
+                    var exists = false;
+                    $(".bb_select_choices .item").each(function(i,x){
+                        var url = $(this).find(".item_additional_info a:first").attr("href");
+                        if(item.find(".item_additional_info a:first").attr("href") == url){
+                            exists = true;
+                        } 
+                    });
+                    
+                    if(exists){
+                        return;
+                    }
+
+                    var clone = $(this).clone();
+                    clone.find(".item_additional_info").addClass("hide");
+                    var close_button = jQuery('<i/>', {
+                        class: "fa fa-times close_button",
+                        style: "position: absolute; top: 0.1em; right: 0.2em; color: rgb(136, 136, 136); opacity: 1;",
+                        text: "",
+                    }).appendTo(clone);
+
+                    close_button.click(function (event) {
+                        $(this).parent().remove();
+                    });
+
+                    var resize_button = jQuery('<i/>', {
+                        class: "fa fa-caret-square-o-down resize_button",
+                        style: "position: absolute; top: 0.1em; right: 1.1em; color: rgb(136, 136, 136); opacity: 1;",
+                        text: "",
+                    }).appendTo(clone);
+
+                    resize_button.click(function (event) {
+                        var x = $(this).siblings(".item_additional_info");
+                          x.toggleClass("hide");
+                        //x.css("display", "");
+                        $(this).closest(".item").siblings().find(".item_additional_info").addClass("hide");
+                    });
+
+                    choices_div.append(clone);
+                });
+
+                inner2Div.css("height", parseInt(inner2Div.find("div:first").css("height").replace(/[^-\d\.]/g, '')) + 4.0 + "px");
+            });
+
+        } else {
+            console.log("The content of the 'data-content' had the wrong formatting.");
+            return;
+        }
+    }
+
+    function change_function() {
+        var content_json = elem.attr("data-content");
+        try {
+            console.log("content_json: " +content_json);
+            content_json = $.parseJSON(content_json);
+        } catch (err) {
+            console.log("The content of the 'data-content' attribute was not valid JSON!");
+            return;
+        }
+
+        apply_changes(content_json);
+    };
+    elem.on("change", change_function);
+    elem.trigger("change");
+}
+/*
+$(".bb_select2").each(function (index) {
+        $(this).attr("data-content", '{"selected": [{"vocab":"Some Fine Vocab", "score":33 ,"name":"drei", "url": "http://someurl3.com", "url_intern": "http://inturl3.com"}], "values": [{"vocab":"Some Fine Vocab", "score":33 ,"name":"drei", "url": "http://someurl3.com", "url_intern": "http://inturl3.com"},{"vocab":"Some Fine Vocab", "score":11, "name":"vier", "url": "http://someurl4.com", "url_intern": "http://inturl4.com"},{"vocab":"Some Fine Vocab", "score":22, "name":"zwei", "url": "http://someurl2.com", "url_intern": "http://inturl2.com"},{"vocab":"Some Fine Vocab", "score":33 ,"name":"funf", "url": "http://someurl5.com", "url_intern": "http://inturl5.com"},{"vocab":"Some Fine Vocab", "score":33 ,"name":"sechs", "url": "http://someurl6.com", "url_intern": "http://inturl6.com"}]}');
+    addInnerDiv($(this));
+    $(this).trigger("change");
+
+
+
+    $(this).trigger("change");
+
+});
+*/
+
+var recent_result = null;
+var recent_textinput = null;
+var recent_text = null;
+var delimiter_symbol = "/";
+
+var model;
+
+
+function askOracle(widget_num) {
+//    console.log("askOracle(widget_num = "+widget_num+")");
+    
+    $("#result_from_model_"+widget_num).remove();
+    recent_textinput = $("#search_textinput_"+widget_num);
+    recent_icon = document.getElementById("icon_"+widget_num);
+    recent_icon.className = "fa fa-refresh fa-spin";
+
+
+    var request = $.ajax({
+        type: 'GET',
+        dataType: 'jsonp',
+        data: { 'property': recent_textinput.val() },
+        url: lindaGlobals.server_url+"/coreapi/recommend/",
+    });
+
+    request.fail(function (jqXHR, textStatus, errorThrown) {
+        recent_icon.className = "fa fa-exclamation-triangle";
+        console.log(jqXHR);
+        console.log(textStatus);
+        console.log(errorThrown);
+    });
+
+    request.success(function (data) {
+    
+        var result_container = $("#result_area___"+widget_num);
+        result_container.html('<div class="bb_select" id="search_result___'+widget_num+'"></div>');
+        recent_result = $("#search_result___"+widget_num);
+
+        recent_icon = $("#icon_"+widget_num);
+        recent_icon.attr("class", "fa fa-check");
+        recent_result.empty();
+        if(data.length===0){
+            recent_icon.attr("class", "fa fa-meh-o");
+        recent_result.append("No results found. Please modify the search term.<br>Or enter a predicate<input type=\"text\" id=\"id_predicate_input___" + widget_num + "\" onkeyup=\"delayedManually_change_predicate('"+ widget_num +"')\" autocomplete=\"off\">");
+            adapt_RDF_preview(widget_num);
+            return;
+        }
+        //recent_text.innerHTML = "please choose from list";
+        for(var i = 0; i < data.length; i++){
+
+            var uri = false;
+            var uri_intern = false;
+            if(typeof data[i].read_more !== "undefined" && data[i].read_more !== "undefined" && data[i].read_more){
+                uri_intern = lindaGlobals.server_url+data[i].read_more;
+            }
+            if(typeof data[i].full_uri !== "undefined" && data[i].full_uri !== "undefined" &&data[i].full_uri){
+                uri = data[i].full_uri;
+            } else if (data[i].uri) {
+                uri = data[i].uri;
+            }
+
+            //shorten uri
+            var short_uri = "no uri";
+            if(uri)
+                short_uri = shortenURI(uri, 40);
+
+            //css class star symbol for ranking
+            var star ="fa ";
+            if(data[i].ranking>80)
+                star += "fa-star";
+            else if(data[i].ranking>50)
+                star += "fa-star-half-o";
+            else
+                star += "fa-star-o";
+
+            var url_intern_html = "";
+            if(uri_intern)
+                url_intern_html = "<br><a class=\"intern_uri\" href=\""+uri_intern+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>lookup in LinDA dictionary";
+
+            var url_extern_html = "";
+            if(uri)
+                url_extern_html = "<br><a class=\"extern_uri\" href=\""+uri+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri;
+
+            recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i><span class=\"vocab_score\">"+Math.floor(data[i].ranking)+"</span>) <em>"+data[i].label+"</em><br><span class=\"vocab_description\">"+data[i].vocabulary+"</span></span>"+url_intern_html+url_extern_html+"</div>");
+        }
+
+//            console.log("data: " +data);
+/*
+            var uri = false;
+            var uri_intern = false;
+            if(typeof data[0].read_more !== "undefined" && data[0].read_more !== "undefined" && data[0].read_more){
+                uri_intern = lindaGlobals.server_url+data[0].read_more;
+            }
+            if(typeof data[0].full_uri !== "undefined" && data[0].full_uri !== "undefined" &&data[0].full_uri){
+                uri = data[0].full_uri;
+            } else if (data[0].uri) {
+                uri = data[0].uri;
+            }
+
+            //shorten uri
+            var short_uri = "no uri";
+            if(uri)
+                short_uri = shortenURI(uri, 40);
+
+            var text = '{"selected": [{"vocab":"'+data[0].vocabulary+'", "score": '+data[0].ranking+' ,"name":"'+data[0].label+'", "url": "'+short_uri+'", "url_intern": "'+short_uri+'"}],';
+            text += '"values" : [';
+            
+            for(var i = 0; i < data.length; i++){
+//                console.log("data["+i+"]: " +data[i]);
+//                console.log("data["+i+"].label: " +data[i].label);
+//                console.log("data["+i+"].ranking: " +data[i].ranking);
+//                console.log("data["+i+"].read_more: " +data[i].read_more);
+//                console.log("data["+i+"].full_uri: " +data[i].full_uri);
+//                
+//                console.log("data["+i+"].vocabulary: " +data[i].vocabulary);
+                
+                
+                var uri = false;
+                var uri_intern = false;
+                if(typeof data[i].read_more !== "undefined" && data[i].read_more !== "undefined" && data[i].read_more){
+                    uri_intern = lindaGlobals.server_url+data[i].read_more;
+                }
+                if(typeof data[i].full_uri !== "undefined" && data[i].full_uri !== "undefined" &&data[i].full_uri){
+                    uri = data[i].full_uri;
+                } else if (data[i].uri) {
+                    uri = data[i].uri;
+                }
+
+                //shorten uri
+                var short_uri = "no uri";
+                if(uri)
+                    short_uri = shortenURI(uri, 40);
+                    
+                text += '{"vocab": "'+ data[i].vocabulary+'", "score": '+data[i].ranking+', "name": "'+data[i].label+'", "url": "'+short_uri+'", "url_intern": "'+short_uri+'"},'; 
+                
+            }
+            text = text.substring(0, text.length-1);
+            text += ']}';
+            
+//            console.log("text: " + text);
+//            var obj =  jQuery.parseJSON(text);
+
+/*
+            "values": [{
+            "vocab": "Some Fine Vocab",
+            "score": 33,
+            "name": "drei",
+            "url": "http://someurl3.com",
+            "url_intern": "http://inturl3.com"
+            },
+* /
+*/
+
+//            $("#search_result___"+widget_num).attr("data-content", text);
+        addInnerDiv($("#search_result___"+widget_num));
+//            $("#search_result___"+widget_num).trigger("change");
+
+            //auto-select first element after oracle call
+        $("#search_result___"+widget_num+" * .bb_select_elements").children().first().trigger("click");
+    }
+    );
+    return request;
+}
+
+//only request ajax if no typing for 2 second
+var typingTimer;
+var doneTypingInterval = 2000;
+
+function delayedOracleCall(widget_num) {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(function(){askOracle(widget_num);}, doneTypingInterval);
+}
+
+
+//checks if all ajax calls were successful and maybe enables next button
+function checkEnableNextButton() {
+    var found_one_undefined = false;
+    $("div[id^='search_result___']").each(function() {
+        var data_string = $(this).attr("value") ;
+        if (typeof data_string === "undefined") {
+            found_one_undefined = true;
+        }
+    });
+    //enables or disabled next button depending on rdf graph completeness
+    if(!found_one_undefined) {
+        $("#button_next").removeAttr("disabled");
+    }
+    else {
+        $("#button_next").attr("disabled", "disabled");
+    }
+}
+
+
+function model_to_table(model) {
+//    console.log("model_to_table()");
+    var rdf_prefix = model['prefixes']; // var rdf_prefix = $("#id_hidden_rdf_prefix_field");
+    if (typeof rdf_prefix == "undefined") {
+        rdf_prefix = [];
+    }
+
+    var tbl = jQuery('<table/>', {
+        class: "rdf_table" 
+    });//.appendTo(elem);
+
+    if(model == undefined){
+        return tbl;
+    }
+
+    var num_tables = model['tables'].length;
+
+    for(var t = 0; t < num_tables; t++) {
+        var table = model['tables'][t];
+        var base_iri = model['tables'][t].base_iri;
+        if (typeof base_iri == "undefined" || base_iri == "/") {
+            base_iri = "";
+        }
+        var num_cols = table['columns'].length;
+        var num_selected_cols = 0;
+        var selected_cols_list = [];
+        for(var i = 0; i < num_cols; i++) {
+            if (table['columns'][i]['selected'] == "true") {
+                num_selected_cols++;
+                selected_cols_list.push(table['columns'][i].name);
+            }
+        }
+        var subject_uri = table['subject_uri'];
+        if (typeof subject_uri === "undefined") {
+            subject_uri = "";
+        }
+
+        if (table.handle_relTable == "false") {
+
+            var this_pk_list = [];
+            var this_pk_list_c = [];
+            
+            while (subject_uri.length > 0) {
+                var pk_index = subject_uri.search(/{.*?}/);
+                if (pk_index > -1) {
+                    var pk = subject_uri.match(/{.*?}/)[0];
+                    this_pk_list_c.push(pk);
+                    pk = pk.substring(1, pk.length-1);
+                    this_pk_list.push(pk);
+                    var substr_start = pk_index + pk.length + 2;
+                    var substr_length = subject_uri.length - substr_start;
+                    subject_uri = subject_uri.substr(substr_start , substr_length);
+                }
+            }
+        }
+        var values_10_selected = (table['values_10_selected'] === undefined) ? [] : table['values_10_selected'];
+        var numrows = num_selected_cols * values_10_selected.length;
+        var obj_array = [];
+        
+        for(var i = 1; i < values_10_selected.length; i++){
+            for(var j = 0; j < num_selected_cols; j++){
+                obj_array.push(values_10_selected[i][j]);
+            }
+        }
+
+        for (var i = 0, j = 0, k = 1; i < obj_array.length; i++, j++) {
+            subject_uri = table['subject_uri'];
+            var isNull = false;
+            if (j == num_selected_cols) {
+                j = 0;
+                k++;
+            }
+            var selected_column = $.grep(table['columns'], function (element, index) {
+                return element.name == selected_cols_list[j];
+            });
+            selected_column = selected_column[0];
+            
+            var rdf_predicate_list = selected_column['rdf_predicate'];
+            if (typeof rdf_predicate_list == "undefined") {
+                rdf_predicate_list = [];
+                rdf_predicate_list.push("<?predicate?>");
+            }
+            
+            for (var pl = 0; pl < rdf_predicate_list.length; pl++) {
+                var rdf_predicate = rdf_predicate_list[pl];
+//                console.log("  rdf_predicate: " +rdf_predicate);
+                var tr = jQuery('<tr/>', {} ).attr({
+                    id: "id_rdf_subject_" + table.name + "_" + k.toString()
+                });
+                var td1 = jQuery('<td/>', {} );
+
+                if (table.handle_relTable == "false") {
+
+                    var subject_str = base_iri;
+                    for (var ii = 0; ii < this_pk_list.length; ii++) {
+                        for (var jj = 0; jj < num_selected_cols; jj++) {
+                            if (this_pk_list[ii] == table['columns'][jj].name) {
+                                if (table['values_10'][k][jj] != "undefined" && table['values_10'][k][jj] != "" ) {
+                                    subject_uri = subject_uri.replace(this_pk_list_c[ii], table['values_10'][k][jj]);
+                                }
+                            }
+                        }
+                    }
+                    if (base_iri.length > 0) {
+                        subject_str = subject_str + subject_uri;
+                        subject_str = "<" + encodeURI(subject_str) + ">";
+                    } else {
+                        subject_str = "_" + table.name + ":" + subject_uri;
+                        subject_str = encodeURI(subject_str);
+                    }
+                    td1.text(subject_str).attr({
+                        id: "id_rdf_subject___" + table.name + "___" + selected_cols_list[j] + "___" +  k.toString()
+                    });
+                } else {
+                    td1.text("<?subject?>").attr({
+                        id: "id_rdf_subject___" + table.name + "___" + selected_cols_list[j] + "___" +  k.toString()
+                    });
+                }
+                td1.appendTo(tr);
+                    
+                var td2 = jQuery('<td/>', {} ).attr({
+                    id: "id_rdf_predicate___" + table.name + "___" + selected_cols_list[j] + "___" + k.toString()
+                });
+    //            var selected_column = $.grep(table['columns'], function (element, index) {
+    //                return element.name == selected_cols_list[j];
+    //            });
+
+//                if (typeof selected_column[0].rdf_predicate != "undefined" && selected_column[0].rdf_predicate != '') {
+//                    td2.text(selected_column[0].rdf_predicate);
+                td2.text(rdf_predicate);
+    //                 addInnerDiv($("#search_result___" + table.name + "___" + selected_column[0].name));
+                 if (k == 1) {
+                     var recent_result = $("div[id^=search_result___" + table.name + "___" + selected_column.name + "]");
+                     recent_result.attr("value", rdf_predicate);
+                         
+                    var innerDiv = jQuery('<div/>', {
+                        }).appendTo(recent_result);
+                    recent_result.append("<div><em>previosly selected</em></div>");
+                 }
+
+
+//                } else {
+//                    td2.text("<?predicate?>");
+//                }
+                td2.appendTo(tr);
+                var td3 = jQuery('<td/>', {} ).attr({
+                    id: "id_rdf_object___" + table.name + "___" + selected_cols_list[j] + "___" + k.toString()
+                });
+                if (obj_array[i] == 'None' || obj_array[i] == "") {
+                    isNull = true;
+                }
+                td3.text("\"" + obj_array[i] + "\"");
+                td3.appendTo(tr);
+                var td4 = jQuery('<td/>', {});
+                td4.text(".");
+                td4.appendTo(tr);
+                if (! isNull)
+                    tr.appendTo(tbl);
+            }
+
+        }
+    }
+    for (var i = 0; i < rdf_prefix.length; i++) {
+        pre = rdf_prefix[i];
+        var tr = jQuery('<tr/>', {} ).attr({id: pre['prefix'] });
+        var td1 = jQuery('<td/>', {} );
+        td1.text("@prefix");
+        td1.appendTo(tr);
+        var td2 = jQuery('<td/>', {} );
+        td2.text(pre['prefix'] + ":");
+        td2.appendTo(tr);
+        var td3 = jQuery('<td/>', {} );
+        td3.text("<" + pre['url'] + ">");
+        td3.appendTo(tr);
+        var td4 = jQuery('<td/>', {} );
+        td4.text(".");
+        td4.appendTo(tr);
+        tr.prependTo(tbl);
+    }
+    return tbl;
+}
+
+
+function get_fkeys() {
+    var fkeys = $("#id_hidden_fkeys");
+    if(fkeys.length > 0) {
+       return JSON.parse(fkeys.val().replace(/'/g,"\"") );
+    } else {
+        return false;
+    }
+}
+
+
+function update_relTable( table ) {
+//    console.log("update_relTable()");
+    model = get_db_model();
+    var fkeys = get_fkeys();
+
+    var rel_table_values_10 = table['values_10'];
+    var values_col_names = rel_table_values_10[0];
+    var val_1_col_name = values_col_names[0];
+    var val_2_col_name = values_col_names[1];
+    
+    var val_1_column = $.grep(table['columns'], function (element, index) {
+        return element.name == val_1_col_name;
+    });
+    val_1_column = val_1_column[0];
+    
+    var val_2_column = $.grep(table['columns'], function (element, index) {
+        return element.name == val_2_col_name;
+    });
+    val_2_column = val_2_column[0];
+    
+    var val_1_column_foreign_key_string_list = val_1_column.foreign_key_string.split(":");
+    var val_1_target_table_name = val_1_column_foreign_key_string_list[0];
+    var val_1_target_column_name = val_1_column_foreign_key_string_list[1];
+    
+    var val_2_column_foreign_key_string_list = val_2_column.foreign_key_string.split(":");
+    var val_2_target_table_name = val_2_column_foreign_key_string_list[0];
+    var val_2_target_column_name = val_2_column_foreign_key_string_list[1];
+    
+//    console.log("  table.name: " + table.name );
+//    console.log("  val_1_col_name: " + val_1_col_name );
+//    console.log("  val_2_col_name: " + val_2_col_name );
+
+//    console.log("  val_1_target_table_name: " + val_1_target_table_name );
+//    console.log("  val_1_target_column_name: " + val_1_target_column_name );
+
+//    console.log("  val_2_target_table_name: " + val_2_target_table_name );
+//    console.log("  val_2_target_column_name: " + val_2_target_column_name );
+    for(var i = 1; i < rel_table_values_10.length; i++) {
+        var values = rel_table_values_10[i];
+        
+        var val_1 = values[0];
+        var val_2 = values[1];
+        
+//        console.log("  val_1: " + val_1 );
+//        console.log("  val_2: " + val_2 );
+        
+        var firstelem = true;
+        $("td[id^='id_rdf_object___" + table.name + "___" + val_1_col_name + "']").each(function() {
+            if ('"' + val_1 + '"' == $(this).attr("value") && $(this).attr("lang") != "fr" ) {
+//                console.log("  $(this).attr(value): " + $(this).attr("value") );
+                if (firstelem) {
+                    var target_subject_td = $(this).siblings("[id^='id_rdf_subject___']");
+                    var new_val = "";
+                    $("td[id^='id_rdf_object___" + val_2_target_table_name + "___" + val_2_target_column_name + "']").each(function() {
+                        if ('"' + val_2 + '"' == $(this).text()) {
+                            var target_subject_td2 = $(this).siblings("[id^='id_rdf_subject___']");
+                            new_val = $(target_subject_td2).text();
+                        }
+                    });
+                    if (new_val != "") {
+//                        console.log("  new_val1: " + new_val );
+                        $(target_subject_td).text(new_val);
+                        $(this).attr("lang", "fr");
+                        firstelem = false;
+                    } else {
+
+                        var val_2_target_table = $.grep(model['tables'], function (element, index) {
+                            return element.name == val_2_target_table_name;
+                        });
+                        val_2_target_table = val_2_target_table[0];
+                        
+                        var val_2_target_table_values_10 = val_2_target_table['values_10'];
+                        var val_2_target_table_col_names = val_2_target_table_values_10[0];
+                        
+                        var row = 0;
+                        for(var j = 1; j < val_2_target_table_values_10.length; j++) {
+                            var val_2_target_table_values = val_2_target_table_values_10[j];
+                            for (var k = 0; k<val_2_target_table_values.length; k++) {
+                                if ( val_2 == val_2_target_table_values[k]) {
+                                    row = j;
+                                }
+                            }
+                        }
+                        
+//                        console.log("  row1: " + row );
+                        for (var j = 0; j<val_2_target_table_col_names.length; j++) {
+                            $("td[id^='id_rdf_object___" + val_2_target_table_name + "___" + val_2_target_table_col_names[j] + "']").each(function() {
+                                if ('"' + val_2_target_table_values_10[row][j] + '"' == $(this).text()) {
+                                    var target_subject_td2 = $(this).siblings("[id^='id_rdf_subject___']");
+                                    new_val = $(target_subject_td2).text();
+                                }
+                            });
+                            if (new_val != "") {
+                                $(target_subject_td).text(new_val);
+                                $(this).attr("lang", "fr");
+                                firstelem = false;
+                                break;
+                            }
+                        }
+//                    console.log("  new_val1: " + new_val );
+                    }
+                }
+            }
+        });
+        
+        var firstelem = true;
+        $("td[id^='id_rdf_object___" + table.name + "___" + val_2_col_name + "']").each(function() {
+            if ('"' + val_2 + '"' == $(this).attr("value")  && $(this).attr("lang") != "fr" ) {
+ //               console.log("  $(this).attr(value): " + $(this).attr("value") );
+                if (firstelem) {
+                    var target_subject_td = $(this).siblings("[id^='id_rdf_subject___']");
+                    var new_val = "";
+                    $("td[id^='id_rdf_object___" + val_1_target_table_name + "___" + val_1_target_column_name + "']").each(function() {
+                        if ('"' + val_1 + '"'  == $(this).text()) {
+                            var target_subject_td1 = $(this).siblings("[id^='id_rdf_subject___']");
+                            new_val = $(target_subject_td1).text();
+                        }
+                    });
+                    if (new_val != "") {
+                        $(target_subject_td).text(new_val);
+                        $(this).attr("lang", "fr");
+                        firstelem = false;
+                    } else {
+                        var val_1_target_table = $.grep(model['tables'], function (element, index) {
+                            return element.name == val_1_target_table_name;
+                        });
+                        val_1_target_table = val_1_target_table[0];
+                        var columns = val_1_target_table['columns'];
+
+                        var val_1_target_table_values_10 = val_1_target_table['values_10'];
+                        var val_1_target_table_col_names = val_1_target_table_values_10[0];
+                        
+                        var row = 0;
+                        for(var j = 1; j < val_1_target_table_values_10.length; j++) {
+                            var val_1_target_table_values = val_1_target_table_values_10[j];
+                            for (var k = 0; k<val_1_target_table_values.length; k++) {
+                                if ( val_1 == val_1_target_table_values[k]) {
+                                    row = j;
+                                }
+                            }
+                        }
+//                        console.log("  row2: " + row );
+                        for (var j = 0; j<val_1_target_table_col_names.length; j++) {
+                            new_val = "";
+                            $("td[id^='id_rdf_object___" + val_1_target_table_name + "___" + val_1_target_table_col_names[j] + "']").each(function() {
+                                if ('"' + val_1_target_table_values_10[row][j] + '"' == $(this).text()) {
+                                    var target_subject_td1 = $(this).siblings("[id^='id_rdf_subject___']");
+                                    new_val = $(target_subject_td1).text();
+                                }
+                            });
+                            if (new_val != "") {
+                                $(target_subject_td).text(new_val);
+                                $(this).attr("lang", "fr");
+                                firstelem = false;
+                                break;
+                            }
+                        }
+//                    console.log("  new_val2: " + new_val );
+                    }
+                }
+            }
+        });
+    }
+    
+    // reset lang attr
+    $("td[id^='id_rdf_object___" + table.name + "___" + val_1_col_name + "']").each(function() {
+//        $(this).attr("lang", "");
+    });
+
+    $("td[id^='id_rdf_object___" + table.name + "___" + val_2_col_name + "']").each(function() {
+//        $(this).attr("lang", "");
+    });
+
+}
+
+
+function delayedManually_change_predicate(widget_num) {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(function(){manually_change_predicate(widget_num);}, doneTypingInterval);
+}
+
+
+function manually_change_predicate(widget_num) {
+
+    var id_array = widget_num.split("___");
+    var column_name = id_array[id_array.length-1];
+    var table_name = id_array[id_array.length-2];
+    model = get_db_model();
+    var table = $.grep(model['tables'], function (element, index) {
+        return element.name == table_name;
+    });
+    table = table[0];
+    
+    var column = $.grep(table['columns'], function (element, index) {
+        return element.name == column_name;
+    });
+    column = column[0];
+    var input_val = $("input[id^=id_predicate_input___" + widget_num + "]").val();
+
+    var predicate  = "<" + input_val + ">";
+    
+    var column_rdf_predicate = column['rdf_predicate'];
+    
+    if (typeof column_rdf_predicate == "undefined") {
+        column_rdf_predicate = [];
+    }
+    var isNewPrediacte = true;
+    for (var i = 0; i< column_rdf_predicate.length; i++) {
+        if (column_rdf_predicate[i] == predicate) {
+            isNewPrediacte = false;
+        }
+    }
+    if (isNewPrediacte) {
+        column_rdf_predicate.push(predicate);
+        column['rdf_predicate'] = column_rdf_predicate;
+        $("#id_hidden_model").val(JSON.stringify(model));
+    }
+    
+    $("td[id^=id_rdf_predicate___" + widget_num + "]").text("<" + input_val  + ">");
+    var search_result_str = "search_result___" + widget_num;
+    $("div[id^=" + search_result_str + "]").attr("value", "ok");
+    checkEnableNextButton();
+
+}
+
+
+function model_to_table2(model) {
+    var num_tables = model['tables'].length;
+
+    for(var t = 0; t < num_tables; t++) {
+        var table = model['tables'][t];
+        // replace foreign keys
+        var num_columns = table['columns'].length;
+        for(var j = 0; j < num_columns; j++) {
+        
+            var column = table['columns'][j];
+            if (typeof column.foreign_key_string != "undefined" && column.foreign_key_string.length > 0 ) {
+                var t_table  = column.foreign_key_string.split(":")[0];
+                var t_column = column.foreign_key_string.split(":")[1];
+                var source_td = $("td[id^='id_rdf_object___" + table.name + "___" + column.name + "___']");
+                for (var k = 0; k < source_td.length; k++) {
+                    var old_val = $(source_td[k]).text();
+                    if (typeof $(source_td[k]).attr("value") != "undefined") {
+                        old_val = $(source_td[k]).attr("value");
+                    }
+                    var target_td = $("td[id^='id_rdf_subject___" + t_table + "_']");
+                    for (var l = 0; l < target_td.length; l++) {
+                        var td_text =  new String($(target_td[l]).text());
+                        if ( td_text.search(old_val) > -1 ) {
+                            var t_val =  $(target_td[l]).text();
+                        }
+                    }
+                    var targetTable = $.grep(model['tables'], function (element, index) {
+                        return element.name == t_table;
+                    });
+                    targetTable = targetTable[0];
+                    
+                    var targetColumn = $.grep(targetTable['columns'], function (element, index) {
+                        return element.name == t_column;
+                    });
+        
+                    if (targetColumn[0].isPrimaryKey ==  "PRI" ) {
+                        if ( targetTable['base_iri'].length > 0 ) {
+                            new_val = "<" + targetTable['base_iri'] + targetTable['subject_uri'] + ">";
+                            new_val = new_val.replace("{" + t_column + "}", old_val);
+                            new_val = new_val.replace(/\"/g, '');
+                            $(source_td[k]).text(new_val);
+                            $(source_td[k]).attr("value", old_val);                                        
+                        } else {
+                            new_val = "_:" + targetTable['subject_uri'];
+                            new_val = new_val.replace("{" + t_column + "}", old_val);
+                            new_val = new_val.replace(/\"/g, '');
+                            $(source_td[k]).text(new_val);
+                            $(source_td[k]).attr("value", old_val);                                        
+                        }
+                    }
+                }
+            }
+        }
+        if (table.handle_relTable == "true") {
+            update_relTable(table);
+        }
+
+    }
+    
+}
+
+
+function add_prefix_to_model(newPrefix) {
+    model = get_db_model();
+    model_prefixes = model['prefixes'];
+    
+    if (typeof(model_prefixes) == 'undefined') {
+        model_prefixes = [];
+    }
+    for (var i = 0; i< model_prefixes.length; i++) {
+        if (model_prefixes[i].url == newPrefix['url']) {
+            return;
+        }
+    }
+    
+    var new_prefix_obj = { prefix: newPrefix['prefix'], url: newPrefix['url'] };
+    model_prefixes.push(new_prefix_obj);
+    model['prefixes'] = model_prefixes;
+    $("#id_hidden_model").val(JSON.stringify(model));
+}
+
+
+function add_predicate_to_model(table_name, column_name, predicate) {
+    model = get_db_model();
+    var table = $.grep(model['tables'], function (element, index) {
+        return element.name == table_name;
+    });
+    table = table[0];
+    
+    var column = $.grep(table['columns'], function (element, index) {
+        return element.name == column_name;
+    });
+    column = column[0];
+    
+    var column_rdf_predicate = column['rdf_predicate'];
+    
+    if (typeof column_rdf_predicate == "undefined") {
+        column_rdf_predicate = [];
+    }
+    for (var i = 0; i< column_rdf_predicate.length; i++) {
+        if (column_rdf_predicate[i] == predicate) {
+            return;
+        }
+    }
+    column_rdf_predicate.push(predicate);
+    column['rdf_predicate'] = column_rdf_predicate;
+    $("#id_hidden_model").val(JSON.stringify(model));
+}
+
+
+function remove_predicate_from_model(table_name, column_name, predicate) {
+    model = get_db_model();
+    var table = $.grep(model['tables'], function (element, index) {
+        return element.name == table_name;
+    });
+    table = table[0];
+    
+    var column = $.grep(table['columns'], function (element, index) {
+        return element.name == column_name;
+    });
+    column = column[0];
+    
+    var column_rdf_predicate_list = column['rdf_predicate'];
+    
+    if (typeof column_rdf_predicate_list == "undefined") {
+        return;
+    }
+    
+    for (var i = 0; i< column_rdf_predicate_list.length; i++) {
+        if (column_rdf_predicate_list[i] == predicate) {
+//            console.log("column_rdf_predicate_list: " + column_rdf_predicate_list);
+            column_rdf_predicate_list.splice(i, 1);
+//            console.log("column_rdf_predicate_list: " + column_rdf_predicate_list);
+        }
+    }
+    column['rdf_predicate'] = column_rdf_predicate_list;
+    $("#id_hidden_model").val(JSON.stringify(model));
+}
+
+
+function remove_old_trs(column_num) {
+//    console.log("remove_old_trs()");
+    var id_array = column_num.split("___");
+    var column_name = id_array[id_array.length-1];
+    var table_name = id_array[id_array.length-2];
+    var old_tds = $("td[id^=id_rdf_predicate___" + table_name + "___" + column_name + "]");
+    $(old_tds).parent().remove();
+}
+
+
+function adapt_RDF_preview(column_num) {
+//    console.log("adapt_RDF_preview()");
+    remove_old_trs(column_num) ;
+    var id_array = column_num.split("___");
+    var column_name = id_array[id_array.length-1];
+    var table_name = id_array[id_array.length-2];
+    model = get_db_model();
+    var table = $.grep(model['tables'], function (element, index) {
+        return element.name == table_name;
+    });
+    table = table[0];
+    
+    var column = $.grep(table['columns'], function (element, index) {
+        return element.name == column_name;
+    });
+    column = column[0];
+
+    var tbl = $('table[class="rdf_table"]')[0];
+    
+//    bb_select_choices___Student___FirstName
+//    var bb_select_choices_str = "bb_select_choices___" + column_num;
+//    var bb_select_choices = $("div[id^=" + bb_select_choices_str + "]");
+//    var bb_select_choices_childs = $(bb_select_choices).children();
+//    var bb_select_choices_num_childs = $(bb_select_choices_childs).length;
+    
+    var column_rdf_predicate_list = column.rdf_predicate;
+    if (typeof column_rdf_predicate_list == "undefined" || column_rdf_predicate_list.length == 0) {
+        column_rdf_predicate_list = [];
+        column_rdf_predicate_list.push("<?predicate?>")
+    }
+//    console.log("  column_rdf_predicate_list: " + column_rdf_predicate_list );
+    
+    for (var pl = 0; pl < column_rdf_predicate_list.length; pl++) {
+        var rdf_predicate = column_rdf_predicate_list[pl];
+//        console.log("  rdf_predicate: " +rdf_predicate);
+        var has_prefix = false;
+        
+        var base_iri = table.base_iri;
+        if (typeof base_iri == "undefined" || base_iri == "/") {
+            base_iri = "";
+        }
+        var num_cols = 1;
+        var num_selected_cols = 1;
+        var selected_cols = 1;
+        var selected_cols_list = [];
+        selected_cols_list.push(column.name);
+        
+        var subject_uri = table['subject_uri'];
+        if (typeof subject_uri === "undefined") {
+            subject_uri = "";
+        }
+
+        if (table.handle_relTable == "false") {
+
+            var this_pk_list = [];
+            var this_pk_list_c = [];
+            
+            while (subject_uri.length > 0) {
+                var pk_index = subject_uri.search(/{.*?}/);
+                if (pk_index > -1) {
+                    var pk = subject_uri.match(/{.*?}/)[0];
+                    this_pk_list_c.push(pk);
+                    pk = pk.substring(1, pk.length-1);
+                    this_pk_list.push(pk);
+                    var substr_start = pk_index + pk.length + 2;
+                    var substr_length = subject_uri.length - substr_start;
+                    subject_uri = subject_uri.substr(substr_start , substr_length);
+                }
+            }
+        }
+        var values_10_selected = (table['values_10_selected'] === undefined) ? [] : table['values_10_selected'];
+        var numrows = num_selected_cols * values_10_selected.length;
+        var obj_array = [];
+        
+        var column_index = 0;
+        
+        for(var i = 0; i < values_10_selected[0].length; i++) {
+            if (values_10_selected[0][i] == column.name) {
+                column_index = i;
+                break;
+            }
+        }
+//        console.log("  column_index: " + column_index );
+        
+        for(var i = 1; i < values_10_selected.length; i++){
+            obj_array.push(values_10_selected[i][column_index]);
+        }
+//        console.log("  obj_array: " + obj_array );
+
+        for (var i = 0, j = 0, k = 1; i < obj_array.length; i++, j++) {
+            subject_uri = table['subject_uri'];
+            var isNull = false;
+            if (j == num_selected_cols) {
+                j = 0;
+                k++;
+            }
+            var tr = jQuery('<tr/>', {} ).attr({
+                id: "id_rdf_subject_" + table.name + "_" + k.toString() + "___" + pl
+            });
+            var td1 = jQuery('<td/>', {} );
+
+            if (table.handle_relTable == "false") {
+
+                var subject_str = base_iri;
+                for (var ii = 0; ii < this_pk_list.length; ii++) {
+                    for (var jj = 0; jj < num_selected_cols; jj++) {
+                        if (this_pk_list[ii] == table['columns'][jj].name) {
+                            if (table['values_10'][k][jj] != "undefined" && table['values_10'][k][jj] != "" ) {
+                                subject_uri = subject_uri.replace(this_pk_list_c[ii], table['values_10'][k][jj]);
+                            }
+                        }
+                    }
+                }
+                if (base_iri.length > 0) {
+                    subject_str = subject_str + subject_uri;
+                    subject_str = "<" + encodeURI(subject_str) + ">";
+                } else {
+                    subject_str = "_" + table.name + ":" + subject_uri;
+                    subject_str = encodeURI(subject_str);
+                }
+                td1.text(subject_str).attr({
+                    id: "id_rdf_subject___" + table.name + "___" + selected_cols_list[j] + "___" +  k.toString() + "___" + pl
+                });
+            } else {
+                td1.text("<?subject?>").attr({
+                    id: "id_rdf_subject___" + table.name + "___" + selected_cols_list[j] + "___" +  k.toString() + "___" + pl
+                });
+            }
+            td1.appendTo(tr);
+            
+            var td2 = jQuery('<td/>', {} ).attr({
+                id: "id_rdf_predicate___" + table.name + "___" + selected_cols_list[j] + "___" + k.toString() + "___" + pl
+            });
+            td2.text(rdf_predicate);
+            td2.appendTo(tr);
+            var td3 = jQuery('<td/>', {} ).attr({
+                id: "id_rdf_object___" + table.name + "___" + selected_cols_list[j] + "___" + k.toString() + "___" + pl
+            });
+            if (obj_array[i] == 'None' || obj_array[i] == "") {
+                isNull = true;
+            }
+            td3.text("\"" + obj_array[i] + "\"");
+            td3.appendTo(tr);
+            var td4 = jQuery('<td/>', {});
+            td4.text(".");
+            td4.appendTo(tr);
+            if (! isNull) {
+                tr.appendTo(tbl);
+            }
+        }
+    }
+
+    /*
+    var isFirstChild = true;
+    $(bb_select_choices_childs).each(function( index ) {
+        console.log( "isFirstChild: " + isFirstChild );
+        var data_string = $( this ).attr("value");
+        console.log( index + ": " + data_string );
+        var has_prefix = false;
+        if (typeof data_string !== "undefined" && ! data_string.startsWith("<")) {
+            var data = jQuery.parseJSON(data_string);
+            if (typeof data_string !== "undefined" && ! data_string.startsWith("<")) {
+                var data = jQuery.parseJSON(data_string);
+                if (data['prefix']['prefix'] != "") {
+                    console.log( "has_prefix");
+                    has_prefix = true;
+                    if (isFirstChild) {
+                        console.log( "isFirstChild");
+                        $("td[id^=id_rdf_predicate___" + column_num + "]").text(data['prefix']['prefix'] + ":" + data['prefix']['suffix']);
+                    } else {
+                        console.log( "is NOT FirstChild");
+
+                        var base_iri = table.base_iri;
+                        if (typeof base_iri == "undefined" || base_iri == "/") {
+                            base_iri = "";
+                        }
+                        var num_cols = 1;
+                        var num_selected_cols = 1;
+                        var selected_cols = 1;
+                        var selected_cols_list = [];
+                        selected_cols_list.push(column.name);
+                        
+                        var subject_uri = table['subject_uri'];
+                        if (typeof subject_uri === "undefined") {
+                            subject_uri = "";
+                        }
+
+                        if (table.handle_relTable == "false") {
+
+                            var this_pk_list = [];
+                            var this_pk_list_c = [];
+                            
+                            while (subject_uri.length > 0) {
+                                var pk_index = subject_uri.search(/{.*?}/);
+                                if (pk_index > -1) {
+                                    var pk = subject_uri.match(/{.*?}/)[0];
+                                    this_pk_list_c.push(pk);
+                                    pk = pk.substring(1, pk.length-1);
+                                    this_pk_list.push(pk);
+                                    var substr_start = pk_index + pk.length + 2;
+                                    var substr_length = subject_uri.length - substr_start;
+                                    subject_uri = subject_uri.substr(substr_start , substr_length);
+                                }
+                            }
+                        }
+                        var values_10_selected = (table['values_10_selected'] === undefined) ? [] : table['values_10_selected'];
+                        var numrows = num_selected_cols * values_10_selected.length;
+                        var obj_array = [];
+                        
+                        var column_index = 0;
+                        
+                        for(var i = 0; i < values_10_selected[0].length; i++) {
+                            if (values_10_selected[0][i] == column.name) {
+                                column_index = i;
+                                break;
+                            }
+                        }
+                        console.log( "column_index: " + column_index );
+                        
+                        for(var i = 1; i < values_10_selected.length; i++){
+                            obj_array.push(values_10_selected[i][column_index]);
+                        }
+                        console.log( "obj_array: " + obj_array );
+
+                        for (var i = 0, j = 0, k = 1; i < obj_array.length; i++, j++) {
+                            subject_uri = table['subject_uri'];
+                            var isNull = false;
+                            if (j == num_selected_cols) {
+                                j = 0;
+                                k++;
+                            }
+                            var tr = jQuery('<tr/>', {} ).attr({
+                                id: "id_rdf_subject_" + table.name + "_" + k.toString() + "___" + index
+                            });
+                            var td1 = jQuery('<td/>', {} );
+
+                            if (table.handle_relTable == "false") {
+
+                                var subject_str = base_iri;
+                                for (var ii = 0; ii < this_pk_list.length; ii++) {
+                                    for (var jj = 0; jj < num_selected_cols; jj++) {
+                                        if (this_pk_list[ii] == table['columns'][jj].name) {
+                                            if (table['values_10'][k][jj] != "undefined" && table['values_10'][k][jj] != "" ) {
+                                                subject_uri = subject_uri.replace(this_pk_list_c[ii], table['values_10'][k][jj]);
+                                            }
+                                        }
+                                    }
+                                }
+                                if (base_iri.length > 0) {
+                                    subject_str = subject_str + subject_uri;
+                                    subject_str = "<" + encodeURI(subject_str) + ">";
+                                } else {
+                                    subject_str = "_" + table.name + ":" + subject_uri;
+                                    subject_str = encodeURI(subject_str);
+                                }
+                                td1.text(subject_str).attr({
+                                    id: "id_rdf_subject___" + table.name + "___" + selected_cols_list[j] + "___" +  k.toString() + "___" + index
+                                });
+                            } else {
+                                td1.text("<?subject?>").attr({
+                                    id: "id_rdf_subject___" + table.name + "___" + selected_cols_list[j] + "___" +  k.toString() + "___" + index
+                                });
+                            }
+                            td1.appendTo(tr);
+                            
+                            var td2 = jQuery('<td/>', {} ).attr({
+                                id: "id_rdf_predicate___" + table.name + "___" + selected_cols_list[j] + "___" + k.toString() + "___" + index
+                            });
+                            td2.text(data['prefix']['prefix'] + ":" + data['prefix']['suffix']);
+                            td2.appendTo(tr);
+                            var td3 = jQuery('<td/>', {} ).attr({
+                                id: "id_rdf_object___" + table.name + "___" + selected_cols_list[j] + "___" + k.toString() + "___" + index
+                            });
+                            if (obj_array[i] == 'None' || obj_array[i] == "") {
+                                isNull = true;
+                            }
+                            td3.text("\"" + obj_array[i] + "\"");
+                            td3.appendTo(tr);
+                            var td4 = jQuery('<td/>', {});
+                            td4.text(".");
+                            td4.appendTo(tr);
+                            if (! isNull) {
+                                tr.appendTo(tbl);
+                            }
+                    
+                        }
+                    }
+                    var tbody =  $("td[id^=id_rdf_predicate___" + column_num + "]").parents( "tbody" );
+                    if ( tbody.children("[id=" + data['prefix']['prefix'] + "]").length == 0) {
+                        var tr = jQuery('<tr/>', {} ).attr({id: data['prefix']['prefix'] });
+                        var td1 = jQuery('<td/>', {} );
+                        td1.text("@prefix");
+                        td1.appendTo(tr);
+                        var td2 = jQuery('<td/>', {} );
+                        td2.text(data['prefix']['prefix'] + ":");
+                        td2.appendTo(tr);
+                        var td3 = jQuery('<td/>', {} );
+                        td3.text("<" + data['prefix']['url'] + ">");
+                        td3.appendTo(tr);
+                        var td4 = jQuery('<td/>', {} );
+                        td4.text(".");
+                        td4.appendTo(tr);
+                        tr.prependTo(tbody);
+                    } 
+                } else { // END if (data['prefix']['prefix'] != "") {
+                    console.log( "has NO prefix ");
+                    if (isFirstChild) {
+                        console.log( "isFirstChild");
+                        $("td[id^=id_rdf_predicate___" + column_num + "]").text("<" + data['url'] + ">");
+                    } else {
+                        console.log( "is NOT FirstChild");
+                        var base_iri = table.base_iri;
+                        if (typeof base_iri == "undefined" || base_iri == "/") {
+                            base_iri = "";
+                        }
+                        var num_cols = 1;
+                        var num_selected_cols = 1;
+                        var selected_cols = 1;
+                        var selected_cols_list = [];
+                        selected_cols_list.push(column.name);
+                        var column_index = 0;
+                        for(var i = 0; i < table['columns'].length; i++) {
+                            if (table['columns'][i]['name'] == column.name) {
+                                column_index = i;
+                                break;
+                            }
+                        }
+
+                        var subject_uri = table['subject_uri'];
+                        if (typeof subject_uri === "undefined") {
+                            subject_uri = "";
+                        }
+
+                        if (table.handle_relTable == "false") {
+
+                            var this_pk_list = [];
+                            var this_pk_list_c = [];
+                            
+                            while (subject_uri.length > 0) {
+                                var pk_index = subject_uri.search(/{.*?}/);
+                                if (pk_index > -1) {
+                                    var pk = subject_uri.match(/{.*?}/)[0];
+                                    this_pk_list_c.push(pk);
+                                    pk = pk.substring(1, pk.length-1);
+                                    this_pk_list.push(pk);
+                                    var substr_start = pk_index + pk.length + 2;
+                                    var substr_length = subject_uri.length - substr_start;
+                                    subject_uri = subject_uri.substr(substr_start , substr_length);
+                                }
+                            }
+                        }
+                        var values_10_selected = (table['values_10_selected'] === undefined) ? [] : table['values_10_selected'];
+                        var numrows = num_selected_cols * values_10_selected.length;
+                        var obj_array = [];
+                        
+                        for(var i = 1; i < values_10_selected.length; i++){
+                            obj_array.push(values_10_selected[i][column_index]);
+                        }
+
+                        for (var i = 0, j = 0, k = 1; i < obj_array.length; i++, j++) {
+                            subject_uri = table['subject_uri'];
+                            var isNull = false;
+                            if (j == num_selected_cols) {
+                                j = 0;
+                                k++;
+                            }
+                            var tr = jQuery('<tr/>', {} ).attr({
+                                id: "id_rdf_subject_" + table.name + "_" + k.toString() + "___" + index
+                            });
+                            var td1 = jQuery('<td/>', {} );
+
+                            if (table.handle_relTable == "false") {
+
+                                var subject_str = base_iri;
+                                for (var ii = 0; ii < this_pk_list.length; ii++) {
+                                    for (var jj = 0; jj < num_selected_cols; jj++) {
+                                        if (this_pk_list[ii] == table['columns'][jj].name) {
+                                            if (table['values_10'][k][jj] != "undefined" && table['values_10'][k][jj] != "" ) {
+                                                subject_uri = subject_uri.replace(this_pk_list_c[ii], table['values_10'][k][jj]);
+                                            }
+                                        }
+                                    }
+                                }
+                                if (base_iri.length > 0) {
+                                    subject_str = subject_str + subject_uri;
+                                    subject_str = "<" + encodeURI(subject_str) + ">";
+                                } else {
+                                    subject_str = "_" + table.name + ":" + subject_uri;
+                                    subject_str = encodeURI(subject_str);
+                                }
+                                td1.text(subject_str).attr({
+                                    id: "id_rdf_subject___" + table.name + "___" + selected_cols_list[j] + "___" +  k.toString() + "___" + index
+                                });
+                            } else {
+                                td1.text("<?subject?>").attr({
+                                    id: "id_rdf_subject___" + table.name + "___" + selected_cols_list[j] + "___" +  k.toString() + "___" + index
+                                });
+                            }
+                            td1.appendTo(tr);
+                            
+                            var td2 = jQuery('<td/>', {} ).attr({
+                                id: "id_rdf_predicate___" + table.name + "___" + selected_cols_list[j] + "___" + k.toString() + "___" + index
+                            });
+                            var selected_column = $.grep(table['columns'], function (element, index) {
+                                return element.name == selected_cols_list[j];
+                            });
+                            td2.text("<" + data['url'] + ">");
+                            td2.appendTo(tr);
+                            var td3 = jQuery('<td/>', {} ).attr({
+                                id: "id_rdf_object___" + table.name + "___" + selected_cols_list[j] + "___" + k.toString() + "___" + index
+                            });
+                            if (obj_array[i] == 'None' || obj_array[i] == "") {
+                                isNull = true;
+                            }
+                            td3.text("\"" + obj_array[i] + "\"");
+                            td3.appendTo(tr);
+                            var td4 = jQuery('<td/>', {});
+                            td4.text(".");
+                            td4.appendTo(tr);
+                            if (! isNull) {
+                                tr.appendTo(tbl);
+                            }
+                    
+                        }   
+                    }
+                }
+                isFirstChild = false;
+                $("#id_hidden_model").val(JSON.stringify(model));
+            }
+        }
+    });
+    */
+//    var search_result_str = "search_result___" + column_num;
+//    var data_string = $("div[id^=" + search_result_str + "]").attr("value");
+
+    model_to_table2(model);
+    if (table.handle_relTable == "true") {
+        update_relTable(table);
+    }
+    checkEnableNextButton();
+}
+
+
+/*
+//get predicate data that is stored in json model and display on page
+function populate_from_model(widget_num, predicate) {
+    //build a bb_select dropdown without dropdown functionality
+
+    var short_uri = predicate.url;
+    if(predicate.url)
+        short_uri = shortenURI(predicate.url, 40);
+
+
+    var predicate_div = "<div class=\"bb_select_nodropdown\" id=\"result_from_model_"+widget_num+"\"><span class=\"oracle_label\"><em>"+predicate.label+"</em><br><span class=\"vocab_description\">"+predicate.vocab_description+"</span></span><br><a href=\""+predicate.url_intern+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>lookup in LinDA dictionary<br><a href=\""+predicate.url+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>";
+
+    var parent = $("#search_result___"+widget_num).parent();
+    $("#search_result___"+widget_num).remove();
+    $("#result_from_model_"+widget_num).remove();
+    $("#search_textinput_"+widget_num).val(predicate.search_term);
+    parent.html(parent.html()+predicate_div);
+}
+*/
+
+$( document ).ready(function() {
+
+    var rdf_table = $("#id_rdf_table");
+    var rdf_view = $("#rdf_view");
+    model = get_db_model();
+    var rdf_tbl = model_to_table(model);
+    rdf_view.find("table").remove();
+    rdf_view.append(rdf_tbl);
+    var save_button = document.getElementById('save_mapping');
+    
+    model_to_table2(model);    
+    checkEnableNextButton();
+    
+    $("#button_back").on("click", function () {
+        var form = $("#main_form");
+        form.attr("action", "4");
+        form.submit();
+    });
+
+    $("#save_mapping").on("click", function () {
+//        console.log('$("#save_mapping").on("click", function ()');
+        var current_page = 5;
+        rdb_save_mapping(current_page);
+        return false;
+    });
+    
+    $("i[id^=icon_").click();
+    
+});
+
+
+
+</script>
+{% endblock %}

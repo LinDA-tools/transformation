@@ -98,3 +98,36 @@ class Mapping(models.Model):
     fileName = models.CharField(max_length='512', null=True)
     csvName = models.CharField(max_length='512', null=True)
     mappingFile = models.FileField(upload_to='transformation/mappings')
+    
+# ###############################################
+#########       RDB                    ##########
+# ###############################################
+
+class DbMapping(models.Model):
+    DATABASE_TYPES = (
+        ('MY', 'MySQL'),
+        ('PO', 'PostgreSQL'),
+        ('SL', 'SQLite'),
+        ('OR', 'Oracle'),
+        ('MS', 'MS-SQL-Server'),
+    )
+    user = models.ForeignKey(User)
+    name = models.CharField(max_length=50, blank=True, default='')
+    date = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    host = models.CharField(max_length=50)
+    port = models.CharField(max_length=6, blank=True)
+    type = models.CharField(max_length=2, choices=DATABASE_TYPES)
+    database = models.CharField(max_length=50)
+    dbuser = models.CharField(max_length=50, default='')
+    password = models.CharField(max_length=50)
+    model = models.TextField(default='')
+    fkeys = models.TextField(default='')
+    current_page = models.IntegerField(default=1)
+
+    def __str__(self):
+        return "DbMapping #" + str(self.name)
+
+# ###############################################
+#########       END RDB                ##########
+# ###############################################
+

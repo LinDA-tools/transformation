@@ -1,0 +1,269 @@
+{% extends "transformation-base.html" %}
+
+{% block content %}
+
+    {% include "transformation/snippets/title_snippet.html" with format='RDB' %}
+
+    <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ model }}">
+    <input type="hidden" name="hidden_source" id="hidden_source" value="1">
+
+<div class="minimizable">
+    <div class="grid content">
+        <h3>Database connection</h3>
+        <div class="col-5-10 left-side-box">
+            
+            <p>Please provide the following information for the database connection:<br>
+                <ul>
+                    <li>host</li>
+                    <li>port</li>
+                    <li>database-type</li>
+                    <li>database</li>
+                    <li>user</li>
+                    <li>password</li>
+                </ul>
+            and press the <em>Connect</em> button.</p>
+
+            <p>Once connected press the <em>next step</em> button at the top to proceed.</p>
+
+            <div class="show-additional-help">show more</div>
+            <div class="additional-help">
+            <p><em>How it works:</em><br>The actual conversion will take place on the LinDA server. Therefore, the databse connection will be established from the server. <br>
+            The database user needs at least read-access to the selected database. Further steps will guide you to transform the database-schema and data.</p>
+            </div>
+
+        </div>
+
+        <div class="col-5-10 right-side-box">
+            <p class="red">
+                {{ form.DatabaseSelectForm.errors.as_text }}
+            </p>
+            <hr>
+
+            <table>
+                <tr>
+                    <td>
+                        <label for="{{ form.db_host.id_for_label }}">host</label></span>
+                    </td>
+                    <td>
+                        {{ form.db_host }}
+                    </td>
+                    <td> * </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="{{ form.db_port.id_for_label }}">port</label>
+                    </td>
+                    <td>
+                        {{ form.db_port }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="{{ form.db_databasetype.id_for_label }}">database-type</label>
+                    </td>
+                    <td>
+                        <select name="db_databasetype" size="1"> 
+                            <option value="MY" selected>MySQL</option> 
+                            <option value="PO">PostgreSQL</option> 
+                            <option value="SL">SQLite</option> 
+                            <option value="OR">Oracle</option> 
+                            <option value="MS">MS-SQL-Server</option> 
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="{{ form.db_database.id_for_label }}">database</label>
+                    </td>
+                    <td>
+                        {{ form.db_database }}
+                    </td>
+                    <td> * </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <label for="{{ form.db_user.id_for_label }}">user</label>
+                    </td>
+                    <td>
+                        {{ form.db_user }}
+                    </td>
+                    <td> * </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="{{ form.db_password.id_for_label }}">password</label>
+                    </td>
+                    <td>
+                        {{ form.db_password }}
+                    </td>
+                    <td> * </td>
+                </tr>
+            </table>
+            * required
+            <hr>
+            <div class="center">
+                <button type="submit" value="Test DB" name="button_test" id="id_button_test" class="center">Connect</button>
+            </div>
+            {% if connection == 'success' %}
+                <div id="success">
+                    <p>connection success</p>
+                </div>
+            {% elif connection == 'failed' %}
+                <div id="failed">
+                    <p>connection failed</p>
+                    <p>{{ message }}</p>
+                </div>
+            {% elif connection == 'load' %}
+                <div id="success">
+                    <p>transformation successfully restored</p>
+                </div>
+            {% elif connection == 'back' %}
+                <div id="success">
+                    <p>connection successfully restored</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+{% if model  %}
+<div class="content scrollit">
+
+    <h3>DATA VIEW</h3>
+    
+    <h4>Database: <b>{{ model.database }}</b></h4>
+    {% for table in model.tables %}
+        <span  id="{{ table.name }}">table <b>{{ table.name }}</b>
+            {% if table.isRelTable == "true" %}
+            <br /> <b>I am a relTable</b>
+            {% else %}
+                &nbsp; referenced by: &nbsp;
+            {% endif %}
+            {% for fkey in fkeys %}
+                {% if fkey.3 ==  table.name %}
+                    <a href="#{{ fkey.0 }}">{{ fkey.0 }}</a>&nbsp;
+                {% endif %}
+            {% endfor %}
+        </span>
+            
+            <table class="table_view">
+                <thead>
+                    <tr>
+                        {% for column in table.columns %}
+                            <td>
+                                {% if column.isPrimaryKey == 'PRI' %}
+                                   <b>{{ column.name }}</b> (Primary Key)<br>
+                                {% else %}
+                                    <b>{{ column.name }}</b><br>                                
+                                {% endif %}
+                                {{ column.type }}<br>
+                                {% if not column.hasNullValues %}
+                                    NOT NULL<br>
+                                {% else %}
+                                    <br>
+                                {% endif %}
+                                {% if ":" in column.foreign_key_string %}
+                                <!-- 
+                                    foreign_key_string: People:ID (table:column)
+                                -->
+                                    {% for fkey in fkeys %}
+                                        {% if fkey.0 ==  table.name and fkey.3 in column.foreign_key_string and fkey.4 in column.foreign_key_string %}
+                                            <a href="#{{ fkey.3 }}">{{ column.foreign_key_string }}</a>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for row in table.values_10 %}
+                    {% if not forloop.first %}
+                        <tr>
+                            {% for value in row %}
+                                {% if value != None %}
+                                    <td>{{ value }}</td>
+                                {% else %}
+                                    <td></td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+    {% endfor %}
+</div>
+{% endif %}
+
+</form>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+
+
+$(document).ready(function () {
+
+    var test_button = document.getElementById('id_button_test');
+    var success_widget = document.getElementById('success');
+    var next_button = document.getElementById('button_next');
+    var back_button = document.getElementById('button_back');
+    var save_button = document.getElementById('save_mapping');
+    var form = document.getElementById('main_form');
+    back_button.disabled = false;
+
+    var model = get_db_model();
+
+    function toggle_buttons() {
+            
+        if (success_widget == null) { // nothing happened so far
+            next_button.disabled = true;
+//            back_button.disabled = true;
+            if (typeof save_button != "undefined" && save_button != null)
+                save_button.disabled = true;
+        } else { // connection success -> previous step enabled
+            next_button.disabled = false;
+//            back_button.disabled = false;
+            if (typeof save_button != "undefined"  && save_button != null)
+                save_button.disabled = false;
+        }
+        if (typeof model != "undefined") {
+            next_button.disabled = false;
+        }
+    }
+    toggle_buttons();
+    
+    // add an alternative target page (i.e. form action) (itself) when clicking the file upload button
+    test_button.onclick = function () {
+        form.action = '1';
+        form.submit();
+    }
+    
+    back_button.onclick = function () {
+        form.action = '../../';
+        form.submit();
+    };
+    
+    $("#button_back").on("click", function () {
+        var form = $("#main_form");
+        form.attr("action", "../../");
+        form.submit();
+    });
+    
+    
+    $("#save_mapping").on("click", function () {
+        console.log('$("#save_mapping").on("click", function ()');
+        var current_page = 1;
+        rdb_save_mapping(current_page);
+        return false;
+    });
+
+});
+
+    </script>
+{% endblock %}
