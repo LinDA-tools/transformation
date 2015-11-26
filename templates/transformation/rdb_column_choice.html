@@ -1,0 +1,328 @@
+{% extends "transformation-base.html" %}
+
+{% block content %}
+
+{% include "transformation/snippets/title_snippet.html" with format='RDB' %}
+
+    <input type="hidden" name="hidden_fkeys" id="id_hidden_fkeys" value="{{ fkeys }}">
+    <input type="hidden" name="hidden_model" id="id_hidden_model" value="{{ model }}">
+    <input type="hidden" name="hidden_source" id="hidden_source" value="3">
+
+<!-- http://stackoverflow.com/questions/13666852/how-to-debug-a-django-multivaluedictkeyerror-on-formset-post -->
+{% for hidden in form.hidden_fields %}
+    {{ hidden }}
+{% endfor %}
+
+
+<div class="minimizable">
+<div class="content grid">
+    <h3>Table and Column Selection</h3>
+    <div class="col-10-10">
+        <p>Please select the tables and columns you would like to transform from the <em>Data View</em> shown below.</p>
+        <p><em>What is this good for?</em><br>The default choice is to include all data from all tables/columns in the conversion. However, as the case may be, it may be desirable to limit the data to be converted. This can be achieved by selecting and deselecting tables/columns in this step.</p>
+    </div>
+</div>
+</div>
+
+<div class="content scrollit">
+    <h3>DATA VIEW</h3>
+    <div>
+<!--    <br /> <b>model: </b>{{ model }} <br /> -->
+    Database: <b>{{ model.database }}</b> (10 rows example)
+    <input type="button" id="id_select_all" value="deselect all"><br />
+    <!--
+    {{ tables }}
+    -->
+    {% for table in model.tables %}
+        <div id="{{ table.name }}">table <b>{{ table.name }}</b>
+            {% if table.isRelTable == "true" %}
+                <br />
+                <b>handle as relTable</b>
+                <input type="checkbox" name="relTableselect_{{table.name}}" id="relTableselect___{{table.name}}" checked=true>
+            {% else %}
+                &nbsp; referenced by: &nbsp;
+            {% endif %}
+            {% for fkey in fkeys %}
+                {% if fkey.3 ==  table.name %}
+                    <a href="#{{ fkey.0 }}">{{ fkey.0 }}</a>&nbsp;
+                {% endif %}
+            {% endfor %}
+        </div>
+        
+        <table class="table_view"  id="id_table___{{ table.name }}">
+            <thead>
+                <tr>
+                    {% for column in table.columns %}
+                        <td id="id_row___{{table.name}}___{{ column.name }}">
+                            {% if column.isSelected %}
+                                <input type="checkbox" name="rowselect_{{table.name}}_{{ column.name }}" id="id_rowselect___{{table.name}}___{{ column.name }}" checked=true>
+                            {% else %}
+                                <input type="checkbox" name="rowselect_{{table.name}}_{{ column.name }}" id="id_rowselect___{{table.name}}___{{ column.name }}">
+                            {% endif %}
+                                {% if column.isPrimaryKey  == 'PRI' %}
+                                   <b>{{ column.name }}</b> (Primary Key)<br>
+                                {% else %}
+                                    <b>{{ column.name }}</b><br>
+                                {% endif %}
+                                {{ column.type }}<br>
+                                {% if not column.hasNullValues %}
+                                    NOT NULL<br>
+                                {% else %}
+                                    <br>                                
+                                {% endif %}                                
+                                {% if ":" in column.foreign_key_string %}
+                                <!-- 
+                                    foreign_key_string: People:ID (table:column)
+                                -->
+                                    {% for fkey in fkeys %}
+                                        {% if fkey.0 ==  table.name and fkey.3 in column.foreign_key_string and fkey.4 in column.foreign_key_string %}
+                                            <a href="#{{ fkey.3 }}">{{ column.foreign_key_string }}</a>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in table.values_10 %}
+                {% if not forloop.first %}
+                    <tr>
+                        {% for value in row %}
+                            {% if value != None %}
+                                <td>{{ value }}</td>
+                            {% else %}
+                                <td></td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+   {% endfor %}
+    </div>
+</div>
+
+</form>
+
+
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+
+
+function set_select_status(model, select_status) {
+    var num_tables = model['tables'].length;
+    for(var i = 0; i < num_tables; i++) {
+        var table = model['tables'][i];
+        if (select_status) {
+            table['selected'] = "true";
+            table['values_10_selected'] = table['values_10'];
+        } else {
+            table['selected'] = "false";
+            table['values_10_selected'] = [];
+        }
+        var num_cols = table['columns'].length;
+        for (var j = 0; j < num_cols; j++){
+            var col = table['columns'][j];
+            if (select_status) {
+                col['selected'] = "true";
+            } else {
+                col['selected'] = "false";
+            }
+        }
+    }
+     $("#id_hidden_model").val(JSON.stringify(model));
+}
+
+
+function set_select_row_status(model, select_status, table_name, row_name) {
+    var num_tables = model['tables'].length;
+    for(var i = 0; i < num_tables; i++) {
+        var table = model['tables'][i];
+        var values_10 = table['values_10'];
+        var values_10_selected = [];
+        var selected_cols = [];
+        // select_status == true -> table selected 
+        // select_status == false -> table selected if one col is selcted
+        
+        if (table['name'] == table_name) {
+            table_one_selected_status = false;
+            if (select_status)
+                table['selected'] = "true";
+            var num_cols = table['columns'].length;
+            for (var j = 0; j < num_cols; j++) {
+                var col = table['columns'][j];
+                if (col['name'] == row_name) {
+                    if (select_status) {
+                        col['selected'] = "true";
+                    } else {
+                        col['selected'] = "false";
+                    }
+                }
+                if (col['selected'] == "true") {
+                    table_one_selected_status = "true";
+                    selected_cols.push(col.name);
+                }
+            }
+            if (table_one_selected_status) {
+                table['selected'] = "true";
+            } else{
+                table['selected'] = "false";
+            }
+            var row_head = values_10[0];
+            values_10_selected.push(selected_cols);
+            for(var j = 1; j < values_10.length; j++) {
+                var value_row = values_10[j];
+                var value_row_selected = [];
+                for(var k = 0; k < row_head.length; k++) {
+                    col_name = row_head[k];
+                    var col_contains = false;
+                    for(var l = 0; l < selected_cols.length; l++) {
+                        if ( col_name == selected_cols[l] ) {
+                            col_contains = true;
+                        }
+                    }                
+                    if (col_contains) {
+                        value_row_selected.push(value_row[k]);
+                    }
+                }
+                values_10_selected.push(value_row_selected);
+                table['values_10_selected'] = values_10_selected;
+            }
+        }
+    }
+    $("#id_hidden_model").val(JSON.stringify(model));
+}
+
+
+function set_select_relTable_status(model, select_status, table_name) {
+    var table = $.grep(model['tables'], function (element, index) {
+        return element.name == table_name;
+    });
+    table = table[0];
+    if (select_status) {
+        table['handle_relTable'] = "true";
+    } else {
+        table['handle_relTable'] = "false";
+    }
+    $("#id_hidden_model").val(JSON.stringify(model));
+}
+
+
+$( document ).ready(function() {
+    var model = get_db_model();
+    var save_button = document.getElementById('save_mapping');
+
+//    var table_checkboxes = $("[id^='id_tableselect_'");
+    var row_checkboxes = $("[id^='id_rowselect___'");
+    var relTable_checkboxes = $("[id^='relTableselect___'");
+    
+    var select_status = false;
+    
+    var select_all_button = document.getElementById('id_select_all');
+    select_all_button.addEventListener('click', toggle_select_all);
+    
+    function toggle_select_all(){
+        if(select_status) {
+            select_all_button.value="deselect all";
+        } else {
+            select_all_button.value="select all";
+        }
+        row_checkboxes.prop("checked", select_status);
+        set_select_status(model, select_status);
+        select_status = !select_status;
+        toggle_next_button();
+    }
+
+
+    function toggle_select_table(table_checkbox, table_select_status){    
+    }
+
+
+    function toggle_select_row(row_checkbox, row_select_status){    
+        var id_list = row_checkbox["id"].split("___");
+        set_select_row_status(model, row_select_status, id_list[id_list.length -2], id_list[id_list.length -1]);
+        toggle_next_button();
+    }
+
+
+    function toggle_next_button() {
+    // toggle next button in case no column is selected
+        var one_selected = false;
+        // loop checkboxes
+        row_checkboxes.each(function(){
+            if($(this).prop("checked")) {
+                one_selected = true;
+                return;
+            }
+        });
+        if(one_selected) {
+            $("#button_next").removeAttr("disabled");
+        }
+        else {
+            $("#button_next").attr("disabled", "disabled");
+        }
+    }
+
+    function toggle_row_status() {
+        var id_list = this["id"].split("___");
+        set_select_row_status(model, $(this).prop("checked"), id_list[id_list.length -2], id_list[id_list.length -1]);
+        toggle_next_button();
+    }
+    
+    function toggle_relTable_status() {
+        var id_list = this["id"].split("___");
+        set_select_relTable_status(model, $(this).prop("checked"), id_list[id_list.length -1]);
+    }
+    
+    row_checkboxes.on("change", toggle_row_status);
+    relTable_checkboxes.on("change", toggle_relTable_status);
+    
+    toggle_next_button();
+
+    //$("#button_back").prop('disabled', false);
+    $("#button_back").on("click", function () {
+        var form = $("#main_form");
+        form.attr("action", "2");
+        form.submit();
+    });
+    
+    $("#save_mapping").on("click", function () {
+        console.log('$("#save_mapping").on("click", function ()');
+        var current_page = 3;
+        rdb_save_mapping(current_page);
+        return false;
+    });
+
+    // initial set selected status:
+    for (var i = 0; i < model['tables'].length; i++) {
+        var table = model['tables'][i];
+        var relTable_checkbox = $("[id^='relTableselect___" + table['name'] + "'");
+        if (table['handle_relTable'] == 'true') {
+            relTable_checkbox.prop("checked", true);
+        } else {
+             relTable_checkbox.prop("checked", false);
+        }
+        var num_cols = table['columns'].length;
+        for (var j = 0; j < num_cols; j++) {
+            var col = table['columns'][j];
+            var row_checkbox = $("[id^='id_rowselect___" + table['name'] + "___" + col['name'] + "'");
+            if (col['selected'] == "true") {
+                row_checkbox.prop("checked", true);
+                set_select_row_status(model, true, table['name'], col['name'])
+            } else {
+                row_checkbox.prop("checked", false);
+                set_select_row_status(model, false, table['name'], col['name'])
+            }
+        }
+    }
+    toggle_next_button();
+
+});
+
+</script>
+{% endblock %}

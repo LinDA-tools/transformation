@@ -8,3 +8,7 @@ from .models import *
 #admin.site.register(AdditionalTriple)
 #admin.site.register(CSVFile)
 admin.site.register(Mapping)
+# ###############################################
+#########       RDB                    ##########
+# ###############################################
+admin.site.register(DbMapping)

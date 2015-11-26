@@ -456,3 +456,87 @@ div.fakefile {
 }
 
  /*END http://www.quirksmode.org/dom/inputfile.html */
+ 
+
+.ex-data, table.ex-data th, table.ex-data td { background: #cee; border: 1px solid #acc; }
+table.ex-data { border-collapse: collapse; margin-bottom: 1.5em; }
+table.ex-data caption, table.ex-data th, table.ex-data td { font-size: 100%; /*font-family: monospace;*/ }
+table.ex-data caption, table.ex-data th { font-size: 90%; }
+table.ex-data caption { font-weight: bold; }
+table.ex-data th small { display: block; /*font-size: 65%;*/ font-weight: normal; }
+
+.ex-output { background: #cfc; }
+table.ex-output caption, table.ex-output th { font-size: 90%; border: 1px solid #aca; } /*table.ex-output th,*/
+.ex-output, .ex-output::before,  table.ex-output td { border: 1px solid #aca; font-size: 100%; }
+
+.sql { margin-left: 0; padding: 0 2em; background: #d4dddd; border: 1px solid #bbb; }
+.rdf { background: #cee; border: 1px solid #acc; }
+
+
+
+.bb_container {
+    min-width: 200px;
+    max-width: 250px;
+    position: relative;
+}
+.bb_select_choices {
+    border: 1px solid #eee;
+    background-color: #9b9;
+    -webkit-box-shadow: inset 0px 0px 32px 3px rgba(0, 177, 106, 1);
+    -moz-box-shadow: inset 0px 0px 32px 3px rgba(0, 177, 106, 1);
+    box-shadow: inset 0px 0px 5px 1px rgba(0, 177, 106, 1);
+    /*width: 200px;*/
+    margin-bottom: 6px;
+    min-height: 1em;
+}
+.bb_inner1 {
+    width: 100%;
+    overflow: hidden;
+    height: 1.5em;
+}
+.bb_inner2 {
+    border: 1px solid green;
+    overflow: hidden;
+    height: 1.4em;
+    position: fixed;
+    background-color: white;
+}
+.bb_select_text_input {
+    border: 1px solid #888;
+    background-color: #ddd;
+    margin-bottom: 6px;
+    width: 90%;
+    float: left;
+}
+div[id^="choice_info_"] {
+}
+div.item {
+    border: 1px solid #aaa;
+    background-color: #ddd;
+    border-radius: 2px;
+    margin: 1px;
+    font-family: Verdana, sans-serif;
+    font-size: 9pt;
+}
+div.item:hover {
+    background-color: #bbb;
+}
+.active {
+    background-color: red;
+}
+.bb_select_choices div.item {
+    background-color: #9b9;
+    border: 1px solid #00B16A;
+}
+.hide {
+    display: none;
+}
+
+.fa-caret-square-o-down, .fa-times{
+    cursor: pointer;    
+}
+
+.fa-search{
+    float: right;
+    margin: 0px 5px
+}
