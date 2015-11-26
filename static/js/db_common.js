@@ -3,6 +3,7 @@ function get_db_model(){
     var model = $("#id_hidden_model");
     if(model.length > 0) {
         if(model.val().length > 0) {
+//            return JSON.parse(model.val().replace(/'/g,"\""));
             return JSON.parse(model.val().replace(/'/g,"\""));
         }
     }

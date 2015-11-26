@@ -130,9 +130,7 @@
 <script>
 
 
-
-
-var delimiter_symbol = "/";
+//var delimiter_symbol = "/";
 var model;
 
 
@@ -350,7 +348,6 @@ function askOracle(widget, domain, term, keepReconciliationIfExists, table_name)
 }
 
 
-
 function guessType(table, column){
 
     table = typeof table !== 'undefined' ? table : "";
@@ -529,19 +526,19 @@ function get_fkeys() {
 }
 
 
-function add_to_content_where_tab_col(new_key, new_value, table, col){
+function add_to_content_where_tab_col(new_key, new_value, table_name, column_name){
+    console.log("add_to_content_where_tab_col(new_key: " + new_key + ", new_value: " + new_value+ ", table_name: " + table_name + ", column_name: "+column_name+")");
     var model = get_db_model();
-    var tables = model['tables'];
-    for (var i = 0; i < tables.length; i++) {
-        if (tables[i].name == table) {
-            var columns = tables[i].columns;
-            for (var j = 0; j < columns.length; j++) {
-                if (columns[j].name == column) {
-                    columns[j][new_key] = new_value;
-                }
-            }
-        }
-    }
+    var table = $.grep(model['tables'], function (element, index) {
+        return element.name == table_name;
+    });
+    table = table[0];
+
+    var column = $.grep(table['columns'], function (element, index) {
+        return element.name == column_name;
+    });
+    column = column[0];
+    column[new_key] = new_value;
     write_model(model);
 }
 
@@ -612,7 +609,7 @@ function noAction(table, column, adaptRDF) {
 
 // only refresh once every .6 seconds
 var rdfadapt_typingTimer;
-var rdfadapt_doneTypingInterval = 600;
+var rdfadapt_doneTypingInterval = 1000;
 
 
 function adapt_RDF_preview(table, column) {
@@ -764,8 +761,14 @@ function populate_from_model_reconciliation(widget, recon){
 }
 
 
+function isTextNode(){
+    // If this is a text node, return true.
+    return( this.nodeType === 3 );
+}
+
+
 function model_to_table(model) {
-//    console.log("model_to_table()");
+    console.log("model_to_table()");
     var rdf_prefix = model['prefixes']; // var rdf_prefix = $("#id_hidden_rdf_prefix_field");
     if (typeof rdf_prefix == "undefined") {
         rdf_prefix = [];
@@ -773,19 +776,132 @@ function model_to_table(model) {
 
     var tbl = jQuery('<table/>', {
         class: "rdf_table"
-    });//.appendTo(elem);
+    });
 
     if (model == undefined){
         return tbl;
     }
 
-    for (var t = 0; t < model['tables'].length; t++) {
-        var table = model['tables'][t];
-        var base_iri = model['tables'][t].base_iri;
+    for (var t_index = 0; t_index < model['tables'].length; t_index++) {
+        var table = model['tables'][t_index];
+        var base_iri = model['tables'][t_index].base_iri;
         if (typeof base_iri == "undefined" || base_iri == "/") {
             base_iri = "";
         }
+        var num_rows = table['num_rows'];
+        
+        if (num_rows > 10) {
+            var per_page = 10;                          // initial
+            var page = 1;                               // initial
+            if (typeof table['per_page'] != "undefined")  {
+                per_page = parseInt(table['per_page']);
+            }
+            if (typeof table['page'] != "undefined")  {
+                page = parseInt(table['page']);
+            }
+            var max_pages = num_rows/per_page >> 0;
+            if ((num_rows % per_page) > 0) {
+                max_pages++;
+            }
+            var pages_arr = [10, 25, 50, 100, 500, 1000, 2000];
+            if (pages_arr.indexOf(per_page) == -1) {
+                pages_arr.push(per_page);
+            }
+            if (pages_arr.indexOf(num_rows) == -1) {
+                pages_arr.push(num_rows);
+            }
+            pages_arr = pages_arr.sort();
+             
+            var pagination_div = $("div[id^='pagination___" + table['name'] +"']");
+            var row_num_select = jQuery('<select/>', {
+                id: "select-rows-per-page___" + table['name']
+            });
+            pagination_div.text("(select ");
+            
+            for (var i = 0; i < pages_arr.length; i++) {
+                var p = pages_arr [i];
+                if (p <= num_rows) {
+                    var selected = "";
+                    if (p == per_page) {
+                        selected = " selected";
+                    }
+                    var row_num_select_option = jQuery('<option/>', {
+                        page: page,
+                        num: p
+                    });
+                    if (selected != "") {
+                        row_num_select_option.attr("selected", "selected");
+                    }
+                    row_num_select_option.text(p);
+                    row_num_select_option.appendTo(row_num_select);
+                }
+            }
+            row_num_select.appendTo(pagination_div);
+            $(row_num_select).each(function() {
+                $(this).on("change", function() {
+                    var id = $(this).attr("id");
+                    var id_array = id.split("___");
+                    var table_name = id_array[id_array.length-1];
+                    var num = $(this).find("option:selected").attr("num");
+                    table['page'] = page;
+                    table['per_page'] = num;
+                    write_model(model);
+                    update_table_values(table_name, $(this).find("option:selected").attr("page"), $(this).find("option:selected").attr("num"));
+                });
+            });
 
+            var html = pagination_div.html();
+            var paging_html = jQuery('<select/>', {
+                id: "select-page___" + table['name']
+            });
+            
+            for (var i = 0; i < max_pages; i++) {
+                var range_from = (i * per_page) + 1;
+                var range_to = range_from + per_page - 1;
+                if (range_to > num_rows) {
+                    range_to = num_rows;
+                }
+                var sel = "";
+                if (i + 1 == page) {
+                    sel = "selected";
+                }
+                var paging_html_option = jQuery('<option/>', {
+                    class: "pagination-link",
+                    page: i + 1,
+                    num: per_page
+                });
+                if (sel != "") {
+                    paging_html_option.attr("selected", "selected");
+                }
+                paging_html_option.text(range_from + '-' + range_to);
+                paging_html_option.appendTo(paging_html);
+            }
+
+            var jqTextNode = $(document.createTextNode(" of " + num_rows + " rows per table)" ));
+            jqTextNode.appendTo(pagination_div);
+            var new_line = jQuery('<br/>', {
+            });
+            new_line.appendTo(pagination_div);
+            jqTextNode = $(document.createTextNode("show rows:" ));
+            jqTextNode.appendTo(pagination_div);
+            
+            paging_html.appendTo(pagination_div);
+            
+            $(paging_html).each(function() {
+                $(this).on("change", function() {
+                    var id = $(this).attr("id");
+                    var id_array = id.split("___");
+                    var table_name = id_array[id_array.length-1];
+                    table['page'] = $(this).find("option:selected").attr("page");
+                    table['per_page'] = $(this).find("option:selected").attr("num");
+                    write_model(model);
+                    update_table_values(table_name, $(this).find("option:selected").attr("page"), $(this).find("option:selected").attr("num"));
+                });
+            });
+        }
+        
+        
+        
         var num_cols = table['columns'].length;
         var num_selected_cols = 0;
         var selected_cols_list = [];
@@ -849,7 +965,6 @@ function model_to_table(model) {
             
             for (var pl = 0; pl < rdf_predicate_list.length; pl++) {
                 var rdf_predicate = rdf_predicate_list[pl];
-//                console.log("  rdf_predicate: " +rdf_predicate);
 
                 var tr = jQuery('<tr/>', {} ).attr({
                     id: "id_rdf_subject_" + table.name + "_" + k.toString()
@@ -896,7 +1011,6 @@ function model_to_table(model) {
                     id: "id_rdf_object___" + table.name + "___" + selected_cols_list[j] + "_" + k.toString()
                 });
                 if (obj_array[i] == 'None' || obj_array[i] == "" ) {
-    //                tr.css("visibility", "hidden");
                     isNull = true;
                 }
                 // data type
@@ -938,6 +1052,7 @@ function model_to_table(model) {
                 }
             }
         }
+//        console.log("  table: " +  table['name'] + " END");
     }
     for (var i = 0; i < rdf_prefix.length; i++) {
         pre = rdf_prefix[i];
@@ -959,6 +1074,127 @@ function model_to_table(model) {
     return tbl;
 }
 
+
+function update_table_values(table_name, page, num) {
+    console.log("update_table_values(table_name: " + table_name + ", page: " + page + ", num: " + num + ")");
+    var model = get_db_model();
+    var table = $.grep(model['tables'], function (element, index) {
+        return element.name == table_name;
+    });
+    table = table[0];
+    
+    
+    var col_str = "";
+    var col_arr = [];
+    cols = table['columns'];
+    for (var i = 0; i<cols.length; i++ ) {
+        var col = cols[i];
+        if (col['selected'] == "true") {
+            col_str += col['name'] + ",";
+            col_arr.push(col['name']);
+        }
+    }
+    col_str = col_str.substr(0 , col_str.length-1);
+    var skip = (page-1) * num;
+    
+//    console.log("  skip: " + skip);
+//    console.log("  col_str: " + col_str);
+    
+    var sq = table['sql_query'];
+    if (typeof sq != "undefined") {
+        sq = decodeURI(sq);
+        var index_of_limit = sq.toUpperCase().indexOf("LIMIT");
+        if (index_of_limit > -1) {
+            sq = sq.substr(0 , index_of_limit);
+        }
+        var sql_query     = sq + " LIMIT " + skip + ", " + num + ";";
+        var sql_query_all = sq + " LIMIT " + skip + ", " + num + ";";
+        
+    } else {
+        var sql_query = "SELECT " + col_str + " FROM " + table_name + " LIMIT " + skip + ", " + num + ";";
+        var sql_query_all = "SELECT * FROM " + table_name + " LIMIT " + skip + ", " + num + ";";
+    }
+//    console.log("  sql_query: " + sql_query);
+    $.ajax({
+        url : "rdb/get_table_values",   // the endpoint
+        type : "POST",                  // http method
+        data : { sql_query: sql_query, sql_query_all: sql_query_all, table_name: table_name, page: page, num: num}, // data sent
+        success : function(new_table_values) {
+//            console.log(JSON.stringify(new_table_values, null, 4));
+//            console.log("  new values_10: " + new_table_values['values_10']);
+//            console.log("  new values_10_selected: " + new_table_values['values_10_selected']);
+            table['page'] = page;
+            table['per_page'] = num;
+            
+            table['values_10_selected_old'] = table['values_10_selected'];
+            table['values_10_old'] = table['values_10'];
+
+            table['values_10'] =          new_table_values['values_10'];
+            table['values_10_selected'] = new_table_values['values_10_selected'];
+            write_model(model);
+
+            var table_html = $("table[id^='id_table_"+table_name+"']");
+            $(table_html).find("tbody").remove();
+            var tbody = jQuery('<tbody/>',{
+            });
+            for (var i = 1; i< table['values_10_selected'].length; i++) {
+                var row = table['values_10_selected'][i];
+                var tr = jQuery('<tr/>',{
+                });
+                for (var j = 0; j< row.length; j++) {
+                    var td = jQuery('<td/>',{
+                    id: "id_table_field___" + table.name +"___"+ table['values_10_selected'][0][j] +"___"+ i
+                    });
+                    td.text(row[j]);
+                    td.appendTo(tr);
+                }
+                tr.appendTo(tbody);
+            }
+            
+            tbody.appendTo(table_html);
+            
+            var rdf_view = $("#rdf_view");
+            var tbl = model_to_table(model);
+            rdf_view.find("table").remove();
+            rdf_view.append(tbl);
+            model_to_table2(model);
+            
+            for (var i = 0; i< col_arr.length; i++) {
+                var col_name = col_arr[i];
+                console.log("col_name: " + col_name);
+                var column = $.grep(table['columns'], function (element, index) {
+                    return element.name == col_name;
+                });
+                column = column[0];
+                console.log("column['object_method']: " + column['object_method']);
+                
+                var object_method = column['object_method'];
+                console.log("col_name: " + col_name);
+                if (typeof object_method != "undefined") {
+                    var table_select = $("select[id^='id_select___" + table_name + "___" + col_name + "']");
+                    if (object_method == "data type") {
+                        $(table_select).val('no action').prop('selected', true);
+                        $(table_select).val('add data type').prop('selected', true);
+                    }
+                    if (object_method == "reconciliation") {
+                        $(table_select).val('no action').prop('selected', true);
+                        $(table_select).val('add URIs').prop('selected', true);
+                    }
+                    calculateCells(table_name, col_name);
+                }
+            }
+            
+        },
+        
+        error : function(xhr, errmsg, err) {
+            // Show an error
+            $('#results').html("<div class='alert-box alert radius' data-alert>" +
+            xhr.responseText+"</div>"); // add error to the dom
+            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+        }
+
+    });
+}
 
 
 function update_relTable( table ) {
@@ -1248,8 +1484,6 @@ var new_val_2 = "";
     });
 }
 */    
-
-
 
 
 function model_to_table2(model){

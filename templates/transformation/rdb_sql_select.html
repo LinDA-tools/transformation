@@ -347,11 +347,11 @@ Student_Sport.ID_Sport = Sport.ID;
         $.ajax({
             url : "rdb/get_sql_table",   // the endpoint
             type : "POST",               // http method
-            data : { sql_name: sql_name, sql_query: sql_query }, // data sent with the delete request
+            data : { sql_name: sql_name, sql_query: sql_query }, // data sent with the sql-query request
             success : function(sql_table) {
               
               if (typeof sql_table['message'] == 'undefined') {
-                  $('#results').html(""); // remove error from the dom
+                  $('#results').html(""); // remove data from the dom
                   var model = get_db_model();
                   model['tables'].push(sql_table);
                   $("#id_hidden_model").val(JSON.stringify(model));
@@ -441,7 +441,6 @@ Student_Sport.ID_Sport = Sport.ID;
 
             error : function(xhr, errmsg, err) {
                 // Show an error
-                var times = 10;
                 $('#results').html("<div class='alert-box alert radius' data-alert>" +
                 xhr.responseText+"</div>"); // add error to the dom
                 console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
@@ -516,97 +515,5 @@ $(document).ready(function () {
     });
 });
 
-//                       url(r'rdb/get_sql_table', views.rdb_get_sql_table),
-//                       url(r'rdb/save_mapping',  views.rdb_save_mapping),
-
-/*
-// AJAX for rdb_save_mapping
-function rdb_save_mapping(current_page) {
-    console.log("rdb_save_mapping("+current_page+")");
-    //var model = get_db_model();
-    var model = $("#id_hidden_model");
-    if(model.length > 0)
-        model = model.val().replace(/'/g,"\"");
-
-    var name_mapping = prompt("Please enter a name for your transformation:", model['database']);
-    if (name_mapping != null) {
-        $.ajax({
-            url : "rdb/save_mapping",   // the endpoint
-            type : "POST",              // http method
-            data : { current_page: current_page, model: model, name_mapping: name_mapping }, // data sent with the delete request
-            success : function(json) {
-                console.log("rdb_save_mapping successful");
-            },
-
-            error : function(xhr, errmsg, err) {
-                // Show an error
-                $('#results').html("<div class='alert-box alert radius' data-alert>"+
-                "Oops! We have encountered an error. <a href='#' class='close'>&times;</a></div>"); // add error to the dom
-                console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-                console.log("errmsg: " + errmsg); // provide a bit more info about the error to the console
-                console.log("err: " + err); // provide a bit more info about the error to the console
-            }
-        });
-    } else {
-        return false;
-    }
-};
-
-
-
-// This function gets cookie with a given name
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-var csrftoken = getCookie('csrftoken');
-
-/ *
-The functions below will create a header with csrftoken
-* /
-function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-
-
-function sameOrigin(url) {
-    // test that a given url is a same-origin URL
-    // url could be relative or scheme relative or absolute
-    var host = document.location.host; // host + port
-    var protocol = document.location.protocol;
-    var sr_origin = '//' + host;
-    var origin = protocol + sr_origin;
-    // Allow absolute or scheme relative URLs to same origin
-    return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
-        (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
-        // or any other URL that isn't scheme relative or absolute i.e relative.
-        !(/^(\/\/|http:|https:).* /.test(url));
-}
-
-
-$.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-            // Send the token to same-origin, relative URLs only.
-            // Send the token only if the method warrants CSRF protection
-            // Using the CSRFToken value acquired earlier
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
-    }
-});
-*/
     </script>
 {% endblock %}

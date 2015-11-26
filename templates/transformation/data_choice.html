@@ -33,28 +33,31 @@
 			<h3>CHOOSE EXISTING TRANSFORMATION PROJECTS</h3>
             {% if user and not user.is_anonymous %}
             	{% if mappings.count > 0 %}
-					<p>Alternatively, choose an existing transformation.</p>
+					<p>Alternatively, choose an existing CSV/Excel transformation.</p>
 	            	<form method="post" action="csv/step/1">
-	            	{% csrf_token %}
-		            <select size="5" name="mapping_id">
-		            {% for mapping in mappings %}
-		            <option value="{{ mapping.id }}">{{ mapping.fileName }} ('{{ mapping.csvName | kill_path }}', {{ mapping.date }})</option>
-		            {% endfor %}
-		            </select><br>
-					<input type="submit" name="button_choose" id="id_button_choose" value="Choose">
-                {% endif %}
+                        {% csrf_token %}
+                        <select size="5" name="mapping_id">
+                        {% for mapping in mappings %}
+                        <option value="{{ mapping.id }}">{{ mapping.fileName }} ('{{ mapping.csvName | kill_path }}', {{ mapping.date }})</option>
+                        {% endfor %}
+                        </select><br>
+                        <input type="submit" name="button_choose" id="id_button_choose" value="Choose">
+                    </form>
+				{% endif %}
                 {% if db_mappings.count > 0 %}
                     <p>Alternatively, choose an existing rdb transformation.</p>
-                    <form method="post">
-                    {% csrf_token %}
-                    <select size="5" name="mapping_id">
-                    {% for mapping in db_mappings %}
-                        <option value="{{ mapping.id }}">{{ mapping.database }} | {{ mapping.date }} | {{ mapping.name }}</option>
-                    {% endfor %}
-                    </select><br>
-                    <input type="submit" name="button_choose" id="id_button_choose" value="Choose">
+                    <form method="post" action="rdb/step/1">
+                        {% csrf_token %}
+                        <select size="5" name="mapping_id">
+                        {% for mapping in db_mappings %}
+                            <option value="{{ mapping.id }}">{{ mapping.database }} | {{ mapping.date }} | {{ mapping.name }}</option>
+                        {% endfor %}
+                        </select><br>
+                        <input type="submit" name="button_choose_rdb" id="id_button_choose_rdb" value="Choose">
                     </form>
-                {% else %}
+				{% endif %}
+                {% if mappings.count == 0 and db_mappings.count == 0%}
+                <br/>
 					You have not saved any projects so far.
 				{% endif %}
 	            </form>
@@ -68,4 +71,16 @@
 {% endblock %}
 
 {% block extra_scripts %}
+
+<script>
+/*    
+    $(document).ready(function () {
+        var rdb_submit_button = document.getElementById('id_button_choose_rdb');
+        $(rdb_submit_button).on("click", function () {
+            console.log('$("#rdb_submit_button").on("click", function ()');
+        });
+    });
+*/    
+</script>
+
 {% endblock %}

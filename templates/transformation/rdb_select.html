@@ -223,17 +223,17 @@ $(document).ready(function () {
             
         if (success_widget == null) { // nothing happened so far
             next_button.disabled = true;
-//            back_button.disabled = true;
             if (typeof save_button != "undefined" && save_button != null)
                 save_button.disabled = true;
         } else { // connection success -> previous step enabled
             next_button.disabled = false;
-//            back_button.disabled = false;
             if (typeof save_button != "undefined"  && save_button != null)
                 save_button.disabled = false;
         }
         if (typeof model != "undefined") {
             next_button.disabled = false;
+            if (typeof save_button != "undefined"  && save_button != null)
+                save_button.disabled = false;
         }
     }
     toggle_buttons();

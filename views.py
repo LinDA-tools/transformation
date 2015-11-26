@@ -683,6 +683,7 @@ def rdb_select(request):
                         'model': model
                     }
                     schema = {'connection': 'success', 'fkeys': fkeys}
+                    html_post_data.update(schema)
                 else: # if cursor:
                     html_post_data = {
                         'action': 1,
@@ -690,6 +691,7 @@ def rdb_select(request):
                         'connection': 'failed'
                     }
                     schema = {'connection': 'failed', 'message': res['message']}
+                    html_post_data.update(schema)
                     
             else : # if db_databasetype == 'MY' -> MySQL:
                 schema = {'connection': 'failed', 'message': 'connection to ' + form.cleaned_data['db_databasetype'] + ' is not implemented yet'}
@@ -864,6 +866,24 @@ def rdb_get_sql_table(request):
     else:
         return HttpResponse(json.dumps({"nothing to see": "this isn't happening"}), content_type="application/json")
 
+def rdb_get_table_values(request):
+    print("rdb_get_table_values()")
+#    table_name = QueryDict(request.body).get('table_name')
+    sql_query = QueryDict(request.body).get('sql_query')
+    sql_query_all = QueryDict(request.body).get('sql_query_all')
+#    page = QueryDict(request.body).get('page')
+#    num = QueryDict(request.body).get('num')
+    if sql_query != '' and sql_query != None:
+        res = get_mysql_cursor(request.session['host'], request.session['user'], request.session['password'], request.session['db'])
+        cursor = res['cursor']
+        table_res = get_mysql_sql_table_data3(cursor, sql_query, sql_query_all)
+        mysql_disconnect(res['con'])
+        response_data = {}
+        response_data.update(table_res)
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+    else:
+        return HttpResponse(json.dumps({"nothing to see": "this isn't happening"}), content_type="application/json")
+    
 
 def rdb_column_choice(request):
     print("VIEW rdb_column_choice")
@@ -2317,9 +2337,47 @@ def get_mysql_table_data(cursor, table, fkeys, limit):
         print("get_mysql_table_data failed:", )
         return None
 
+        
+def get_mysql_sql_table_data3(cursor, sql_query, sql_query_all):
+    try:
+        sql_table = {}
+        cursor.execute(sql_query)
+        values_10 = cursor.fetchall()
+        values_10_l = [list(i) for i in values_10]
+        values_10_ll = []
+        for l in values_10_l:
+            values_10_ll.append(['' if v is None else v for v in l])
+        desc = cursor.description
+        
+        values_10_h = []
+        for d in desc:
+            values_10_h.append(d[0])
+        values_10_ll.insert(0, values_10_h)
+        sql_table['values_10_selected'] = values_10_ll
+        
+        
+        cursor.execute(sql_query_all)
+        values_10 = cursor.fetchall()
+        values_10_l = [list(i) for i in values_10]
+        values_10_ll = []
+        for l in values_10_l:
+            values_10_ll.append(['' if v is None else v for v in l])
+        desc = cursor.description
+        
+        values_10_h = []
+        for d in desc:
+            values_10_h.append(d[0])
+        values_10_ll.insert(0, values_10_h)
+        sql_table['values_10'] = values_10_ll
+    
+        return sql_table
+    except:
+        print("get_mysql_sql_table_data3 failed:", )
+        print(sys.exc_info()[1])
+        return {'message': str(sys.exc_info()[1])}
 
+        
 def get_mysql_sql_table_data2(cursor, sql_name, sql_query, fkeys, limit):
-    erg = {}
     try:
         num_rows = 0
         if len(sql_name) == 0:
@@ -2398,6 +2456,16 @@ def replacePrefix(uri):
     return result
 
 
+def lookup(request, queryClass, queryString, callback):
+    headers = {'Accept': 'application/json'}
+    r = requests.get(
+        'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + queryClass + '&QueryString=' + queryString,
+        headers=headers)
+    text = r.text
+    results = json.loads(text)
+    return callback + "(" + JsonResponse(results) + ");"
+
+
 def lookup2(queryClass, queryString):
 #    print("lookup::queryString: ")
 #    print(queryString)
@@ -2464,7 +2532,8 @@ def transformdb2n3(jsonmodel, request):
             empty_graph = False
         numrows = num_selected_cols * len(values_10_selected)
         obj_array = [];
-        if len(values_10_selected) >= 10: 
+#        if len(values_10_selected) >= 10: 
+        if table['num_rows'] >= 10: 
             res = get_mysql_cursor(request.session['host'], request.session['user'],  request.session['password'], request.session['db'])
             cursor = res['cursor']
             fkeys = request.session['fkeys']            

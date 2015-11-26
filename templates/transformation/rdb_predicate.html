@@ -181,8 +181,6 @@ function addInnerDiv(elem) {
 
     kids.each(function (i) {
         $(this).on("click", function () {
-//            console.log('$(this).on("click", function ()');
-//            console.log('$(this).html(): ' + $(this).html());
             $(this).parent().siblings().first().html($(this).html());
             $(this).addClass("bb_select_clicked");
             $(this).siblings().removeClass("bb_select_clicked");
@@ -232,17 +230,14 @@ function addInnerDiv(elem) {
 function addInnerDiv3(elem) {
 //    console.log("addInnerDiv3(elem = "+elem.prop('outerHTML')+")");
     var id_array = elem.attr("id").split("___");
-//    console.log("id_array: "+id_array);
     var value = elem.attr("value");
     var value = JSON.parse(elem.attr("value").replace(/'/g,"\"")); // JSON.parse(model.val().replace(/'/g,"\""));
-//    console.log("value: "+ elem.attr("value"));
     
     //check if div[class: "bb_select_choices"] already exists
     if ($(elem).prev().length == 0 ) {
         var choices_div = jQuery('<div/>', {
             class: "bb_select_choices",
             id: "bb_select_choices___" + id_array[id_array.length-2] + "___" + id_array[id_array.length-1],
-            //text: "drop here",
         }).insertBefore(elem);
     } else {
         var choices_div = $(elem).prev();
@@ -251,10 +246,6 @@ function addInnerDiv3(elem) {
     var exists = false;
     $(choices_div).children().each(function(i,x){
         var url = $(this).find(".item_additional_info a:last").attr("href");
-//        console.log("url: "+ url);
-//        console.log("value.url: "+ value.url);
-//        console.log("value.url_intern: "+ value.url_intern);
-//        console.log("$(this): "+ $(this).prop('outerHTML'));
         if(value.url_intern == url){
             exists = true;
         }
@@ -263,31 +254,12 @@ function addInnerDiv3(elem) {
         return;
     }
 
-/*
-    {
-        "url":"http://dbpedia.org/ontology/id", 
-        "url_intern":"http://linda.epu.ntua.gr:8000/property/281582/", 
-        "prefix": {
-                "url":"http://dbpedia.org/ontology/",
-                "suffix":"id",
-                "prefix":"dbpedia"
-            }, 
-        "label": "id", 
-        "vocab_description": 
-        "DBPedia Ontology", 
-        "score": "100", 
-        "search_term": "ID"
-    }
-*/
-//    var clone = $(this).clone();
     var item = jQuery('<div/>', {
         id: "choice_info_1", 
         class: "item",
         style: "position: relative;",
         html: "(<i class=\"fa fa-star\"></i> " + value.score + ") " + value.label,
-        //text: "drop here",
-    });//.insertBefore(elem);    
-    //clone.find(".item_additional_info").addClass("hide");
+    });
     item.attr("value", elem.attr("value"));
     
     var additionalInfo = jQuery('<div/>', {
@@ -303,28 +275,19 @@ function addInnerDiv3(elem) {
     }).appendTo(item);
 
     close_button.click(function (event) {
-        //console.log($(this).prop('outerHTML'));
         var value = $(this).parent().attr('value');
         value = JSON.parse(value.replace(/'/g,"\""));
         
         var id_array = $(this).parent().parent().attr('id').split("___");
         var table_name = id_array[id_array.length-2];
         var column_name = id_array[id_array.length-1];
-        
-//        console.log("remove::");
-//        console.log($(this).parent().prop('outerHTML'));
-//        console.log("  table_name: " + table_name);
-//        console.log("  column_name: " + column_name);
-//        console.log("  value.url: " + value.url);
-//        console.log("value.vocab_description: " + value.vocab_description);
-        
+                
         var predicate_fix = replacePrefix(value.url);
         if (predicate_fix['suffix'] != "" && predicate_fix['prefix'] != "" ) {
             var predicate = predicate_fix['prefix'] + ":" + predicate_fix['suffix'];
         } else {
             var predicate = "<" + predicate_fix['url'] + ">";
         }
-//        console.log("  predicate: " + predicate);
         remove_predicate_from_model(table_name, column_name, predicate);
         $(this).parent().remove();
         adapt_RDF_preview(table_name + "___" + column_name);
@@ -339,7 +302,6 @@ function addInnerDiv3(elem) {
     resize_button.click(function (event) {
         var x = $(this).siblings(".item_additional_info");
           x.toggleClass("hide");
-        //x.css("display", "");
         $(this).closest(".item").siblings().find(".item_additional_info").addClass("hide");
     });
     choices_div.append(item);
@@ -366,7 +328,6 @@ function addInnerDiv2(elem) {
 
     var choices_div = jQuery('<div/>', {
         class: "bb_select_choices",
-        //text: "drop here",
     }).insertBefore(elem);
 
    
@@ -379,14 +340,6 @@ function addInnerDiv2(elem) {
         $(".bb_select2").trigger("change")
     });
     
-//    console.log("inner2Div.outerWidth(): " + inner2Div.outerWidth());
-/*    
-    var text_in = jQuery('<input/>', {
-        class: "bb_select_text_input",
-        type: "text",
-        placeholder: "enter search term here",
-    }).insertBefore(magnifier);
-*/
     inner2Div.on("mouseover", function () {
         inner2Div.css("height", "200px");
         inner2Div.css("overflow-y", "scroll");
@@ -489,18 +442,6 @@ function addInnerDiv2(elem) {
     elem.on("change", change_function);
     elem.trigger("change");
 }
-/*
-$(".bb_select2").each(function (index) {
-        $(this).attr("data-content", '{"selected": [{"vocab":"Some Fine Vocab", "score":33 ,"name":"drei", "url": "http://someurl3.com", "url_intern": "http://inturl3.com"}], "values": [{"vocab":"Some Fine Vocab", "score":33 ,"name":"drei", "url": "http://someurl3.com", "url_intern": "http://inturl3.com"},{"vocab":"Some Fine Vocab", "score":11, "name":"vier", "url": "http://someurl4.com", "url_intern": "http://inturl4.com"},{"vocab":"Some Fine Vocab", "score":22, "name":"zwei", "url": "http://someurl2.com", "url_intern": "http://inturl2.com"},{"vocab":"Some Fine Vocab", "score":33 ,"name":"funf", "url": "http://someurl5.com", "url_intern": "http://inturl5.com"},{"vocab":"Some Fine Vocab", "score":33 ,"name":"sechs", "url": "http://someurl6.com", "url_intern": "http://inturl6.com"}]}');
-    addInnerDiv($(this));
-    $(this).trigger("change");
-
-
-
-    $(this).trigger("change");
-
-});
-*/
 
 var recent_result = null;
 var recent_textinput = null;
@@ -512,12 +453,10 @@ var model;
 
 function askOracle(widget_num) {
 //    console.log("askOracle(widget_num = "+widget_num+")");
-    
     $("#result_from_model_"+widget_num).remove();
     recent_textinput = $("#search_textinput_"+widget_num);
     recent_icon = document.getElementById("icon_"+widget_num);
     recent_icon.className = "fa fa-refresh fa-spin";
-
 
     var request = $.ajax({
         type: 'GET',
@@ -587,76 +526,7 @@ function askOracle(widget_num) {
             recent_result.append("<div id=\"oracle_result_"+widget_num+"_"+i+"\"><span class=\"oracle_label\">(<i class=\""+star+"\"></i><span class=\"vocab_score\">"+Math.floor(data[i].ranking)+"</span>) <em>"+data[i].label+"</em><br><span class=\"vocab_description\">"+data[i].vocabulary+"</span></span>"+url_intern_html+url_extern_html+"</div>");
         }
 
-//            console.log("data: " +data);
-/*
-            var uri = false;
-            var uri_intern = false;
-            if(typeof data[0].read_more !== "undefined" && data[0].read_more !== "undefined" && data[0].read_more){
-                uri_intern = lindaGlobals.server_url+data[0].read_more;
-            }
-            if(typeof data[0].full_uri !== "undefined" && data[0].full_uri !== "undefined" &&data[0].full_uri){
-                uri = data[0].full_uri;
-            } else if (data[0].uri) {
-                uri = data[0].uri;
-            }
-
-            //shorten uri
-            var short_uri = "no uri";
-            if(uri)
-                short_uri = shortenURI(uri, 40);
-
-            var text = '{"selected": [{"vocab":"'+data[0].vocabulary+'", "score": '+data[0].ranking+' ,"name":"'+data[0].label+'", "url": "'+short_uri+'", "url_intern": "'+short_uri+'"}],';
-            text += '"values" : [';
-            
-            for(var i = 0; i < data.length; i++){
-//                console.log("data["+i+"]: " +data[i]);
-//                console.log("data["+i+"].label: " +data[i].label);
-//                console.log("data["+i+"].ranking: " +data[i].ranking);
-//                console.log("data["+i+"].read_more: " +data[i].read_more);
-//                console.log("data["+i+"].full_uri: " +data[i].full_uri);
-//                
-//                console.log("data["+i+"].vocabulary: " +data[i].vocabulary);
-                
-                
-                var uri = false;
-                var uri_intern = false;
-                if(typeof data[i].read_more !== "undefined" && data[i].read_more !== "undefined" && data[i].read_more){
-                    uri_intern = lindaGlobals.server_url+data[i].read_more;
-                }
-                if(typeof data[i].full_uri !== "undefined" && data[i].full_uri !== "undefined" &&data[i].full_uri){
-                    uri = data[i].full_uri;
-                } else if (data[i].uri) {
-                    uri = data[i].uri;
-                }
-
-                //shorten uri
-                var short_uri = "no uri";
-                if(uri)
-                    short_uri = shortenURI(uri, 40);
-                    
-                text += '{"vocab": "'+ data[i].vocabulary+'", "score": '+data[i].ranking+', "name": "'+data[i].label+'", "url": "'+short_uri+'", "url_intern": "'+short_uri+'"},'; 
-                
-            }
-            text = text.substring(0, text.length-1);
-            text += ']}';
-            
-//            console.log("text: " + text);
-//            var obj =  jQuery.parseJSON(text);
-
-/*
-            "values": [{
-            "vocab": "Some Fine Vocab",
-            "score": 33,
-            "name": "drei",
-            "url": "http://someurl3.com",
-            "url_intern": "http://inturl3.com"
-            },
-* /
-*/
-
-//            $("#search_result___"+widget_num).attr("data-content", text);
         addInnerDiv($("#search_result___"+widget_num));
-//            $("#search_result___"+widget_num).trigger("change");
 
             //auto-select first element after oracle call
         $("#search_result___"+widget_num+" * .bb_select_elements").children().first().trigger("click");
@@ -779,7 +649,6 @@ function model_to_table(model) {
             
             for (var pl = 0; pl < rdf_predicate_list.length; pl++) {
                 var rdf_predicate = rdf_predicate_list[pl];
-//                console.log("  rdf_predicate: " +rdf_predicate);
                 var tr = jQuery('<tr/>', {} ).attr({
                     id: "id_rdf_subject_" + table.name + "_" + k.toString()
                 });
@@ -915,28 +784,15 @@ function update_relTable( table ) {
     var val_2_target_table_name = val_2_column_foreign_key_string_list[0];
     var val_2_target_column_name = val_2_column_foreign_key_string_list[1];
     
-//    console.log("  table.name: " + table.name );
-//    console.log("  val_1_col_name: " + val_1_col_name );
-//    console.log("  val_2_col_name: " + val_2_col_name );
-
-//    console.log("  val_1_target_table_name: " + val_1_target_table_name );
-//    console.log("  val_1_target_column_name: " + val_1_target_column_name );
-
-//    console.log("  val_2_target_table_name: " + val_2_target_table_name );
-//    console.log("  val_2_target_column_name: " + val_2_target_column_name );
     for(var i = 1; i < rel_table_values_10.length; i++) {
         var values = rel_table_values_10[i];
         
         var val_1 = values[0];
         var val_2 = values[1];
-        
-//        console.log("  val_1: " + val_1 );
-//        console.log("  val_2: " + val_2 );
-        
+                
         var firstelem = true;
         $("td[id^='id_rdf_object___" + table.name + "___" + val_1_col_name + "']").each(function() {
             if ('"' + val_1 + '"' == $(this).attr("value") && $(this).attr("lang") != "fr" ) {
-//                console.log("  $(this).attr(value): " + $(this).attr("value") );
                 if (firstelem) {
                     var target_subject_td = $(this).siblings("[id^='id_rdf_subject___']");
                     var new_val = "";
@@ -947,7 +803,6 @@ function update_relTable( table ) {
                         }
                     });
                     if (new_val != "") {
-//                        console.log("  new_val1: " + new_val );
                         $(target_subject_td).text(new_val);
                         $(this).attr("lang", "fr");
                         firstelem = false;
@@ -971,7 +826,6 @@ function update_relTable( table ) {
                             }
                         }
                         
-//                        console.log("  row1: " + row );
                         for (var j = 0; j<val_2_target_table_col_names.length; j++) {
                             $("td[id^='id_rdf_object___" + val_2_target_table_name + "___" + val_2_target_table_col_names[j] + "']").each(function() {
                                 if ('"' + val_2_target_table_values_10[row][j] + '"' == $(this).text()) {
@@ -986,7 +840,6 @@ function update_relTable( table ) {
                                 break;
                             }
                         }
-//                    console.log("  new_val1: " + new_val );
                     }
                 }
             }
@@ -995,7 +848,6 @@ function update_relTable( table ) {
         var firstelem = true;
         $("td[id^='id_rdf_object___" + table.name + "___" + val_2_col_name + "']").each(function() {
             if ('"' + val_2 + '"' == $(this).attr("value")  && $(this).attr("lang") != "fr" ) {
- //               console.log("  $(this).attr(value): " + $(this).attr("value") );
                 if (firstelem) {
                     var target_subject_td = $(this).siblings("[id^='id_rdf_subject___']");
                     var new_val = "";
@@ -1028,7 +880,6 @@ function update_relTable( table ) {
                                 }
                             }
                         }
-//                        console.log("  row2: " + row );
                         for (var j = 0; j<val_1_target_table_col_names.length; j++) {
                             new_val = "";
                             $("td[id^='id_rdf_object___" + val_1_target_table_name + "___" + val_1_target_table_col_names[j] + "']").each(function() {
@@ -1044,7 +895,6 @@ function update_relTable( table ) {
                                 break;
                             }
                         }
-//                    console.log("  new_val2: " + new_val );
                     }
                 }
             }
@@ -1053,11 +903,11 @@ function update_relTable( table ) {
     
     // reset lang attr
     $("td[id^='id_rdf_object___" + table.name + "___" + val_1_col_name + "']").each(function() {
-//        $(this).attr("lang", "");
+        $(this).attr("lang", "");
     });
 
     $("td[id^='id_rdf_object___" + table.name + "___" + val_2_col_name + "']").each(function() {
-//        $(this).attr("lang", "");
+        $(this).attr("lang", "");
     });
 
 }
@@ -1086,7 +936,11 @@ function manually_change_predicate(widget_num) {
     column = column[0];
     var input_val = $("input[id^=id_predicate_input___" + widget_num + "]").val();
 
-    var predicate  = "<" + input_val + ">";
+    if (input_val.indexOf("http") == 0) {
+        var predicate  = "<" + input_val + ">";
+    } else {
+        var predicate  = input_val;
+    }
     
     var column_rdf_predicate = column['rdf_predicate'];
     
@@ -1100,15 +954,53 @@ function manually_change_predicate(widget_num) {
         }
     }
     if (isNewPrediacte) {
-        column_rdf_predicate.push(predicate);
-        column['rdf_predicate'] = column_rdf_predicate;
-        $("#id_hidden_model").val(JSON.stringify(model));
+        add_predicate_to_model(table_name, column_name, predicate);
+        
+        var choices_div = $("div[id^=bb_select_choices___" + table_name + "___" + column_name + "]");
+        
+        if (typeof choices_div == "undefined" || choices_div.length ==0) {
+            var elem = $("div[id^=search_result___" + table_name + "___" + column_name + "]");
+            
+            choices_div = jQuery('<div/>', {
+                class: "bb_select_choices",
+                id: "bb_select_choices___" + table_name + "___" + column_name,
+            }).insertBefore(elem);        
+        }
+        
+        var item = jQuery('<div/>', {
+            id: "choice_info_1", 
+            class: "item",
+            style: "position: relative;",
+            html: "(<i class=\"fa fa-star\"></i> 100) ",
+        });
+        if (input_val.indexOf("http") == 0) {
+            var jqTextNode = $(document.createTextNode("<" + input_val + ">" ));
+            } else {
+            var jqTextNode = $(document.createTextNode(input_val));
+        }
+        jqTextNode.appendTo(item);
+        
+        var close_button = jQuery('<i/>', {
+            class: "fa fa-times close_button",
+            style: "position: absolute; top: 0.1em; right: 0.2em; color: rgb(136, 136, 136); opacity: 1;",
+            text: "",
+        }).appendTo(item);
+
+        close_button.click(function (event) {
+            remove_predicate_from_model(table_name, column_name, predicate);
+            $(this).parent().remove();
+            adapt_RDF_preview(table_name + "___" + column_name);
+        });
+        choices_div.append(item);
+        adapt_RDF_preview(table_name + "___" + column_name);
+
     }
     
     $("td[id^=id_rdf_predicate___" + widget_num + "]").text("<" + input_val  + ">");
     var search_result_str = "search_result___" + widget_num;
     $("div[id^=" + search_result_str + "]").attr("value", "ok");
     checkEnableNextButton();
+    adapt_RDF_preview(table_name + "___" + column_name);
 
 }
 
@@ -1243,9 +1135,7 @@ function remove_predicate_from_model(table_name, column_name, predicate) {
     
     for (var i = 0; i< column_rdf_predicate_list.length; i++) {
         if (column_rdf_predicate_list[i] == predicate) {
-//            console.log("column_rdf_predicate_list: " + column_rdf_predicate_list);
             column_rdf_predicate_list.splice(i, 1);
-//            console.log("column_rdf_predicate_list: " + column_rdf_predicate_list);
         }
     }
     column['rdf_predicate'] = column_rdf_predicate_list;
@@ -1281,23 +1171,15 @@ function adapt_RDF_preview(column_num) {
     column = column[0];
 
     var tbl = $('table[class="rdf_table"]')[0];
-    
-//    bb_select_choices___Student___FirstName
-//    var bb_select_choices_str = "bb_select_choices___" + column_num;
-//    var bb_select_choices = $("div[id^=" + bb_select_choices_str + "]");
-//    var bb_select_choices_childs = $(bb_select_choices).children();
-//    var bb_select_choices_num_childs = $(bb_select_choices_childs).length;
-    
+        
     var column_rdf_predicate_list = column.rdf_predicate;
     if (typeof column_rdf_predicate_list == "undefined" || column_rdf_predicate_list.length == 0) {
         column_rdf_predicate_list = [];
         column_rdf_predicate_list.push("<?predicate?>")
     }
-//    console.log("  column_rdf_predicate_list: " + column_rdf_predicate_list );
     
     for (var pl = 0; pl < column_rdf_predicate_list.length; pl++) {
         var rdf_predicate = column_rdf_predicate_list[pl];
-//        console.log("  rdf_predicate: " +rdf_predicate);
         var has_prefix = false;
         
         var base_iri = table.base_iri;
@@ -1345,12 +1227,10 @@ function adapt_RDF_preview(column_num) {
                 break;
             }
         }
-//        console.log("  column_index: " + column_index );
         
         for(var i = 1; i < values_10_selected.length; i++){
             obj_array.push(values_10_selected[i][column_index]);
         }
-//        console.log("  obj_array: " + obj_array );
 
         for (var i = 0, j = 0, k = 1; i < obj_array.length; i++, j++) {
             subject_uri = table['subject_uri'];
@@ -1414,290 +1294,6 @@ function adapt_RDF_preview(column_num) {
             }
         }
     }
-
-    /*
-    var isFirstChild = true;
-    $(bb_select_choices_childs).each(function( index ) {
-        console.log( "isFirstChild: " + isFirstChild );
-        var data_string = $( this ).attr("value");
-        console.log( index + ": " + data_string );
-        var has_prefix = false;
-        if (typeof data_string !== "undefined" && ! data_string.startsWith("<")) {
-            var data = jQuery.parseJSON(data_string);
-            if (typeof data_string !== "undefined" && ! data_string.startsWith("<")) {
-                var data = jQuery.parseJSON(data_string);
-                if (data['prefix']['prefix'] != "") {
-                    console.log( "has_prefix");
-                    has_prefix = true;
-                    if (isFirstChild) {
-                        console.log( "isFirstChild");
-                        $("td[id^=id_rdf_predicate___" + column_num + "]").text(data['prefix']['prefix'] + ":" + data['prefix']['suffix']);
-                    } else {
-                        console.log( "is NOT FirstChild");
-
-                        var base_iri = table.base_iri;
-                        if (typeof base_iri == "undefined" || base_iri == "/") {
-                            base_iri = "";
-                        }
-                        var num_cols = 1;
-                        var num_selected_cols = 1;
-                        var selected_cols = 1;
-                        var selected_cols_list = [];
-                        selected_cols_list.push(column.name);
-                        
-                        var subject_uri = table['subject_uri'];
-                        if (typeof subject_uri === "undefined") {
-                            subject_uri = "";
-                        }
-
-                        if (table.handle_relTable == "false") {
-
-                            var this_pk_list = [];
-                            var this_pk_list_c = [];
-                            
-                            while (subject_uri.length > 0) {
-                                var pk_index = subject_uri.search(/{.*?}/);
-                                if (pk_index > -1) {
-                                    var pk = subject_uri.match(/{.*?}/)[0];
-                                    this_pk_list_c.push(pk);
-                                    pk = pk.substring(1, pk.length-1);
-                                    this_pk_list.push(pk);
-                                    var substr_start = pk_index + pk.length + 2;
-                                    var substr_length = subject_uri.length - substr_start;
-                                    subject_uri = subject_uri.substr(substr_start , substr_length);
-                                }
-                            }
-                        }
-                        var values_10_selected = (table['values_10_selected'] === undefined) ? [] : table['values_10_selected'];
-                        var numrows = num_selected_cols * values_10_selected.length;
-                        var obj_array = [];
-                        
-                        var column_index = 0;
-                        
-                        for(var i = 0; i < values_10_selected[0].length; i++) {
-                            if (values_10_selected[0][i] == column.name) {
-                                column_index = i;
-                                break;
-                            }
-                        }
-                        console.log( "column_index: " + column_index );
-                        
-                        for(var i = 1; i < values_10_selected.length; i++){
-                            obj_array.push(values_10_selected[i][column_index]);
-                        }
-                        console.log( "obj_array: " + obj_array );
-
-                        for (var i = 0, j = 0, k = 1; i < obj_array.length; i++, j++) {
-                            subject_uri = table['subject_uri'];
-                            var isNull = false;
-                            if (j == num_selected_cols) {
-                                j = 0;
-                                k++;
-                            }
-                            var tr = jQuery('<tr/>', {} ).attr({
-                                id: "id_rdf_subject_" + table.name + "_" + k.toString() + "___" + index
-                            });
-                            var td1 = jQuery('<td/>', {} );
-
-                            if (table.handle_relTable == "false") {
-
-                                var subject_str = base_iri;
-                                for (var ii = 0; ii < this_pk_list.length; ii++) {
-                                    for (var jj = 0; jj < num_selected_cols; jj++) {
-                                        if (this_pk_list[ii] == table['columns'][jj].name) {
-                                            if (table['values_10'][k][jj] != "undefined" && table['values_10'][k][jj] != "" ) {
-                                                subject_uri = subject_uri.replace(this_pk_list_c[ii], table['values_10'][k][jj]);
-                                            }
-                                        }
-                                    }
-                                }
-                                if (base_iri.length > 0) {
-                                    subject_str = subject_str + subject_uri;
-                                    subject_str = "<" + encodeURI(subject_str) + ">";
-                                } else {
-                                    subject_str = "_" + table.name + ":" + subject_uri;
-                                    subject_str = encodeURI(subject_str);
-                                }
-                                td1.text(subject_str).attr({
-                                    id: "id_rdf_subject___" + table.name + "___" + selected_cols_list[j] + "___" +  k.toString() + "___" + index
-                                });
-                            } else {
-                                td1.text("<?subject?>").attr({
-                                    id: "id_rdf_subject___" + table.name + "___" + selected_cols_list[j] + "___" +  k.toString() + "___" + index
-                                });
-                            }
-                            td1.appendTo(tr);
-                            
-                            var td2 = jQuery('<td/>', {} ).attr({
-                                id: "id_rdf_predicate___" + table.name + "___" + selected_cols_list[j] + "___" + k.toString() + "___" + index
-                            });
-                            td2.text(data['prefix']['prefix'] + ":" + data['prefix']['suffix']);
-                            td2.appendTo(tr);
-                            var td3 = jQuery('<td/>', {} ).attr({
-                                id: "id_rdf_object___" + table.name + "___" + selected_cols_list[j] + "___" + k.toString() + "___" + index
-                            });
-                            if (obj_array[i] == 'None' || obj_array[i] == "") {
-                                isNull = true;
-                            }
-                            td3.text("\"" + obj_array[i] + "\"");
-                            td3.appendTo(tr);
-                            var td4 = jQuery('<td/>', {});
-                            td4.text(".");
-                            td4.appendTo(tr);
-                            if (! isNull) {
-                                tr.appendTo(tbl);
-                            }
-                    
-                        }
-                    }
-                    var tbody =  $("td[id^=id_rdf_predicate___" + column_num + "]").parents( "tbody" );
-                    if ( tbody.children("[id=" + data['prefix']['prefix'] + "]").length == 0) {
-                        var tr = jQuery('<tr/>', {} ).attr({id: data['prefix']['prefix'] });
-                        var td1 = jQuery('<td/>', {} );
-                        td1.text("@prefix");
-                        td1.appendTo(tr);
-                        var td2 = jQuery('<td/>', {} );
-                        td2.text(data['prefix']['prefix'] + ":");
-                        td2.appendTo(tr);
-                        var td3 = jQuery('<td/>', {} );
-                        td3.text("<" + data['prefix']['url'] + ">");
-                        td3.appendTo(tr);
-                        var td4 = jQuery('<td/>', {} );
-                        td4.text(".");
-                        td4.appendTo(tr);
-                        tr.prependTo(tbody);
-                    } 
-                } else { // END if (data['prefix']['prefix'] != "") {
-                    console.log( "has NO prefix ");
-                    if (isFirstChild) {
-                        console.log( "isFirstChild");
-                        $("td[id^=id_rdf_predicate___" + column_num + "]").text("<" + data['url'] + ">");
-                    } else {
-                        console.log( "is NOT FirstChild");
-                        var base_iri = table.base_iri;
-                        if (typeof base_iri == "undefined" || base_iri == "/") {
-                            base_iri = "";
-                        }
-                        var num_cols = 1;
-                        var num_selected_cols = 1;
-                        var selected_cols = 1;
-                        var selected_cols_list = [];
-                        selected_cols_list.push(column.name);
-                        var column_index = 0;
-                        for(var i = 0; i < table['columns'].length; i++) {
-                            if (table['columns'][i]['name'] == column.name) {
-                                column_index = i;
-                                break;
-                            }
-                        }
-
-                        var subject_uri = table['subject_uri'];
-                        if (typeof subject_uri === "undefined") {
-                            subject_uri = "";
-                        }
-
-                        if (table.handle_relTable == "false") {
-
-                            var this_pk_list = [];
-                            var this_pk_list_c = [];
-                            
-                            while (subject_uri.length > 0) {
-                                var pk_index = subject_uri.search(/{.*?}/);
-                                if (pk_index > -1) {
-                                    var pk = subject_uri.match(/{.*?}/)[0];
-                                    this_pk_list_c.push(pk);
-                                    pk = pk.substring(1, pk.length-1);
-                                    this_pk_list.push(pk);
-                                    var substr_start = pk_index + pk.length + 2;
-                                    var substr_length = subject_uri.length - substr_start;
-                                    subject_uri = subject_uri.substr(substr_start , substr_length);
-                                }
-                            }
-                        }
-                        var values_10_selected = (table['values_10_selected'] === undefined) ? [] : table['values_10_selected'];
-                        var numrows = num_selected_cols * values_10_selected.length;
-                        var obj_array = [];
-                        
-                        for(var i = 1; i < values_10_selected.length; i++){
-                            obj_array.push(values_10_selected[i][column_index]);
-                        }
-
-                        for (var i = 0, j = 0, k = 1; i < obj_array.length; i++, j++) {
-                            subject_uri = table['subject_uri'];
-                            var isNull = false;
-                            if (j == num_selected_cols) {
-                                j = 0;
-                                k++;
-                            }
-                            var tr = jQuery('<tr/>', {} ).attr({
-                                id: "id_rdf_subject_" + table.name + "_" + k.toString() + "___" + index
-                            });
-                            var td1 = jQuery('<td/>', {} );
-
-                            if (table.handle_relTable == "false") {
-
-                                var subject_str = base_iri;
-                                for (var ii = 0; ii < this_pk_list.length; ii++) {
-                                    for (var jj = 0; jj < num_selected_cols; jj++) {
-                                        if (this_pk_list[ii] == table['columns'][jj].name) {
-                                            if (table['values_10'][k][jj] != "undefined" && table['values_10'][k][jj] != "" ) {
-                                                subject_uri = subject_uri.replace(this_pk_list_c[ii], table['values_10'][k][jj]);
-                                            }
-                                        }
-                                    }
-                                }
-                                if (base_iri.length > 0) {
-                                    subject_str = subject_str + subject_uri;
-                                    subject_str = "<" + encodeURI(subject_str) + ">";
-                                } else {
-                                    subject_str = "_" + table.name + ":" + subject_uri;
-                                    subject_str = encodeURI(subject_str);
-                                }
-                                td1.text(subject_str).attr({
-                                    id: "id_rdf_subject___" + table.name + "___" + selected_cols_list[j] + "___" +  k.toString() + "___" + index
-                                });
-                            } else {
-                                td1.text("<?subject?>").attr({
-                                    id: "id_rdf_subject___" + table.name + "___" + selected_cols_list[j] + "___" +  k.toString() + "___" + index
-                                });
-                            }
-                            td1.appendTo(tr);
-                            
-                            var td2 = jQuery('<td/>', {} ).attr({
-                                id: "id_rdf_predicate___" + table.name + "___" + selected_cols_list[j] + "___" + k.toString() + "___" + index
-                            });
-                            var selected_column = $.grep(table['columns'], function (element, index) {
-                                return element.name == selected_cols_list[j];
-                            });
-                            td2.text("<" + data['url'] + ">");
-                            td2.appendTo(tr);
-                            var td3 = jQuery('<td/>', {} ).attr({
-                                id: "id_rdf_object___" + table.name + "___" + selected_cols_list[j] + "___" + k.toString() + "___" + index
-                            });
-                            if (obj_array[i] == 'None' || obj_array[i] == "") {
-                                isNull = true;
-                            }
-                            td3.text("\"" + obj_array[i] + "\"");
-                            td3.appendTo(tr);
-                            var td4 = jQuery('<td/>', {});
-                            td4.text(".");
-                            td4.appendTo(tr);
-                            if (! isNull) {
-                                tr.appendTo(tbl);
-                            }
-                    
-                        }   
-                    }
-                }
-                isFirstChild = false;
-                $("#id_hidden_model").val(JSON.stringify(model));
-            }
-        }
-    });
-    */
-//    var search_result_str = "search_result___" + column_num;
-//    var data_string = $("div[id^=" + search_result_str + "]").attr("value");
-
     model_to_table2(model);
     if (table.handle_relTable == "true") {
         update_relTable(table);
@@ -1705,26 +1301,6 @@ function adapt_RDF_preview(column_num) {
     checkEnableNextButton();
 }
 
-
-/*
-//get predicate data that is stored in json model and display on page
-function populate_from_model(widget_num, predicate) {
-    //build a bb_select dropdown without dropdown functionality
-
-    var short_uri = predicate.url;
-    if(predicate.url)
-        short_uri = shortenURI(predicate.url, 40);
-
-
-    var predicate_div = "<div class=\"bb_select_nodropdown\" id=\"result_from_model_"+widget_num+"\"><span class=\"oracle_label\"><em>"+predicate.label+"</em><br><span class=\"vocab_description\">"+predicate.vocab_description+"</span></span><br><a href=\""+predicate.url_intern+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>lookup in LinDA dictionary<br><a href=\""+predicate.url+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri+"</div>";
-
-    var parent = $("#search_result___"+widget_num).parent();
-    $("#search_result___"+widget_num).remove();
-    $("#result_from_model_"+widget_num).remove();
-    $("#search_textinput_"+widget_num).val(predicate.search_term);
-    parent.html(parent.html()+predicate_div);
-}
-*/
 
 $( document ).ready(function() {
 
@@ -1746,7 +1322,6 @@ $( document ).ready(function() {
     });
 
     $("#save_mapping").on("click", function () {
-//        console.log('$("#save_mapping").on("click", function ()');
         var current_page = 5;
         rdb_save_mapping(current_page);
         return false;
