@@ -527,7 +527,7 @@ function get_fkeys() {
 
 
 function add_to_content_where_tab_col(new_key, new_value, table_name, column_name){
-    console.log("add_to_content_where_tab_col(new_key: " + new_key + ", new_value: " + new_value+ ", table_name: " + table_name + ", column_name: "+column_name+")");
+//    console.log("add_to_content_where_tab_col(new_key: " + new_key + ", new_value: " + new_value+ ", table_name: " + table_name + ", column_name: "+column_name+")");
     var model = get_db_model();
     var table = $.grep(model['tables'], function (element, index) {
         return element.name == table_name;
@@ -752,7 +752,8 @@ function populate_from_model_reconciliation(widget, recon){
         short_uri = shortenURI(recon.url, 40);
 
 
-    var obj_div = " <i class=\"refetch-field fa fa-search\" onmouseover=\"Tip('Click here to refetch proposals for this field.')\" onmouseout=\"UnTip()\"></i><div class=\"bb_select_nodropdown\"><a href=\""+recon.url+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window: "+recon.url+"')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri + recon.suffix +"</div>";
+//    var obj_div = " <i class=\"refetch-field fa fa-search\" onmouseover=\"Tip('Click here to refetch proposals for this field.')\" onmouseout=\"UnTip()\"></i><div class=\"bb_select_nodropdown\"><a href=\""+recon.url+recon.suffix+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window: "+recon.url+recon.suffix+"')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri + recon.suffix +"</div>";
+    var obj_div = " <div class=\"bb_select_nodropdown\"><a href=\""+recon.url+recon.suffix+"\" target=\"_blank\" onmouseover=\"Tip('Open in external window: "+recon.url+recon.suffix+"')\" onmouseout=\"UnTip()\"><i class=\"fa fa-external-link-square additl_vert_pad\"></i></a>"+short_uri + recon.suffix +"</div>";
 
     widget.find(":not(span)").remove();
     widget.html(widget.html()+obj_div);
@@ -768,7 +769,7 @@ function isTextNode(){
 
 
 function model_to_table(model) {
-    console.log("model_to_table()");
+//    console.log("model_to_table()");
     var rdf_prefix = model['prefixes']; // var rdf_prefix = $("#id_hidden_rdf_prefix_field");
     if (typeof rdf_prefix == "undefined") {
         rdf_prefix = [];
@@ -1076,7 +1077,7 @@ function model_to_table(model) {
 
 
 function update_table_values(table_name, page, num) {
-    console.log("update_table_values(table_name: " + table_name + ", page: " + page + ", num: " + num + ")");
+//    console.log("update_table_values(table_name: " + table_name + ", page: " + page + ", num: " + num + ")");
     var model = get_db_model();
     var table = $.grep(model['tables'], function (element, index) {
         return element.name == table_name;
@@ -1096,10 +1097,7 @@ function update_table_values(table_name, page, num) {
     }
     col_str = col_str.substr(0 , col_str.length-1);
     var skip = (page-1) * num;
-    
-//    console.log("  skip: " + skip);
-//    console.log("  col_str: " + col_str);
-    
+       
     var sq = table['sql_query'];
     if (typeof sq != "undefined") {
         sq = decodeURI(sq);
@@ -1114,15 +1112,11 @@ function update_table_values(table_name, page, num) {
         var sql_query = "SELECT " + col_str + " FROM " + table_name + " LIMIT " + skip + ", " + num + ";";
         var sql_query_all = "SELECT * FROM " + table_name + " LIMIT " + skip + ", " + num + ";";
     }
-//    console.log("  sql_query: " + sql_query);
     $.ajax({
         url : "rdb/get_table_values",   // the endpoint
         type : "POST",                  // http method
         data : { sql_query: sql_query, sql_query_all: sql_query_all, table_name: table_name, page: page, num: num}, // data sent
         success : function(new_table_values) {
-//            console.log(JSON.stringify(new_table_values, null, 4));
-//            console.log("  new values_10: " + new_table_values['values_10']);
-//            console.log("  new values_10_selected: " + new_table_values['values_10_selected']);
             table['page'] = page;
             table['per_page'] = num;
             
@@ -1161,15 +1155,12 @@ function update_table_values(table_name, page, num) {
             
             for (var i = 0; i< col_arr.length; i++) {
                 var col_name = col_arr[i];
-                console.log("col_name: " + col_name);
                 var column = $.grep(table['columns'], function (element, index) {
                     return element.name == col_name;
                 });
                 column = column[0];
-                console.log("column['object_method']: " + column['object_method']);
                 
                 var object_method = column['object_method'];
-                console.log("col_name: " + col_name);
                 if (typeof object_method != "undefined") {
                     var table_select = $("select[id^='id_select___" + table_name + "___" + col_name + "']");
                     if (object_method == "data type") {
@@ -1225,13 +1216,6 @@ function update_relTable( table ) {
     var val_2_target_table_name = val_2_column_foreign_key_string_list[0];
     var val_2_target_column_name = val_2_column_foreign_key_string_list[1];
     
-//    console.log("  val_1_col_name: "+ val_1_col_name);
-//    console.log("  val_1_target_table_name: "+ val_1_target_table_name);
-//    console.log("  val_1_target_column_name: "+ val_1_target_column_name);
-//    console.log("  val_2_col_name: "+ val_2_col_name);
-//    console.log("  val_2_target_table_name: "+ val_2_target_table_name);
-//    console.log("  val_2_target_column_name: "+ val_2_target_column_name);
-
     var val_1_target_table = $.grep(model['tables'], function (element, index) {
         return element.name == val_1_target_table_name;
     });
@@ -1247,11 +1231,6 @@ function update_relTable( table ) {
 
         var val_1 = values[0];
         var val_2 = values[1];
-
-//        console.log("  i: "+ i);
-
-//        console.log("  val_1: "+ val_1);
-//        console.log("  val_2: "+ val_2);
         
         var target_table_1_base_iri = val_1_target_table['base_iri'];
         var target_table_2_base_iri = val_2_target_table['base_iri'];
@@ -1259,12 +1238,6 @@ function update_relTable( table ) {
         var target_table_1_subject_uri = val_1_target_table['subject_uri'];
         var target_table_2_subject_uri = val_2_target_table['subject_uri'];
         
-//        console.log("  target_table_1_base_iri: "+ target_table_1_base_iri);
-//        console.log("  target_table_1_subject_uri: "+ target_table_1_subject_uri);
-
-//        console.log("  target_table_2_base_iri: "+ target_table_2_base_iri);
-//        console.log("  target_table_2_subject_uri: "+ target_table_2_subject_uri);
-
         var pk_list_1 = [];
         var pk_list_c_1 = [];
         var pk_list_2 = [];
@@ -1360,130 +1333,6 @@ var new_val_2 = "";
         
     }
 }
-/*        
-        $("td[id^='id_rdf_object___" + table.name + "___" + val_1_col_name + "']").each(function() {
-            if ('"' + val_1 + '"' == $(this).attr("value") && $(this).attr("lang") != "fr" ) {
-                if (firstelem) {
-                    var target_subject_td = $(this).siblings("[id^='id_rdf_subject___']");
-                    var new_val = "";
-                    $("td[id^='id_rdf_object___" + val_2_target_table_name + "___" + val_2_target_column_name + "']").each(function() {
-                        if ('"' + val_2 + '"' == $(this).text()) {
-                            var target_subject_td2 = $(this).siblings("[id^='id_rdf_subject___']");
-                            new_val = $(target_subject_td2).text();
-                            console.log("  new_val: "+ new_val);
-                        }
-                    });
-                    if (new_val != "") {
-                        $(target_subject_td).text(new_val);
-                        $(this).attr("lang", "fr");
-                        firstelem = false;
-                    } else {
-
-                        var val_2_target_table = $.grep(model['tables'], function (element, index) {
-                            return element.name == val_2_target_table_name;
-                        });
-                        val_2_target_table = val_2_target_table[0];
-                        
-                        var val_2_target_table_values_10 = val_2_target_table['values_10'];
-                        var val_2_target_table_col_names = val_2_target_table_values_10[0];
-                        
-                        var row = 0;
-                        for(var j = 1; j < val_2_target_table_values_10.length; j++) {
-                            var val_2_target_table_values = val_2_target_table_values_10[j];
-                            for (var k = 0; k<val_2_target_table_values.length; k++) {
-                                if ( val_2 == val_2_target_table_values[k]) {
-                                    row = j;
-                                }
-                            }
-                        }
-                        
-                        for (var j = 0; j<val_2_target_table_col_names.length; j++) {
-                            $("td[id^='id_rdf_object___" + val_2_target_table_name + "___" + val_2_target_table_col_names[j] + "']").each(function() {
-                                if ('"' + val_2_target_table_values_10[row][j] + '"' == $(this).text()) {
-                                    var target_subject_td2 = $(this).siblings("[id^='id_rdf_subject___']");
-                                    new_val = $(target_subject_td2).text();
-                                    console.log("  2 new_val: "+ new_val);
-                                }
-                            });
-                            if (new_val != "") {
-                                $(target_subject_td).text(new_val);
-                                $(this).attr("lang", "fr");
-                                firstelem = false;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-        
-        var firstelem = true;
-        $("td[id^='id_rdf_object___" + table.name + "___" + val_2_col_name + "']").each(function() {
-            if ('"' + val_2 + '"' == $(this).attr("value")  && $(this).attr("lang") != "fr" ) {
-                if (firstelem) {
-                    var target_subject_td = $(this).siblings("[id^='id_rdf_subject___']");
-                    var new_val = "";
-                    $("td[id^='id_rdf_object___" + val_1_target_table_name + "___" + val_1_target_column_name + "']").each(function() {
-                        if ('"' + val_1 + '"'  == $(this).text()) {
-                            var target_subject_td1 = $(this).siblings("[id^='id_rdf_subject___']");
-                            new_val = $(target_subject_td1).text();
-                        }
-                    });
-                    if (new_val != "") {
-                        $(target_subject_td).text(new_val);
-                        $(this).attr("lang", "fr");
-                        firstelem = false;
-                    } else {
-                        var val_1_target_table = $.grep(model['tables'], function (element, index) {
-                            return element.name == val_1_target_table_name;
-                        });
-                        val_1_target_table = val_1_target_table[0];
-                        var columns = val_1_target_table['columns'];
-
-                        var val_1_target_table_values_10 = val_1_target_table['values_10'];
-                        var val_1_target_table_col_names = val_1_target_table_values_10[0];
-                        
-                        var row = 0;
-                        for(var j = 1; j < val_1_target_table_values_10.length; j++) {
-                            var val_1_target_table_values = val_1_target_table_values_10[j];
-                            for (var k = 0; k<val_1_target_table_values.length; k++) {
-                                if ( val_1 == val_1_target_table_values[k]) {
-                                    row = j;
-                                }
-                            }
-                        }
-                        for (var j = 0; j<val_1_target_table_col_names.length; j++) {
-                            new_val = "";
-                            $("td[id^='id_rdf_object___" + val_1_target_table_name + "___" + val_1_target_table_col_names[j] + "']").each(function() {
-                                if ('"' + val_1_target_table_values_10[row][j] + '"' == $(this).text()) {
-                                    var target_subject_td1 = $(this).siblings("[id^='id_rdf_subject___']");
-                                    new_val = $(target_subject_td1).text();
-                                    console.log("  2 new_val: "+ new_val);
-                                }
-                            });
-                            if (new_val != "") {
-                                $(target_subject_td).text(new_val);
-                                $(this).attr("lang", "fr");
-                                firstelem = false;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-    
-    // reset lang attr
-    $("td[id^='id_rdf_object___" + table.name + "___" + val_1_col_name + "']").each(function() {
-        $(this).attr("lang", "");
-    });
-
-    $("td[id^='id_rdf_object___" + table.name + "___" + val_2_col_name + "']").each(function() {
-        $(this).attr("lang", "");
-    });
-}
-*/    
 
 
 function model_to_table2(model){
@@ -1498,8 +1347,6 @@ function model_to_table2(model){
             if (typeof column.foreign_key_string != "undefined" && column.foreign_key_string.length > 0 ) {
                 var t_table  = column.foreign_key_string.split(":")[0];
                 var t_column = column.foreign_key_string.split(":")[1];
-//                console.log("t_table: " + t_table);
-//                console.log("t_column: " + t_column);
                 var source_td = $("td[id^='id_rdf_object___" + table.name + "___" + column.name + "']");
                 for (var k = 0; k < source_td.length; k++) {
                     var old_val = $(source_td[k]).text();
@@ -1527,17 +1374,18 @@ function model_to_table2(model){
                             new_val = "<" + targetTable['base_iri'] + targetTable['subject_uri'] + ">";
                             new_val = new_val.replace("{" + t_column + "}", old_val);
                             new_val = new_val.replace(/\"/g, '');
+                            new_val = new_val.replace(/\'/g, '');
                             $(source_td[k]).text(new_val);
                             $(source_td[k]).attr("value", old_val);                                        
                         } else {
                             new_val = "_:" + targetTable['subject_uri'];
                             new_val = new_val.replace("{" + t_column + "}", old_val);
                             new_val = new_val.replace(/\"/g, '');
+                            new_val = new_val.replace(/\'/g, '');
                             $(source_td[k]).text(new_val);
                             $(source_td[k]).attr("value", old_val);
                         }
                     }
-//                    console.log("new_val: " + new_val);
                 }
             }
         }
@@ -1795,7 +1643,7 @@ $( document ).ready(function() {
     });
 
     $("#save_mapping").on("click", function () {
-        console.log('$("#save_mapping").on("click", function ()');
+//        console.log('$("#save_mapping").on("click", function ()');
         var current_page = 6;
         rdb_save_mapping(current_page);
         return false;
@@ -1812,35 +1660,7 @@ $( document ).ready(function() {
         });
     });
     
-/*
-    $(".pagination-link").click(function(){
-        var f = $(this).parents("form");
-        f.get(0).setAttribute('method', "POST");
-        f.get(0).setAttribute('action', $(this).attr("href"));
-        f.submit();
-        return false;
-    });
-*/
-/*
-    $("select#select-rows-per-page").on("change", function(){
-        var f = $(this).parents("form");
-        f.get(0).setAttribute('method', "POST");
-        f.get(0).setAttribute('action', $(this).find("option:selected").attr("href"));
-        f.submit();
-        return false;
-    });
-*/
-/*
-    $(".refetch-field").on("click", function(){
-        var field = $(this).closest("td");
-        var field_as_array = field.attr("id").split("_");
-        var col = field_as_array[field_as_array.length-2];
-        var row = field_as_array[field_as_array.length-1];
-        var topic = $("#id_table_head___"+col);//text().trim();
-        field.find(":not(span)").remove();
-        askOracle(field, topic.text().trim(), field.find("span").text().trim());
-    });
-*/    
+
 });
 
 </script>

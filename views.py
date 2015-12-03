@@ -650,7 +650,7 @@ def status(request):
 
 def rdb_select(request):
 
-    print("VIEW rdb_select")
+    logger.info("VIEW rdb_select")
     form_action = 2
     if request.method == 'POST':
         form = DatabaseSelectForm(request.POST)
@@ -746,7 +746,7 @@ def rdb_select(request):
             elif current_page == 8:
                 return render(request, 'transformation/rdb_publish.html', html_post_data)
         else: # if form.is_valid() and form != None:
-            print("NOT form.is_valid() or form == None ")
+            logger.info("NOT form.is_valid() or form == None ")
             fkeys = request.session['fkeys']
             model = request.POST.get('hidden_model', "{}")
             model = ast.literal_eval(model)
@@ -762,13 +762,13 @@ def rdb_select(request):
             html_post_data.update({'form': form})
         return render(request, 'transformation/rdb_select.html', html_post_data)
     else:  # if request.method == 'POST':
-        print("PATH 4 - initial page call (HTML GET)")
+        logger.info("PATH 4 - initial page call (HTML GET)")
         form = DatabaseSelectForm()
         return render(request, 'transformation/rdb_select.html', {'action': 1, 'form': form})
 
 
 def rdb_sql_select(request):
-    print("VIEW rdb_sql_select")
+    logger.info("VIEW rdb_sql_select")
     form_action = 3
     fkeys = request.session['fkeys']
     model = request.session['model']
@@ -805,7 +805,7 @@ def rdb_sql_select(request):
                     'connection': 'failed'
                 }
         else: # if form.is_valid() and form != None:
-            print("NOT form.is_valid() or form == None ")
+            logger.info("NOT form.is_valid() or form == None ")
             model = request.POST.get('hidden_model', "{}")
             model = ast.literal_eval(model)
             request.session['model'] = model
@@ -851,7 +851,7 @@ def rdb_delete_table(request):
 
 
 def rdb_get_sql_table(request):
-    print("rdb_get_sql_table()")
+    logger.info("rdb_get_sql_table()")
     fkeys = request.session['fkeys']
     sql_name = QueryDict(request.body).get('sql_name')
     sql_query = QueryDict(request.body).get('sql_query')
@@ -867,7 +867,7 @@ def rdb_get_sql_table(request):
         return HttpResponse(json.dumps({"nothing to see": "this isn't happening"}), content_type="application/json")
 
 def rdb_get_table_values(request):
-    print("rdb_get_table_values()")
+    logger.info("rdb_get_table_values()")
 #    table_name = QueryDict(request.body).get('table_name')
     sql_query = QueryDict(request.body).get('sql_query')
     sql_query_all = QueryDict(request.body).get('sql_query_all')
@@ -886,7 +886,7 @@ def rdb_get_table_values(request):
     
 
 def rdb_column_choice(request):
-    print("VIEW rdb_column_choice")
+    logger.info("VIEW rdb_column_choice")
     form_action = 4
     fkeys = request.session['fkeys']
     model = request.session['model']
@@ -917,7 +917,7 @@ def rdb_column_choice(request):
 
 
 def rdb_subject(request):
-    print("VIEW rdb_subject")
+    logger.info("VIEW rdb_subject")
     fkeys = request.session['fkeys']
     model = request.session['model']
     form_action = 5
@@ -937,7 +937,7 @@ def rdb_subject(request):
 
 
 def rdb_predicate(request):
-    print("VIEW rdb_predicate")
+    logger.info("VIEW rdb_predicate")
     form_action = 6
     fkeys = request.session['fkeys']
     model = request.session['model']
@@ -957,7 +957,7 @@ def rdb_predicate(request):
 
 
 def rdb_object(request):
-    print("VIEW rdb_object")
+    logger.info("VIEW rdb_object")
     form_action = 7
     if request.method == 'POST':
         model = request.POST.get('hidden_model', "{}")
@@ -975,7 +975,7 @@ def rdb_object(request):
 
 
 def rdb_enrich(request):
-    print("VIEW rdb_enrich")
+    logger.info("VIEW rdb_enrich")
     form_action = 8
     if request.method == 'POST':
         model = request.POST.get('hidden_model', "{}")
@@ -994,27 +994,27 @@ def rdb_enrich(request):
 
 def rdb_save_mapping(request):
 
-    print("rdb_save_mapping()")
-#    print("request:")
-#    print(request)
+    logger.info("rdb_save_mapping()")
+#    logger.info("request:")
+#    logger.info(request)
     try:
         publish_message = ""
         model = request.session['model']
         fkeys = request.session['fkeys']
-#        print("model: ")
-#        print(model)
+#        logger.info("model: ")
+#        logger.info(model)
         
         if request.method == 'POST':
             model = QueryDict(request.body).get('model')
             #model = request.POST.get('model', "{}")
-#            print("model: ")
-#            print(model)
+#            logger.info("model: ")
+#            logger.info(model)
             model = ast.literal_eval(model)
             current_page = QueryDict(request.body).get('current_page')
-#            print("model: ")
-#            print(model)
-#            print("current_page:")
-#            print(current_page)
+#            logger.info("model: ")
+#            logger.info(model)
+#            logger.info("current_page:")
+#            logger.info(current_page)
 
             request.session['model'] = model
             transformation_file = ContentFile(json.dumps(model).encode('utf-8'))
@@ -1052,13 +1052,13 @@ def rdb_save_mapping(request):
             mapping.save()
             return HttpResponse(json.dumps({"message": "mapping saved"}), content_type="application/json")
     except:
-        print("ERROR")
-        print(sys.exc_info()[1])
+        logger.info("ERROR")
+        logger.info(sys.exc_info()[1])
         return HttpResponse(json.dumps({"message": "this isnt happening"}), content_type="application/json")
 
 
 def rdb_publish(request):
-    print("VIEW rdb_publish")
+    logger.info("VIEW rdb_publish")
     publish_message = ""
     model = request.session['model']
     fkeys = request.session['fkeys']
@@ -1077,11 +1077,11 @@ def rdb_publish(request):
 
                 r = requests.post('http://' + API_HOST + '/api/datasource/create/', data=payload)
                 j = json.loads(r.text)
-                print(j["message"])
+                logger.info(j["message"])
                 publish_message = j["message"]
             except:
-                print("ERROR")
-                print(sys.exc_info()[1])
+                logger.info("ERROR")
+                logger.info(sys.exc_info()[1])
                 publish_message = sys.exc_info()[1]
 
 
@@ -2229,8 +2229,8 @@ def get_mysql_cursor(db_host, db_user, db_password, db_database):
         cursor = connection.cursor()
         return {'cursor':cursor, 'message':'ok', 'con': connection}
     except:
-        print("DB Connection failed:", )
-        print(sys.exc_info()[1])
+        logger.info("DB Connection failed:", )
+        logger.info(sys.exc_info()[1])
         return {'cursor': None, 'message': sys.exc_info()[1], 'con': None}
 
 
@@ -2246,8 +2246,8 @@ def get_mysql_fkeys(cursor):
         erg['error'] = None
         return erg
     except:
-        print("get_mysql_fkeys failed:", )
-        print(sys.exc_info()[1])
+        logger.info("get_mysql_fkeys failed:", )
+        logger.info(sys.exc_info()[1])
         erg['error'] = sys.exc_info()[1]
         return erg
 
@@ -2277,8 +2277,8 @@ def get_mysql_tables(cursor, fkeys):
                 table['handle_relTable'] = "false"
         return {'model':model, 'message':'ok', 'error': None}
     except:
-        print("get_mysql_tables failed:", )
-        print(sys.exc_info()[1])
+        logger.info("get_mysql_tables failed:", )
+        logger.info(sys.exc_info()[1])
         return {'error': sys.exc_info()[1]}
 
 
@@ -2327,14 +2327,12 @@ def get_mysql_table_data(cursor, table, fkeys, limit):
         res_table['columns'] = schema_table_field_list
         cursor.execute("SELECT COUNT(*) FROM " + table)
         num_rows = cursor.fetchone()
-        print("num_rows")
-        print(num_rows[0])
         res_table['num_rows'] = num_rows[0]
         
         return res_table
     except: 
-        print(sys.exc_info()[1])
-        print("get_mysql_table_data failed:", )
+        logger.info(sys.exc_info()[1])
+        logger.info("get_mysql_table_data failed:", )
         return None
 
         
@@ -2372,8 +2370,8 @@ def get_mysql_sql_table_data3(cursor, sql_query, sql_query_all):
     
         return sql_table
     except:
-        print("get_mysql_sql_table_data3 failed:", )
-        print(sys.exc_info()[1])
+        logger.info("get_mysql_sql_table_data3 failed:", )
+        logger.info(sys.exc_info()[1])
         return {'message': str(sys.exc_info()[1])}
 
         
@@ -2389,8 +2387,8 @@ def get_mysql_sql_table_data2(cursor, sql_name, sql_query, fkeys, limit):
             sql_query_replaced = urlquote(sql_query)
 #            sql_query_replaced = sql_query.replace("'", "\\\'")
 #            sql_query_replaced = sql_query_replaced.replace('"', "\\\'")
-#            print(sql_query)
-#            print(sql_query_replaced)
+#            logger.info(sql_query)
+#            logger.info(sql_query_replaced)
             sql_table = {'sql_query': sql_query_replaced, 'selected': 'true'}
             sql_table['name'] = sql_name
             # LIMIT
@@ -2434,8 +2432,8 @@ def get_mysql_sql_table_data2(cursor, sql_name, sql_query, fkeys, limit):
         else:
             return {'message': 'Error: ONLY SELECT statements are allowed in the sql-query'}
     except:
-        print("get_mysql_sql_table_data2 failed:", )
-        print(sys.exc_info()[1])
+        logger.info("get_mysql_sql_table_data2 failed:", )
+        logger.info(sys.exc_info()[1])
         return {'message': str(sys.exc_info()[1])}
 
 
@@ -2467,14 +2465,14 @@ def lookup(request, queryClass, queryString, callback):
 
 
 def lookup2(queryClass, queryString):
-#    print("lookup::queryString: ")
-#    print(queryString)
+#    logger.info("lookup::queryString: ")
+#    logger.info(queryString)
     headers = {'Accept': 'application/json'}
     try:
         result = requests.get('http://lookup.dbpedia.org/api/search/KeywordSearch?QueryString=' + queryString, headers=headers)
         return json.loads(result.text)
     except:
-        print("lookup2 failed:")
+        logger.info("lookup2 failed:")
         return "error"
 #    result = requests.get(
 #        'http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=' + queryClass + '&QueryString=' + queryString,
