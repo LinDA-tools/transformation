@@ -1215,82 +1215,88 @@ function adapt_RDF_preview(column_num) {
                 }
             }
         }
-        var values_10_selected = (table['values_10_selected'] === undefined) ? [] : table['values_10_selected'];
-        var numrows = num_selected_cols * values_10_selected.length;
-        var obj_array = [];
-        
-        var column_index = 0;
-        
-        for(var i = 0; i < values_10_selected[0].length; i++) {
-            if (values_10_selected[0][i] == column.name) {
-                column_index = i;
-                break;
-            }
+//        var values_10_selected = (table['values_10_selected'] === undefined) ? [] : table['values_10_selected'];
+        var values_10_selected = table['values_10_selected'];
+        if (typeof values_10_selected == "undefined") {
+            values_10_selected = [];
         }
-        
-        for(var i = 1; i < values_10_selected.length; i++){
-            obj_array.push(values_10_selected[i][column_index]);
-        }
-
-        for (var i = 0, j = 0, k = 1; i < obj_array.length; i++, j++) {
-            subject_uri = table['subject_uri'];
-            var isNull = false;
-            if (j == num_selected_cols) {
-                j = 0;
-                k++;
+        if (values_10_selected.length > 0) {
+            var numrows = num_selected_cols * values_10_selected.length;
+            var obj_array = [];
+            
+            var column_index = 0;
+            
+            for(var i = 0; i < values_10_selected[0].length; i++) {
+                if (values_10_selected[0][i] == column.name) {
+                    column_index = i;
+                    break;
+                }
             }
-            var tr = jQuery('<tr/>', {} ).attr({
-                id: "id_rdf_subject_" + table.name + "_" + k.toString() + "___" + pl
-            });
-            var td1 = jQuery('<td/>', {} );
+            
+            for(var i = 1; i < values_10_selected.length; i++){
+                obj_array.push(values_10_selected[i][column_index]);
+            }
 
-            if (table.handle_relTable == "false") {
+            for (var i = 0, j = 0, k = 1; i < obj_array.length; i++, j++) {
+                subject_uri = table['subject_uri'];
+                var isNull = false;
+                if (j == num_selected_cols) {
+                    j = 0;
+                    k++;
+                }
+                var tr = jQuery('<tr/>', {} ).attr({
+                    id: "id_rdf_subject_" + table.name + "_" + k.toString() + "___" + pl
+                });
+                var td1 = jQuery('<td/>', {} );
 
-                var subject_str = base_iri;
-                for (var ii = 0; ii < this_pk_list.length; ii++) {
-                    for (var jj = 0; jj < num_selected_cols; jj++) {
-                        if (this_pk_list[ii] == table['columns'][jj].name) {
-                            if (table['values_10'][k][jj] != "undefined" && table['values_10'][k][jj] != "" ) {
-                                subject_uri = subject_uri.replace(this_pk_list_c[ii], table['values_10'][k][jj]);
+                if (table.handle_relTable == "false") {
+
+                    var subject_str = base_iri;
+                    for (var ii = 0; ii < this_pk_list.length; ii++) {
+                        for (var jj = 0; jj < num_selected_cols; jj++) {
+                            if (this_pk_list[ii] == table['columns'][jj].name) {
+                                if (table['values_10'][k][jj] != "undefined" && table['values_10'][k][jj] != "" ) {
+                                    subject_uri = subject_uri.replace(this_pk_list_c[ii], table['values_10'][k][jj]);
+                                }
                             }
                         }
                     }
-                }
-                if (base_iri.length > 0) {
-                    subject_str = subject_str + subject_uri;
-                    subject_str = "<" + encodeURI(subject_str) + ">";
+                    if (base_iri.length > 0) {
+                        subject_str = subject_str + subject_uri;
+                        subject_str = "<" + encodeURI(subject_str) + ">";
+                    } else {
+                        subject_str = "_" + table.name + ":" + subject_uri;
+                        subject_str = encodeURI(subject_str);
+                    }
+                    td1.text(subject_str).attr({
+                        id: "id_rdf_subject___" + table.name + "___" + selected_cols_list[j] + "___" +  k.toString() + "___" + pl
+                    });
                 } else {
-                    subject_str = "_" + table.name + ":" + subject_uri;
-                    subject_str = encodeURI(subject_str);
+                    td1.text("<?subject?>").attr({
+                        id: "id_rdf_subject___" + table.name + "___" + selected_cols_list[j] + "___" +  k.toString() + "___" + pl
+                    });
                 }
-                td1.text(subject_str).attr({
-                    id: "id_rdf_subject___" + table.name + "___" + selected_cols_list[j] + "___" +  k.toString() + "___" + pl
+                td1.appendTo(tr);
+                
+                var td2 = jQuery('<td/>', {} ).attr({
+                    id: "id_rdf_predicate___" + table.name + "___" + selected_cols_list[j] + "___" + k.toString() + "___" + pl
                 });
-            } else {
-                td1.text("<?subject?>").attr({
-                    id: "id_rdf_subject___" + table.name + "___" + selected_cols_list[j] + "___" +  k.toString() + "___" + pl
+                td2.text(rdf_predicate);
+                td2.appendTo(tr);
+                var td3 = jQuery('<td/>', {} ).attr({
+                    id: "id_rdf_object___" + table.name + "___" + selected_cols_list[j] + "___" + k.toString() + "___" + pl
                 });
-            }
-            td1.appendTo(tr);
-            
-            var td2 = jQuery('<td/>', {} ).attr({
-                id: "id_rdf_predicate___" + table.name + "___" + selected_cols_list[j] + "___" + k.toString() + "___" + pl
-            });
-            td2.text(rdf_predicate);
-            td2.appendTo(tr);
-            var td3 = jQuery('<td/>', {} ).attr({
-                id: "id_rdf_object___" + table.name + "___" + selected_cols_list[j] + "___" + k.toString() + "___" + pl
-            });
-            if (obj_array[i] == 'None' || obj_array[i] == "") {
-                isNull = true;
-            }
-            td3.text("\"" + obj_array[i] + "\"");
-            td3.appendTo(tr);
-            var td4 = jQuery('<td/>', {});
-            td4.text(".");
-            td4.appendTo(tr);
-            if (! isNull) {
-                tr.appendTo(tbl);
+                if (obj_array[i] == 'None' || obj_array[i] == "") {
+                    isNull = true;
+                }
+                td3.text("\"" + obj_array[i] + "\"");
+                td3.appendTo(tr);
+                var td4 = jQuery('<td/>', {});
+                td4.text(".");
+                td4.appendTo(tr);
+                if (! isNull) {
+                    tr.appendTo(tbl);
+                }
             }
         }
     }

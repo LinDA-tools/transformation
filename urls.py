@@ -1,5 +1,7 @@
 from django.conf.urls import patterns, url
 
+from django.views.generic.base import RedirectView
+
 from transformation import views
 
 
