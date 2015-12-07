@@ -1,0 +1,2192 @@
+[33mcommit 7f90c794f9074ed86953b4c7834bdcc84147b395[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Nov 3 16:51:14 2015 +0100
+
+    logging
+
+[33mcommit 6dbf6f83a6e1e63c165e3d19568ee539ce0f9ba9[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Nov 2 15:53:22 2015 +0100
+
+    mapping saving: unused temp files will be deleted now on tool 'start'
+
+[33mcommit c3225c9d3077422f6e32688acd5f379832a3ebde[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Oct 27 17:38:08 2015 +0100
+
+    bugfix: mapping saving
+
+[33mcommit aaa48436dea7a747fb1cbc16a79abe9ac32aef78[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Oct 27 17:27:25 2015 +0100
+
+    bugfix: rdf preview showed empty lines when less than 10 rows in csv
+
+[33mcommit eebe2f7eed8383551a353a6560cbee03129a2d32[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Oct 27 17:16:50 2015 +0100
+
+    select data type as default in object step
+
+[33mcommit 042d80ffb0f5700d423083d5c4ec630f89112971[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Oct 27 16:08:01 2015 +0100
+
+     close button in last step
+
+[33mcommit df3132c2cd678e43a6749cb4bb2dc8f970385607[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Oct 27 15:16:02 2015 +0100
+
+    'loading...' notification when downloading rdf
+
+[33mcommit cea32a814657deb5f3abba7e543ee77e138b1503[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Oct 26 16:02:06 2015 +0100
+
+    code cleaning
+
+[33mcommit 5d6460c5c0393ecdd3ae1a0d68306dc257ede119[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Oct 26 13:52:42 2015 +0100
+
+    bugfix data type in object view
+
+[33mcommit 3cf1945cb51d8a641ccd275e27afa0128ccee675[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Oct 26 13:27:52 2015 +0100
+
+    bugfix subj uri was disabled
+
+[33mcommit 8fcdaa2beb4ff393f23a7f4fcfe44bcaf576e53c[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Oct 26 13:22:47 2015 +0100
+
+    bugfix could not go back to step 2
+
+[33mcommit 42e7cbd02947ac66777e862d6b72da138521bd21[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Oct 26 13:18:24 2015 +0100
+
+    bugfix rdf download
+
+[33mcommit a242e4051486f81c07095e88fa97bfa85eed34af[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Oct 21 12:06:37 2015 +0200
+
+    documentation and cleaning for views.py
+
+[33mcommit 9af9b0fe1ad9406469d2793d95d9647932910f48[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Oct 19 15:41:42 2015 +0200
+
+    supplementing missing object reconciliations when creating rdf for download
+
+[33mcommit c47bee453d953433671752b73f0826b578ebfbdf[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Oct 8 11:34:49 2015 +0200
+
+    fix rdf download: subject
+
+[33mcommit 990a85aca00691ebe5454db161a3e5c2925efd6f[m
+Merge: badb001 8991cac
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Thu Oct 15 13:35:08 2015 +0200
+
+    Merge branch 'develop' of https://github.com/LinDA-tools/transformation into develop
+
+[33mcommit badb0016e44273a5f26bcde5eba9829c9cfd6459[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Thu Oct 15 13:34:17 2015 +0200
+
+    revised url validation
+
+[33mcommit 6a6dd3259827473ecea2aeec4c506f0a6b2be16f[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Wed Oct 14 15:42:05 2015 +0200
+
+    irgnore encoding errors
+
+[33mcommit 8991cac32840dd95719b6c9ea9dfc5ab8f19ab1b[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Oct 14 15:03:25 2015 +0200
+
+    rdf download preformance boost
+
+[33mcommit 007c4feb30448eecca2f226738de72e4b9342e6a[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Wed Oct 14 13:08:07 2015 +0200
+
+    further excel file upload fix
+
+[33mcommit dc8b9e71c7950e514def3be53b1ab9ebc961a5c8[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Wed Oct 14 12:01:31 2015 +0200
+
+    fixed excel upload
+
+[33mcommit fd762eb1ad5be8f04eb188ee622062e8add6e002[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Oct 14 11:23:50 2015 +0200
+
+    fixed rdf download for new model architecture
+
+[33mcommit d63955bad1b80b64b6fc9fe79f9ebf22ccf35799[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Oct 13 15:32:44 2015 +0200
+
+    subj page fix
+
+[33mcommit 5fc07daae2fa2a4cc952f1e5db3272512139afa5[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Oct 13 12:23:24 2015 +0200
+
+    created ajax call to backend to deliver missing dbpedia urls for obj reconciliation
+
+[33mcommit de5007a2dd1e39ac076e56620431e8a85c34fe4b[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Oct 12 16:10:54 2015 +0200
+
+    object reconciliaiton now from 'dictionary', but ONLY from dictionary, no individual field recons any more
+
+[33mcommit 2c9bc851d6b2e686bbd55fa0c4c2916c4d66f479[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Oct 12 12:50:06 2015 +0200
+
+    subject drag drop fix
+
+[33mcommit a7bb9dfa0ae87e46a5fc7dc423ca64add3d6fa71[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Oct 7 17:53:22 2015 +0200
+
+    bugfix data type guessing
+
+[33mcommit 0d403531b455bc001a616a22a0484674b25c4302[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Oct 7 16:59:05 2015 +0200
+
+    different paging selector for big files (html option)
+
+[33mcommit d4a219f23a63d62e3dff62b2dbe61727014237a4[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Oct 7 12:31:36 2015 +0200
+
+    bug: topic row was shown in 1st row of table view
+
+[33mcommit 4c341268c5a001a899b3db515481ac0418f47542[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Oct 6 17:14:50 2015 +0200
+
+    reduced some unnecessary session data -> performance
+
+[33mcommit c8979e91f22fc71fc63c0315aca3b496f7c01ca6[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Oct 6 15:49:46 2015 +0200
+
+    rdf view performance
+
+[33mcommit d63b58cb106ced5b438136d2673d30bd82247187[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Oct 5 15:50:29 2015 +0200
+
+    rdf view + rdf export fix
+
+[33mcommit 15281d46b3e33bb71f9b43d155a137dd2d7500bf[m
+Merge: 6b8b4b4 dea6c27
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Oct 5 12:08:39 2015 +0200
+
+    Merge branch 'develop' of https://github.com/LinDA-tools/transformation into develop
+
+[33mcommit dea6c276551cd20a6aa75c78f11ea95a9a2c3a8d[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sun Oct 4 22:58:36 2015 +0200
+
+    rdf view fixes (wip: still bug in prefixes)
+
+[33mcommit a7bf14a65b6f32d7b168b1494580a2852da2ed7e[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sat Oct 3 02:52:37 2015 +0200
+
+    rdf view in javascript adapted to model w excerpt
+
+[33mcommit f2470e67211c08a646861aa5b0511f774fbd1adf[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sat Oct 3 01:52:11 2015 +0200
+
+    obj page / views.py : fixed start_row, end_row of pagination
+
+[33mcommit 05f49c3b957dd367b38065244dc28ee4f305e8d9[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sat Oct 3 01:42:51 2015 +0200
+
+    obj page: will save changes when refetching single fields in 'obj_recons'
+
+[33mcommit f47012783ab22a87c2438b3b6192c4a1ce89e371[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sat Oct 3 01:35:39 2015 +0200
+
+    obj page: reload from 'obj_recons' instead of 'rows'
+
+[33mcommit 22ba60093a56100bcb7dd9c44f1c5dfa0e64bb79[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sat Oct 3 01:16:04 2015 +0200
+
+    bug
+
+[33mcommit c939648f0078b49eb40625fcf82d450efe4c3dcd[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Fri Oct 2 23:20:45 2015 +0200
+
+    saving object reconciliations pointing to table in excerpts property
+
+[33mcommit cd5c7848a7f542666b4970d5d7256c86043b1ea4[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Fri Oct 2 22:52:18 2015 +0200
+
+    col count bug
+
+[33mcommit 052ca84acac6afea476d3f1d8cb5cc25a3b7a21d[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Fri Oct 2 22:47:08 2015 +0200
+
+    only show selected columns
+
+[33mcommit 0d44cec32e3126e695667b9b9756aea1b9cbbf2e[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Fri Oct 2 22:39:44 2015 +0200
+
+    table view shown from model 'excerpt' property (ten lines as simple array)
+
+[33mcommit a95b552061ec61b59f114e1b4f2d86f70916b723[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sat Oct 3 01:52:56 2015 +0200
+
+    10 row excerpt
+
+[33mcommit 6b8b4b47ae1b83de712a0a2756d42d53abeb86af[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Sep 28 14:04:45 2015 +0200
+
+    removed server timeout - (problems with slow machines / browsers)
+
+[33mcommit bed468d856695824a9fe4c88ef4633fb95fd9425[m
+Author: bb <benjaminbrand@gmx.de>
+Date:   Thu Sep 17 09:40:42 2015 +0200
+
+    backend triple creation bugfix
+
+[33mcommit 9f3d743d60e0945c595bc725ab8530c71af96059[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Sep 16 15:44:36 2015 +0200
+
+    rdf view fix
+
+[33mcommit 3550f8b1ff5278de9920c999ca53e661e82d0959[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Sep 16 14:53:10 2015 +0200
+
+    subj page next button check
+
+[33mcommit 97bd60d6d9e81a610aff67ce08bf92fed36e58ff[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Sep 16 14:06:45 2015 +0200
+
+    nicer data load screen
+
+[33mcommit d5d954cfd076eac33929f2a3f26a252b30c89b22[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Sep 16 13:46:45 2015 +0200
+
+    a lot
+
+[33mcommit 6975937a4dc46866564e9a1fb897cb2da9834d97[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Sep 16 12:20:50 2015 +0200
+
+    rdf export fix
+
+[33mcommit e8121bfe3b9a6427bc55a5124eb0a3f8cbd544f1[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Sep 15 16:28:33 2015 +0200
+
+    one more rdf triple export fix
+
+[33mcommit 2cce1ef1cd3b4ee969da5530daba65eb28ee48d3[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Sep 15 16:16:28 2015 +0200
+
+    one more date fix / object step
+
+[33mcommit 2580d5db34043bf81da7374e208642160ca67d6a[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Sep 15 15:59:16 2015 +0200
+
+    rdf triple view fix
+
+[33mcommit c4d034348fff065180119626659be37d497bab9e[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Sep 15 15:41:13 2015 +0200
+
+    date regex fix
+
+[33mcommit d53f3d1c872d1999d105ea6a411487600ccad199[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Sep 15 15:23:32 2015 +0200
+
+    object step: more datatypes (xmlschema)
+
+[33mcommit 04542119bb9d353f1f190168d881358e9a2f695e[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Sep 15 14:46:27 2015 +0200
+
+    css fix and rdf triple view fix
+
+[33mcommit d55feafb4df7453367032a4ea9aabd60824fab50[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Sep 15 12:26:25 2015 +0200
+
+    lookup without query class
+
+[33mcommit aafd7799717d8e0ece1f2554cad1422874eb89ea[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Sep 14 17:40:30 2015 +0200
+
+    rdf view fix
+
+[33mcommit d2bc35939fbbd6ffff7a7abdae49d73b56383b57[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Sep 14 17:22:28 2015 +0200
+
+    bugfix filename
+
+[33mcommit f80d7b1ae9544356b67de41c3fb99a9a335aa78b[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Sep 14 16:01:10 2015 +0200
+
+    wip: file loading method 4 (seems stable)
+
+[33mcommit 6a45bdacef30d33db8f191acc5ee96cc41b510ce[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Sep 14 15:43:01 2015 +0200
+
+    wip: file loading method 3 (seems stable)
+
+[33mcommit 7424499cc467158c243077c53c43ceda4e0c4ee2[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Sep 8 14:12:07 2015 +0200
+
+    wip: file loading method 2
+
+[33mcommit ec2aeaa4cfe95bb90a6969fb8c985755f897d4c1[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Sep 8 11:54:28 2015 +0200
+
+    model update function for row excerpt, read from file
+
+[33mcommit 736e284eb308b83836f04a61621fb58f20382284[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Tue Sep 8 11:15:53 2015 +0200
+
+    wip
+
+[33mcommit 7cb65427553ec06b9420e9fc99cdb9c407010056[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Sep 7 15:11:24 2015 +0200
+
+    wip
+
+[33mcommit e827de4996b2bf70fcd47350c95fb4db04ba6a48[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Fri Sep 4 15:14:25 2015 +0200
+
+    wip: file loading method
+
+[33mcommit b373ddc36e617148448536f41564de2d55bbc5f5[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Fri Sep 4 05:48:21 2015 -0700
+
+    uploaded file is saved in filesystem, path is written to mapping model
+
+[33mcommit ee06cfb45cb47b39dc6f3d69ba4f4a9b37c60120[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Sep 3 06:40:14 2015 -0700
+
+    reduce only when needed
+
+[33mcommit 070d9b52c1a2103b763afaeba57ef1a41846bc88[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Sep 3 06:00:04 2015 -0700
+
+    bug
+
+[33mcommit 6974734776eba6da3a4d5aed6edc5b57482cc787[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Sep 3 02:51:02 2015 -0700
+
+    rdf triple creation now also in backend in last step (publish) 3
+
+[33mcommit 73ef531d3afb929a4a2daffca4ef670d766b70d7[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Sep 3 01:59:19 2015 -0700
+
+    rdf triple creation now also in backend in last step (publish) 2
+
+[33mcommit 338a3a7baabdac8bdde0e0ce37be2b1ff2673eea[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Sep 2 09:26:21 2015 -0700
+
+    rdf triple creation now also in backend in last step (publish)
+
+[33mcommit 92d40f50e9a886a312cea8acfa50639f905f8642[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Sep 2 04:54:50 2015 -0700
+
+    improvement for 'file messed up' message when uploading, next button disabled
+
+[33mcommit f57bec1ad45f71bdcdbf6e17f4513efc99c0db40[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Sep 2 04:47:25 2015 -0700
+
+    new model creation procedure in col selection view, bugfix for 'fiwel messed up' message when uploading
+
+[33mcommit 13bd7ade8340d08fbb81e5271bd8da8af9823de9[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Sep 2 02:54:35 2015 -0700
+
+    more json -python-dict stuff, csv file upload success test
+
+[33mcommit 74cbfb23011e2986f856bd369ea5415a450212f3[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Sep 2 02:18:07 2015 -0700
+
+    solved martix inversion problem for large files (numpy), cleaner python dict json transformation
+
+[33mcommit 395a1ea3971731cd1f8995097b48ba5ca6041fb3[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Wed Sep 2 01:35:51 2015 +0200
+
+    performance for model reducing, speed measurement etc, TODO: publish step output file generation from model instead table
+
+[33mcommit 873ce0c1c70f346e43d0502b583fa0be60fd4321[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Sep 1 09:03:35 2015 -0700
+
+    removing unnecessary POST data in each step
+
+[33mcommit 53d5e637084b4515eaca071ede27a74efc6c572e[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Sep 1 08:30:24 2015 -0700
+
+    object page design impro
+
+[33mcommit e8cb93f5e514504c7dffade2cffca1433953cdce[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Sep 1 08:21:12 2015 -0700
+
+    wip reduced model
+
+[33mcommit a990c07ae96ad071d292f9ba1d4797c5e22f9ddc[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Sep 1 06:30:12 2015 -0700
+
+    wip reduced model: reconciling working again
+
+[33mcommit 150c78492001d98886c90f0b67c7c9c5518b5de5[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Sep 1 05:36:14 2015 -0700
+
+    wip reduced model: working on all pages, but still reconcilition bug (in obj page), data type bug fixed
+
+[33mcommit 8606bba559b884d830d8adefa3aa3340e68feb74[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Sep 1 04:48:02 2015 -0700
+
+    wip reduced model: working on all pages, but still bugs 2 (in obj page)
+
+[33mcommit 2b656a0fe0a43e6747c5b464e2ff088d1c9b2875[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Sep 1 03:10:17 2015 -0700
+
+    wip reduced model: working on all pages, but still bugs
+
+[33mcommit 4a85385371cc1c4b556a5612c9396931d824be76[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Aug 31 19:03:56 2015 +0200
+
+    wip reduced model
+
+[33mcommit 1e8c2bb1b92f89e97cc81bd4ceb0c887350ceb76[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Aug 26 09:19:42 2015 -0700
+
+    subj page: use radio buttons instead of checkbox
+
+[33mcommit 470d1cb2ab0a23265ef5654bb4bad37832b35956[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Aug 26 08:50:41 2015 -0700
+
+    major restructuring: model creation in col selection step now, also calculated in frontend instead django now
+
+[33mcommit 72f51b2cf76f38d6f1fc11b55240250e1d24609e[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Aug 26 04:13:29 2015 -0700
+
+    model loading: will load new data into 'model scaffolding' which was saved in earlier trafo precess
+
+[33mcommit 7bcf0d250a265ae9003ab6d8887bb139afb085a8[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Aug 26 02:28:57 2015 -0700
+
+    bugfix auto logout 2
+
+[33mcommit bc4a581ad22633df750d2a167ac46ec062c0faeb[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Aug 26 02:16:44 2015 -0700
+
+    bugfix auto logout
+
+[33mcommit 4bd4b422722a046b34170653a0fa18536279cab6[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Aug 26 01:47:29 2015 -0700
+
+    bugfix rdf download
+
+[33mcommit de1a39cc9ff24c85565c07a71d8fb27c68b860d9[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Aug 25 05:52:34 2015 -0700
+
+    data choice design
+
+[33mcommit fe3847a8bf821dff837319d0c9e5ffd847c9ef49[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Aug 25 05:43:55 2015 -0700
+
+    bugfix: obj page data type
+
+[33mcommit 3062fd7d72659539181562f58df07ad49d81a8ad[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Aug 25 03:51:22 2015 -0700
+
+    object page: bugfix + single fields can be refetched
+
+[33mcommit 8e60613091a9d4c194450296cc07e0281b3b11bd[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Aug 25 01:59:11 2015 -0700
+
+    design fix upload page
+
+[33mcommit 97484f3e5bd6d32080c80eb2a80611cd6ab5bef0[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Aug 25 01:11:06 2015 -0700
+
+    data choice design
+
+[33mcommit c70975b3a0ffc9828437c330c54ae420c986a75a[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Aug 24 22:23:51 2015 +0200
+
+    removed console logs
+
+[33mcommit 49ef1e52e0a5db6a9b2a1d115d88e3424e7d5c90[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Aug 24 22:16:58 2015 +0200
+
+    bugfix after merge
+
+[33mcommit ee429e4fe223f89be0359b6f9850f4aea52a1fb6[m
+Merge: 6eea1fa 01ae592
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Aug 24 21:52:53 2015 +0200
+
+    Merge branch 'develop' of https://github.com/LinDA-tools/transformation into develop
+
+[33mcommit 01ae592b940a415d116fbf7822956bebdcf38583[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Aug 24 06:14:14 2015 -0700
+
+    issue #11 loading and saving models (basic functions) works. to do: update model in use if it was loaded.
+
+[33mcommit fe1ee5413e9dbf3e701d50719e52a4ffccd0a18e[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Aug 24 05:59:00 2015 -0700
+
+    object page row number selection 2
+
+[33mcommit 345a738ae1afc809aa4806d6310f3878f8d9ea9f[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Aug 24 05:52:12 2015 -0700
+
+    object page row number selection
+
+[33mcommit 6eea1fad9bfa8904822a555bfb2b848936c7fa55[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sun Aug 23 21:30:23 2015 +0200
+
+    better url shortener
+
+[33mcommit da9c0e27bbb4e952ad1bca174cea5011391a5c95[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sun Aug 23 21:07:22 2015 +0200
+
+    Revert "minor"
+    
+    This reverts commit d6158b3fcdf82fab53becdeb16660ee681f73e28.
+
+[33mcommit 7d5dc345955a23980fa528598d8eaf5baae63c4c[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sun Aug 23 20:23:56 2015 +0200
+
+    minor design
+
+[33mcommit d6158b3fcdf82fab53becdeb16660ee681f73e28[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sun Aug 23 20:10:57 2015 +0200
+
+    minor
+
+[33mcommit a2e8f625b29a60df5d27f00d0b5aa8182d0c4b32[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sun Aug 23 20:04:19 2015 +0200
+
+    bugfix pagination object page, + only show pagination when more then 1 page
+
+[33mcommit 05cf54db7544da3ca2703b88d5e089f635cb6963[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Fri Aug 21 18:04:19 2015 +0200
+
+    object page pagination works
+
+[33mcommit 183bb774bef4cf24ebf558dabc4142920977b77c[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Aug 20 12:38:26 2015 +0200
+
+    wip: object page pagination highlight recent page
+
+[33mcommit 83e531cff32d0743862882ec6943670de3314b8a[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Wed Aug 19 23:17:58 2015 +0200
+
+    wip: object page pagination can do reconciliation pagewise now
+
+[33mcommit 391cd69156572e2aace9c1dca890968c1913d074[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Wed Aug 19 15:13:33 2015 +0200
+
+    wip
+
+[33mcommit 2dec4f623a9e93213aba1ffcc57052b0b73d4268[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Wed Aug 19 14:02:29 2015 +0200
+
+    wip: object paging: reconciliation results now saved
+
+[33mcommit 4fc45b265e9102367131c544ceeffef30c868f38[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Tue Aug 18 11:23:30 2015 +0200
+
+    wip
+
+[33mcommit 3de7c2395f222bd6216bd5ebc3bf453c1ac4215d[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sat Aug 15 16:08:43 2015 +0200
+
+    used model instead of csv array in object step: 'no action'
+
+[33mcommit d24eb5a57b35f6eb03636cd5d671351a8af2dfce[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sat Aug 15 16:02:26 2015 +0200
+
+    pagination object page (wip)
+
+[33mcommit 5618c0f3aea6af7173bef84ecf8e9250a23c9d53[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Aug 11 07:12:49 2015 -0700
+
+    pagination 1 (wip)
+
+[33mcommit cc54a619676ccf2fc61f0a813909f423d5d5189f[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Aug 11 06:12:17 2015 -0700
+
+    performace when querying ajax 2
+
+[33mcommit 4c3cbc68750c75db5cf7236cb6eeb0b0ccdd2f35[m
+Merge: fe6e299 6885741
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Aug 11 06:03:58 2015 -0700
+
+    Merge branch 'master' into develop
+
+[33mcommit fe6e29931859aaf128553886acb0a76e2cf4768c[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Aug 11 06:03:16 2015 -0700
+
+    performace when querying ajax
+
+[33mcommit fca807e0dcb68fc0bc67b56b8e6cebc5859656ef[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Aug 10 02:10:16 2015 -0700
+
+    reconciliation ranking now integers instead of floats
+
+[33mcommit 6885741af1bedb7356263b6beef3ef3e40fc0691[m
+Merge: 34482c4 275fb3f
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Thu Jul 30 13:22:10 2015 +0200
+
+    Merge branch 'master' of https://github.com/LinDA-tools/transformation
+
+[33mcommit 34482c4b89fef1271798a7642e34b5e1f531d2c2[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Thu Jul 30 13:21:11 2015 +0200
+
+    minor change in choose existing
+
+[33mcommit 275fb3f5249918d5b47e9b679a2c95790c0157ac[m
+Merge: 2c45686 12d3657
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 30 12:47:19 2015 +0200
+
+    Merge branch 'develop'
+
+[33mcommit 12d3657ec245ed9f03b881051a356bc1865eefb5[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 30 12:31:26 2015 +0200
+
+    issue #17: fixed most important IE Bug
+
+[33mcommit 2c456862867e09656edb62425284436da91d7d29[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Thu Jul 30 12:04:11 2015 +0200
+
+    fixed issue when not loged in
+
+[33mcommit 34f6f6512b6a84ea11cd2726fdcf58fdc8e8a5f4[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Wed Jul 29 12:47:09 2015 +0200
+
+    added mapping loading
+
+[33mcommit 28988c71de0bf1fb8a948e37cdc74f72d97b9f95[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Tue Jul 28 17:47:06 2015 +0200
+
+    added migrations to gitignore
+
+[33mcommit 4dabf8bd28808758959b030f2bc3bca0202891f1[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Tue Jul 28 17:25:27 2015 +0200
+
+    save transformation changes
+
+[33mcommit 5ef8cacbccc5805b1b874640555443fb82c1d7bc[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Tue Jul 28 12:55:43 2015 +0200
+
+    save mapping file
+
+[33mcommit 56930eccfa42b9351538d58250d2a3acd4872e3e[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Tue Jul 28 12:07:38 2015 +0200
+
+    basic user managment
+
+[33mcommit 52d55455733b79b5a61552714e25c5e7c7bd57d5[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Jul 20 04:11:22 2015 -0700
+
+    minor
+
+[33mcommit 93bb6e43187badb0669a569b58c42c03a25e2f2d[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Jul 20 04:04:59 2015 -0700
+
+    bugfix: csv file params caused django error
+
+[33mcommit 21cf49b42d421e110b97712eeb0e9a75f3684843[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Jul 20 08:51:13 2015 +0200
+
+    obj + pred page: get server path for ajax calls from config in common.js
+
+[33mcommit ec25ae6e3bb114728743186549a2a19383bc7ede[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Jul 20 08:48:36 2015 +0200
+
+    object page performance boost
+
+[33mcommit 68f888cc42e38229bc77de21cbe8017fdd1b5b6f[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Jul 20 08:35:55 2015 +0200
+
+    issue #24: predicate view: search term is now stored and retrieved from model
+
+[33mcommit 3cf8ba534c07553aca2d8e3851a43663b8e6328c[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Jul 20 01:19:11 2015 +0200
+
+    code cleaning
+
+[33mcommit 8d969856c1ea9fcd11cfe34ff75602dee9bd19e0[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Jul 20 01:13:31 2015 +0200
+
+    issue #24: objects view: fields data type guessing results are loaded from model
+
+[33mcommit d38c4f98948835635556dfba979d5670e35b7b70[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Jul 20 00:52:02 2015 +0200
+
+    issue #24: objects view: formerly reconcilated fields results are loaded from model
+
+[33mcommit 6bfe393e05f0f873a74aaaff2147a667b3be7419[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sat Jul 18 11:45:12 2015 +0200
+
+    minor design
+
+[33mcommit fdc5b8c9781caf6d359d85d3df554e5d8c3f8e56[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sat Jul 18 10:46:56 2015 +0200
+
+    integrated r2rml download
+
+[33mcommit 6fbd82a578ea3840229dd8589a1eaed9707522da[m
+Merge: ff0321e 179d758
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sat Jul 18 10:27:26 2015 +0200
+
+    merge fix
+
+[33mcommit 179d758fcd5b72904db14ecc06d90fca040d4558[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Fri Jul 17 22:17:11 2015 +0200
+
+    design
+
+[33mcommit b772e74f30e724deda4975a4703116926e1b885c[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Fri Jul 17 21:59:25 2015 +0200
+
+    solved double quote problem
+
+[33mcommit 68833c6f5836d48ed07347aa9b77acc528528edc[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Fri Jul 17 20:56:50 2015 +0200
+
+    design bug
+
+[33mcommit f33ac688666fa66ce7233288b8cee9c566b28932[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Fri Jul 17 20:44:17 2015 +0200
+
+    minor design fix
+
+[33mcommit ff0321e89a5ddec38bd8f67b4d350183bf7b4f2e[m
+Merge: d8bcd3e a7ca8cd
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Fri Jul 17 18:28:47 2015 +0200
+
+    resolved merge conflict
+
+[33mcommit ceac7c77da3f6fd9048b45b86daae7bac8582063[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 21:20:44 2015 +0200
+
+    predicate next button enable fix
+
+[33mcommit a7ca8cd5a4cc0a88ef8bb849098c338b476a1b38[m
+Merge: 6e08a79 ab9a580
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 20:29:39 2015 +0200
+
+    Merge branch '#24'
+
+[33mcommit ab9a580c08a8f7fcf73643d683afceb811aafec9[m
+Merge: 7838121 274812e
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 20:28:21 2015 +0200
+
+    merge stuff
+
+[33mcommit 6e08a794f91c061ff097af66a86c1fe49ec8f5af[m
+Merge: 216fb59 274812e
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 20:13:18 2015 +0200
+
+    Merge branch 'develop'
+
+[33mcommit 274812e1e4e3b1bbf652971b2711f4b72bbfe34e[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 20:13:07 2015 +0200
+
+    help texts do-over
+
+[33mcommit 216fb59392b1da6a7f793dc19fc6fde363b325f4[m
+Merge: 3572c4d bed8086
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 18:44:08 2015 +0200
+
+    Merge branch 'develop'
+
+[33mcommit bed8086a8721e88de169f38123955eb1b4e5c52e[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 18:43:16 2015 +0200
+
+    disabled autocomplete for all input fields as it is not a catchable event
+
+[33mcommit 56777a9e1831632794a8fcdb62454635af93efae[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 18:35:45 2015 +0200
+
+    bugfix: rdfview with complete data
+
+[33mcommit 938921f64053d4f8641b3402c4178949ef04ad96[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 18:25:11 2015 +0200
+
+    issue #5 : include link to LinDA vocab in predicates page (+ bugfix url shortener)
+
+[33mcommit 3572c4de9918107b0fc1895964b6b5c2734fb536[m
+Merge: 980459f 6c3d4fb
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 16:57:30 2015 +0200
+
+    Merge branch 'develop'
+
+[33mcommit 6c3d4fbd0b167c4903114d2be64cb4f2a31572e5[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 16:47:48 2015 +0200
+
+    bugfix: object page: if not all fields in column could be inferred, rdf view was not showing results
+
+[33mcommit 1fff2e2b1de1f2fd44a9b2fa32e117ee3b3eafe3[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 15:40:43 2015 +0200
+
+    better performance in object view (rdf triples creation)
+
+[33mcommit aeb9b3d556ac32e3e6a0beb2f1d503ec12d81e8c[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 15:17:22 2015 +0200
+
+    issue #20 download all rows fixed 2
+
+[33mcommit 7744630d65896751e4f3c1392e15375a36adaf91[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 14:53:59 2015 +0200
+
+    issue #20 download all rows fixed
+
+[33mcommit 4211e9a0716f0e53e068c86458607b30dc7508a2[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 13:54:29 2015 +0200
+
+    fixed filename to be original filenam when transforming excel to scv in background 2
+
+[33mcommit 7866bbf32c2504f45fab683ccc12406e150b3801[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 13:48:28 2015 +0200
+
+    fixed filename to be original filenam when transforming excel to scv in background
+
+[33mcommit 980459fef8fc6e3fef9588961e2e2a0e4193f584[m
+Merge: 93f7e96 4e5c6f6
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 13:36:54 2015 +0200
+
+    Merge branch 'develop'
+
+[33mcommit 4e5c6f6faf6225508dcf701ca5480626f99583a6[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 11:55:56 2015 +0200
+
+    fixed minimizing buttons - will stay where they belong now
+
+[33mcommit b255c3c0585f2d8741612a5fbf2ac749a0ee3b04[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 11:38:08 2015 +0200
+
+    performance boost predicate page
+
+[33mcommit b949e0def1576a1dc8989727a1327c1e1c1fbc2f[m
+Merge: 7e2cec8 bda8494
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 10:53:03 2015 +0200
+
+    Merge branch 'develop' of https://github.com/LinDA-tools/transformation into develop
+
+[33mcommit 7e2cec89f0be4605b5f8989fd05fc75aed76c909[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 10:52:23 2015 +0200
+
+    a bit of codenicermaking :P
+
+[33mcommit 9645aae44813419461352cb97e3ec733dc270027[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 10:41:40 2015 +0200
+
+    more design
+
+[33mcommit 8399176245261cc7022cf3ed1547c1835bcf38cc[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 10:19:22 2015 +0200
+
+    moved functions around
+
+[33mcommit 28f89b1ba4766e0c4ce38b798d37964153b1f58e[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 16 10:06:44 2015 +0200
+
+    design
+
+[33mcommit 7838121905edb31b7dcbe00c4edf335d8ec2c684[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Jul 15 05:10:55 2015 -0700
+
+    issue #24: predicate page now loads and shows formerly selected predicate uris from model
+
+[33mcommit bda84942c03ef971e1a4eb56e9bf2a98341cdba3[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Jul 15 02:38:03 2015 -0700
+
+    #22
+
+[33mcommit de439080a5122873437c8e4beb047dc2b2a767c2[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jul 14 07:17:41 2015 -0700
+
+    minor design change
+
+[33mcommit 93f7e969c1cd3f66d5fe7205ef78b3c7337bf71e[m
+Author: dipapaspyros <dpap@epu.ntua.gr>
+Date:   Mon Jul 13 15:49:24 2015 +0300
+
+    Added settings to transformations submodule
+
+[33mcommit d8bcd3e860e43c1d0fa807670598d891db718d4a[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Sat Jul 11 15:30:52 2015 +0200
+
+    added r2rml transformation
+
+[33mcommit 5d842ca627f50a6ecfe9f1cd2ad0085f782500e6[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 9 17:25:07 2015 +0200
+
+    solved problem with special blank caracter that occured in some xlsx files
+
+[33mcommit 2148922f31f45f04225ee4d7638728a234ef434a[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 9 14:46:21 2015 +0200
+
+    prevented ENTER button for form submit in every step
+
+[33mcommit a56eea8d0e9b18c4a60a1546c755108e34390ac1[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 9 14:40:22 2015 +0200
+
+    Code cleansing
+
+[33mcommit e39b0065d0219a6951a70c37d2b9a69500650b6d[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 9 14:30:06 2015 +0200
+
+    minor bug
+
+[33mcommit 06f461bd48a41f7c7d9c06b2ab5116d532a9dd53[m
+Merge: 4f91d84 8cd1c9d
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 9 12:46:19 2015 +0200
+
+    working version of enrich step
+
+[33mcommit 8cd1c9d94066c927f93ba825ec455c84dfa0beae[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 9 12:12:39 2015 +0200
+
+    working version of enrich step
+
+[33mcommit 86a6169a44fda7bc50fed7322c7926409988b096[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 9 03:37:41 2015 +0200
+
+    can select and deselect enrich uris now
+
+[33mcommit 39b0ddb93174a2973984f32c8bf401b77d0c9fd9[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 9 02:25:24 2015 +0200
+
+    no enrich duplicates
+
+[33mcommit 4f91d8477204b40c681fdb44e3a09ac357f390c0[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jul 9 01:51:33 2015 +0200
+
+    prefix doover: using prefixes from workbench REST api, prepared funtion for ajax call (but uncommented because no callback function provided), fixed bug: there was no check whether no prefix was available in object view
+
+[33mcommit b29fa59c73d956c7d28864d209d3595f36233a91[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Jul 8 08:49:04 2015 -0700
+
+    bugfix
+
+[33mcommit eb63ff69dca4f4a82a9f6cd167618094a59b16ee[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Jul 8 07:35:04 2015 -0700
+
+    enrich create a list of chosen vocabs on page (wip)
+
+[33mcommit 03f2dacf6beee03d4d308fbeac849a6e76cca2bd[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Jul 8 04:31:59 2015 -0700
+
+    bugfix objects view
+
+[33mcommit 1403893f4cef79db9aac8bde039c871d6f2b3da9[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Tue Jul 7 20:08:56 2015 +0200
+
+    enrich step now creates valid rdf
+
+[33mcommit 9fcd14fe988fb653a6268f8f2bd94f21c872a430[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Tue Jul 7 19:18:30 2015 +0200
+
+    wip: early enrich functionality, writing to model
+
+[33mcommit de47044f350b09e9b0794586171bf785920787b3[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jul 7 06:25:19 2015 -0700
+
+    wip
+
+[33mcommit d648ec95c28c4908af23450658bd5052657221fd[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jul 7 05:45:49 2015 -0700
+
+    spelling mistakes
+
+[33mcommit 65b45865b5dc32a4f1c4688aa382908906fc9893[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jul 7 04:02:13 2015 -0700
+
+    quick and dirty fix for excel non breaking blank -> removing all \
+
+[33mcommit 7264e679bb03587f1c8834161e957729e3598a8a[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jul 7 03:14:06 2015 -0700
+
+    object view: prefix
+
+[33mcommit 97e5a67fbc6ffff11ae50ee5b795f85b86ce828c[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jul 7 02:24:17 2015 -0700
+
+    bugfix: subject view: rdf creation was messy
+
+[33mcommit fd30ce08ed5ec7ac34a5d71144cbffed59d42e4d[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jul 7 01:38:30 2015 -0700
+
+    bugfix: predicate view: only changed 6 entries in RDF view
+
+[33mcommit 735f0a491d29e40e506b019a234c01863be92fad[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Jul 6 23:35:02 2015 +0200
+
+    object view: data type guessing per column only
+
+[33mcommit d565b583a5cd4b8c26bc920ae0beb9e1c6aafce5[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Thu Jul 2 14:40:06 2015 +0200
+
+    added validation for subject URI
+
+[33mcommit 490538d43071b428cfc2b4c0f6fee19befe85f24[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Wed Jul 1 16:50:55 2015 +0200
+
+    modified url validation message
+
+[33mcommit fedd34f582f4fd5b89a549ddb12f9f7b6bd564f9[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Wed Jul 1 12:51:20 2015 +0200
+
+    added description in settings
+
+[33mcommit 5f266b8f91437c2898856721a135bbb622648890[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Wed Jul 1 12:45:20 2015 +0200
+
+    modified publish;added missing library
+
+[33mcommit 54329a27fcfc5e990efaeeb21ffea85f1688b62e[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Wed Jul 1 00:41:57 2015 +0200
+
+    nicer div minimize functions
+
+[33mcommit c65f43ca218aee0c0b3423f9e84e4855a2ea3d82[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Tue Jun 30 23:36:31 2015 +0200
+
+    bugfix: rdf view wrong when not all cols selected
+
+[33mcommit 7c8e8a79a89080865849789d3e9707a0181e3e69[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jun 30 06:56:02 2015 -0700
+
+    renaming of some model properties
+
+[33mcommit 5fef29c0c7bca513692654e9346d6ff98a1a5832[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jun 30 03:57:12 2015 -0700
+
+    download of rdf works again
+
+[33mcommit 5f6d6de475d88c75db519a0c79ac51483995f06c[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jun 30 03:46:14 2015 -0700
+
+    separated rdf as array view from rdf html table creation to ba able to use for publish step
+
+[33mcommit 29049511102b6f32351d58a9ec05c88d9f1ebca5[m
+Merge: 4f4d2dc 46b41f0
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jun 30 03:11:31 2015 -0700
+
+    Merge branch 'master' of https://github.com/LinDA-tools/transformation
+
+[33mcommit 4f4d2dc65ff8d2db1473578fc4d034a4dba62156[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jun 30 03:10:45 2015 -0700
+
+    bugfix rdf preview order
+
+[33mcommit 46b41f073090e0bdf246b5d236f76957c9f82a32[m
+Merge: 57a24a6 5196278
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Tue Jun 30 11:41:14 2015 +0200
+
+    Merge branch 'master' of https://github.com/LinDA-tools/transformation
+
+[33mcommit 57a24a6562192829e85e4d51573c96b63c361f3e[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Tue Jun 30 11:40:56 2015 +0200
+
+    added url field type
+
+[33mcommit 51962789d3db1ea342b2a2be58909d49ef988d21[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jun 30 02:29:07 2015 -0700
+
+    (wip)
+
+[33mcommit dfdbb6984e7b80d23735b25642101ebbbd921ed9[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Jun 29 18:45:31 2015 +0200
+
+    object with json 'model'
+
+[33mcommit 2041dcf208f81d5fcfc7adc40770cc925ee03979[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Jun 29 16:48:06 2015 +0200
+
+    applying 'model' json for s,p,o (wip)
+
+[33mcommit 2455adab39007f8ecc8098a4a734fbdebde6d597[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Fri Jun 26 03:11:47 2015 +0200
+
+    predicate model improvement
+
+[33mcommit f38c7ea650657e3752b25e03ae56e1b63d5e4ccc[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Fri Jun 26 02:52:27 2015 +0200
+
+    predicate model bugfix
+
+[33mcommit 47ca8f277922fa1b7622a1695549da6725ce6805[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Fri Jun 26 01:49:27 2015 +0200
+
+    predicate view now model only
+
+[33mcommit 304bf93be0bebb3d8f97ad0ce3de6ecb6981c03b[m
+Merge: a840f33 d0976f6
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jun 25 20:18:46 2015 +0200
+
+    merge clean
+
+[33mcommit d0976f658f7cd56577034f5d55e5e2f1662f9089[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Thu Jun 25 20:15:57 2015 +0200
+
+    minor
+
+[33mcommit a840f3392ef80690704005855d90e0f3a17f5e02[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Jun 25 06:24:24 2015 -0700
+
+    wip
+
+[33mcommit 843e69b4b512bd94777729cd8500ebe318988836[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Jun 24 15:49:29 2015 +0200
+
+    object: json model (wip)
+
+[33mcommit 52a943a8552e6c094cdf8bdf4e6edefb732cf8c3[m
+Author: Dimitris Papaspyros <dipapaspyros@gmail.com>
+Date:   Tue Jun 23 16:52:21 2015 +0300
+
+    Integration of the app with the LinDA Workbench
+      - The transformation-base is the app base, make sure it extends a project "base.html" generic templates/base.html
+      - Small bugfixes in views
+      - Use extra_scripts block to add scripts in each template -- keep scripts for scripts common in all templates
+      - Possibly add extra_css if there are template-specific stylesheets
+
+[33mcommit 8dc533f0297bcdd6b36c846e6e2895a9725d3e25[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jun 23 12:33:25 2015 +0200
+
+    issue #22: oracle call param class_property instead of q
+
+[33mcommit ba2eca969ca1ac6abd5cf81398b423b5bd41390e[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Wed Jun 17 13:09:41 2015 +0200
+
+    removed bug in subject
+
+[33mcommit c9f000abb98771029304e7288f65c374704d1585[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Wed Jun 17 12:50:00 2015 +0200
+
+    predicate page to model
+
+[33mcommit 8fb859c06737e7347b771ef58bc034aeaaa895d2[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Wed Jun 17 10:08:05 2015 +0200
+
+    filename +.n3
+
+[33mcommit 5a807544c05f6d5a1dde3581668b7e8d6817476d[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Wed Jun 17 09:36:11 2015 +0200
+
+    store filename in model
+
+[33mcommit 018569bf068ae45b0a27e493f0828585c7bdcec0[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Wed Jun 17 09:23:41 2015 +0200
+
+    changes saved to new model in subject page
+
+[33mcommit 0d0c0bbe738415749458fee14d299fd99dabcf92[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Wed Jun 17 08:15:58 2015 +0200
+
+    removed trailing '.' bug in object-page which prevented the storage in triple store. + no more % in oracle results ranking
+
+[33mcommit 5c1eb3dcd2a990186d43e894e0c19210f56f1b70[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Wed Jun 17 07:44:43 2015 +0200
+
+    enrich: dummy html
+
+[33mcommit a847189b82a6711b5d82f42d7933e62c15f2b2a9[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Wed Jun 17 06:05:50 2015 +0200
+
+    fixed subject page
+
+[33mcommit 1ddfdae1c38f363a14db7b7051e10cb90b97309b[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Wed Jun 17 03:28:13 2015 +0200
+
+    new model applied for all wizard pages + removed bug in prefixes
+
+[33mcommit f5770b2273c327bcad504d0a20c0488264a6723c[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Tue Jun 16 23:06:56 2015 +0200
+
+    new json data model
+
+[33mcommit bccb7fa198aa910819fe5dd82c0dfcd34bd9e90b[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Tue Jun 16 20:13:46 2015 +0200
+
+    prefix bug
+
+[33mcommit 978ebba1586c32c20270570a64b8f65fe6ac29ef[m
+Merge: e0dfd67 8bfc4f5
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Tue Jun 16 19:35:32 2015 +0200
+
+    merge stuff
+
+[33mcommit e0dfd67f2f740e5b90830e59e056fafc3c23d4c2[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Tue Jun 16 19:31:26 2015 +0200
+
+    more prefix vocabs, bugfix object type guessing
+
+[33mcommit 8bfc4f5eecd3bbadcdd91929e09bd027cf27183f[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jun 16 13:56:45 2015 +0200
+
+    object: type guessing, inference and 'no action' can be switched
+
+[33mcommit 4f1ef35e782cad07812c06ec3c897a4a01a3ea2a[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jun 16 12:59:05 2015 +0200
+
+    (wip)
+
+[33mcommit dcb9ab94a82e1c98a6696a284ce651273370ace1[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jun 16 12:18:07 2015 +0200
+
+    (wip) object data type guessing for only some few data types until now
+
+[33mcommit 35d58d5f3a54eb19e1720b09fb4dd7a187ec3ae6[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Jun 15 23:19:23 2015 +0200
+
+    (wip) can switch no action / uri inference now
+
+[33mcommit 647045ccb4c53e6a791083da89368240ed2ce576[m
+Merge: d4fa822 b8a4660
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Jun 15 12:54:47 2015 +0200
+
+    Merge branch 'master' of https://github.com/LinDA-tools/transformation
+
+[33mcommit d4fa822546f9bd4b2be2a790f2b7a24b9fc41cc7[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Jun 15 12:53:42 2015 +0200
+
+    (wip) object: type guessing, auto inference core functionality
+
+[33mcommit b8a4660f2b1978bdafbd38c5db8828db61ac7f21[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Sun Jun 14 19:14:08 2015 +0200
+
+    removed unused code
+
+[33mcommit a0579af365c95245cbb6e34c97ea80478b181d27[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sat Jun 13 14:55:03 2015 +0200
+
+    rdf prefix bugfix #2 -> successful save of data source possible
+
+[33mcommit 8472e061d97f34f5d77e103d47fa2a1682b42c1d[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Sat Jun 13 13:47:34 2015 +0200
+
+    rdf prefix bugfix
+
+[33mcommit e21bea79c390506f27a0da6799364ab561f0dc9b[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Fri Jun 12 10:14:13 2015 +0200
+
+    added publish message
+
+[33mcommit f6f6ca61f08291142c0e41b01fe9cb1f59f133be[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Jun 11 20:19:19 2015 +0200
+
+    design bug
+
+[33mcommit 70542caf29c26a9474d1c4849dfd226228a76ea8[m
+Merge: 36c60eb 9e511e8
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Jun 11 20:11:15 2015 +0200
+
+    merge
+
+[33mcommit 36c60eb91bd7e7ef68fd03736f7e9768cac274c2[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Jun 11 19:36:32 2015 +0200
+
+    rdf prefix magic
+
+[33mcommit 9e511e8c4fe5486cb548d3d67e92df22ffa28267[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Thu Jun 11 17:36:02 2015 +0200
+
+    RDF-title;RDF-download;back-button
+
+[33mcommit 0b5d49872c25501ddb1e93e26cc4aef1a8e67f07[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Thu Jun 11 13:42:23 2015 +0200
+
+    further fix of dot problem
+
+[33mcommit 08a7ce7c78a19b1891bca91097694fba798487d0[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Thu Jun 11 13:32:48 2015 +0200
+
+    reformated code
+
+[33mcommit 65387415a29defcd7bd5331f5e161a7fea5ba370[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Thu Jun 11 13:28:18 2015 +0200
+
+    fixed dot problem
+
+[33mcommit 752b018b22b0a98b23047c78874615a40e1d2610[m
+Merge: 8646006 aacfec0
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Thu Jun 11 12:08:53 2015 +0200
+
+    Merge branch 'master' of https://github.com/LinDA-tools/transformation
+
+[33mcommit 8646006009b044466919eac304f67cc58a82d684[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Thu Jun 11 12:07:58 2015 +0200
+
+    added publishing RDF functionality
+
+[33mcommit aacfec07ea676cb70c3880293b2ada7122ee7947[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Jun 11 12:02:24 2015 +0200
+
+    table html structure overdo
+
+[33mcommit 07a5fc446a493643e2412cb6dc0000882504d7c9[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Jun 10 17:42:30 2015 +0200
+
+    provided rdf in publish step -> available for storage in triple store. go alan  ;)
+
+[33mcommit f3159d12a7640053f343d17679be0658f978d009[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Jun 10 17:16:15 2015 +0200
+
+    minor
+
+[33mcommit 74b09c40d8737a2fafc1f88b50c3dae86e9cbd80[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Jun 10 17:00:47 2015 +0200
+
+    minor
+
+[33mcommit e4822d5766d8537de0e30a272ff07f09c8d04943[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Jun 10 16:46:02 2015 +0200
+
+    minor
+
+[33mcommit 77991e561951a886f4527c7b1abba1c78a3f295d[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Jun 10 16:03:23 2015 +0200
+
+    csv object: turtle prefix for dbpedia to rdf view
+
+[33mcommit bc701b664cfd35e4a9007b73e3d049e3d11b403c[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Jun 10 15:46:22 2015 +0200
+
+    csv object: rdf view is adapted + using dbpedia prefix + added clickable links + several bugs
+
+[33mcommit 3ed7202f7f7ac060ce6106e0b1b05e5106257f44[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Jun 10 13:31:00 2015 +0200
+
+    no rdf array case treated
+
+[33mcommit cf80d438f96bf373cbba7e2819a378a8b7ad4774[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jun 9 15:31:37 2015 +0200
+
+    bugfix: only selected columns will be shown as of step 4
+
+[33mcommit 99ae4ef4fd5de0134f09a8016fb588ae531b7a58[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jun 9 15:26:45 2015 +0200
+
+    bugfix: file upload
+
+[33mcommit 43b6918c310dd499815485dd71c439a224e55aec[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jun 9 12:49:51 2015 +0200
+
+    bugfix: vocab dropbox and shorten_uri()
+
+[33mcommit b84045a691ee829cf23f629c6c02b4c68215068d[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jun 9 12:09:48 2015 +0200
+
+    object: style improvement, page text
+
+[33mcommit dc4bf24b920d249369e2c8f97bdef2954c17c79c[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Jun 9 11:44:29 2015 +0200
+
+    vocab selection dropdown overdo + integration into object view
+
+[33mcommit 9588d1c0a0b9fe0ca9f0adc5064c6b24d127590f[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Jun 8 17:06:13 2015 +0200
+
+    connected object ajax call: dbpedia lookup
+
+[33mcommit e113828052f62c4d115f05ca931fff29eb27dc02[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Jun 8 15:08:02 2015 +0200
+
+    minor
+
+[33mcommit c1420addc06d61d464d2cdfea159b9cb3d5df467[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Jun 8 15:04:19 2015 +0200
+
+    preparation of remaining views
+
+[33mcommit 6009641136d0c7e8b7b3f0d165d4fd64d58fb7a6[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Jun 8 14:26:11 2015 +0200
+
+    csv column choice: disable next button if no column chosen, new select all button position
+
+[33mcommit 1e005072027a1bba9dee68ee829748c08d10274c[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon Jun 8 12:35:04 2015 +0200
+
+    predicate disable next-button if rdf invalid
+
+[33mcommit 72ea3535cffe47ec962af7139b71ab2a81d5ceb3[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Tue Jun 2 15:29:16 2015 +0200
+
+    scv predicate: empty but successful ajax oracle calls will eb identified now.
+
+[33mcommit 1daf2aca3f2effa48c9c00ea8dd6c15e53a63c12[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Tue Jun 2 15:13:17 2015 +0200
+
+    minor
+
+[33mcommit e1245b6dfb19fbb0931097c16abde475f9af160f[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Tue Jun 2 15:10:35 2015 +0200
+
+    minor bug #2
+
+[33mcommit 2141079bf6ba8f0e6d4aafd6d82094af3986e1bc[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Tue Jun 2 15:04:47 2015 +0200
+
+    minor bug
+
+[33mcommit 27c63ba4e25a8fe74d7d44345d08ddd6ff7aa663[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Tue Jun 2 14:44:10 2015 +0200
+
+    some docu and cleansing
+
+[33mcommit 3693cf8b06dccd0de4babef2c08b6da1e5e18361[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Tue Jun 2 14:34:45 2015 +0200
+
+    more functional vocab selection select boxes in csv predicate page
+
+[33mcommit ae579eafec7087252b0ac7ee47393b66cfae3285[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Mon Jun 1 19:26:13 2015 +0200
+
+    csv predicates oracle calls executes on page load for all columns
+
+[33mcommit d084b792c0525d9599bb00e185f06872927f1ab6[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu May 28 15:25:45 2015 +0200
+
+    wip
+
+[33mcommit 40b1639133b01bee4205e4480e4b672b7148e624[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu May 28 15:00:34 2015 +0200
+
+    predicate voc selection adaptable boxes
+
+[33mcommit d0ed7a572b930684eab7f9e73badf2b5babc4189[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu May 28 10:59:16 2015 +0200
+
+    predicate description text
+
+[33mcommit 2e2378c369584797a184ca482e88a42808832e3d[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu May 28 10:46:33 2015 +0200
+
+    small predicate design improvement
+
+[33mcommit eee876c7854008eb5010cb95321532fb0a76a712[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu May 28 10:39:05 2015 +0200
+
+    predicate choice overdo
+
+[33mcommit d0835aa41430e0814d1ffcc87057715fc851029c[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Wed May 27 23:20:04 2015 +0200
+
+    added fontawesome + csv predicate design overdo
+
+[33mcommit 5441f36d584675ab78fb126f45a7ed8a90488cb4[m
+Author: Benjamin Brand <benjaminbrand@gmx.de>
+Date:   Wed May 27 22:05:59 2015 +0200
+
+    csv predicate: rdf class chosen is displayed in rdf view
+
+[33mcommit c28e92e0a3935f30573a272552f4ac5959ffe1ca[m
+Author: Ubuntu 14.04.02 i386 <benjaminbrand84@gmail.com>
+Date:   Wed May 27 18:56:31 2015 +0200
+
+    changes in django forms. now able to move data via hidden form fields to next wizard step
+
+[33mcommit 53ed737179c50d81868a15df92a27dc8223e9ad3[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue May 19 16:52:30 2015 +0200
+
+    predicate choice overdo
+
+[33mcommit c14f86f0bcc41c55ec4afa5e76f634d74e7c699c[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Tue May 19 16:25:32 2015 +0200
+
+    modified JSON response
+
+[33mcommit 7dbf92555a15ef426f0c58793122e26fc8a193b2[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Tue May 19 16:04:00 2015 +0200
+
+    addded lookup service in backend
+
+[33mcommit 6a977548aa0c87d1011d5a2b1b900f257a253b8a[m
+Merge: e6e4d64 0fc8b55
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue May 19 12:54:57 2015 +0200
+
+    Merge branch 'master' of https://github.com/LinDA-tools/transformation
+
+[33mcommit e6e4d641b99b0430dae3617de77dc042cc2be256[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue May 19 12:54:25 2015 +0200
+
+    small bug
+
+[33mcommit 0fc8b55c875ecfb2c68549c8fc1954036b7a00ab[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Tue May 19 12:48:59 2015 +0200
+
+    added SPARQL connector
+
+[33mcommit dde46f41575440e2c8cba28e5d4fc313b4782d2d[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue May 19 12:41:42 2015 +0200
+
+    first working version of predicate vocabulary suggestion. only showing and refetching them until now
+
+[33mcommit 7c47d17c623b4b577d4318af5015d74e675923b6[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue May 19 10:53:26 2015 +0200
+
+    added forgotten files
+
+[33mcommit c4e0763d2bc1460bc2c37ff3d1f7111c461f120e[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed May 13 16:34:25 2015 +0200
+
+    WIP: ajax and suggest api
+
+[33mcommit 38dc70fcd33b8c37c539ce42e38c7b331c936730[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed May 13 11:39:38 2015 +0200
+
+    preparation of skeletons for rest of wizard pages
+
+[33mcommit 469f4ff9cc9955469fc83c8ce795bb4051f468ba[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed May 13 11:17:27 2015 +0200
+
+    minor
+
+[33mcommit 94444a09b2b203b732abe8c3c4502b8b40949baf[m
+Merge: d7b0adb 18b47fa
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue May 12 12:55:45 2015 +0200
+
+    Merge branch 'rdf_preview'
+
+[33mcommit 18b47faf73d16360127ba6bfd515ba35cb49e7cd[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue May 12 12:51:50 2015 +0200
+
+    changed description text
+
+[33mcommit d58d2027b44ee6ac72d47ad16b42c4b7a6c001e0[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue May 12 12:46:26 2015 +0200
+
+    minor
+
+[33mcommit 37a16fd5bacaa966967d9d3edf18f28041eed1b1[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue May 12 12:41:52 2015 +0200
+
+    additional event handlers for uri creation
+
+[33mcommit 12a131b3b553972be87cc45f5a09c0dfd8a81939[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue May 12 12:25:37 2015 +0200
+
+    fixed rdf preview as it did not reload by clicking column headers or reloading page
+
+[33mcommit d7b0adbb984d4b2c798d9b117bb2763a3377e307[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue May 12 12:14:38 2015 +0200
+
+    deleted excel button in data choice
+
+[33mcommit 6cd41397eeb77a17165c179de55e4d56bfa33f60[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed May 6 16:28:30 2015 +0200
+
+    support blank nodes
+
+[33mcommit f6ba6661ddb7e757203e3dd15f8bf066697d03a7[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed May 6 13:46:18 2015 +0200
+
+    displaying rdf triples in csv subject view
+
+[33mcommit e5b9c802c04ba8950e3a18fb7c8e082f8910e327[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed May 6 12:17:16 2015 +0200
+
+    transforming of csv content to rdf triples, in js frontend, not displayed so far
+
+[33mcommit 28541155b3f370b98a6371665d12c145d344685f[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed May 6 10:31:38 2015 +0200
+
+    more csv subject uri frontend adjustments
+
+[33mcommit 1c9a366172a6d5cd2d4bcb1b86034e62b5d823e4[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue May 5 15:57:36 2015 +0200
+
+    usable version of subject uri costructor
+
+[33mcommit 2f0c98f1fe8f795afd633a4cf64c363ff3fd2bd6[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue May 5 13:03:06 2015 +0200
+
+    first draft (wip) of subject constructor
+
+[33mcommit d33a49630c165899375aba9468f4f31fb4eaef3d[m
+Author: Ubuntu 14.04.02 i386 <benjaminbrand84@gmail.com>
+Date:   Mon May 4 16:51:05 2015 -0700
+
+    first csv subject html 2
+
+[33mcommit 7bb9bede225369926392a4088763436ad898f87b[m
+Author: Ubuntu 14.04.02 i386 <benjaminbrand84@gmail.com>
+Date:   Mon May 4 16:48:23 2015 -0700
+
+    first csv subject html
+
+[33mcommit dc84acf2df463068940ccd374e0b110cebbaaf40[m
+Author: Ubuntu 14.04.02 i386 <benjaminbrand84@gmail.com>
+Date:   Mon May 4 16:25:18 2015 -0700
+
+    major redesign views
+
+[33mcommit 2a0ba167dcea5e750b378323a508dfb1c4670d6a[m
+Author: Ubuntu 14.04.02 i386 <benjaminbrand84@gmail.com>
+Date:   Mon May 4 13:41:08 2015 -0700
+
+    fixed bug: csv dialect -> python 3
+
+[33mcommit 8303090805644cd5551dcb038c2053a3d1a9a75e[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Mon May 4 15:07:29 2015 +0200
+
+    pass only selected columns from step 2 to 3
+
+[33mcommit 66be84f99385ffb8b93085c93aaf0d12cd80b2e2[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Mon May 4 11:58:48 2015 +0200
+
+    added migration
+
+[33mcommit 3df98bcf58d32898f529eca629494bbde556305a[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Apr 30 15:36:37 2015 +0200
+
+    minor
+
+[33mcommit 771cf4a1d282d1e0658b677689e7d6c22a54bbf4[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Apr 30 14:31:16 2015 +0200
+
+    minor
+
+[33mcommit a2fdefe0780396ea053bbd6e80381dcba7a5147a[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Apr 30 14:16:10 2015 +0200
+
+    made python3 ready
+
+[33mcommit f379ee0134b89fc80b1a99554b391b3d6dcd5dca[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Wed Apr 29 14:35:17 2015 +0200
+
+    corrected xls detection error
+
+[33mcommit f9e2625c0c39e22af46721f81bd72cc4a80fe946[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Wed Apr 29 14:20:08 2015 +0200
+
+    added tmp directory for conversion
+
+[33mcommit 316729d11415869ca13f106aab51c6ac58c1276c[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Wed Apr 29 13:13:09 2015 +0200
+
+    added excel upload support
+
+[33mcommit 054f55c4018b76dcc1f0bc630a3d6d2c24db4654[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Wed Apr 15 12:23:41 2015 +0200
+
+    removed python2 code
+
+[33mcommit c411892949943914a374d273c02432df38a94878[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Fri Apr 10 12:43:32 2015 +0200
+
+    minor
+
+[33mcommit 04db053a66a2c712aada4497712cb19fc18094ae[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Fri Apr 10 12:42:17 2015 +0200
+
+    renewed urls.py. added 'processing...' information as it may take longto write file into db
+
+[33mcommit ba73ed0c459749ab1265a7824db5ffda27f77c47[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Fri Apr 10 11:33:38 2015 +0200
+
+    stored csv in session
+
+[33mcommit 7c5154b2bd2addfb7f4f29b316b1da7eee7eb921[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Fri Apr 10 11:10:45 2015 +0200
+
+    Some inline docu
+
+[33mcommit 4cd272139ee665585aae3fc094ee459eff44337a[m
+Merge: 0b9ead2 2e0ab8a
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Apr 9 17:15:57 2015 +0200
+
+    Merge branch 'master' of https://github.com/LinDA-tools/transformation
+
+[33mcommit 0b9ead29a03a0f9e960834bbb342e6e69016e7b0[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Apr 9 17:15:24 2015 +0200
+
+    applied csv data model (wip). can read umlaut csv files now. but not yet store in db. some more minor changes.
+
+[33mcommit 2e0ab8a825f0201fcf8ae69039274cbc96eb7086[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Apr 9 11:57:39 2015 +0200
+
+    Update README.md
+
+[33mcommit 08d7666efd5cc824d766677a58847391630666a6[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Apr 8 11:28:52 2015 +0200
+
+    Update README.md
+
+[33mcommit c7832b5b25aa8cc4bc02db0f36adf2ec5399d987[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Tue Mar 31 18:52:09 2015 +0200
+
+    updated readme
+
+[33mcommit acec873018be7bb5be176fb684bf13968c9fcc0b[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Tue Mar 31 18:31:28 2015 +0200
+
+    added Excel2CSV conversion code
+
+[33mcommit df7910f22efe9a2cc5f7c72612bec7a7eb9022a0[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Tue Mar 31 17:24:06 2015 +0200
+
+    added xlrd to requirements
+
+[33mcommit a5b49996980153a30d0796a73ed5391be26805ec[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Tue Mar 31 17:04:36 2015 +0200
+
+    updated migrations
+
+[33mcommit 7654ac9ed4843c0779c60f7e44a189936c54f2b8[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Tue Mar 31 14:36:54 2015 +0200
+
+    fixed bug in CSV sniffer, added JQuery, checkboxes and (de)select all button in column selection
+
+[33mcommit 0af1795877e2d80721a40e23c3e7090f77a5654f[m
+Author: bb <benjaminbrand@gmx.de>
+Date:   Sat Mar 28 16:11:51 2015 +0100
+
+    csv upload button magic: changes text and can disable for better ux
+
+[33mcommit 81ad89f2bd7f6e7801b59ca501133c0c4fca227d[m
+Author: bb <benjaminbrand@gmx.de>
+Date:   Sat Mar 28 14:26:47 2015 +0100
+
+    csv upload works now with manually selected csv params / dialect
+
+[33mcommit 6c176a65ccc6287b6bb8eca78ff6555681412901[m
+Author: bb <benjaminbrand@gmx.de>
+Date:   Sat Mar 28 10:02:42 2015 +0100
+
+    a bit of cleaning and restructuring
+
+[33mcommit de0977890932531b25cfd1514bfd7fe4746bb9f7[m
+Author: bb <benjaminbrand@gmx.de>
+Date:   Sat Mar 28 02:10:59 2015 +0100
+
+    added auto detection of csv parameters (sniffer)
+
+[33mcommit 9e6b6104f5c352150aecb1bf9958ce41581b07fd[m
+Author: bb <benjaminbrand@gmx.de>
+Date:   Sat Mar 28 00:57:37 2015 +0100
+
+    employing csv package from python standard library now
+
+[33mcommit 5edf31be4f4c91b94706f547559e50c6781a3161[m
+Author: bb <benjaminbrand@gmx.de>
+Date:   Sat Mar 28 00:11:35 2015 +0100
+
+    removed bug that caused conflicts (print command without parentheses caused syntax error on my personal machine)
+
+[33mcommit 7bc1c367120db4dc15cc693e1eafa3c70ad64c21[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Mar 26 17:45:56 2015 +0100
+
+    posibility to pass on csv table data by using hidden input fields. excluding boilerplate html title to snippet
+
+[33mcommit c0dc3c06504a27d42860265012aa0d6eb3013c32[m
+Merge: f609192 54da179
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Mar 26 12:20:47 2015 +0100
+
+    Merge branch 'datamodel' into frontend
+
+[33mcommit 54da1794761084faadd342c12f04226addfa165e[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Mar 25 16:28:28 2015 +0100
+
+    more models and temporary person model
+
+[33mcommit c6ac605d2de9af797889915236473b877b7a752e[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Mar 25 15:01:44 2015 +0100
+
+    first draft
+
+[33mcommit f6091925f708f80027ef2758d963f6593eaeb49a[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Mar 25 14:41:24 2015 +0100
+
+    added data choice and column coice templates for csv
+
+[33mcommit e8ed85fcc583880838de49742261d3586b1ab83d[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Thu Mar 19 15:42:11 2015 +0100
+
+    design makeover, swapped urls for index and csv-view, more csv parameter choices (at this time still unfunctional)
+
+[33mcommit c10f53effb1def90a4285720e37737816a77261f[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Mar 18 20:09:16 2015 +0100
+
+    design makeover, added separator choice field
+
+[33mcommit 699fa8ba4655fd7fa6aa39b5143e4bbcb390f0c1[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Mar 18 16:39:22 2015 +0100
+
+    removed files ending in ~ 2
+
+[33mcommit ec2e2075f32e48bec4ba4ada6c708930f0dfaa5e[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Mar 18 16:20:26 2015 +0100
+
+    removed files ending in ~
+
+[33mcommit 5316cab6d24d06db8f97c96fe497507cec3d92bb[m
+Author: bbrand84 <benjaminbrand@gmx.de>
+Date:   Wed Mar 18 13:50:41 2015 +0100
+
+    scv upload: css added + design change, automatic separator detection added, displaying csv as table
+
+[33mcommit bd24681c300cfc6c2ddddd12bc399836e47b2276[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Mon Mar 9 18:28:03 2015 +0100
+
+    added CSV upload
+
+[33mcommit 065b5cc488c41a82d398e1714090310285b0d6ba[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Mon Mar 9 17:29:26 2015 +0100
+
+    added base.html
+
+[33mcommit 69c28724d76b54b95151773be9b705ee80799be0[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Mon Mar 9 16:47:17 2015 +0100
+
+    licence added
+
+[33mcommit e27090d1ca0e594016b8bf03d81ea8f0efd78488[m
+Author: almey <alanmeyerclp@gmail.com>
+Date:   Mon Mar 9 16:38:13 2015 +0100
+
+    added settings and gitignore
+
+[33mcommit f79853ffdf68866e0927521050fe5622c5dabd51[m
+Author: Dimitris Papaspyros <dipapaspyros@gmail.com>
+Date:   Wed Feb 25 18:22:48 2015 +0200
+
+    Added index & template
+
+[33mcommit 8ada5ed886340c491abf233a0b24d1c1ad00b36d[m
+Author: Dimitris Papaspyros <dipapaspyros@gmail.com>
+Date:   Wed Feb 25 17:32:54 2015 +0200
+
+    Initial changes to transformation app
+
+[33mcommit e47af9cec6b2d6124ae961a0b40b42e6ceb4e41e[m
+Author: Spiros Mouzakitis <smouzakitis@epu.ntua.gr>
+Date:   Wed Feb 25 15:01:31 2015 +0200
+
+    Initial Transformation App commit
+
+[33mcommit f7f01880e7f2dee5385552e4291640905ae435a4[m
+Author: smouzakitis <smouzakitis@epu.ntua.gr>
+Date:   Wed Feb 25 14:51:34 2015 +0200
+
+    Initial commit

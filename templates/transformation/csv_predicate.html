@@ -57,14 +57,135 @@
 {% block extra_scripts %}
 	<script>
 
-	/* vocab selection widgets
-	can be provided in simple html like
-	<div class="bb_select">
-	 <div>item1</div>
-	 <div>item2</div>
-	</div>
-	This function does a lot of dom manipulation to transform it into a cool widget :)
-	*/
+	function add_prefix_to_model(newPrefix) {
+    model = get_model();
+    model_prefixes = model['prefixes'];
+    
+    if (typeof(model_prefixes) == 'undefined') {
+        model_prefixes = [];
+    }
+    for (var i = 0; i< model_prefixes.length; i++) {
+        if (model_prefixes[i].url == newPrefix['url']) {
+            return;
+        }
+    }
+    
+    var new_prefix_obj = { prefix: newPrefix['prefix'], url: newPrefix['url'] };
+    model_prefixes.push(new_prefix_obj);
+    model['prefixes'] = model_prefixes;
+    $("#id_hidden_model").val(JSON.stringify(model));
+}
+
+
+function add_predicate_to_model(table_name, column_name, predicate) {
+    model = get_model();
+    var table = $.grep(model['tables'], function (element, index) {
+        return element.name == table_name;
+    });
+    table = table[0];
+    
+    var column = $.grep(table['columns'], function (element, index) {
+        return element.name == column_name;
+    });
+    column = column[0];
+    
+    var column_rdf_predicate = column['rdf_predicate'];
+    
+    if (typeof column_rdf_predicate == "undefined") {
+        column_rdf_predicate = [];
+    }
+    for (var i = 0; i< column_rdf_predicate.length; i++) {
+        if (column_rdf_predicate[i] == predicate) {
+            return;
+        }
+    }
+    column_rdf_predicate.push(predicate);
+    column['rdf_predicate'] = column_rdf_predicate;
+    $("#id_hidden_model").val(JSON.stringify(model));
+}
+
+	function addInnerDiv3(elem) {
+    //console.log("addInnerDiv3(elem = "+elem.prop('outerHTML')+")");
+    var id_array = elem.attr("id").split("_");
+    var value = elem.attr("value");
+    var value = JSON.parse(elem.attr("value").replace(/'/g,"\"")); // JSON.parse(model.val().replace(/'/g,"\""));
+    
+    //check if div[class: "bb_select_choices"] already exists
+    if ($(elem).prev().length == 0 ) {
+        var choices_div = jQuery('<div/>', {
+            class: "bb_select_choices",
+            id: "bb_select_choices___" + id_array[id_array.length-2] + "___" + id_array[id_array.length-1],
+        }).insertBefore(elem);
+    } else {
+        var choices_div = $(elem).prev();
+    }
+    
+    var exists = false;
+    $(choices_div).children().each(function(i,x){
+        var url = $(this).find(".item_additional_info a:last").attr("href");
+        if(value.url_intern == url){
+            exists = true;
+        }
+    });
+    if(exists){
+        return;
+    }
+
+    var item = jQuery('<div/>', {
+        id: "choice_info_1", 
+        class: "item",
+        style: "position: relative;",
+        html: "(<i class=\"fa fa-star\"></i> " + value.score + ") " + value.label,
+    });
+    item.attr("value", elem.attr("value"));
+    
+    var additionalInfo = jQuery('<div/>', {
+        class: "item_additional_info",
+        html: value.vocab_description + '<br><a href="' + value.url + '"><i class="fa fa-external-link-square additl_vert_pad"></i></a> ' + value.url + '<br><a href="' + value.url_intern + '"><i class="fa fa-external-link-square additl_vert_pad"></i></a> ' + value.url_intern,
+        id: "choice_additional_info_1",
+    }).appendTo(item);
+                
+    var close_button = jQuery('<i/>', {
+        class: "fa fa-times close_button",
+        style: "position: absolute; top: 0.1em; right: 0.2em; color: rgb(136, 136, 136); opacity: 1;",
+        text: "",
+    }).appendTo(item);
+
+    close_button.click(function (event) {
+        var value = $(this).parent().attr('value');
+        value = JSON.parse(value.replace(/'/g,"\""));
+        
+        var id_array = $(this).parent().parent().attr('id').split("___");
+        var table_name = id_array[id_array.length-2];
+        var column_name = id_array[id_array.length-1];
+                
+        var predicate_fix = replacePrefix(value.url);
+        if (predicate_fix['suffix'] != "" && predicate_fix['prefix'] != "" ) {
+            var predicate = predicate_fix['prefix'] + ":" + predicate_fix['suffix'];
+        } else {
+            var predicate = "<" + predicate_fix['url'] + ">";
+        }
+        //remove_predicate_from_model(table_name, column_name, predicate);
+        $(this).parent().remove();
+        adapt_RDF_preview(table_name + "___" + column_name);
+    });
+
+    var resize_button = jQuery('<i/>', {
+        class: "fa fa-caret-square-o-down resize_button",
+        style: "position: absolute; top: 0.1em; right: 1.1em; color: rgb(136, 136, 136); opacity: 1;",
+        text: "",
+    }).appendTo(item);
+
+    resize_button.click(function (event) {
+        var x = $(this).siblings(".item_additional_info");
+          x.toggleClass("hide");
+        $(this).closest(".item").siblings().find(".item_additional_info").addClass("hide");
+    });
+    choices_div.append(item);
+    resize_button.click();
+}
+
+
 	function addInnerDiv(elem) {
 
 		var id_array = elem.attr("id").split("_");
@@ -115,20 +236,31 @@
 		elementsDiv.append(kids);
 
 		kids.each(function (i) {
-			$(this).on("click", function () {
-				$(this).parent().siblings().first().html($(this).html());
-				$(this).addClass("bb_select_clicked");
-				$(this).siblings().removeClass("bb_select_clicked");
-				caretDown.appendTo(selectionDiv);
-				var vocab_name = $(this).find(".oracle_label em").text();
-				var extern_uri = $(this).find("a.extern_uri").attr("href");
-				var intern_uri = $(this).find("a.intern_uri").attr("href");
-				var vocab_description = $(this).find("span.vocab_description").text();
-				var vocab_score = $(this).find("span.vocab_score").text();
-				var search_term = $("#search_textinput_"+column_num).val();
-				elem.attr("value", '{"url":"'+extern_uri+'", "url_intern":"'+intern_uri+'", "prefix": '+JSON.stringify(replacePrefix(extern_uri))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'", "search_term": "'+search_term+'"}');
-				adapt_RDF_preview(column_num);
-			});
+            $(this).parent().siblings().first().html($(this).html());
+            $(this).addClass("bb_select_clicked");
+            $(this).siblings().removeClass("bb_select_clicked");
+            caretDown.appendTo(selectionDiv);
+            var vocab_name = $(this).find(".oracle_label em").text();
+            var extern_uri = $(this).find("a.extern_uri").attr("href");
+            var intern_uri = $(this).find("a.intern_uri").attr("href");
+            var vocab_description = $(this).find("span.vocab_description").text();
+            var vocab_score = $(this).find("span.vocab_score").text();
+            var search_term = $("#search_textinput_"+column_num).val();
+            elem.attr("value", '{"url":"'+extern_uri+'", "url_intern":"'+intern_uri+'", "prefix": '+JSON.stringify(replacePrefix(extern_uri))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'", "search_term": "'+search_term+'"}');
+            var predicate_fix = replacePrefix(extern_uri);
+            if (predicate_fix['suffix'] != "" && predicate_fix['prefix'] != "" ) {
+                var predicate = predicate_fix['prefix'] + ":" + predicate_fix['suffix'];
+                add_prefix_to_model(predicate_fix);
+            } else {
+                var predicate = "<" + predicate_fix['url'] + ">";
+            }
+            //add_predicate_to_model(table_name, column_name, predicate);
+            $(this).click(function(){
+            	console.log(elem);
+            	elem.attr("value", '{"url":"'+extern_uri+'", "url_intern":"'+intern_uri+'", "prefix": '+JSON.stringify(replacePrefix(extern_uri))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'", "search_term": "'+search_term+'"}');
+            	addInnerDiv3(elem);
+            });
+            adapt_RDF_preview(column_num);
 		});
 
 		innerDiv.on("mouseover", function () {
