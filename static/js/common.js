@@ -2496,6 +2496,28 @@ function add_to_content_where_col(new_key, new_value, col){
 	write_model(model);
 }
 
+//GENERIC
+function add_to_content_array_where_col(new_key, new_value, col){
+	var model = get_model();
+	$.each(model['columns'], function(i, v1){
+		if(v1["col_num_new"]==col){
+
+			if(!(new_key in v1)){
+				v1[new_key] = [new_value];
+			}else{
+				if( Object.prototype.toString.call( v1[new_key] ) === '[object Array]' ){
+					v1[new_key].push(new_value);
+				}else{
+					console.log("ERROR! "+new_key+" was not an array!");
+				}
+				
+			}
+			
+		}
+	});
+	write_model(model);
+}
+
 /*function add_to_objects_reconciliations_where_col(new_key, new_value, col){
 	var model = get_model();
 	$.each(model['columns'], function(i, v1){
@@ -2534,7 +2556,19 @@ function add_to_model_content_field(new_key, new_value, field){
 }
 
 function add_to_model_predicate(new_value, col){
-	add_to_content_where_col("predicate", new_value, col);
+	//add_to_content_where_col("predicate", new_value, col);
+	add_to_content_array_where_col("predicate", new_value, col);
+}
+
+function delete_predicates_for_col(col){
+	var model = get_model();
+	$.each(model['columns'], function(i, v1){
+		if(v1["col_num_new"]==col){
+			v1["predicate"] = [];
+		}			
+
+	});
+	write_model(model);
 }
 
 function add_to_model_enrich(new_value, col){

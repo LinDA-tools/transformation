@@ -137,8 +137,8 @@ function add_predicate_to_model(table_name, column_name, predicate) {
     }
 
     var item = jQuery('<div/>', {
-        id: "choice_info_1", 
-        class: "item",
+        //id: "choice_info_"+id_array[id_array.length-1], 
+        class: "item choice_info",
         style: "position: relative;",
         html: "(<i class=\"fa fa-star\"></i> " + value.score + ") " + value.label,
     });
@@ -264,6 +264,7 @@ function add_predicate_to_model(table_name, column_name, predicate) {
             	console.log(elem);
             	elem.attr("value", '{"url":"'+extern_uri+'", "url_intern":"'+intern_uri+'", "prefix": '+JSON.stringify(replacePrefix(extern_uri))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'", "search_term": "'+search_term+'"}');
             	addInnerDiv3(elem);
+            	adapt_RDF_preview(column_num);
             });
             adapt_RDF_preview(column_num);
 		});
@@ -403,6 +404,7 @@ function askOracle(widget_num){
 			}
 
 			addInnerDiv($("#search_result_"+widget_num));
+			//addInnerDiv($("#result_area_"+widget_num));
 
 			//auto-select first element after oracle call
 			$("#search_result_"+widget_num+" * .bb_select_elements").children().first().trigger("click");
@@ -458,15 +460,32 @@ function adapt_RDF_preview(column_num) {
 
 	}
 
+/*
 	for(var j=begin; j<=until; j++) {
 		if($("#search_result_"+(j)).length > 0){ // if from oracle
 			var data_string = $("#search_result_"+(j)).attr("value");
 			if(typeof data_string !== "undefined"){
 				var data = jQuery.parseJSON(data_string);
-				add_to_model_predicate(data, (j));//, "html":$(this).html()
+				add_to_model_predicate(data, (j));//, "html":$(this).html()§§§§
 
 			}
 		}
+	}
+	*/
+console.log("adapting");
+
+	for(var j=begin; j<=until; j++) {
+		delete_predicates_for_col(j);
+		$("#result_area_"+column_num+" .bb_select_choices").find(".choice_info").each(function(){
+			var data_string = $(this).attr("value");
+			console.log(data_string);
+			if(typeof data_string !== "undefined"){
+				var data = jQuery.parseJSON(data_string);
+				add_to_model_predicate(data, j);//, "html":$(this).html()§§§§
+			}
+			
+		});
+
 	}
 
 	checkEnableNextButton();
