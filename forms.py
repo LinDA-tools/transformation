@@ -75,3 +75,19 @@ class PublishForm(forms.Form):
     hidden_rdf_prefix_field = hidden_rdf_prefix_field
     hidden_model = hidden_model
 
+# ###############################################
+#########       RDB                    ##########
+# ###############################################
+
+class DatabaseSelectForm(forms.Form):
+
+    db_host = forms.CharField(max_length=25, required=True)
+    db_port = forms.CharField(max_length=6, required=False)
+    db_databasetype = forms.CharField(max_length=25, required=False)
+    db_database = forms.CharField(max_length=25, required=True)
+    db_user = forms.CharField(max_length=25, required=True)
+    db_password = forms.CharField(max_length=25, required=True, label=("Password"), widget=forms.PasswordInput)
+
+class DatabaseSQLForm(forms.Form):
+    sql_name  = forms.CharField(max_length=25, required=False)
+    sql_query = forms.CharField(max_length=250, required=False, widget=forms.Textarea)

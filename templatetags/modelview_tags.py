@@ -266,3 +266,22 @@ def subj_drag_drop(model):
             html += '</span>'
     return html
 
+# ###############################################
+#########       RDB                    ##########
+# ###############################################
+
+@register.filter
+def index(List, i):
+    return List[int(i)]
+    
+@register.filter(name='selected_tables')
+def selected_tables(table):
+    if table.isSelected:
+        return table
+    return None
+
+@register.filter(name='selected_columns')
+def selected_columns(column):
+    if column.isSelected:
+        return column
+    return None

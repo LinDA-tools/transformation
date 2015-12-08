@@ -13,6 +13,9 @@
         <div class="col-3-10">
             <input type="submit" value="back" class="navigation_button" name="button_back" id="button_back">
             <input type="submit" value="next step" class="navigation_button" name="button_next" id="button_next">
+            {% if user and not user.is_anonymous %}
+                <input type="submit" name="save_mapping" class="navigation_button" id="save_mapping" value="Save Transformation" >
+            {% endif %}
 
         </div>
 
