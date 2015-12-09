@@ -792,7 +792,7 @@ def rdb_sql_select(request):
     if request.method == 'POST':
         form = DatabaseSQLForm(request.POST)
 #        if form.is_valid() and form != None:
-        if form != None:
+        if form.is_valid() and form != None:
             if request.session['databasetype'] == 'MY': 
                 sql_query = form.cleaned_data['sql_query']
                 sql_name = form.cleaned_data['sql_name']
