@@ -18,7 +18,6 @@ Django app to transform input sources to RDF
 * Install MySQL database connector for Python 3 (https://github.com/PyMySQL/mysqlclient-python)
 ```shell
   sudo apt-get install python3-dev libmysqlclient-dev
-  pip install mysqlclient
 ```
 * Add the app requirements.txt to your project requirements.txt:
 ```shell
