@@ -650,11 +650,12 @@ def status(request):
 
 def rdb_select(request):
 
-    logger.info("VIEW rdb_select")
+    print("VIEW rdb_select")
     form_action = 2
     if request.method == 'POST':
         form = DatabaseSelectForm(request.POST)
         if form.is_valid() and form != None:
+            print("  form.is_valid() and form != None")
             schema = {}
             if form.cleaned_data['db_databasetype'] == 'MY': 
                 db_databasetype = form.cleaned_data['db_databasetype']  #.encode('utf-8')
@@ -701,6 +702,7 @@ def rdb_select(request):
                     'connection': 'failed'
                 }
         elif 'mapping_id' in request.POST: # QueryDict(request.body).get('tablepk'))
+            print("  'mapping_id' in request.POST")
             form = DatabaseSelectForm()
             mapping_id = QueryDict(request.body).get('mapping_id')
             mapping = DbMapping.objects.get(pk=mapping_id)
@@ -746,7 +748,7 @@ def rdb_select(request):
             elif current_page == 8:
                 return render(request, 'transformation/rdb_publish.html', html_post_data)
         else: # if form.is_valid() and form != None:
-            logger.info("NOT form.is_valid() or form == None ")
+            print("NOT form.is_valid() or form == None ")
             fkeys = request.session['fkeys']
             model = request.POST.get('hidden_model', "{}")
             model = ast.literal_eval(model)
@@ -762,13 +764,13 @@ def rdb_select(request):
             html_post_data.update({'form': form})
         return render(request, 'transformation/rdb_select.html', html_post_data)
     else:  # if request.method == 'POST':
-        logger.info("PATH 4 - initial page call (HTML GET)")
+        print("PATH 4 - initial page call (HTML GET)")
         form = DatabaseSelectForm()
         return render(request, 'transformation/rdb_select.html', {'action': 1, 'form': form})
 
 
 def rdb_sql_select(request):
-    logger.info("VIEW rdb_sql_select")
+    print("VIEW rdb_sql_select")
     form_action = 3
     fkeys = request.session['fkeys']
     model = request.session['model']
@@ -851,7 +853,7 @@ def rdb_delete_table(request):
 
 
 def rdb_get_sql_table(request):
-    logger.info("rdb_get_sql_table()")
+    print("rdb_get_sql_table()")
     fkeys = request.session['fkeys']
     sql_name = QueryDict(request.body).get('sql_name')
     sql_query = QueryDict(request.body).get('sql_query')
