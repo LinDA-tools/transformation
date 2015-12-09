@@ -650,57 +650,71 @@ def status(request):
 
 def rdb_select(request):
 
-    print("VIEW rdb_select")
+#    print("VIEW rdb_select")
     form_action = 2
     if request.method == 'POST':
         form = DatabaseSelectForm(request.POST)
-        if form.is_valid() and form != None:
-            print("  form.is_valid() and form != None")
-            schema = {}
-            if form.cleaned_data['db_databasetype'] == 'MY': 
-                db_databasetype = form.cleaned_data['db_databasetype']  #.encode('utf-8')
-                res = get_mysql_cursor(form.cleaned_data['db_host'], form.cleaned_data['db_user'], form.cleaned_data['db_password'], form.cleaned_data['db_database'])
-                cursor = res['cursor']
-                if cursor:
-                    res2 = {}
-                    model = {}
-                    res2 = get_mysql_fkeys(cursor)
-                    fkeys = res2['fkeys']
-                    request.session['fkeys'] = fkeys
-                    request.session['host'] = form.cleaned_data['db_host']
-                    request.session['db'] = form.cleaned_data['db_database']
-                    request.session['user'] = form.cleaned_data['db_user']
-                    request.session['password'] = form.cleaned_data['db_password']
-                    request.session['databasetype'] = form.cleaned_data['db_databasetype']
-                    res2 = get_mysql_tables(cursor, fkeys)
-                    model = res2['model']
-                    model['database'] = request.session['db']
-                    request.session['model'] = model
-                    mysql_disconnect(res['con'])
-                
-                    html_post_data = {
-                        'action': form_action,
-                        'form': form,
-                        'model': model
-                    }
-                    schema = {'connection': 'success', 'fkeys': fkeys}
-                    html_post_data.update(schema)
-                else: # if cursor:
+#        if form.is_valid() and form != None:
+        if form != None:
+#            print("  form != None")
+            if form.is_valid():
+                schema = {}
+                if form.cleaned_data['db_databasetype'] == 'MY': 
+                    db_databasetype = form.cleaned_data['db_databasetype']  #.encode('utf-8')
+                    res = get_mysql_cursor(form.cleaned_data['db_host'], form.cleaned_data['db_user'], form.cleaned_data['db_password'], form.cleaned_data['db_database'])
+                    cursor = res['cursor']
+                    if cursor:
+                        res2 = {}
+                        model = {}
+                        res2 = get_mysql_fkeys(cursor)
+                        fkeys = res2['fkeys']
+                        request.session['fkeys'] = fkeys
+                        request.session['host'] = form.cleaned_data['db_host']
+                        request.session['db'] = form.cleaned_data['db_database']
+                        request.session['user'] = form.cleaned_data['db_user']
+                        request.session['password'] = form.cleaned_data['db_password']
+                        request.session['databasetype'] = form.cleaned_data['db_databasetype']
+                        res2 = get_mysql_tables(cursor, fkeys)
+                        model = res2['model']
+                        model['database'] = request.session['db']
+                        request.session['model'] = model
+                        mysql_disconnect(res['con'])
+                    
+                        html_post_data = {
+                            'action': form_action,
+                            'form': form,
+                            'model': model
+                        }
+                        schema = {'connection': 'success', 'fkeys': fkeys}
+                        html_post_data.update(schema)
+                    else: # if cursor:
+                        html_post_data = {
+                            'action': 1,
+                            'form': form,
+                            'connection': 'failed'
+                        }
+                        schema = {'connection': 'failed', 'message': res['message']}
+                        html_post_data.update(schema)
+                        
+                else : # if db_databasetype == 'MY' -> MySQL:
+                    schema = {'connection': 'failed', 'message': 'connection to ' + form.cleaned_data['db_databasetype'] + ' is not implemented yet'}
                     html_post_data = {
                         'action': 1,
                         'form': form,
                         'connection': 'failed'
                     }
-                    schema = {'connection': 'failed', 'message': res['message']}
-                    html_post_data.update(schema)
                     
-            else : # if db_databasetype == 'MY' -> MySQL:
+            else: #  form.is_valid():
+#                print("  ! form.is_valid() ")
                 schema = {'connection': 'failed', 'message': 'connection to ' + form.cleaned_data['db_databasetype'] + ' is not implemented yet'}
                 html_post_data = {
                     'action': 1,
                     'form': form,
                     'connection': 'failed'
                 }
+                
+                
+                
         elif 'mapping_id' in request.POST: # QueryDict(request.body).get('tablepk'))
             print("  'mapping_id' in request.POST")
             form = DatabaseSelectForm()
@@ -747,8 +761,8 @@ def rdb_select(request):
                 return render(request, 'transformation/rdb_enrich.html', html_post_data)
             elif current_page == 8:
                 return render(request, 'transformation/rdb_publish.html', html_post_data)
-        else: # if form.is_valid() and form != None:
-            print("NOT form.is_valid() or form == None ")
+        else: # form != None:
+#            print("form == None ")
             fkeys = request.session['fkeys']
             model = request.POST.get('hidden_model', "{}")
             model = ast.literal_eval(model)
@@ -764,7 +778,7 @@ def rdb_select(request):
             html_post_data.update({'form': form})
         return render(request, 'transformation/rdb_select.html', html_post_data)
     else:  # if request.method == 'POST':
-        print("PATH 4 - initial page call (HTML GET)")
+#        print("PATH 4 - initial page call (HTML GET)")
         form = DatabaseSelectForm()
         return render(request, 'transformation/rdb_select.html', {'action': 1, 'form': form})
 
@@ -777,7 +791,8 @@ def rdb_sql_select(request):
 
     if request.method == 'POST':
         form = DatabaseSQLForm(request.POST)
-        if form.is_valid() and form != None:
+#        if form.is_valid() and form != None:
+        if form != None:
             if request.session['databasetype'] == 'MY': 
                 sql_query = form.cleaned_data['sql_query']
                 sql_name = form.cleaned_data['sql_name']
@@ -806,7 +821,7 @@ def rdb_sql_select(request):
                     'form': form,
                     'connection': 'failed'
                 }
-        else: # if form.is_valid() and form != None:
+        else: # form != None:
             logger.info("NOT form.is_valid() or form == None ")
             model = request.POST.get('hidden_model', "{}")
             model = ast.literal_eval(model)
@@ -853,7 +868,7 @@ def rdb_delete_table(request):
 
 
 def rdb_get_sql_table(request):
-    print("rdb_get_sql_table()")
+#    print("rdb_get_sql_table()")
     fkeys = request.session['fkeys']
     sql_name = QueryDict(request.body).get('sql_name')
     sql_query = QueryDict(request.body).get('sql_query')
