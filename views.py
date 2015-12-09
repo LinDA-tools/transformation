@@ -656,7 +656,6 @@ def rdb_select(request):
         form = DatabaseSelectForm(request.POST)
 #        if form.is_valid() and form != None:
         if form != None:
-#            print("  form != None")
             if form.is_valid():
                 schema = {}
                 if form.cleaned_data['db_databasetype'] == 'MY': 
@@ -704,65 +703,76 @@ def rdb_select(request):
                         'connection': 'failed'
                     }
                     
+            elif 'mapping_id' in request.POST: # QueryDict(request.body).get('tablepk'))
+                form = DatabaseSelectForm()
+                mapping_id = QueryDict(request.body).get('mapping_id')
+                mapping = DbMapping.objects.get(pk=mapping_id)
+                request.session['fkeys'] = ast.literal_eval(mapping.fkeys)
+                request.session['host'] = mapping.host
+                request.session['db'] = mapping.database
+                request.session['user'] = mapping.dbuser
+                request.session['password'] = mapping.password
+                request.session['databasetype'] = mapping.type
+                request.session['model'] = ast.literal_eval(mapping.model)
+                current_page = mapping.current_page
+                html_post_data = {
+                    'model': ast.literal_eval(mapping.model)
+                }
+                schema = {'connection': 'load', 'fkeys': ast.literal_eval(mapping.fkeys)}
+                html_post_data.update(schema)
+                
+                if current_page == 1:
+                    form = DatabaseSelectForm()
+                    html_post_data.update({'action': 2})
+                    html_post_data.update({'form': form})
+                    return render(request, 'transformation/rdb_select.html', html_post_data)
+                elif current_page == 2:
+                    form = DatabaseSQLForm()
+                    html_post_data.update({'action': 3})
+                    html_post_data.update({'form': form})
+                    return render(request, 'transformation/rdb_sql_select.html', html_post_data)
+                elif current_page == 3:
+                    html_post_data.update({'action': 4})
+                    return render(request, 'transformation/rdb_column_choice.html', html_post_data)
+                elif current_page == 4:
+                    html_post_data.update({'action': 5})
+                    return render(request, 'transformation/rdb_subject.html', html_post_data)
+                elif current_page == 5:
+                    html_post_data.update({'action': 6})
+                    return render(request, 'transformation/rdb_predicate.html', html_post_data)
+                elif current_page == 6:
+                    html_post_data.update({'action': 7})
+                    return render(request, 'transformation/rdb_object.html', html_post_data)
+                elif current_page == 7:
+                    html_post_data.update({'action': 8})
+                    return render(request, 'transformation/rdb_enrich.html', html_post_data)
+                elif current_page == 8:
+                    return render(request, 'transformation/rdb_publish.html', html_post_data)
+ 
+            elif 'fkeys' in request.session:
+                fkeys = request.session['fkeys']
+                model = request.POST.get('hidden_model', "{}")
+                model = ast.literal_eval(model)
+                request.session['model'] = model
+                html_post_data = {
+                    'action': form_action
+                }
+                form = DatabaseSelectForm()
+                mymodel = {'model': model}
+                html_post_data.update(mymodel)
+                schema = {'connection': 'back', 'fkeys': fkeys}
+                html_post_data.update(schema)
+                html_post_data.update({'form': form})
+                
             else: #  form.is_valid():
-#                print("  ! form.is_valid() ")
                 schema = {'connection': 'failed', 'message': 'connection to ' + form.cleaned_data['db_databasetype'] + ' is not implemented yet'}
                 html_post_data = {
                     'action': 1,
                     'form': form,
                     'connection': 'failed'
                 }
-                
-                
-                
-        elif 'mapping_id' in request.POST: # QueryDict(request.body).get('tablepk'))
-            print("  'mapping_id' in request.POST")
-            form = DatabaseSelectForm()
-            mapping_id = QueryDict(request.body).get('mapping_id')
-            mapping = DbMapping.objects.get(pk=mapping_id)
-            request.session['fkeys'] = ast.literal_eval(mapping.fkeys)
-            request.session['host'] = mapping.host
-            request.session['db'] = mapping.database
-            request.session['user'] = mapping.dbuser
-            request.session['password'] = mapping.password
-            request.session['databasetype'] = mapping.type
-            request.session['model'] = ast.literal_eval(mapping.model)
-            current_page = mapping.current_page
-            html_post_data = {
-                'model': ast.literal_eval(mapping.model)
-            }
-            schema = {'connection': 'load', 'fkeys': ast.literal_eval(mapping.fkeys)}
-            html_post_data.update(schema)
-            
-            if current_page == 1:
-                form = DatabaseSelectForm()
-                html_post_data.update({'action': 2})
-                html_post_data.update({'form': form})
-                return render(request, 'transformation/rdb_select.html', html_post_data)
-            elif current_page == 2:
-                form = DatabaseSQLForm()
-                html_post_data.update({'action': 3})
-                html_post_data.update({'form': form})
-                return render(request, 'transformation/rdb_sql_select.html', html_post_data)
-            elif current_page == 3:
-                html_post_data.update({'action': 4})
-                return render(request, 'transformation/rdb_column_choice.html', html_post_data)
-            elif current_page == 4:
-                html_post_data.update({'action': 5})
-                return render(request, 'transformation/rdb_subject.html', html_post_data)
-            elif current_page == 5:
-                html_post_data.update({'action': 6})
-                return render(request, 'transformation/rdb_predicate.html', html_post_data)
-            elif current_page == 6:
-                html_post_data.update({'action': 7})
-                return render(request, 'transformation/rdb_object.html', html_post_data)
-            elif current_page == 7:
-                html_post_data.update({'action': 8})
-                return render(request, 'transformation/rdb_enrich.html', html_post_data)
-            elif current_page == 8:
-                return render(request, 'transformation/rdb_publish.html', html_post_data)
+
         else: # form != None:
-#            print("form == None ")
             fkeys = request.session['fkeys']
             model = request.POST.get('hidden_model', "{}")
             model = ast.literal_eval(model)
@@ -778,7 +788,6 @@ def rdb_select(request):
             html_post_data.update({'form': form})
         return render(request, 'transformation/rdb_select.html', html_post_data)
     else:  # if request.method == 'POST':
-#        print("PATH 4 - initial page call (HTML GET)")
         form = DatabaseSelectForm()
         return render(request, 'transformation/rdb_select.html', {'action': 1, 'form': form})
 
