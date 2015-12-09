@@ -289,8 +289,8 @@ function askOracle(widget, domain, term, keepReconciliationIfExists, table_name)
     });
 
     request.fail(function (xhr, ajaxOptions, thrownError) {
-        widget.html(widget.text()+ " (ERROR<br>"+thrownError+")");
-
+//        widget.html(widget.text()+ " (ERROR<br>"+thrownError+")");
+        alert("ERROR: the lookup service at http://lookup.dbpedia.org is not accessible!" );
     });
 
     var new_id = "search_result_"+widget.attr("id");

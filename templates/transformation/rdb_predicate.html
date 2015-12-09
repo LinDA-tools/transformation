@@ -1084,6 +1084,29 @@ function add_prefix_to_model(newPrefix) {
     model_prefixes.push(new_prefix_obj);
     model['prefixes'] = model_prefixes;
     $("#id_hidden_model").val(JSON.stringify(model));
+    
+    
+    var tbl = $( ".rdf_table" );
+       
+        
+    var tr = jQuery('<tr/>', {} ).attr({id: newPrefix['prefix'] });
+    var td1 = jQuery('<td/>', {} );
+    td1.text("@prefix");
+    td1.appendTo(tr);
+    var td2 = jQuery('<td/>', {} );
+    td2.text(newPrefix['prefix'] + ":");
+    td2.appendTo(tr);
+    var td3 = jQuery('<td/>', {} );
+    td3.text("<" + newPrefix['url'] + ">");
+    td3.appendTo(tr);
+    var td4 = jQuery('<td/>', {} );
+    td4.text(".");
+    td4.appendTo(tr);
+    tr.prependTo(tbl);
+    
+    
+    
+    
 }
 
 
