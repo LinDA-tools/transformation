@@ -2750,7 +2750,7 @@ def transformdb2n3(jsonmodel, request):
                     if new_pre:
                         new_pre = {'prefix': selected_column['data_type']['prefix'], 'url':selected_column['data_type']['url']};
                         prefixes.append(new_pre)
-                    row += "\"" + str(obj_array[i]) + "^^" + selected_column['data_type']['prefix'] + ":" + selected_column['data_type']['suffix'] + "\"\t .\n"
+                    row += "\"" + str(obj_array[i]) + "\"" + "^^" + selected_column['data_type']['prefix'] + ":" + selected_column['data_type']['suffix'] + "\t .\n"
                 else:
                     # reconciliation
                     recon = get_model_reconciliation(jsonmodel, table['name'], selected_cols_list[j], obj_array[i])
