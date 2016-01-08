@@ -661,7 +661,7 @@ def rdb_select(request):
                 schema = {}
                 if form.cleaned_data['db_databasetype'] == 'MY': 
                     db_databasetype = form.cleaned_data['db_databasetype']  #.encode('utf-8')
-                    res = get_mysql_cursor(form.cleaned_data['db_host'], form.cleaned_data['db_user'], form.cleaned_data['db_password'], form.cleaned_data['db_database'])
+                    res = get_mysql_cursor(form.cleaned_data['db_host'], form.cleaned_data['db_user'], form.cleaned_data['db_password'], form.cleaned_data['db_database'], form.cleaned_data['db_port'])
                     cursor = res['cursor']
                     if cursor:
                         res2 = {}
@@ -670,6 +670,7 @@ def rdb_select(request):
                         fkeys = res2['fkeys']
                         request.session['fkeys'] = fkeys
                         request.session['host'] = form.cleaned_data['db_host']
+                        request.session['port'] = form.cleaned_data['db_port']
                         request.session['db'] = form.cleaned_data['db_database']
                         request.session['user'] = form.cleaned_data['db_user']
                         request.session['password'] = form.cleaned_data['db_password']
@@ -716,7 +717,7 @@ def rdb_select(request):
                 
                 
         elif 'mapping_id' in request.POST: # QueryDict(request.body).get('tablepk'))
-            print("  'mapping_id' in request.POST")
+            #print("  'mapping_id' in request.POST")
             form = DatabaseSelectForm()
             mapping_id = QueryDict(request.body).get('mapping_id')
             mapping = DbMapping.objects.get(pk=mapping_id)
@@ -784,7 +785,7 @@ def rdb_select(request):
 
 
 def rdb_sql_select(request):
-    print("VIEW rdb_sql_select")
+    # print("VIEW rdb_sql_select")
     form_action = 3
     fkeys = request.session['fkeys']
     model = request.session['model']
@@ -873,7 +874,7 @@ def rdb_get_sql_table(request):
     sql_name = QueryDict(request.body).get('sql_name')
     sql_query = QueryDict(request.body).get('sql_query')
     if sql_query != '' and sql_query != None:
-        res = get_mysql_cursor(request.session['host'], request.session['user'], request.session['password'], request.session['db'])
+        res = get_mysql_cursor(request.session['host'], request.session['user'], request.session['password'], request.session['db'], request.session['port'])
         cursor = res['cursor']
         table_res = get_mysql_sql_table_data2(cursor, sql_name, sql_query, fkeys, 10)
         mysql_disconnect(res['con'])
@@ -891,7 +892,7 @@ def rdb_get_table_values(request):
 #    page = QueryDict(request.body).get('page')
 #    num = QueryDict(request.body).get('num')
     if sql_query != '' and sql_query != None:
-        res = get_mysql_cursor(request.session['host'], request.session['user'], request.session['password'], request.session['db'])
+        res = get_mysql_cursor(request.session['host'], request.session['user'], request.session['password'], request.session['db'], request.session['port'])
         cursor = res['cursor']
         table_res = get_mysql_sql_table_data3(cursor, sql_query, sql_query_all)
         mysql_disconnect(res['con'])
@@ -2238,11 +2239,11 @@ lindaGlobals_prefixes = {
     'http://dbpedia.org/resource/': 'dbpres' }
 
 
-def get_mysql_cursor(db_host, db_user, db_password, db_database):
+def get_mysql_cursor(db_host, db_user, db_password, db_database, db_port):
     connection = ''
     debug = True
     try:
-        connection = mdb.connect(db_host, db_user, db_password, db_database);
+        connection = mdb.connect(db_host, db_user, db_password, db_database, int(db_port))
         cursor = connection.cursor()
         return {'cursor':cursor, 'message':'ok', 'con': connection}
     except:
@@ -2549,7 +2550,7 @@ def transformdb2n3(jsonmodel, request):
         obj_array = [];
 #        if len(values_10_selected) >= 10: 
         if table['num_rows'] >= 10: 
-            res = get_mysql_cursor(request.session['host'], request.session['user'],  request.session['password'], request.session['db'])
+            res = get_mysql_cursor(request.session['host'], request.session['user'],  request.session['password'], request.session['db'], request.session['port'])
             cursor = res['cursor']
             fkeys = request.session['fkeys']            
             res2 = get_mysql_table_data(cursor, table['name'], fkeys, 0)
@@ -2601,10 +2602,13 @@ def transformdb2n3(jsonmodel, request):
                                 object_recon = object_recons[str(value_row[k])]
                                 value_row_selected.append(object_recon['prefix'] + ":" + object_recon['suffix'])
                         else:
-                            if value_row[k].startswith( 'http' ):
-                                value_row_selected.append("<" + urlquote(value_row[k], safe = '/:') + ">")
+                            if isinstance(value_row[k], str):
+                                if value_row[k].startswith( 'http' ):
+                                    value_row_selected.append("<" + urlquote(value_row[k], safe = '/:') + ">")
+                                else:
+                                    value_row_selected.append(urlquote(value_row[k], safe = '/:'))
                             else:
-                                value_row_selected.append(urlquote(value_row[k], safe = '/:'))
+                                value_row_selected.append(urlquote(str(value_row[k]), safe = '/:'))
                 values_10_selected.append(value_row_selected)
             table['values_10_selected'] = values_10_selected
             table['values_10'] = values_10
