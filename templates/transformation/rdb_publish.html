@@ -571,7 +571,7 @@ function model_to_table(model){
     //                    $("#id_hidden_rdf_prefix_field").val(JSON.stringify(rdf_prefix));
                         
                     }
-                    td3.text("\"" + obj_array[i] + "^^" + selected_column.data_type['prefix'] + ":" + selected_column.data_type['suffix'] + "\"" );
+                    td3.text("\"" + obj_array[i] + "\"" + "^^" + selected_column.data_type['prefix'] + ":" + selected_column.data_type['suffix'] );
                 } else {
                     // reconciliation
                     var recon = get_model_reconciliation(table.name, selected_cols_list[j], obj_array[i]);
