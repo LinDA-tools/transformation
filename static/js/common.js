@@ -2560,6 +2560,7 @@ function add_to_model_predicate(new_value, col){
 	add_to_content_array_where_col("predicate", new_value, col);
 }
 
+
 function delete_predicates_for_col(col){
 	var model = get_model();
 	$.each(model['columns'], function(i, v1){
@@ -2569,6 +2570,7 @@ function delete_predicates_for_col(col){
 
 	});
 	write_model(model);
+	console.log("preds deleetd");
 }
 
 function add_to_model_enrich(new_value, col){

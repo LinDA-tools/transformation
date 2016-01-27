@@ -354,16 +354,15 @@ def csv_subject(request):
     request.session['processing_status'] = get_status_dict("csv_subject")
     if request.POST and form.is_valid() and form is not None:
 
-        # content  is passed on via hidden html input fields
-
         request.session['model'] = json.loads(form.cleaned_data['hidden_model'])
-
         update_excerpt(model=request.session['model'], start_row=0, num_rows=10)
+
     html_post_data = {
         'rdfModel': json.dumps(request.session['model']),
         'action': form_action,
         'filename': request.session['file_name'],
     }
+
     return render(request, 'transformation/csv_subject.html', html_post_data)
 
 

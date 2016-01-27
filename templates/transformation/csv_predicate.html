@@ -107,10 +107,8 @@ function add_predicate_to_model(table_name, column_name, predicate) {
 
 
 	function addInnerDiv3(elem) {
-    console.log(elem);
     var id_array = elem.attr("id").split("_");
-    var value = elem.attr("value");
-    var value = JSON.parse(elem.attr("value").replace(/'/g,"\"")); // JSON.parse(model.val().replace(/'/g,"\""));
+    var value = JSON.parse(elem.attr("value").replace(/'/g,"\""));
     
     //check if div[class: "bb_select_choices"] already exists
     
@@ -119,10 +117,8 @@ function add_predicate_to_model(table_name, column_name, predicate) {
             class: "bb_select_choices",
             id: "bb_select_choices___" + id_array[id_array.length-2] + "___" + id_array[id_array.length-1],
         }).insertBefore(elem);
-                    console.log("NEW");
     } else {
         var choices_div = $(elem).prev();
-        console.log("existing");
     }
     
     var exists = false;
@@ -261,7 +257,6 @@ function add_predicate_to_model(table_name, column_name, predicate) {
             }
             //add_predicate_to_model(table_name, column_name, predicate);
             $(this).click(function(){
-            	console.log(elem);
             	elem.attr("value", '{"url":"'+extern_uri+'", "url_intern":"'+intern_uri+'", "prefix": '+JSON.stringify(replacePrefix(extern_uri))+', "label": "'+vocab_name+'", "vocab_description": "'+vocab_description+'", "score": "'+vocab_score+'", "search_term": "'+search_term+'"}');
             	addInnerDiv3(elem);
             	adapt_RDF_preview(column_num);
@@ -472,13 +467,11 @@ function adapt_RDF_preview(column_num) {
 		}
 	}
 	*/
-console.log("adapting");
 
 	for(var j=begin; j<=until; j++) {
-		delete_predicates_for_col(j);
+		//delete_predicates_for_col(j);
 		$("#result_area_"+column_num+" .bb_select_choices").find(".choice_info").each(function(){
 			var data_string = $(this).attr("value");
-			console.log(data_string);
 			if(typeof data_string !== "undefined"){
 				var data = jQuery.parseJSON(data_string);
 				add_to_model_predicate(data, j);//, "html":$(this).html()§§§§
@@ -498,7 +491,7 @@ console.log("adapting");
 }
 
 
-
+/*
 //get predicate data that is stored in json model and display on page
 function populate_from_model(widget_num, predicate){
 
@@ -512,7 +505,7 @@ function populate_from_model(widget_num, predicate){
 		star += "fa-star-half-o";
 	else
 		star += "fa-star-o";
-*/
+*//*
 	var short_uri = predicate.url;
 	if(predicate.url)
 			short_uri = shortenURI(predicate.url, 40);
@@ -525,6 +518,13 @@ function populate_from_model(widget_num, predicate){
 	$("#result_from_model_"+widget_num).remove();
 	$("#search_textinput_"+widget_num).val(predicate.search_term);
 	parent.html(parent.html()+predicate_div);
+}*/
+
+function populate_from_model(widget_num, predicates){
+	console.log("populate_from_model  "+predicates);
+	var elem = $("#search_result_"+widget_num);
+	elem.attr("value", predicates)
+	addInnerDiv3(elem);
 }
 
 
@@ -534,11 +534,20 @@ $( document ).ready(function() {
 	// do an oracle lookup on page load
 
 	$("div[id^='search_result_']").each( function(i, obj){
-		var predicate = get_model_predicate_of_col(i+1);
-		if(typeof predicate === 'undefined'){//} || get_model_predicate_of_col(i+1) === 'false'){
+		var predicates = get_model_predicate_of_col(i+1);
+		console.log();
+		if(typeof predicates === 'undefined' || predicates.constructor === Array && predicates.length == 0){
 			askOracle(i+1);
+			console.log("first time prediacte fetch in col "+i);
 		}else{
-			populate_from_model((i+1), predicate);
+			//askOracle(i+1);
+			console.log("REDO prediacte fetch in col "+i);
+			for(var j = 0; j < predicates.length; j++){
+				console.log(predicates[j]);
+				populate_from_model((i+1), JSON.stringify(predicates[j]));
+			}
+			
+
 		}
 	});
 
